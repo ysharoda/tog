@@ -164,6 +164,7 @@ instance Show Elim    where showsPrec = defaultShow
 instance Show Expr    where showsPrec = defaultShow
 instance Show Head    where showsPrec = defaultShow
 instance Show Pattern where showsPrec = defaultShow
+instance Show Module  where showsPrec = defaultShow
 
 instance Pretty Module where
   pretty (Module name pars exports decls) =
