@@ -1,0 +1,45 @@
+Right 
+
+
+(Module (Name ((1,8),"Monoid")) 
+        NoParams 
+        [Record (Name ((3,8),"Monoid")) 
+                (ParamDecl [Bind [Arg (Id (NotQual (Name ((3,16),"A"))))] 
+                                 (App [Arg (Id (NotQual (Name ((3,20),"Set"))))])]) 
+                (RecordDeclDef (Name ((3,27),"Set"))
+		               (Name ((4,15),"monoid"))
+			       (Fields [Constr (Name ((6,5),"e"))
+			                       (App [Arg (Id (NotQual (Name ((6,10),"A"))))]),
+			                Constr (Name ((7,5),"op"))
+					       (Fun (App [Arg (Id (NotQual (Name ((7,10),"A"))))])
+					       	    (Fun (App [Arg (Id (NotQual (Name ((7,15),"A"))))])
+						    	 (App [Arg (Id (NotQual (Name ((7,20),"A"))))]))),
+					Constr (Name ((8,5),"lunit"))
+					       (Pi (Tel [HBind [Arg (Id (NotQual (Name ((8,14),"x"))))]
+					       	   	       (App [Arg (Id (NotQual (Name ((8,18),"A"))))])])
+						   (Eq (App [Arg (App [Arg (Id (NotQual (Name ((8,25),"op")))),
+						       	    	       Arg (Id (NotQual (Name ((8,28),"e")))),
+								       Arg (Id (NotQual (Name ((8,30),"x"))))])])
+						       (App [Arg (Id (NotQual (Name ((8,36),"x"))))]))),
+					Constr (Name ((9,5),"runit"))
+					       (Pi (Tel [HBind [Arg (Id (NotQual (Name ((9,14),"x"))))]
+					       	   	       (App [Arg (Id (NotQual (Name ((9,18),"A"))))])])
+					           (Eq (App [Arg (App [Arg (Id (NotQual (Name ((9,25),"op")))),
+						       	    	       Arg (Id (NotQual (Name ((9,28),"x")))),
+								       Arg (Id (NotQual (Name ((9,30),"e"))))])])
+						       (App [Arg (Id (NotQual (Name ((9,36),"x"))))]))),
+					Constr (Name ((10,5),"assoc"))
+					       (Pi (Tel [HBind [Arg (Id (NotQual (Name ((10,14),"x")))),
+					                        Arg (Id (NotQual (Name ((10,16),"y")))),
+								Arg (Id (NotQual (Name ((10,18),"z"))))]
+					       	   	       (App [Arg (Id (NotQual (Name ((10,22),"A"))))])])
+					           (Eq (App [Arg (App [Arg (Id (NotQual (Name ((10,29),"op")))),
+						                       Arg (Id (NotQual (Name ((10,32),"x")))),
+								       Arg (App [Arg (Id (NotQual (Name ((10,35),"op")))),
+								           	 Arg (Id (NotQual (Name ((10,38),"y")))),
+										 Arg (Id (NotQual (Name ((10,40),"z"))))])])])
+							(App [Arg (App [Arg (Id (NotQual (Name ((10,48),"op")))),
+							     	        Arg (App [Arg (Id (NotQual (Name ((10,52),"op")))),
+									    	  Arg (Id (NotQual (Name ((10,55),"x")))),
+										  Arg (Id (NotQual (Name ((10,57),"y"))))]),
+									Arg (Id (NotQual (Name ((10,60),"z"))))])])))]))])
