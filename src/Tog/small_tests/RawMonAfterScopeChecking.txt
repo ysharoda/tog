@@ -1,0 +1,74 @@
+(Module
+
+(QName {qNameName = Name {nameLoc = SrcLoc {pLine = 1, pCol = 8}, nameString = "Monoid"}, qNameModule = []})
+
+[]
+
+[QName {qNameName = Name {nameLoc = SrcLoc {pLine = 3, pCol = 8}, nameString = "Monoid"},
+        qNameModule = [Name {nameLoc = SrcLoc {pLine = 1, pCol = 8}, nameString = "Monoid"}]},
+ QName {qNameName = Name {nameLoc = SrcLoc {pLine = 10, pCol = 5}, nameString = "assoc"}, qNameModule = [Name {nameLoc = SrcLoc {pLine = 1, pCol = 8}, nameString = "Monoid"}]},
+ QName {qNameName = Name {nameLoc = SrcLoc {pLine = 6, pCol = 5}, nameString = "e"}, qNameModule = [Name {nameLoc = SrcLoc {pLine = 1, pCol = 8}, nameString = "Monoid"}]},
+ QName {qNameName = Name {nameLoc = SrcLoc {pLine = 8, pCol = 5}, nameString = "lunit"}, qNameModule = [Name {nameLoc = SrcLoc {pLine = 1, pCol = 8}, nameString = "Monoid"}]},
+ QName {qNameName = Name {nameLoc = SrcLoc {pLine = 4, pCol = 15}, nameString = "monoid"}, qNameModule = [Name {nameLoc = SrcLoc {pLine = 1, pCol = 8}, nameString = "Monoid"}]},
+ QName {qNameName = Name {nameLoc = SrcLoc {pLine = 7, pCol = 5}, nameString = "op"}, qNameModule = [Name {nameLoc = SrcLoc {pLine = 1, pCol = 8}, nameString = "Monoid"}]},
+ QName {qNameName = Name {nameLoc = SrcLoc {pLine = 9, pCol = 5}, nameString = "runit"}, qNameModule = [Name {nameLoc = SrcLoc {pLine = 1, pCol = 8}, nameString = "Monoid"}]}]
+ 
+[Record (Sig {typeSigName = QName {qNameName = Name {nameLoc = SrcLoc {pLine = 3, pCol = 8},
+	     		    	  	       	     nameString = "Monoid"},
+				   qNameModule = [Name {nameLoc = SrcLoc {pLine = 1, pCol = 8}, nameString = "Monoid"}]},
+	      typeSigType = Pi (Name {nameLoc = SrcLoc {pLine = 3, pCol = 16}, nameString = "A"}) (Set (SrcLoc {pLine = 3, pCol = 20})) (Set (SrcLoc {pLine = 3, pCol = 27}))}),
+ RecDef (QName {qNameName = Name {nameLoc = SrcLoc {pLine = 3, pCol = 8}, nameString = "Monoid"},
+ 	        qNameModule = [Name {nameLoc = SrcLoc {pLine = 1, pCol = 8}, nameString = "Monoid"}]})
+	[Name {nameLoc = SrcLoc {pLine = 3, pCol = 16},
+	       nameString = "A"}]
+	(QName {qNameName = Name {nameLoc = SrcLoc {pLine = 4, pCol = 15}, nameString = "monoid"},
+	        qNameModule = [Name {nameLoc = SrcLoc {pLine = 1, pCol = 8}, nameString = "Monoid"}]})
+	[Sig {typeSigName = QName {qNameName = Name {nameLoc = SrcLoc {pLine = 6, pCol = 5}, nameString = "e"},
+	     		    	   qNameModule = [Name {nameLoc = SrcLoc {pLine = 1, pCol = 8}, nameString = "Monoid"}]},
+	      typeSigType = App (Var (Name {nameLoc = SrcLoc {pLine = 6, pCol = 10}, nameString = "A"})) []},
+ 	 Sig {typeSigName = QName {qNameName = Name {nameLoc = SrcLoc {pLine = 7, pCol = 5}, nameString = "op"},
+	     		    	   qNameModule = [Name {nameLoc = SrcLoc {pLine = 1, pCol = 8}, nameString = "Monoid"}]},
+	      typeSigType = Fun (App (Var (Name {nameLoc = SrcLoc {pLine = 7, pCol = 10}, nameString = "A"})) [])
+	      		    	(Fun (App (Var (Name {nameLoc = SrcLoc {pLine = 7, pCol = 15}, nameString = "A"})) [])
+				     (App (Var (Name {nameLoc = SrcLoc {pLine = 7, pCol = 20}, nameString = "A"})) []))},
+	 Sig {typeSigName = QName {qNameName = Name {nameLoc = SrcLoc {pLine = 8, pCol = 5}, nameString = "lunit"},
+	     		    	   qNameModule = [Name {nameLoc = SrcLoc {pLine = 1, pCol = 8}, nameString = "Monoid"}]},
+	      typeSigType = Pi (Name {nameLoc = SrcLoc {pLine = 8, pCol = 14}, nameString = "x"})
+	      		       (App (Var (Name {nameLoc = SrcLoc {pLine = 8, pCol = 18}, nameString = "A"})) [])
+			       (Equal (Meta (SrcLoc {pLine = 8, pCol = 25}))
+			       	      (App (Var (Name {nameLoc = SrcLoc {pLine = 8, pCol = 25}, nameString = "op"}))
+				      	   [Apply (App (Var (Name {nameLoc = SrcLoc {pLine = 8, pCol = 28}, nameString = "e"})) []),
+					    Apply (App (Var (Name {nameLoc = SrcLoc {pLine = 8, pCol = 30}, nameString = "x"})) [])])
+				      (App (Var (Name {nameLoc = SrcLoc {pLine = 8, pCol = 36}, nameString = "x"})) []))},
+	Sig {typeSigName = QName {qNameName = Name {nameLoc = SrcLoc {pLine = 9, pCol = 5}, nameString = "runit"},
+	    		   	  qNameModule = [Name {nameLoc = SrcLoc {pLine = 1, pCol = 8}, nameString = "Monoid"}]},
+	     typeSigType = Pi (Name {nameLoc = SrcLoc {pLine = 9, pCol = 14}, nameString = "x"})
+	     		      (App (Var (Name {nameLoc = SrcLoc {pLine = 9, pCol = 18}, nameString = "A"})) [])
+			      (Equal (Meta (SrcLoc {pLine = 9, pCol = 25}))
+			      	     (App (Var (Name {nameLoc = SrcLoc {pLine = 9, pCol = 25}, nameString = "op"}))
+				     	  [Apply (App (Var (Name {nameLoc = SrcLoc {pLine = 9, pCol = 28}, nameString = "x"})) []),
+					   Apply (App (Var (Name {nameLoc = SrcLoc {pLine = 9, pCol = 30}, nameString = "e"})) [])])
+				     (App (Var (Name {nameLoc = SrcLoc {pLine = 9, pCol = 36}, nameString = "x"})) []))},
+	Sig {typeSigName = QName {qNameName = Name {nameLoc = SrcLoc {pLine = 10, pCol = 5}, nameString = "assoc"},
+	    		   	  qNameModule = [Name {nameLoc = SrcLoc {pLine = 1, pCol = 8}, nameString = "Monoid"}]},
+	     typeSigType = Pi (Name {nameLoc = SrcLoc {pLine = 10, pCol = 14}, nameString = "x"})
+	     		      (App (Var (Name {nameLoc = SrcLoc {pLine = 10, pCol = 22}, nameString = "A"})) [])
+			      (Pi (Name {nameLoc = SrcLoc {pLine = 10, pCol = 16}, nameString = "y"})
+			          (App (Var (Name {nameLoc = SrcLoc {pLine = 10, pCol = 22}, nameString = "A"})) [])
+				  (Pi (Name {nameLoc = SrcLoc {pLine = 10, pCol = 18}, nameString = "z"})
+				      (App (Var (Name {nameLoc = SrcLoc {pLine = 10, pCol = 22}, nameString = "A"})) [])
+				      (Equal (Meta (SrcLoc {pLine = 10, pCol = 29}))
+				      	     (App (Var (Name {nameLoc = SrcLoc {pLine = 10, pCol = 29}, nameString = "op"}))
+					     	  [Apply (App (Var (Name {nameLoc = SrcLoc {pLine = 10, pCol = 32}, nameString = "x"})) []),
+						   Apply (App (Var (Name {nameLoc = SrcLoc {pLine = 10, pCol = 35}, nameString = "op"}))
+						   	      [Apply (App (Var (Name {nameLoc = SrcLoc {pLine = 10, pCol = 38}, nameString = "y"})) []),
+							       Apply (App (Var (Name {nameLoc = SrcLoc {pLine = 10, pCol = 40}, nameString = "z"})) [])])])
+					     (App (Var (Name {nameLoc = SrcLoc {pLine = 10, pCol = 48}, nameString = "op"}))
+					          [Apply (App (Var (Name {nameLoc = SrcLoc {pLine = 10, pCol = 52}, nameString = "op"}))
+						  	      [Apply (App (Var (Name {nameLoc = SrcLoc {pLine = 10, pCol = 55}, nameString = "x"})) []),
+							       Apply (App (Var (Name {nameLoc = SrcLoc {pLine = 10, pCol = 57}, nameString = "y"})) [])]),
+						   Apply (App (Var (Name {nameLoc = SrcLoc {pLine = 10, pCol = 60}, nameString = "z"})) [])]))))}]],
+[Import (ImportNoArgs (NotQual (Name ((1,8),"Monoid"))))])
+
+
+
