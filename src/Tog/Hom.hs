@@ -1,7 +1,8 @@
-{-# LANGUAGE OverloadedStrings #-}
 module Hom where
 
 import Tog.Raw.Abs
+import Tog.Parse
+import Text.PrettyPrint.Leijen
 
 {-
 Generating the homomorphism of single sorted theories of type Set.
@@ -9,10 +10,6 @@ Generating the homomorphism of single sorted theories of type Set.
 - At this point, we know there is one sort in the theories 
 -} 
 
-{-
-data QName = Qual QName Name | NotQual Name
-  deriving (Eq, Ord, Show, Read)
--} 
 isSort :: Expr -> Bool
 isSort expr =
   case expr of 
@@ -45,42 +42,16 @@ isAxiom expr =
     App args@((Arg  _):_) -> and $ map (\(Arg a)  -> isAxiom a) args 
     _  -> False
 
-getName :: QName -> Name
-getName (Qual _ n)  = n
-getName (NotQual n) = n 
+{- QQ: Is there a predefined function that does that. Functor does not work here -} 
+liftFilter :: (Expr -> Bool) -> [Constr] -> [Constr]
+liftFilter _ [] = [] 
+liftFilter p ((Constr n e):xs) =
+  if p e then (Constr n e) : liftFilter p xs
+         else  liftFilter p xs 
 
-flattenBind :: Binding -> [Constr] 
-flattenBind (Bind args e) =
-  let flattenArg (Arg  (Id q)) = getName q
-      flattenArg (HArg (Id q)) = getName q
-      names = map flattenArg args
-   in  map (\(n,t) -> Constr n t) $ zip names (take (length args) (repeat e))
-
-flattenParams :: Params -> [Constr]
-flattenParams NoParams       = []
-flattenParams (ParamDef  _)  = []
-flattenParams (ParamDecl bs) = concat $ map flattenBind bs
-
-flattenRecordBody :: RecordBody -> [Constr]
-flattenRecordBody (RecordDecl _) = []
-flattenRecordBody (RecordDef _ NoFields) = [] 
-flattenRecordBody (RecordDef _ (Fields l)) = l
-flattenRecordBody (RecordDeclDef _ _ (Fields l)) = l
-flattenRecordBody (RecordDeclDef _ _ NoFields) = []
-
-fields :: Decl -> [Constr]
-fields (Record _ params body) =
-   flattenParams params ++ flattenRecordBody body   
--- TODO: Other Forms of Decl
-
-{-
 classify :: [Constr] -> ([Constr],[Constr],[Constr])
-classify decls =
-  let getExpr (Constr _ e) = e
-      exprs  = map (\(Constr _ e) -> e) decls 
-      sorts  = filter isSort exprs
-      funcs  = filter isFunc exprs
-      axioms = filter isAxiom exprs
- -}
+classify ls = (liftFilter isSort ls,
+               liftFilter isFunc ls,
+               liftFilter isAxiom ls)
 
-    
+
