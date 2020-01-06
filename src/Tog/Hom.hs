@@ -26,9 +26,6 @@ homFuncName = "hom"
 homRecordName :: Name -> Name
 homRecordName (Name (_,n)) = Name (loc,n++"Hom") 
 
-createIdNQ :: String -> Expr
-createIdNQ str = Id $ NotQual $ Name (loc,str)
-
 -- instantiate an argument
 instantiateArg :: String -> Arg -> Arg
 instantiateArg str arg =

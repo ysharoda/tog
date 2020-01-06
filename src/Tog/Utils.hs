@@ -58,6 +58,9 @@ qnameToStr :: QName -> String
 qnameToStr (NotQual name) = nameToStr name 
 qnameToStr (Qual q  name) = qnameToStr q ++ "." ++ nameToStr name              
 
+createIdNQ :: String -> Expr
+createIdNQ str = Id $ NotQual $ Name ((0,0),str)
+
 strToArg :: String -> Arg 
 strToArg str = Arg $ createIdNQ str
 
