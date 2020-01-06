@@ -1,181 +1,95 @@
-module Hom where
+module Tog.Hom where
+
+{-
+ - Generating Homomorphism definitions for single-sorted 
+ -} 
 
 import Tog.Raw.Abs
 import Tog.Parse
 import Tog.ScopeCheck 
 import Data.Functor
+import Tog.Utils 
 
-
-{-
-Generating the homomorphism of single sorted theories of type Set.
-- first, we classify the theory into sort, function symbols and axioms.
-- At this point, we know there is one sort in the theories 
--} 
-
-isSort :: Expr -> Bool
-isSort expr =
-  case expr of 
-    Id (Qual _  (Name (_,"Set"))) -> True
-    Id (NotQual (Name (_,"Set"))) -> True
-    Eq  _ _  -> False
-    Lam _ e  -> isSort e
-    Pi  _ e  -> isSort e
-    Fun e e' -> isSort e && isSort e'
-    App args@((HArg _):_) -> and $ map (\(HArg a) -> isSort a) args
-    App args@((Arg  _):_)  -> and $ map (\(Arg a) -> isSort a) args
-    _ -> False 
-
-isFunc :: Expr -> Bool
-isFunc expr =
-  case expr of
-    Id (NotQual (Name (_,"Set"))) -> False
-    Id (NotQual (Name (_,_)))     -> True
-    Id (Qual _  (Name (_,"Set"))) -> False
-    Id (Qual _  (Name (_,_)))     -> True
-    App args@((Arg  _):_)   -> and $ map (\(Arg a)  -> isFunc a) args
-    App args@((HArg  _):_)  -> and $ map (\(HArg a) -> isFunc a) args
-    Fun e1 e2 -> isFunc e1 && isFunc e2
-    Pi  _ e   -> isFunc e
-    _         -> False
-
-isAxiom :: Expr -> Bool
-isAxiom expr =
-  case expr of
-    Eq _ _  -> True
-    Lam _ e -> isAxiom e
-    Pi  _ e -> isAxiom e
-    Fun e e' -> isAxiom e && isAxiom e'
-    App args@((HArg _):_) -> and $ map (\(HArg a) -> isAxiom a) args
-    App args@((Arg  _):_) -> and $ map (\(Arg a)  -> isAxiom a) args 
-    _  -> False
-
-{- QQ: Is there a predefined function that does that. Functor does not work here -} 
-liftFilter :: (Expr -> Bool) -> [Constr] -> [Constr]
-liftFilter _ [] = [] 
-liftFilter p ((Constr n e):xs) =
-  if p e then (Constr n e) : liftFilter p xs
-         else  liftFilter p xs 
-
-classify :: [Constr] -> ([Constr],[Constr],[Constr])
-classify ls = (liftFilter isSort ls,
-               liftFilter isFunc ls,
-               liftFilter isAxiom ls)
-
--- Dummy location for now
+-- Dummy location to pass to Name instances. 
 loc :: (Int,Int)
 loc = (0,0)
 
-nameToStr :: Name -> String
-nameToStr (Name (_,n)) = n 
-
-qnameToStr :: QName -> String
-qnameToStr (NotQual name) = nameToStr name 
-qnameToStr (Qual q  name) = qnameToStr q ++ "." ++ nameToStr name
-
-argName :: Arg -> Maybe String
-argName (Arg e) = -- TODO: The HArg case 
-  case e of
-    Id  qname     -> Just $ qnameToStr qname 
-    App [Arg  e'] -> argName (Arg  e')
-    App [HArg e'] -> argName (HArg e') 
-    _             -> Nothing
-
-data RecComponents =
-    PConstr Constr
-  | FConstr Constr 
-
-homRecordName :: Name -> Name
-homRecordName (Name (_,n)) = Name ((1,1),n++"Hom") 
-
-
-{- Creating the Parameters to the Hom record -} 
 suffix1 :: String
 suffix1 = "1"
 suffix2 :: String 
 suffix2 = "2"
+instanceName :: String
+instanceName = "inst"
+homFuncName :: String 
+homFuncName = "hom"
 
-createNotQualId :: String -> Expr
-createNotQualId str = Id (NotQual (Name ((2,2),str)))
+homRecordName :: Name -> Name
+homRecordName (Name (_,n)) = Name (loc,n++"Hom") 
 
-instanceBinding :: [Binding] -> String -> [Arg]
-instanceBinding []     _   = [] 
-instanceBinding (b:bs) str =
-  case b of
-    Bind  args exp -> (map instanceArg args) ++ instanceBinding bs str
-    HBind args exp -> (map instanceArg args) ++ instanceBinding bs str
+createIdNQ :: String -> Expr
+createIdNQ str = Id $ NotQual $ Name (loc,str)
+
+-- instantiate an argument
+instantiateArg :: String -> Arg -> Arg
+instantiateArg str arg =
+  let getExpr (Arg e)  = e
+      getExpr (HArg e) = e
+      modifyExpr e =
+        case e of
+          Id  qname  -> Arg $ createIdNQ $ qnameToStr qname ++ str
+          App (a:as) -> modifyExpr $ getExpr a
+          e'         -> error $ "Invalid argument" ++ show e
+  in modifyExpr $ getExpr arg 
+
+-- one argument as a binding
+instanceArgs :: [Binding] -> String -> [Arg]
+instanceArgs []     _   = [] 
+instanceArgs (b:bs) str =
+  map (instantiateArg str) $ arguments b
+   ++ instanceArgs bs str
   where
-    instanceArg (HArg e) = instanceArg (Arg e) 
-    instanceArg (Arg e)  = 
-     case e of
-       Id  qname     -> Arg (createNotQualId ((qnameToStr qname) ++ str))                   
-       App [Arg  e'] -> instanceArg (Arg  e') 
-       App [HArg e'] -> instanceArg (Arg e')
-       _             -> error "Argument without name"
+    arguments (Bind  a _) = a
+    arguments (HBind a _) = a
 
-duplicateArg :: Arg -> [Arg]
-duplicateArg arg =
-  case arg of
-    Arg  e -> duplicateArg' e  
-    HArg e -> duplicateArg' e  
-  where
-   duplicateArg' e = 
-     case e of
-       Id  qname     -> [Arg (createNotQualId (qn ++ suffix1)),
-                         Arg (createNotQualId (qn ++ suffix2))]
-                        where qn = qnameToStr qname
-       App [Arg  e'] -> duplicateArg (Arg  e') 
-       App [HArg e'] -> duplicateArg (HArg e')
-       _             -> error "Argument without name"
- 
-
-createBinding :: Binding -> Binding
-createBinding binding =
+{- The arguments to the record becomes hidden arguments to hom.
+ - For example, an argument (A : Set) in the input record,
+ - triggers the generation of two hidden arguments {A1 A2 : Set}
+ -}
+createHiddenBindings :: Binding -> Binding
+createHiddenBindings binding =
   case binding of
     HBind args e -> HBind (newargs args) e
     Bind  args e -> HBind (newargs args) e
-  where newargs args_list = concat $ map duplicateArg args_list 
+  where duplicateArg arg =
+             [instantiateArg suffix1 arg] ++ [instantiateArg suffix2 arg] 
+        newargs args_list = concat $ map duplicateArg args_list 
 
-instanceName :: String
-instanceName = "inst"
-createInstances :: Name -> [Binding]-> String -> Binding
-createInstances (Name (_,n)) bindings index =
-  Bind [Arg (Id (NotQual (Name ((3,3),instanceName++index))))]
-       (App ([Arg $ Id $ NotQual $ (Name ((4,4),n))] ++ inst))
-  where inst = instanceBinding bindings index
+
+instantiateRecord :: Name -> [Binding]-> String -> Binding
+instantiateRecord (Name (_,n)) bindings index =
+  Bind [Arg $ createIdNQ $ instanceName ++ index]
+       (App $ [Arg $ createIdNQ n] ++ inst)
+  where inst = instanceArgs bindings index
 
 createHomParam :: Name -> Params -> Params
 createHomParam n NoParams     = NoParams
 createHomParam n (ParamDef _) = NoParams -- ??
 createHomParam n (ParamDecl bindings) =
-  ParamDecl $ (map createBinding bindings)
-              ++ [createInstances n bindings suffix1]
-              ++ [createInstances n bindings suffix2]
+  ParamDecl $ (map createHiddenBindings bindings)
+              ++ [instantiateRecord n bindings suffix1]
+              ++ [instantiateRecord n bindings suffix2]
 
 {- create the Hom declarations -}
 
-paramsToFields :: Params -> [Constr]
-paramsToFields NoParams       = []
-paramsToFields (ParamDef  _)  = []
-paramsToFields (ParamDecl bs) =
-  concat $ map flattenBind bs
-  where getName :: QName -> Name
-        getName (Qual _ n)  = n
-        getName (NotQual n) = n 
-        flattenBind :: Binding -> [Constr] 
-        flattenBind (Bind args e) =
-           let flattenArg (Arg  (Id q)) = getName q
-               flattenArg (HArg (Id q)) = getName q
-               names = map flattenArg args
-           in  map (\(n,t) -> Constr n t) $ zip names (take (length args) (repeat e))
 
-homFuncName :: String 
-homFuncName = "hom"
+
+
 createHomFunc :: Constr -> Constr
 createHomFunc c@(Constr (Name (_,n)) e) =
   Constr (Name ((5,5),homFuncName))
          (Fun (name suffix1)
               (name suffix2))
-   where name str = App [Arg (createNotQualId (n ++ str))]
+   where name str = App [Arg (createIdNQ (n ++ str))]
 
 arity :: Expr -> Int
 arity expr =
@@ -193,7 +107,7 @@ genVars i = zipWith (++) (take i $ repeat "x") $ map show [1..i]
 
 genBind :: Expr -> [Binding]
 genBind expr =
-  let args  = map (\x -> Arg $ createNotQualId x) $ genVars $ arity expr
+  let args  = map (\x -> Arg $ createIdNQ x) $ genVars $ arity expr
       rename (Arg (Id (NotQual (Name (l,n))))) =
              (Arg (Id (NotQual (Name (l,n++suffix1)))))
       types e =
@@ -211,7 +125,7 @@ genHomFuncArg :: Constr -> Name -> [Arg]
 genHomFuncArg (Constr name expr) inst =
   -- qualifying by the instance name  
   let funcName = App [strToArg (nameToStr name), strToArg (nameToStr inst)] 
-      vars  = map (\x -> createNotQualId x) $ genVars $ arity expr
+      vars  = map (\x -> createIdNQ x) $ genVars $ arity expr
    in case expr of
        Id qname -> [Arg $ Id qname] 
        App _    -> map Arg $ funcName:vars
@@ -223,7 +137,7 @@ genLHS constr inst = genHomFuncApp constr inst
 genRHS :: Constr -> Name -> Expr
 genRHS (Constr name expr) inst =
   let funcName = App [strToArg (nameToStr name), strToArg (nameToStr inst)]
-      vars  = map (\x -> createNotQualId x) $ genVars $ arity expr
+      vars  = map (\x -> createIdNQ x) $ genVars $ arity expr
       args e = 
         case e of
           Id qname    -> genHomFuncApp (Constr (Name ((6,6),"dummy")) (Id qname)) inst
@@ -264,15 +178,28 @@ createHom (Record name params body) =
         getConstr (RecordDef _ (Fields c)) = c
         getConstr (RecordDeclDef _ _ NoFields) = []
         getConstr (RecordDeclDef _ _ (Fields c)) = c 
-  
-
-nameStr :: Name -> String 
-nameStr (Name (_,n)) = n 
-
-strToArg :: String -> Arg 
-strToArg str = Arg $ createNotQualId str
 
 
+appendToModule :: Module -> [Decl] -> Module
+appendToModule (Module n p decls) moreDecls = Module n p (decls ++ moreDecls)
+
+readModuleRecords :: Module -> [Decl]
+readModuleRecords (Module _ _ decls) = readRecords decls 
+
+paramsToFields :: Params -> [Constr]
+paramsToFields NoParams       = []
+paramsToFields (ParamDef  _)  = []
+paramsToFields (ParamDecl bs) =
+  concat $ map flattenBind bs
+  where getName :: QName -> Name
+        getName (Qual _ n)  = n
+        getName (NotQual n) = n 
+        flattenBind :: Binding -> [Constr] 
+        flattenBind (Bind args e) =
+           let flattenArg (Arg  (Id q)) = getName q
+               flattenArg (HArg (Id q)) = getName q
+               names = map flattenArg args
+           in  map (\(n,t) -> Constr n t) $ zip names (take (length args) (repeat e))
 
 {- Testing -} 
 -- Given all declarations in the file, we filter the records 
@@ -299,36 +226,31 @@ test file =
   do s <- readFile file
      case (parseModule s) of
        Right (Module n p decls) ->
-         return $ res
-         where Right res =
-                 scopeCheckModule $ Module n p (decls ++ (map createHom $ readRecords decls)) 
+        do putStrLn "Generating Hom"
+           return $ scopeCheckModule $ Module n p (decls ++ (map createHom $ readRecords decls)) 
  
   
      
 {-
-
-
 flattenBind :: Binding -> [Constr] 
 flattenBind (Bind args e) =
   let flattenArg (Arg  (Id q)) = getName q
       flattenArg (HArg (Id q)) = getName q
       names = map flattenArg args
    in  map (\(n,t) -> Constr n t) $ zip names (take (length args) (repeat e))
-
 flattenParams :: Params -> [Constr]
 flattenParams NoParams       = []
 flattenParams (ParamDef  _)  = []
 flattenParams (ParamDecl bs) = concat $ map flattenBind bs
-
 flattenRecordBody :: RecordBody -> [Constr]
 flattenRecordBody (RecordDecl _) = []
 flattenRecordBody (RecordDef _ NoFields) = [] 
 flattenRecordBody (RecordDef _ (Fields l)) = l
 flattenRecordBody (RecordDeclDef _ _ (Fields l)) = l
 flattenRecordBody (RecordDeclDef _ _ NoFields) = []
-
 fields :: Decl -> [Constr]
 fields (Record _ params body) =
    flattenParams params ++ flattenRecordBody body   
 -- TODO: Other Forms of Decl
 -}
+

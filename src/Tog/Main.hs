@@ -119,6 +119,7 @@ processFile file ret = do
   mbErr <- runExceptT $ do
     s   <- lift $ readFile file
     raw <- exceptShowErr "Parse" $ parseModule s
+    -- exceptShowErr "Scope" $ scopeCheckModule raw
     exceptShowErr "Scope" $ scopeCheckModule (appendToModule raw $ (map createHom $ readModuleRecords raw))
   case mbErr of
     Left err  -> ret (sigEmpty :: Signature Simple) (Just err)
