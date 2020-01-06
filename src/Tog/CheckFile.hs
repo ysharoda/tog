@@ -5,7 +5,8 @@
 -- used by the main program.
 module Tog.CheckFile
   ( -- * Program checking
-    checkFile
+    checkFile,
+    checkModule
   ) where
 
 import qualified Control.Lens                     as L
@@ -477,13 +478,16 @@ checkFile' _ decls0 ret = do
     unless quiet $ do
       drawLine
       putStrLn "-- Checking declarations"
+      
     s <- initCheckState
     -- For the time being we always start a dummy block here
     (mbErr, sig, _) <- runTC sigEmpty () s $ do
       magnifyTC (const (initEnv C0)) $ checkModule decls0 $ return ()
       checkSignature
+    putStrLn $ show decls0
     ret sig $ either Just (\() -> Nothing) mbErr
   where
+    -- recordNames (Module _ _ _ decs) = length decs
     checkSignature :: TC t r (CheckState t) ()
     checkSignature = do
       sig <- askSignature
