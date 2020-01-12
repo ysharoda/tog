@@ -7,8 +7,7 @@ module Tog.Hom where
 import Tog.Raw.Abs
 import Tog.Parse
 import Tog.ScopeCheck 
-import Data.Functor
-import Tog.Utils 
+import Tog.Utils
 
 -- Dummy location to pass to Name instances. 
 loc :: (Int,Int)
@@ -26,7 +25,57 @@ homFuncName = "hom"
 homRecordName :: Name -> Name
 homRecordName (Name (_,n)) = Name (loc,n++"Hom") 
 
+{- Generating the hidden arguments
+  --> generated from the original argument of the record -} 
+
+oneBindAsHiddenArg :: Binding -> [Binding]
+oneBindAsHiddenArg bind =
+  let justArgNames = map getArgName $ getBindingArgs bind
+      argNames = map (maybe "" (++"")) justArgNames
+      oldNewPairs str = zip argNames $ map (++str) argNames
+      newBinding [] b = b 
+      newBinding ((old,new):xs) b = newBinding xs (renameBinding old new b)
+      inst1Bind = newBinding (oldNewPairs "1") bind
+      inst2Bind = newBinding (oldNewPairs "2") bind
+   in mergeBindings Hide inst1Bind inst2Bind
+      
+homHiddenArgs :: [Binding] -> [Binding] 
+homHiddenArgs bindsList = concat $ map oneBindAsHiddenArg bindsList 
+
+getParamNames :: String -> [Binding] -> [String] 
+getParamNames str bindsList =
+  let maybeNames = map getArgName $ concat $ map getBindingArgs bindsList
+   in map (maybe "" (++str)) maybeNames
+{-
+ Generating the record instances 
+-}
+createInstance :: Name -> String -> [Binding] -> Binding
+createInstance n str binds =
+  let recordName = nameStr n
+      createName = strToArg $ instanceName ++ str
+      instArgs = map strToArg $ getParamNames str binds
+      createType = App ([strToArg $ recordName]++instArgs)
+   in Bind [createName] createType
+
+{- Generating the parameter to the homomorphism record -}
+createHomParams :: Name -> Params -> Params
+createHomParams _ NoParams = NoParams
+createHomParams _ (ParamDef _) = NoParams
+createHomParams name (ParamDecl bindslist)
+   = ParamDecl $ homHiddenArgs bindslist
+               ++ [createInstance name suffix1 bindslist]
+               ++ [createInstance name suffix2 bindslist] 
+  
+
 -- instantiate an argument
+
+{-
+
+[Tog.Raw.Bind [Tog.Raw.Arg (Tog.Raw.Id (Tog.Raw.NotQual (Tog.Raw.Name ((0,0),"A"))))] (Tog.Raw.App [Tog.Raw.Arg (Tog.Raw.Id (Tog.Raw.NotQual (Tog.Raw.Name ((0,0),"Set"))))]),
+Tog.Raw.Bind [Tog.Raw.Arg (Tog.Raw.Id (Tog.Raw.NotQual (Tog.Raw.Name ((0,0),"e"))))] (Tog.Raw.App [Tog.Raw.Arg (Tog.Raw.Id (Tog.Raw.NotQual (Tog.Raw.Name ((0,0),"A"))))])]
+
+-}
+{- 
 instantiateArg :: String -> Arg -> Arg
 instantiateArg str arg =
   let getExpr (Arg e)  = e
@@ -39,11 +88,11 @@ instantiateArg str arg =
   in modifyExpr $ getExpr arg 
 
 -- one argument as a binding
-instanceArgs :: [Binding] -> String -> [Arg]
+instanceArgs :: String -> [Binding] -> [Arg]
 instanceArgs []     _   = [] 
-instanceArgs (b:bs) str =
+instanceArgs str (b:bs) =
   map (instantiateArg str) $ arguments b
-   ++ instanceArgs bs str
+   ++ instanceArgs str bs
   where
     arguments (Bind  a _) = a
     arguments (HBind a _) = a
@@ -66,7 +115,7 @@ instantiateRecord :: Name -> [Binding]-> String -> Binding
 instantiateRecord (Name (_,n)) bindings index =
   Bind [Arg $ createIdNQ $ instanceName ++ index]
        (App $ [Arg $ createIdNQ n] ++ inst)
-  where inst = instanceArgs bindings index
+  where inst = instanceArgs index bindings
 
 createHomParam :: Name -> Params -> Params
 createHomParam n NoParams     = NoParams
@@ -75,7 +124,7 @@ createHomParam n (ParamDecl bindings) =
   ParamDecl $ (map createHiddenBindings bindings)
               ++ [instantiateRecord n bindings suffix1]
               ++ [instantiateRecord n bindings suffix2]
-
+-}
 {- create the Hom declarations -}
 
 
@@ -166,22 +215,18 @@ createHomBody clist =
 createHom :: Decl -> Decl
 createHom (Record name params body) =
   Record (homRecordName name) 
-         (createHomParam name params)
+         (createHomParams name params)
          (RecordDeclDef (Name (loc,"Set"))
                         (Name (loc,"rechom"))
                         (Fields $ createHomBody $ (getConstr body) ++ (paramsToFields params)))
-  where getConstr (RecordDecl _) = []
-        getConstr (RecordDef _ NoFields) = []
-        getConstr (RecordDef _ (Fields c)) = c
-        getConstr (RecordDeclDef _ _ NoFields) = []
-        getConstr (RecordDeclDef _ _ (Fields c)) = c 
-
+       where getConstr (RecordDecl _) = []
+             getConstr (RecordDef _ NoFields) = []
+             getConstr (RecordDef _ (Fields c)) = c
+             getConstr (RecordDeclDef _ _ NoFields) = []
+             getConstr (RecordDeclDef _ _ (Fields c)) = c 
 
 appendToModule :: Module -> [Decl] -> Module
 appendToModule (Module n p decls) moreDecls = Module n p (decls ++ moreDecls)
-
-readModuleRecords :: Module -> [Decl]
-readModuleRecords (Module _ _ decls) = readRecords decls 
 
 paramsToFields :: Params -> [Constr]
 paramsToFields NoParams       = []
@@ -199,7 +244,13 @@ paramsToFields (ParamDecl bs) =
            in  map (\(n,t) -> Constr n t) $ zip names (take (length args) (repeat e))
 
 {- Testing -} 
--- Given all declarations in the file, we filter the records 
+-- Given all declarations in the file, we filter the records
+emptyModule :: Module
+emptyModule = Module (Name ((0,0),"Empty")) NoParams []
+
+readModuleRecords :: Module -> [Decl]
+readModuleRecords (Module _ _ decls) = readRecords decls
+
 readRecords :: [Decl] -> [Decl]
 readRecords ((Record n p r):decls) = (Record n p r) : readRecords decls
 readRecords (_:decls) = readRecords decls
@@ -212,9 +263,6 @@ flattenRecordBody (RecordDef _ (Fields l)) = l
 flattenRecordBody (RecordDeclDef _ _ (Fields l)) = l
 flattenRecordBody (RecordDeclDef _ _ NoFields) = []
 
-
-createModule :: [Decl] -> Module 
-createModule records = Module (Name (loc,"Hom")) NoParams (map createHom $ readRecords records)
 
 start mod = map createHom $ readRecords mod
 -- start mod = map rawPrintAfterParsing 
