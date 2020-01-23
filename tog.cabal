@@ -70,6 +70,7 @@ library
                      , safe >= 0.3.8
                      , semigroups >= 0.15
                      , split >= 0.2
+                     , syb >= 0.6
                      , tagged >= 0.7.2
                      , transformers >= 0.2
                      , transformers-compat >= 0.3
@@ -124,5 +125,5 @@ library
   
 executable tog
   main-is:             tog.hs
-  build-depends:       base >= 4.6, tog
+  build-depends:       base >= 4.6, syb >= 0.6, tog
   default-language:    Haskell2010
