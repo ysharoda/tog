@@ -6,7 +6,6 @@ import Tog.Utils
 import qualified Data.Generics as Generics
 import qualified Data.List     as List
 
-
 data Theory = Theory{
                 tname   :: String,
                 params :: Params,
@@ -19,83 +18,95 @@ data View   = View{
                 source  :: Theory,
                 target  :: Theory,
                 mapping :: [(String,String)] }
-             deriving (Eq, Ord, Show, Read, Generics.Typeable, Generics.Data)
+              deriving (Eq, Ord, Show, Read, Generics.Typeable, Generics.Data)
 
 data TGraph = TGraph{
                 nodes :: [Theory],
-                edges :: [View] }  deriving (Eq, Ord, Show, Read, Generics.Typeable, Generics.Data)
+                edges :: [View] }
+              deriving (Eq, Ord, Show, Read, Generics.Typeable, Generics.Data)
 
-type Mapping = [(String,String)] 
+type Name_ = String -- the _ avoid name clash with already defined Name (in diff positions in the code base), which also has location parameter. 
+type Path = [View]
+type Mapping = [(Name_,Name_)] 
 type RenameFunc = String -> String
 
 data ModExpr = Rename String Theory Mapping
                | Extends Theory [Constr]
                | Combine Theory Theory Mapping Theory Mapping 
 
+-- 
+applyMapping :: Name_ -> Theory -> Mapping -> Theory 
+applyMapping newName thry mapp =
+   Theory newName 
+          (Generics.everywhere (Generics.mkT $ pairToFunc mapp) (params thry)) 
+          (Generics.everywhere (Generics.mkT $ pairToFunc mapp) (fields thry)) 
+
+noNameConflict :: [Name_] -> [Name_] -> Bool
+noNameConflict frst scnd = List.intersect frst scnd == []
+  
+-- allUnique snds --> no two symbols mapped to the same name
+-- allUnique fsts --> no symbol mapped to two different names
+-- noConflist --> The new names do not occur in the theory
+validMapping :: Mapping -> Theory -> Bool
+validMapping namesMap thry =
+  let fsts = Prelude.map fst namesMap 
+      snds = Prelude.map snd namesMap      
+      nonIdMaps  = Prelude.filter (\(x,y) -> x /= y) namesMap
+      noConflict = noNameConflict (Prelude.map snd nonIdMaps) (symbols thry) 
+      allUnique xs = List.nub xs == xs 
+   in allUnique snds && allUnique fsts && noConflict
+
+-- turns a rename list into an injective mapping over the symbols of the source theory. 
+injectiveMapping :: Mapping -> Theory -> Mapping
+injectiveMapping mapp srcThry =
+  if validMapping mapp srcThry
+  then zip (symbols srcThry) $ Prelude.map (pairToFunc mapp) $ symbols srcThry
+  else error "invalid Mapping"   
 
 -- ------------------ Rename Combinator ---------------------------
 
-renThry :: String -> [(String,String)] -> Theory -> Theory 
-renThry newName list theory = 
-  Generics.everywhere (Generics.mkT $ pairToFunc newList) theory
-  where newList = (tname theory,newName) : list 
-
-
-renameMap :: [(String,String)] -> Theory -> [(String,String)] 
-renameMap list thry = zip syms $ Prelude.map (pairToFunc list) syms
-        where syms = symbols thry
-
-
-rename :: String -> [(String,String)] -> Theory -> (View,Theory)  
-rename newThryName namesMap theory =
-  if noNameConflict namesMap theory 
-  then   let targetThry = renThry newThryName namesMap theory
-             view = renameMap namesMap theory 
-         in (View "n" theory targetThry view, targetThry)        
-  else error "rename cannot be applied"
+rename :: Name_ -> Mapping -> Theory -> (Theory,View)  
+rename newThryName namesMap srcThry =
+  let targetThry = applyMapping newThryName srcThry namesMap
+      renView = View (tname srcThry ++ "To" ++ newThryName)
+                     srcThry
+                     targetThry
+                     (injectiveMapping namesMap srcThry)
+  in (targetThry,renView)        
 
 -- -------------- Extends Combinator -----------------------------
 
-extThry :: String -> Theory -> [Constr] -> Theory
-extThry newName thry@(Theory n pars (Fields fs)) newConstrs =
-  let newDeclNames = Prelude.map (\(Constr n _) -> nameToStr n) newConstrs 
-      noConflict = freshNames newDeclNames thry 
-  in if (noConflict) then Theory newName pars $ Fields (fs ++ newConstrs)
-                     else error $ "Cannot create theory " ++ newName
+extThry :: Name_ -> Theory -> [Constr] -> Theory
+extThry newThryName thry newConstrs =
+  if noNameConflict newDeclNames (symbols thry)
+  then Theory newThryName (params thry) $ newFields (fields thry) -- what if the new declaration needs to be a parameter? 
+  else error $ "Cannot create theory " ++ newThryName
+  where newDeclNames = Prelude.map (\(Constr n _) -> nameToStr n) newConstrs
+        newFields NoFields = Fields newConstrs
+        newFields (Fields fs) = Fields (fs ++ newConstrs) 
 
-extends :: String -> Theory -> [Constr] -> (View,Theory)  
-extends newThryName oldThry newDecls =
-  let newThry = extThry newThryName oldThry newDecls
-      thrySyms = symbols oldThry
-      idMap = zip thrySyms thrySyms
-      newView = View "ext" oldThry newThry idMap 
-   in (newView,newThry) 
+extends :: Name_ -> Theory -> [Constr] -> (Theory,View)  
+extends newThryName srcThry newDecls =
+  let targetThry = extThry newThryName srcThry newDecls
+      extView = View (tname srcThry ++ "To" ++ newThryName)
+                     srcThry
+                     targetThry
+                     (injectiveMapping [] srcThry)
+   in (targetThry,extView) 
 
--- --------------------- Combine ----------------------------------
-
-
-path :: TGraph -> Theory -> Theory -> [View] 
-path graph src dest =
-  let edgs = edges graph
-      answer = [v | v <- edgs, target v == dest, source v == src]
-      viewsToDest = [v | v <- edgs, target v == dest]
-      found = if answer /= [] then [[head answer]]
-              else [(path graph src (source v)) ++ [v] | v <- viewsToDest] 
-  in Prelude.head $ Prelude.filter (\ls -> (source (head ls)) == src) found
-
-mapSymbol :: [View] -> String -> String
-mapSymbol lview sym =
-  let getMappings = List.concat $ List.map (\v -> mapping v) lview
-      findMatch [] x = x
-      findMatch ((f,s):fs) x =
-          if (x == f) then findMatch fs s else findMatch fs x 
-   in findMatch getMappings sym -- Prelude.foldr (.) strId $ List.map pairToFunc getMappings   
+-- --------------------- Combine ----------------------------------  
 
 getViews :: TGraph -> Theory -> Theory -> Theory -> ([View],[View]) 
 getViews graph src dest1 dest2 =
-   let path1 = path graph src dest1
-       path2 = path graph src dest2
-   in  (path1,path2) 
+  (path graph src dest1, path graph src dest2)
+  where path :: TGraph -> Theory -> Theory -> [View] 
+        path graph src dest =
+           let edgs = edges graph
+               answer = [v | v <- edgs, target v == dest, source v == src]
+               viewsToDest = [v | v <- edgs, target v == dest]
+               found = if answer /= [] then [[head answer]]
+                       else [(path graph src (source v)) ++ [v] | v <- viewsToDest] 
+           in Prelude.head $ Prelude.filter (\ls -> (source (head ls)) == src) found
 
 checkGuard :: [View] -> [View] -> Bool
 checkGuard path1 path2 =
@@ -105,42 +116,41 @@ checkGuard path1 path2 =
    in nonEmptyPaths &&
       (List.map (mapSymbol path1) srcSyms) == (List.map (mapSymbol path1) srcSyms)
 
+-- find the mapping of a symbol based on a list of views from the source to the destination theories.
+-- used to check for the 
+mapSymbol :: [View] -> RenameFunc 
+mapSymbol lview sym =
+  let getMappings = List.concat $ List.map (\v -> mapping v) lview
+      findMatch [] x = x
+      findMatch ((f,s):fs) x =
+          if (x == f) then findMatch fs s else findMatch fs x 
+   in findMatch getMappings sym -- Prelude.foldr (.) strId $ List.map pairToFunc getMappings
 
+-- The overall view resulting from the path. 
 composeViews :: [View] -> Mapping
 composeViews vlist =
   let sourceSyms = symbols $ source (head vlist)
-   in zip sourceSyms $ List.map (mapSymbol vlist) sourceSyms
-{-      targetThry = (target $ last vlist)
-   in if (((List.map snd newMapping) `List.intersect` (symbols targetThry)) /= (List.map snd newMapping))
-      then error "Views do not compose properly"
-      else View newName (source $ head vlist) targetThry newMapping -}
-
-applyView :: String -> Theory -> Mapping -> Theory 
-applyView newName thry mapp =
-      Theory newName 
-             (Generics.everywhere (Generics.mkT $ pairToFunc mapp) (params thry)) 
-             (Generics.everywhere (Generics.mkT $ pairToFunc mapp) (fields thry)) 
+   in zip sourceSyms $ List.map (mapSymbol vlist) sourceSyms 
 
 -- this function is called after guard is checked
-
-computeCombine :: String -> [View] -> Mapping -> [View] -> Mapping -> (View,View,Theory)
+computeCombine :: Name_ -> [View] -> Mapping -> [View] -> Mapping -> (Theory,View,View)
 computeCombine newThryName path1 ren1 path2 ren2 =
   let map1 = composeViews path1 ++ ren1
       map2 = composeViews path2 ++ ren2 
-      src = source $ head path1
+      commonSrc = source $ head path1
       dest1 = target $ last path1
       dest2 = target $ last path2 
-      (Theory _ (ParamDecl pars) (Fields flds)) = applyView "X" src map1
-      (Theory _ (ParamDecl parsDest1) (Fields fldsDest1)) = applyView "Y" (dest1) map1 
-      (Theory _ (ParamDecl parsDest2) (Fields fldsDest2)) = applyView "Z" (dest2) map2
+      (Theory _ (ParamDecl pars) (Fields flds)) = applyMapping "X" commonSrc map1 -- rename, while taking care of the theory structure. Name of target thry does not matter here, but its structure does. 
+      (Theory _ (ParamDecl parsDest1) (Fields fldsDest1)) = applyMapping "Y" (dest1) map1 
+      (Theory _ (ParamDecl parsDest2) (Fields fldsDest2)) = applyMapping "Z" (dest2) map2
       newFlds = flds ++ (fldsDest1 List.\\ flds) ++ (fldsDest2 List.\\ flds)
       newParams = pars ++ (parsDest1 List.\\ pars) ++ (parsDest2 List.\\ pars)
       newThry = Theory newThryName (ParamDecl newParams) (Fields newFlds)
       view1 = View (tname dest1 ++ "To" ++ tname newThry) dest1 newThry map1 
       view2 = View (tname dest2 ++ "To" ++ tname newThry) dest2 newThry map2 
-  in (view1,view2,newThry) 
+  in (newThry,view1,view2) 
 
-combine :: TGraph -> String -> String -> String -> Mapping -> String -> Mapping -> (View,View,Theory)
+combine :: TGraph -> Name_ -> Name_ -> Name_ -> Mapping -> Name_ -> Mapping -> (Theory,View,View)
 combine graph newThryName srcName d1Name ren1 d2Name ren2 =
   let getTheory thryName = List.find (\x -> tname x == thryName) (nodes graph)
       theories = [getTheory srcName, getTheory d1Name, getTheory d2Name] 
@@ -158,7 +168,7 @@ combine graph newThryName srcName d1Name ren1 d2Name ren2 =
 
 -- ------------------------ Helper Functions -------------------------
 
-pairToFunc :: [(String,String)] -> String -> String
+pairToFunc :: Mapping -> RenameFunc 
 pairToFunc list elem = if result == [] then elem
                        else if (length result) == 1 then head result
                        else error "Multiple mappings for the same symbol" 
@@ -174,22 +184,6 @@ symbols thry =
     fieldNames = Generics.everything (++) (Generics.mkQ [] (\(Constr (Name (_,n)) _) -> [n])) thry 
   in argNames ++ fieldNames 
 
-
-freshNames :: [String] -> Theory -> Bool
-freshNames newNames thry =
-  List.intersect newNames (symbols thry) == []
-
--- allUnique snds --> no two symbols mapped to the same name
--- allUnique fsts --> no symbol mapped to two different names
--- noConflist --> The new names do not occur in the theory
-noNameConflict :: [(String,String)] -> Theory -> Bool
-noNameConflict namesMap thry =
-  let fsts = Prelude.map fst namesMap 
-      snds = Prelude.map snd namesMap      
-      nonIdMaps  = Prelude.filter (\(x,y) -> x /= y) namesMap
-      noConflict = freshNames (Prelude.map snd nonIdMaps) thry 
-      allUnique xs = List.nub xs == xs 
-   in allUnique snds && allUnique fsts && noConflict
 
 -- ----------------------------------------------------------------
 
@@ -208,7 +202,7 @@ addViewToGraph (TGraph n e) v = TGraph n (e ++ [v])
 
 extendGraph :: TGraph -> ModExpr -> TGraph
 extendGraph tg (Rename newName thry mapping) =
-  let (vnew,tnew) = rename newName mapping thry
+  let (tnew,vnew) = rename newName mapping thry
    in addViewToGraph (addThryToGraph tg tnew) vnew 
 
 -- -------------------- example ------------------------------
