@@ -991,11 +991,12 @@ data Ctx t
   | !(Ctx t) :< !(Name, Type t)
   deriving (Eq, Show, Typeable)
 
+instance Semigroup (Ctx t) where
+  ctx1 <> C0              = ctx1
+  ctx1 <> (ctx2 :< type_) = (ctx1 <> ctx2) :< type_
+
 instance Monoid (Ctx t) where
   mempty = C0
-
-  ctx1 `mappend` C0              = ctx1
-  ctx1 `mappend` (ctx2 :< type_) = (ctx1 `mappend` ctx2) :< type_
 
 ctxSingleton :: Name -> t -> Ctx t
 ctxSingleton name t = C0 :< (name, t)
@@ -1081,11 +1082,12 @@ data Tel t
   | (Name, Term t) :> Tel t
   deriving (Show, Read, Eq, Functor)
 
+instance Semigroup (Tel t) where
+  T0 <> tel2 = tel2
+  (type_ :> tel1) <> tel2 = type_ :> (tel1 <> tel2)
+
 instance Monoid (Tel t) where
   mempty = T0
-
-  T0 `mappend` tel2 = tel2
-  (type_ :> tel1) `mappend` tel2 = type_ :> (tel1 `mappend` tel2)
 
 telLength :: Tel t -> Natural
 telLength T0         = 0

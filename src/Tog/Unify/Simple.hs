@@ -61,10 +61,11 @@ simplify c            = Just c
 instance Monoid (Constraint t) where
   mempty = Conj []
 
-  Conj cs1 `mappend` Conj cs2 = Conj (cs1 ++ cs2)
-  Conj cs1 `mappend` c2       = Conj (c2 : cs1)
-  c1       `mappend` Conj cs2 = Conj (c1 : cs2)
-  c1       `mappend` c2       = Conj [c1, c2]
+instance Semigroup (Constraint t) where
+  Conj cs1 <> Conj cs2 = Conj (cs1 ++ cs2)
+  Conj cs1 <> c2       = Conj (c2 : cs1)
+  c1       <> Conj cs2 = Conj (c1 : cs2)
+  c1       <> c2       = Conj [c1, c2]
 
 constraint :: (IsTerm t) => Elaborate.Constraint t -> Constraint t
 constraint (Elaborate.JmEq loc ctx type1 t1 type2 t2) =

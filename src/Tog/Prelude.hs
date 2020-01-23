@@ -12,10 +12,7 @@ module Tog.Prelude
 #endif
   , (!!)
   , (Control.Arrow.***)
-  , (Control.Applicative.<$)
-  , (Control.Applicative.<$>)
   , (Control.Monad.<=<)
-  , (Data.Monoid.<>)
   , (Control.Applicative.<|>)
   , (Control.Monad.>=>)
   , Data.Bifunctor.Bifunctor(..)
