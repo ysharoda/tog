@@ -5,41 +5,40 @@ import Tog.Utils
  
 import qualified Data.Generics as Generics
 import qualified Data.List     as List
+import qualified Data.Map      as Map 
 
-data Theory = Theory{
-                tname   :: String,
-                params :: Params,
-                fields :: Fields }
-              deriving (Eq, Ord, Show, Read, Generics.Typeable, Generics.Data)
-
-
+data Theory = Theory {
+    params :: Params,
+    fields :: Fields }
+  deriving (Eq, Ord, Show, Read, Generics.Typeable, Generics.Data)
+ 
 data View   = View{
-                vname   :: String,
-                source  :: Theory,
-                target  :: Theory,
-                mapping :: [(String,String)] }
-              deriving (Eq, Ord, Show, Read, Generics.Typeable, Generics.Data)
+    source  :: Theory,
+    target  :: Theory,
+    mapping :: Mapping } -- change this mapping too 
+  deriving (Eq, Ord, Show, Read, Generics.Typeable, Generics.Data)
 
-data TGraph = TGraph{
-                nodes :: [Theory],
-                edges :: [View] }
-              deriving (Eq, Ord, Show, Read, Generics.Typeable, Generics.Data)
+data TGraph = TGraph{ -- check is I would rather use only a map of edges
+    nodes :: Map.Map Name_ Theory,
+    edges :: Map.Map Name_ View } 
+  deriving (Eq, Ord, Show, Read, Generics.Typeable, Generics.Data)
 
-type Name_ = String -- the _ avoid name clash with already defined Name (in diff positions in the code base), which also has location parameter. 
-type Path = [View]
-type Mapping = [(Name_,Name_)] 
+type Name_ = String
+type Path  = [View]
 type RenameFunc = String -> String
+type Mapping = [(String,String)] -- Mapping (Map.Map Name_ Name_) 
 
-data ModExpr = Rename String Theory Mapping
-               | Extends Theory [Constr]
-               | Combine Theory Theory Mapping Theory Mapping 
+
+data ModExpr = Rename Name_ Theory Mapping
+               | Extends Name_ Theory [Constr]
+               | Combine Name_ Path Mapping Path Mapping
+               -- not the export the constructor at the outside of the module 
 
 -- 
-applyMapping :: Name_ -> Theory -> Mapping -> Theory 
-applyMapping newName thry mapp =
-   Theory newName 
-          (Generics.everywhere (Generics.mkT $ pairToFunc mapp) (params thry)) 
-          (Generics.everywhere (Generics.mkT $ pairToFunc mapp) (fields thry)) 
+applyMapping :: Theory -> Mapping -> Theory 
+applyMapping thry mapp =
+  Theory (Generics.everywhere (Generics.mkT $ pairToFunc mapp) (params thry)) 
+         (Generics.everywhere (Generics.mkT $ pairToFunc mapp) (fields thry)) 
 
 noNameConflict :: [Name_] -> [Name_] -> Bool
 noNameConflict frst scnd = List.intersect frst scnd == []
@@ -55,6 +54,7 @@ validMapping namesMap thry =
       noConflict = noNameConflict (Prelude.map snd nonIdMaps) (symbols thry) 
       allUnique xs = List.nub xs == xs 
    in allUnique snds && allUnique fsts && noConflict
+      
 
 -- turns a rename list into an injective mapping over the symbols of the source theory. 
 injectiveMapping :: Mapping -> Theory -> Mapping
@@ -65,50 +65,48 @@ injectiveMapping mapp srcThry =
 
 -- ------------------ Rename Combinator ---------------------------
 
-rename :: Name_ -> Mapping -> Theory -> (Theory,View)  
-rename newThryName namesMap srcThry =
-  let targetThry = applyMapping newThryName srcThry namesMap
-      renView = View (tname srcThry ++ "To" ++ newThryName)
-                     srcThry
-                     targetThry
+rename :: Mapping -> Theory -> (Theory,View)  
+rename namesMap srcThry =
+  let targetThry = applyMapping srcThry namesMap
+      renView = View srcThry targetThry
                      (injectiveMapping namesMap srcThry)
   in (targetThry,renView)        
 
 -- -------------- Extends Combinator -----------------------------
 
-extThry :: Name_ -> Theory -> [Constr] -> Theory
-extThry newThryName thry newConstrs =
+extThry :: Theory -> [Constr] -> Theory
+extThry thry newConstrs =
   if noNameConflict newDeclNames (symbols thry)
-  then Theory newThryName (params thry) $ newFields (fields thry) -- what if the new declaration needs to be a parameter? 
-  else error $ "Cannot create theory " ++ newThryName
+  then Theory (params thry) $ newFields (fields thry) -- TODO: Decl added to param? 
+  else error $ "Cannot create theory "
   where newDeclNames = Prelude.map (\(Constr n _) -> nameToStr n) newConstrs
         newFields NoFields = Fields newConstrs
         newFields (Fields fs) = Fields (fs ++ newConstrs) 
 
-extends :: Name_ -> Theory -> [Constr] -> (Theory,View)  
-extends newThryName srcThry newDecls =
-  let targetThry = extThry newThryName srcThry newDecls
-      extView = View (tname srcThry ++ "To" ++ newThryName)
-                     srcThry
+extends :: [Constr] -> Theory -> (Theory,View)  
+extends newDecls srcThry  =
+  let targetThry = extThry srcThry newDecls
+      extView = View srcThry
                      targetThry
                      (injectiveMapping [] srcThry)
    in (targetThry,extView) 
 
 -- --------------------- Combine ----------------------------------  
 
-getViews :: TGraph -> Theory -> Theory -> Theory -> ([View],[View]) 
+getViews :: TGraph -> Theory -> Theory -> Theory -> (Path,Path) 
 getViews graph src dest1 dest2 =
-  (path graph src dest1, path graph src dest2)
-  where path :: TGraph -> Theory -> Theory -> [View] 
-        path graph src dest =
-           let edgs = edges graph
-               answer = [v | v <- edgs, target v == dest, source v == src]
+  (path edgesList src dest1, path edgesList src dest2)
+  where edgesList = (Map.elems $ edges graph)
+        path :: [View] -> Theory -> Theory -> Path
+        path edgs src dest =
+           let answer = [v | v <- edgs, target v == dest, source v == src]
                viewsToDest = [v | v <- edgs, target v == dest]
                found = if answer /= [] then [[head answer]]
-                       else [(path graph src (source v)) ++ [v] | v <- viewsToDest] 
+                       else [(path edgs src (source v)) ++ [v] | v <- viewsToDest] 
            in Prelude.head $ Prelude.filter (\ls -> (source (head ls)) == src) found
+           -- change the head, check NEList 
 
-checkGuard :: [View] -> [View] -> Bool
+checkGuard :: Path -> Path -> Bool
 checkGuard path1 path2 =
   let nonEmptyPaths = path1 /= [] && path2 /= [] 
       srcThry = if (source (head path1)) == (source (head path2)) then source (head path1) else error "invalid arrows"
@@ -132,38 +130,36 @@ composeViews vlist =
   let sourceSyms = symbols $ source (head vlist)
    in zip sourceSyms $ List.map (mapSymbol vlist) sourceSyms 
 
+-- EDNOTE: head and last
 -- this function is called after guard is checked
-computeCombine :: Name_ -> [View] -> Mapping -> [View] -> Mapping -> (Theory,View,View)
-computeCombine newThryName path1 ren1 path2 ren2 =
+computeCombine :: [View] -> Mapping -> [View] -> Mapping -> (Theory,View,View)
+computeCombine path1 ren1 path2 ren2 =
   let map1 = composeViews path1 ++ ren1
       map2 = composeViews path2 ++ ren2 
       commonSrc = source $ head path1
       dest1 = target $ last path1
-      dest2 = target $ last path2 
-      (Theory _ (ParamDecl pars) (Fields flds)) = applyMapping "X" commonSrc map1 -- rename, while taking care of the theory structure. Name of target thry does not matter here, but its structure does. 
-      (Theory _ (ParamDecl parsDest1) (Fields fldsDest1)) = applyMapping "Y" (dest1) map1 
-      (Theory _ (ParamDecl parsDest2) (Fields fldsDest2)) = applyMapping "Z" (dest2) map2
+      dest2 = target $ last path2
+      -- EDNOTE: use the functions instead 
+      (Theory (ParamDecl pars) (Fields flds)) = applyMapping commonSrc map1 -- rename, while taking care of the theory structure. Name of target thry does not matter here, but its structure does. 
+      (Theory (ParamDecl parsDest1) (Fields fldsDest1)) = applyMapping (dest1) map1 
+      (Theory (ParamDecl parsDest2) (Fields fldsDest2)) = applyMapping (dest2) map2
       newFlds = flds ++ (fldsDest1 List.\\ flds) ++ (fldsDest2 List.\\ flds)
       newParams = pars ++ (parsDest1 List.\\ pars) ++ (parsDest2 List.\\ pars)
-      newThry = Theory newThryName (ParamDecl newParams) (Fields newFlds)
-      view1 = View (tname dest1 ++ "To" ++ tname newThry) dest1 newThry map1 
-      view2 = View (tname dest2 ++ "To" ++ tname newThry) dest2 newThry map2 
+      newThry = Theory (ParamDecl newParams) (Fields newFlds)
+      view1 = View dest1 newThry map1 
+      view2 = View dest2 newThry map2 
   in (newThry,view1,view2) 
 
+-- EDNOTE: find a better way to arrange these arguments
+{-
 combine :: TGraph -> Name_ -> Name_ -> Name_ -> Mapping -> Name_ -> Mapping -> (Theory,View,View)
 combine graph newThryName srcName d1Name ren1 d2Name ren2 =
-  let getTheory thryName = List.find (\x -> tname x == thryName) (nodes graph)
-      theories = [getTheory srcName, getTheory d1Name, getTheory d2Name] 
-  in  if elem Nothing theories
-      then error "One or more theory does not exist"
-      else let Just src   = theories !! 0
-               Just dest1 = theories !! 1
-               Just dest2 = theories !! 2
-               (path1,path2) = getViews graph src dest1 dest2
-            in if checkGuard path1 path2
+    let [src,dest1,dest2] = map (getTheoryFromName $ nodes graph) [srcName,d1Name,d2Name] 
+        (path1,path2) = getViews graph src dest1 dest2
+    in if checkGuard path1 path2
                then computeCombine newThryName path1 ren1 path2 ren2
                else error "Cannot compute the expr" 
-     
+     -}
 -- ----------------------------------------------------------------
 
 -- ------------------------ Helper Functions -------------------------
@@ -174,7 +170,8 @@ pairToFunc list elem = if result == [] then elem
                        else error "Multiple mappings for the same symbol" 
   where result = Prelude.map snd $ Prelude.filter (\x -> fst x ==  elem) list 
 
-symbols :: Theory -> [String]
+-- the symbols of a theory 
+symbols :: Theory -> [Name_]
 symbols thry =
   let 
     getArgs NoParams = []
@@ -188,28 +185,58 @@ symbols thry =
 -- ----------------------------------------------------------------
 
 
-
 -- ------------ Building Theory Graph ----------------------------
-
-addThryToGraph :: TGraph -> Theory -> TGraph 
-addThryToGraph tg thry =
+{-
+getTheoryFromName :: [Theory] -> Name_ -> Theory
+getTheoryFromName thryList thryName =
+  let thry = List.find (\x -> tname x == thryName) thryList
+  in case thry of
+        Just x  -> x
+        Nothing -> error "theory does not exist" 
+  
+addThryToGraph :: Theory -> TGraph -> TGraph 
+addThryToGraph thry tg =
   if not $ elem thry (nodes tg)
   then TGraph ((nodes tg) ++ [thry]) (edges tg)
   else tg 
 
-addViewToGraph :: TGraph -> View -> TGraph
-addViewToGraph (TGraph n e) v = TGraph n (e ++ [v])
+addViewToGraph :: View -> TGraph -> TGraph 
+addViewToGraph v (TGraph n e) = TGraph n (e ++ [v])
 
-extendGraph :: TGraph -> ModExpr -> TGraph
-extendGraph tg (Rename newName thry mapping) =
-  let (tnew,vnew) = rename newName mapping thry
-   in addViewToGraph (addThryToGraph tg tnew) vnew 
+elaborateExpr :: TGraph -> ModExpr -> TGraph
+elaborateExpr tgraph (Rename newThryName srcThry renMap) =
+  let (newT,newV) = rename newThryName renMap srcThry
+  in  addThryToGraph newT $ addViewToGraph newV tgraph 
+elaborateExpr tgraph (Extends newThryName srcThry newDecls) =
+  let (newT,newV) = extends newThryName newDecls srcThry  
+  in  addThryToGraph newT $ addViewToGraph newV tgraph 
+elaborateExpr tgraph (Combine newThryName view1 renMap1 view2 renMap2) =
+  let (newT,v1,v2) = computeCombine newThryName view1 renMap1 view2 renMap2
+  in  (addThryToGraph newT $ 
+         addViewToGraph v2 $ 
+           addViewToGraph v1 tgraph)
+
+-}
+      
+                  {-
+
+combine :: TGraph -> Name_ -> Name_ -> Name_ -> Mapping -> Name_ -> Mapping -> (Theory,View,View)
+combine graph newThryName srcName d1Name ren1 d2Name ren2 =
+
+computeCombine :: Name_ -> [View] -> Mapping -> [View] -> Mapping -> (Theory,View,View)
+computeCombine newThryName path1 ren1 path2 ren2 =
+
+data ModExpr = Rename String Theory Mapping
+               | Extends Theory [Constr]
+               | Combine Theory Theory Mapping Theory Mapping 
+
+-}
 
 -- -------------------- example ------------------------------
 
 recordToTheory :: Decl -> Theory 
 recordToTheory (Record n par (RecordDef _ f)) =
-  Theory (nameToStr n) par f 
+  Theory par f 
 recordToTheory _ = error "The input is not a valid theory"          
 
 
@@ -219,12 +246,12 @@ noSrcLoc :: (Int,Int)
 noSrcLoc = (0,0)
 
 
-carrier = Theory "Carrier" 
+carrier = Theory 
                 (ParamDecl [Bind [Arg $ Id $ NotQual $ Name (noSrcLoc,"A")]
                                  (App [Arg $ Id $ NotQual $ Name (noSrcLoc,"Set")])])
                 (Fields [])
 
-magma =  Theory "Magma"
+magma =  Theory 
                 (ParamDecl [Bind [Arg $ Id $ NotQual $ Name (noSrcLoc,"A")]
                                  (App [Arg $ Id $ NotQual $ Name (noSrcLoc,"Set")])])
                 (Fields [Constr (Name (noSrcLoc,"op"))
@@ -232,21 +259,22 @@ magma =  Theory "Magma"
                                      (Fun (App [Arg $ Id $ NotQual $ Name (noSrcLoc,"A")])
                                           (App [Arg $ Id $ NotQual $ Name (noSrcLoc,"A")])))])
 
-pointed = Theory "Pointed"
+pointed = Theory
                 (ParamDecl [Bind [Arg $ Id $ NotQual $ Name (noSrcLoc,"A")]
                                  (App [Arg $ Id $ NotQual $ Name (noSrcLoc,"Set")])])
                 (Fields [Constr (Name (noSrcLoc,"e"))
                                 (App [Arg $ Id $ NotQual $ Name (noSrcLoc,"A")])])
 
-carrierToMagma = View "carrierToMagma" carrier magma [("A","A")]
-carrierToPointed = View "carrierToPointed" carrier pointed [("A","A")]
+carrierToMagma = View carrier magma [("A","A")]
+carrierToPointed = View carrier pointed [("A","A")]
 
-diamond = TGraph [carrier,magma,pointed] [carrierToMagma,carrierToPointed]
+diamond = TGraph (Map.fromList [("Carrier",carrier),("Magma",magma),("Pointed",pointed)])
+                 (Map.fromList [("CarrierToMagma",carrierToMagma),("CarrierToPointed",carrierToPointed)])
                 
 
 constructPM :: String -> String -> String -> String -> Theory
 constructPM name carrier unit op =
-         Theory name
+         Theory
                 (ParamDecl [Bind [Arg $ Id $ NotQual $ Name (noSrcLoc,carrier)]
                                  (App [Arg $ Id $ NotQual $ Name (noSrcLoc,"Set")])])
                 (Fields [Constr (Name (noSrcLoc,unit))
@@ -263,16 +291,17 @@ addPM = constructPM "AddPM" "A" "0" "plus"
 multPM = constructPM "multPM" "N" "1" "mult" 
 
 additive :: View
-additive = View "additive" pointedMagma addPM [("A","A"),("e","0"),("op","plus")]
+additive = View pointedMagma addPM [("A","A"),("e","0"),("op","plus")]
 
 fakeMultiplicative :: View
-fakeMultiplicative = View "fakeMultiplicative" addPM multPM [("A","N"),("0","1"),("plus","mult")]
+fakeMultiplicative = View addPM multPM [("A","N"),("0","1"),("plus","mult")]
 
 simpleGraph :: TGraph 
 simpleGraph =
-  let graph = TGraph [] [] 
+  let graph = TGraph Map.empty Map.empty  
       n = nodes graph
       e = edges graph
-  in TGraph [pointedMagma, addPM, multPM] [additive, fakeMultiplicative] 
+  in TGraph (Map.fromList [("PointedMagma",pointedMagma), ("AdditivePM",addPM), ("MultiplicativePM",multPM)])
+            (Map.fromList [("additive",additive), ("fakeMultiplicative",fakeMultiplicative)])
 
 
