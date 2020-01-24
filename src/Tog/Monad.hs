@@ -51,6 +51,7 @@ import qualified Control.Lens                     as L
 import           Control.Monad.State.Strict       (StateT(StateT), runStateT, MonadState(..))
 import           Control.Monad.Reader             (MonadReader(..), asks)
 import           Control.Monad.Trans.Except       (catchE)
+import           Control.Monad.Fail
 
 import           Tog.Prelude
 import           Tog.Instrumentation
@@ -71,7 +72,7 @@ import           Tog.Error
 -- Moreover, it's also a reader and state over some @r@ and @s@.
 newtype TC t r s a = TC
   {unTC :: ExceptT TCErr (StateT (TCState t r s) IO) a}
-  deriving (Functor, Applicative, Monad, MonadIO)
+  deriving (Functor, Applicative, Monad, MonadFail, MonadIO)
 
 type TC_ t a = forall r s. TC t r s a
 

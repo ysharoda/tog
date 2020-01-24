@@ -25,6 +25,7 @@ import qualified Tog.PrettyPrint                  as PP
 import           Tog.Term.Synonyms
 import           Tog.Term.Types
 import qualified Tog.Term.Subst                   as Sub
+import           Control.Monad.Fail
 
 #include "impossible.h"
 
@@ -68,7 +69,7 @@ genericSafeApplySubst t rho = do
         J       -> lift $ app J els'
 
 genericWhnf
-  :: (MonadTerm t m) => t -> m (Blocked t)
+  :: (MonadTerm t m, MonadFail m) => t -> m (Blocked t)
 genericWhnf t = do
   tView <- view t
   let fallback = return $ NotBlocked t
@@ -121,7 +122,7 @@ genericWhnf t = do
 -- | For convenience, here we have turned already meta-variables bodies
 -- into dummy contextual clauses.
 eliminateInst
-  :: (MonadTerm t m)
+  :: (MonadTerm t m, MonadFail m)
   => Natural
   -- ^ Length of the context the 'FunInst' resides in.
   -> Opened (Either Meta QName) t -> FunInst t -> [Elim t]
@@ -157,7 +158,7 @@ eliminateInst argsNum opnd@(Opened _ args) (Inst inv) es | clauses <- ignoreInve
         _                                 -> return False
 
 eliminateClauses
-  :: (MonadTerm t m)
+  :: (MonadTerm t m, MonadFail m)
   => Opened (Either Meta QName) t -> [Clause t] -> [Elim t] -> m (Blocked t)
 -- Again, metas only ever have one clause.  Note that all these are just
 -- assertions, things would work just fine without them, but let's

@@ -163,6 +163,7 @@ module Tog.Term.Types
   ) where
 
 import           Control.Monad.Trans.Reader       (ReaderT, runReaderT, ask)
+import           Control.Monad.Fail 
 import qualified Data.HashSet                     as HS
 import qualified Data.HashMap.Strict              as HMS
 
@@ -802,11 +803,11 @@ instance HasSrcLoc Meta where
 -- MonadTerm
 ------------------------------------------------------------------------
 
-class (Functor m, Applicative m, Monad m, MonadIO m, IsTerm t) => MonadTerm t m | m -> t where
+class (Functor m, Applicative m, Monad m, MonadIO m, MonadFail m, IsTerm t) => MonadTerm t m | m -> t where
   askSignature :: m (Signature t)
 
 newtype TermM t a = TermM (ReaderT (Signature t) IO a)
-  deriving (Functor, Applicative, Monad, MonadIO)
+  deriving (Functor, Applicative, Monad, MonadIO, MonadFail)
 
 instance (IsTerm t) => MonadTerm t (TermM t) where
   askSignature = TermM ask

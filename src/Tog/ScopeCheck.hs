@@ -211,6 +211,7 @@ module Tog.ScopeCheck (scopeCheckModule, scopeCheckFile) where
 import           Prelude hiding (length, replicate)
 
 import           Control.Monad.Reader (MonadReader, ReaderT, runReaderT, local)
+import           Control.Monad.Fail
 import qualified Data.Map as Map
 import qualified Data.Set as Set
 import qualified Control.Lens as L
@@ -300,7 +301,10 @@ initScope :: FullyQName -> Scope
 initScope n = Scope Map.empty (initNameSpace n) [] Map.empty Map.empty
 
 newtype Check a = Check { unCheck :: ReaderT Scope (Either ScopeError) a }
-  deriving (Functor, Applicative, Monad, MonadReader Scope)
+  deriving (Functor, Applicative, Monad, MonadReader Scope, MonadFail)
+
+instance MonadFail (Either ScopeError)  where
+  fail msg = Left $ ScopeError noSrcLoc msg 
 
 evalCheck :: Scope -> Check a -> Either ScopeError a
 evalCheck sc m = runReaderT (unCheck m) sc
