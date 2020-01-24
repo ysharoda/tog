@@ -51,12 +51,13 @@ confDebug conf = case confDebugLabels conf of
 confDisableDebug :: Conf -> Conf
 confDisableDebug conf = conf{confDebugLabels = DLSome []}
 
+instance Semigroup DebugLabels where
+  DLAll     <> _         = DLAll
+  _         <> DLAll     = DLAll
+  DLSome xs <> DLSome ys = DLSome (xs ++ ys)
+
 instance Monoid DebugLabels where
   mempty = DLSome []
-
-  DLAll     `mappend` _         = DLAll
-  _         `mappend` DLAll     = DLAll
-  DLSome xs `mappend` DLSome ys = DLSome (xs ++ ys)
 
 defaultConf :: Conf
 defaultConf = Conf "S" "Simple" mempty False False False False False False False False False False False False False False

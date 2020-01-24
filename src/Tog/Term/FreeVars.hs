@@ -23,8 +23,9 @@ fvAll fvs = fvRigid fvs <> fvFlexible fvs
 instance Monoid FreeVars where
   mempty = FreeVars Set.empty Set.empty
 
-  FreeVars rigid1 flex1 `mappend` FreeVars rigid2 flex2 =
-    FreeVars (rigid1 `mappend` rigid2) (flex1 `mappend` flex2)
+instance Semigroup FreeVars where
+  FreeVars rigid1 flex1 <> FreeVars rigid2 flex2 =
+    FreeVars (rigid1 <> rigid2) (flex1 <> flex2)
 
 freeVars
   :: forall t m. (MonadTerm t m)

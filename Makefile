@@ -3,9 +3,14 @@ hs_sources = $(shell find src/ -name '*.hs')
 alex_file = bnfc/Tog/Raw/Lex
 happy_file = bnfc/Tog/Raw/Par
 executable = dist/build/tog/tog
+BNFC = $(shell command -v bnfc 2> /dev/null)
 
 .PHONY: build
 build: $(executable)
+ifndef BNFC
+cabal v1-install --dependencies-only
+endif
+
 
 $(bnfc_output): src/Tog/Raw/Raw.cf
 	-@mkdir -p bnfc
@@ -19,7 +24,7 @@ $(happy_file).hs: $(happy_file).y
 	happy $<
 
 $(executable): $(bnfc_output) $(hs_sources) tog.cabal
-	stack build
+	cabal v1-build
 
 .PHONY: bnfc
 bnfc: $(bnfc_output)
@@ -27,7 +32,7 @@ bnfc: $(bnfc_output)
 .PHONY: clean
 clean:
 	rm -rf bnfc
-	stack clean
+	cabal clean
 
 .PHONY: test
 test: $(executable)
@@ -42,7 +47,7 @@ install-prof: $(bnfc_output) $(hs_sources)
 
 .PHONY: install
 install: $(bnfc_output) $(hs_source)
-	stack install
+	cabal v1-install
 
 .PHONY: ghci
 ghci: $(bnfc_output) $(alex_file).hs $(happy_file).hs

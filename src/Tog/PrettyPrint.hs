@@ -28,10 +28,6 @@ import           Text.PrettyPrint.Leijen          hiding ((<$>), (<$$>), renderP
 
 import           Tog.Prelude
 
-instance Monoid PP.Doc where
-  mempty = PP.empty
-  mappend = (PP.<>)
-
 render :: Pretty a => a -> String
 render x = defaultShow 0 x ""
 
