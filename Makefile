@@ -8,7 +8,7 @@ BNFC = $(shell command -v bnfc 2> /dev/null)
 .PHONY: build
 build: $(executable)
 ifndef BNFC
-cabal v1-install --dependencies-only
+cabal install --dependencies-only
 endif
 
 
@@ -24,7 +24,7 @@ $(happy_file).hs: $(happy_file).y
 	happy $<
 
 $(executable): $(bnfc_output) $(hs_sources) tog.cabal
-	cabal v1-build
+	cabal build
 
 .PHONY: bnfc
 bnfc: $(bnfc_output)
@@ -36,20 +36,20 @@ clean:
 
 .PHONY: test
 test: $(executable)
-	stack exec -- time ./test
+	cabal exec -- time ./test
 
 modules.pdf: $(bnfc_output) $(hs_sources)
 	graphmod -i src -i bnfc src/Tog/Main.hs | dot -T pdf -o modules.pdf
 
 .PHONY: install-prof
 install-prof: $(bnfc_output) $(hs_sources)
-	stack build --library-profiling --executable-profiling
+	cabal build --library-profiling --executable-profiling
 
 .PHONY: install
 install: $(bnfc_output) $(hs_source)
-	cabal v1-install
+	cabal install
 
 .PHONY: ghci
 ghci: $(bnfc_output) $(alex_file).hs $(happy_file).hs
-	stack ghci tog:lib tog:tog
+	cabal ghci tog:lib tog:tog
 
