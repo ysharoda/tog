@@ -1,16 +1,21 @@
 bnfc_output = $(patsubst %,bnfc/Tog/Raw/%,Abs.hs ErrM.hs Layout.hs Print.hs Lex.x Par.y)
 hs_sources = $(shell find src/ -name '*.hs')
-alex_file = bnfc/Tog/Raw/Lex
+alex_file  = bnfc/Tog/Raw/Lex
 happy_file = bnfc/Tog/Raw/Par
 executable = dist/build/tog/tog
-BNFC = $(shell command -v bnfc 2> /dev/null)
+find_bnfc  = $(shell which bnfc)
 
-.PHONY: build
-build: $(executable)
-ifndef BNFC
-cabal install --dependencies-only
+all : build-deps build  
+
+.PHONY: build-deps
+build-deps:  
+ifndef $(find_bnfc) 
+	cabal v1-update
+	cabal v1-install --dependencies-only
 endif
 
+.PHONY: build
+build: $(executable) 
 
 $(bnfc_output): src/Tog/Raw/Raw.cf
 	-@mkdir -p bnfc
@@ -24,7 +29,7 @@ $(happy_file).hs: $(happy_file).y
 	happy $<
 
 $(executable): $(bnfc_output) $(hs_sources) tog.cabal
-	cabal build
+	cabal v1-build
 
 .PHONY: bnfc
 bnfc: $(bnfc_output)
@@ -36,20 +41,20 @@ clean:
 
 .PHONY: test
 test: $(executable)
-	cabal exec -- time ./test
+	stack exec -- time ./test
 
 modules.pdf: $(bnfc_output) $(hs_sources)
 	graphmod -i src -i bnfc src/Tog/Main.hs | dot -T pdf -o modules.pdf
 
 .PHONY: install-prof
 install-prof: $(bnfc_output) $(hs_sources)
-	cabal build --library-profiling --executable-profiling
+	stack build --library-profiling --executable-profiling
 
 .PHONY: install
 install: $(bnfc_output) $(hs_source)
-	cabal install
+	cabal v1-install
 
 .PHONY: ghci
 ghci: $(bnfc_output) $(alex_file).hs $(happy_file).hs
-	cabal ghci tog:lib tog:tog
+	stack ghci tog:lib tog:tog
 
