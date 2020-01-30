@@ -1,21 +1,21 @@
 bnfc_output = $(patsubst %,bnfc/Tog/Raw/%,Abs.hs ErrM.hs Layout.hs Print.hs Lex.x Par.y)
 hs_sources = $(shell find src/ -name '*.hs')
-alex_file  = bnfc/Tog/Raw/Lex
+alex_file = bnfc/Tog/Raw/Lex
 happy_file = bnfc/Tog/Raw/Par
 executable = dist/build/tog/tog
-find_bnfc  = $(shell which bnfc)
+find_bnfc  = $(shell which BNFC)  
 
-all : build-deps build  
+all: build-deps build 
 
-.PHONY: build-deps
-build-deps:  
-ifndef $(find_bnfc) 
-	cabal v1-update
-	cabal v1-install --dependencies-only
-endif
+.PHONY : build-deps
+build-deps:
+ifndef $(find-bnfc)
+	cabal update
+	cabal install BNFC 
+endif 
 
 .PHONY: build
-build: $(executable) 
+build: $(executable)
 
 $(bnfc_output): src/Tog/Raw/Raw.cf
 	-@mkdir -p bnfc
@@ -29,7 +29,7 @@ $(happy_file).hs: $(happy_file).y
 	happy $<
 
 $(executable): $(bnfc_output) $(hs_sources) tog.cabal
-	cabal v1-build
+	stack build
 
 .PHONY: bnfc
 bnfc: $(bnfc_output)
@@ -37,7 +37,7 @@ bnfc: $(bnfc_output)
 .PHONY: clean
 clean:
 	rm -rf bnfc
-	cabal clean
+	stack clean
 
 .PHONY: test
 test: $(executable)
@@ -52,7 +52,7 @@ install-prof: $(bnfc_output) $(hs_sources)
 
 .PHONY: install
 install: $(bnfc_output) $(hs_source)
-	cabal install
+	stack install
 
 .PHONY: ghci
 ghci: $(bnfc_output) $(alex_file).hs $(happy_file).hs
