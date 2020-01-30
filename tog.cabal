@@ -53,6 +53,7 @@ library
                      , Tog.Raw.Lex
                      , Tog.Raw.Par
                      , Tog.Raw.Print
+                     , Tog.DerivingInsts
 
   build-depends:       array >= 0.4
                      , base >= 4.6

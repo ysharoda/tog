@@ -2,10 +2,12 @@ module TheoryGraph where
 
 import Tog.Raw.Abs
 import Tog.Utils
- 
+import Tog.DerivingInsts
+  
 import qualified Data.Generics as Generics
 import qualified Data.List     as List
-import qualified Data.Map      as Map 
+import qualified Data.Map      as Map
+import Control.Monad.State
 
 data Theory = Theory {
     params :: Params,
@@ -25,16 +27,41 @@ data TGraph = TGraph{ -- check is I would rather use only a map of edges
 
 type Name_ = String
 type Path  = [View]
-type RenameFunc = String -> String
-type Mapping = [(String,String)] -- Mapping (Map.Map Name_ Name_) 
+type RenameFunc = Name_ -> Name_
+type Mapping = [(Name_,Name_)] -- Mapping (Map.Map Name_ Name_) 
 
-
-data ModExpr = Rename Name_ Theory Mapping
-               | Extends Name_ Theory [Constr]
-               | Combine Name_ Path Mapping Path Mapping
+data ModExpr = Rename Theory Mapping
+               | Extends Theory [Constr]
+               | Combine Path Mapping Path Mapping
                -- not the export the constructor at the outside of the module 
 
--- 
+-- newtype State s a = State { runState :: s -> (a,s) }
+{-
+def :: Name_ -> ModExpr -> State TGraph Theory
+def name (Rename srcThry renMap) =
+  let (newT,newV) = rename renMap srcThry
+      viewName = "To" ++ name -- TODO: Better view name 
+      updateGraph =
+        (\(TGraph thrys views) -> (newT,TGraph (Map.insert name newT thrys) (Map.insert viewName newV views))) 
+  in  State (\oldGraph -> (newT,updateGraph oldGraph))
+-}
+
+
+{-
+def name (Extends srcThry newDecls) =
+  let (newT,newV) = extends newDecls srcThry
+      updateGraph = (\oldGraph -> addThryToGraph newT $ addViewToGraph newV oldGraph)  
+  in  StateT (newT,\oldGraph -> updateGraph)  
+-}
+{-
+def name (Combine view1 renMap1 view2 renMap2) =
+  let (newT,v1,v2) = computeCombine newThryName view1 renMap1 view2 renMap2
+  in  newT 
+-}
+
+
+
+
 applyMapping :: Theory -> Mapping -> Theory 
 applyMapping thry mapp =
   Theory (Generics.everywhere (Generics.mkT $ pairToFunc mapp) (params thry)) 
@@ -178,130 +205,5 @@ symbols thry =
     getArgs (ParamDef _) = [] 
     getArgs (ParamDecl bindsList) = Prelude.foldr (++) [] $ Prelude.map getBindingArgs bindsList 
     argNames   = Generics.everything (++) (Generics.mkQ [] (\(Id (NotQual (Name (_,n)))) -> [n])) (getArgs $ params thry)    
-    fieldNames = Generics.everything (++) (Generics.mkQ [] (\(Constr (Name (_,n)) _) -> [n])) thry 
-  in argNames ++ fieldNames 
-
-
--- ----------------------------------------------------------------
-
-
--- ------------ Building Theory Graph ----------------------------
-{-
-getTheoryFromName :: [Theory] -> Name_ -> Theory
-getTheoryFromName thryList thryName =
-  let thry = List.find (\x -> tname x == thryName) thryList
-  in case thry of
-        Just x  -> x
-        Nothing -> error "theory does not exist" 
-  
-addThryToGraph :: Theory -> TGraph -> TGraph 
-addThryToGraph thry tg =
-  if not $ elem thry (nodes tg)
-  then TGraph ((nodes tg) ++ [thry]) (edges tg)
-  else tg 
-
-addViewToGraph :: View -> TGraph -> TGraph 
-addViewToGraph v (TGraph n e) = TGraph n (e ++ [v])
-
-elaborateExpr :: TGraph -> ModExpr -> TGraph
-elaborateExpr tgraph (Rename newThryName srcThry renMap) =
-  let (newT,newV) = rename newThryName renMap srcThry
-  in  addThryToGraph newT $ addViewToGraph newV tgraph 
-elaborateExpr tgraph (Extends newThryName srcThry newDecls) =
-  let (newT,newV) = extends newThryName newDecls srcThry  
-  in  addThryToGraph newT $ addViewToGraph newV tgraph 
-elaborateExpr tgraph (Combine newThryName view1 renMap1 view2 renMap2) =
-  let (newT,v1,v2) = computeCombine newThryName view1 renMap1 view2 renMap2
-  in  (addThryToGraph newT $ 
-         addViewToGraph v2 $ 
-           addViewToGraph v1 tgraph)
-
--}
-      
-                  {-
-
-combine :: TGraph -> Name_ -> Name_ -> Name_ -> Mapping -> Name_ -> Mapping -> (Theory,View,View)
-combine graph newThryName srcName d1Name ren1 d2Name ren2 =
-
-computeCombine :: Name_ -> [View] -> Mapping -> [View] -> Mapping -> (Theory,View,View)
-computeCombine newThryName path1 ren1 path2 ren2 =
-
-data ModExpr = Rename String Theory Mapping
-               | Extends Theory [Constr]
-               | Combine Theory Theory Mapping Theory Mapping 
-
--}
-
--- -------------------- example ------------------------------
-
-recordToTheory :: Decl -> Theory 
-recordToTheory (Record n par (RecordDef _ f)) =
-  Theory par f 
-recordToTheory _ = error "The input is not a valid theory"          
-
-
-
-
-noSrcLoc :: (Int,Int)
-noSrcLoc = (0,0)
-
-
-carrier = Theory 
-                (ParamDecl [Bind [Arg $ Id $ NotQual $ Name (noSrcLoc,"A")]
-                                 (App [Arg $ Id $ NotQual $ Name (noSrcLoc,"Set")])])
-                (Fields [])
-
-magma =  Theory 
-                (ParamDecl [Bind [Arg $ Id $ NotQual $ Name (noSrcLoc,"A")]
-                                 (App [Arg $ Id $ NotQual $ Name (noSrcLoc,"Set")])])
-                (Fields [Constr (Name (noSrcLoc,"op"))
-                                (Fun (App [Arg $ Id $ NotQual $ Name (noSrcLoc,"A")])
-                                     (Fun (App [Arg $ Id $ NotQual $ Name (noSrcLoc,"A")])
-                                          (App [Arg $ Id $ NotQual $ Name (noSrcLoc,"A")])))])
-
-pointed = Theory
-                (ParamDecl [Bind [Arg $ Id $ NotQual $ Name (noSrcLoc,"A")]
-                                 (App [Arg $ Id $ NotQual $ Name (noSrcLoc,"Set")])])
-                (Fields [Constr (Name (noSrcLoc,"e"))
-                                (App [Arg $ Id $ NotQual $ Name (noSrcLoc,"A")])])
-
-carrierToMagma = View carrier magma [("A","A")]
-carrierToPointed = View carrier pointed [("A","A")]
-
-diamond = TGraph (Map.fromList [("Carrier",carrier),("Magma",magma),("Pointed",pointed)])
-                 (Map.fromList [("CarrierToMagma",carrierToMagma),("CarrierToPointed",carrierToPointed)])
-                
-
-constructPM :: String -> String -> String -> String -> Theory
-constructPM name carrier unit op =
-         Theory
-                (ParamDecl [Bind [Arg $ Id $ NotQual $ Name (noSrcLoc,carrier)]
-                                 (App [Arg $ Id $ NotQual $ Name (noSrcLoc,"Set")])])
-                (Fields [Constr (Name (noSrcLoc,unit))
-                                (App [Arg $ Id $ NotQual $ Name (noSrcLoc,carrier)]),
-                         Constr (Name (noSrcLoc,op))
-                                (Fun (App [Arg $ Id $ NotQual $ Name (noSrcLoc,carrier)])
-                                     (Fun (App [Arg $ Id $ NotQual $ Name (noSrcLoc,carrier)])
-                                          (App [Arg $ Id $ NotQual $ Name (noSrcLoc,carrier)])))])
-
-
-pointedMagma, addPM, multPM :: Theory 
-pointedMagma = constructPM "PointedMagma" "A" "e" "op"
-addPM = constructPM "AddPM" "A" "0" "plus"
-multPM = constructPM "multPM" "N" "1" "mult" 
-
-additive :: View
-additive = View pointedMagma addPM [("A","A"),("e","0"),("op","plus")]
-
-fakeMultiplicative :: View
-fakeMultiplicative = View addPM multPM [("A","N"),("0","1"),("plus","mult")]
-
-simpleGraph :: TGraph 
-simpleGraph =
-  let graph = TGraph Map.empty Map.empty  
-      n = nodes graph
-      e = edges graph
-  in TGraph (Map.fromList [("PointedMagma",pointedMagma), ("AdditivePM",addPM), ("MultiplicativePM",multPM)])
-            (Map.fromList [("additive",additive), ("fakeMultiplicative",fakeMultiplicative)])
-
-
+    fieldNames = Generics.everything (++) (Generics.mkQ [] (\(Constr (Name (_,n)) _) -> [n])) thry
+  in argNames ++ fieldNames     
