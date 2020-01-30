@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -fno-warn-orphans #-}
+
 module Tog.DerivingInsts where
 
 import Tog.Raw.Abs
