@@ -6,7 +6,6 @@ module Tog.Unify
   ) where
 
 import           Tog.Instrumentation
-import           Tog.Prelude
 import           Tog.Term
 import           Tog.Monad
 import           Tog.Elaborate

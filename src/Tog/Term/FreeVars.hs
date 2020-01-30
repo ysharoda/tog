@@ -6,7 +6,6 @@ module Tog.Term.FreeVars
 
 import qualified Data.Set                         as Set
 
-import           Tog.Prelude
 import           Tog.Term.Types
 
 -- Free variables

@@ -7,7 +7,6 @@ module Tog.Error
 import           Prelude                          hiding (abs, pi)
 import qualified Data.HashSet                     as HS
 
-import           Tog.Prelude
 import           Tog.Names
 import qualified Tog.Abstract                     as SA
 import           Tog.Term
