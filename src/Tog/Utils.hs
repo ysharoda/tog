@@ -65,7 +65,8 @@ strToArg :: String -> Arg
 strToArg str = Arg $ createIdNQ str
 
 nameStr :: Name -> String 
-nameStr (Name (_,n)) = n 
+nameStr (Name (_,n)) = n
+
 
 {- ------------------------------------------------------------ -} 
 {- ---------------------- Getters ----------------------------- -} 
@@ -81,8 +82,8 @@ getName :: Name -> Maybe String
 getName n = n ^? _Name._2
 
 getQname :: QName -> Maybe String 
-getQname qn@(NotQual _) = qn ^? _NotQual.to getName._Just 
-getQname qn@(Qual q n)  = (++) <$> getQname q <*> getName n
+getQname (Qual q n)  = (++) <$> getQname q <*> getName n
+getQname qn = qn ^? _NotQual.to getName._Just 
 -- (++) <$> ((++) <$> qname q <*> pure ".") <*> name n 
 
 getArgName :: Arg -> Maybe String 
@@ -93,6 +94,13 @@ getRecordName :: Decl -> Maybe String
 getRecordName (Record name _ _) = getName name
 getRecordName _ = Nothing
 
+getParams :: Params -> [Binding]
+getParams (ParamDecl bs) = bs
+getParams _ = []
+
+getFields :: Fields -> [Constr] 
+getFields NoFields = []
+getFields (Fields ls) = ls 
 
 
 {- ------------------------------------------------------------ -} 

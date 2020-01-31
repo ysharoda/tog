@@ -54,6 +54,7 @@ library
                      , Tog.Raw.Par
                      , Tog.Raw.Print
                      , Tog.DerivingInsts
+                     , Tog.TheoryGraph 
 
   build-depends:       array >= 0.4
                      , base >= 4.6
