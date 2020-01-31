@@ -82,8 +82,8 @@ getName :: Name -> Maybe String
 getName n = n ^? _Name._2
 
 getQname :: QName -> Maybe String 
-getQname (Qual q n)  = (++) <$> getQname q <*> getName n
-getQname qn = qn ^? _NotQual.to getName._Just 
+getQname qn@(NotQual _) = qn ^? _NotQual.to getName._Just 
+getQname    (Qual q n)  = (++) <$> getQname q <*> getName n
 -- (++) <$> ((++) <$> qname q <*> pure ".") <*> name n 
 
 getArgName :: Arg -> Maybe String 
