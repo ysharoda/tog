@@ -1,12 +1,13 @@
 module TGraphTest where
 
-import Tog.TGraph
-
 import qualified Data.Map        as Map
+
+import Tog.TGraph
 import           Tog.Raw.Abs     as Abs
 import qualified Tog.PrettyPrint as PP
 import           Tog.ScopeCheck
 import           Tog.Abstract(Module)
+
 
 typeCheck :: TGraph -> [Either PP.Doc Tog.Abstract.Module]
 typeCheck graph =
@@ -30,10 +31,10 @@ pmgraph =
   def "AddPM"    (Combine "AdditiveMagma" [] "Pointed0" [] "Carrier") $ 
   def "Pointed0" (Rename "Pointed" [("A","Nat"),("e","0")]) $
   def "AdditiveMagma" (Rename "Magma" [("A","Nat"),("op","+")]) $ 
-  def "PointedMagma"  (Combine "Magma" [] "Pointed" [] "Carrier") $ 
-  def "Magma"   (Extend "Carrier" [createBinFunc "op" "A"]) $ 
-  def "Pointed" (Extend "Carrier" [createConst "e" "A"]) $
-  def "Carrier" (Extend "Empty"   [createConst "A" "Set"]) initGraph
+  def "PointedMagma"  (Combine "Magma" [] "Pointed" [] "Carrier") $
+  def "Magma"   (Extend "Carrier" ["op : A -> A -> A"]) $ 
+  def "Pointed" (Extend "Carrier" ["e  : A"]) $
+  def "Carrier" (Extend "Empty"   ["A  : Set"]) initGraph
 
 emptyThry :: Theory 
 emptyThry = Theory NoParams NoFields
@@ -41,19 +42,4 @@ emptyThry = Theory NoParams NoFields
 initGraph :: TGraph
 initGraph = TGraph (Map.singleton "Empty" emptyThry) (Map.empty) 
 
-noSrcLoc :: (Int,Int)
-noSrcLoc = (0,0) 
-
-createNQArg :: Name_ -> Arg 
-createNQArg str = Arg $ Id $ NotQual $ Name (noSrcLoc,str) 
-
-createConst :: Name_ -> Name_ -> Constr 
-createConst name typeName =
-  Constr (Name (noSrcLoc,name)) (App [createNQArg typeName])
-
-createBinFunc :: Name_ -> Name_ -> Constr
-createBinFunc name typeName = 
-  Constr (Name (noSrcLoc,name))
-    (Fun (App [createNQArg typeName])
-         $ Fun (App [createNQArg typeName]) (App [createNQArg typeName]))
   

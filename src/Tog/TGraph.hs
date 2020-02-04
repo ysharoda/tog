@@ -8,6 +8,9 @@ import qualified Data.Generics      as Generics
 import qualified Data.List          as List
 import qualified Data.Map           as Map
 import qualified Data.List.NonEmpty as NE
+import           Data.List.Split
+import           Data.Char(isSpace)
+import           Tog.Parse(parseExpr) 
 
 
 type Name_ = String
@@ -43,9 +46,10 @@ data ModExpr = RenameT Theory Mapping
 {- ------------------- Read The Input  ----------------- -}
 
 type InputMap = [(Name_,Name_)]
+type SConstr  = String 
 
 data StrExpr = Rename Name_ InputMap 
-             | Extend Name_ [Constr]
+             | Extend Name_ [SConstr]
              | Combine Name_ InputMap Name_ InputMap Name_
 
 def :: Name_ -> StrExpr -> TGraph -> TGraph
@@ -57,7 +61,7 @@ def name strExpr graph =
 
 parse :: StrExpr -> TGraph -> ModExpr
 parse (Rename name ren) graph = RenameT (lookupName name graph) (Map.fromList ren)
-parse (Extend name decls) graph = ExtendT (lookupName name graph) decls
+parse (Extend name decls) graph = ExtendT (lookupName name graph) (map parseConstr decls)
 -- Combine "AdditiveMagma" [] "Pointed0" [] "Carrier"
 parse (Combine name1 ren1 name2 ren2 nameSrc) graph =
   let srcThry = lookupName nameSrc graph
@@ -245,3 +249,16 @@ checkGuards path1 path2 =
       srcSymbols = symbols $ pathSource path1
    in sameSource && 
       (List.map (composeViewsToFunc (NE.toList path1)) srcSymbols) == (List.map (composeViewsToFunc (NE.toList path2)) srcSymbols)
+
+noSrcLoc :: (Int,Int)
+noSrcLoc = (0,0) 
+
+parseConstr :: String -> Constr
+parseConstr constr =
+  let trim = List.dropWhileEnd isSpace . List.dropWhile isSpace
+      namTyp = map trim $ splitOn ":" constr
+      get_expr (Left _) = error "invalide declaration"
+      get_expr (Right r) = r
+  in  if length namTyp /= 2 then error "invalid declaration"
+      else Constr (Name (noSrcLoc, head namTyp)) (get_expr $ parseExpr $ last namTyp) 
+      
