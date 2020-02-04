@@ -1,4 +1,4 @@
-module TGraph where
+module Tog.TGraph where
 
 import Tog.Raw.Abs
 import Tog.Utils
@@ -28,7 +28,7 @@ data View   = View{
 
 data QPath = QPath { -- Qualified path, i.e. a path with a rename
     path :: Path,
-    mapp :: Mapping }
+    mapp :: Mapping } deriving Show 
 
 data TGraph = TGraph{ -- check if I would rather use only a map of edges
     nodes :: Map.Map Name_ Theory,
@@ -38,13 +38,11 @@ data TGraph = TGraph{ -- check if I would rather use only a map of edges
 
 data ModExpr = RenameT Theory Mapping
                | ExtendT Theory [Constr]
-               | CombineP QPath QPath
+               | CombineP QPath QPath deriving Show 
 
 {- ------------------- Read The Input  ----------------- -}
 
 type InputMap = [(Name_,Name_)]
-
-
 
 data StrExpr = Rename Name_ InputMap 
              | Extend Name_ [Constr]
@@ -60,10 +58,11 @@ def name strExpr graph =
 parse :: StrExpr -> TGraph -> ModExpr
 parse (Rename name ren) graph = RenameT (lookupName name graph) (Map.fromList ren)
 parse (Extend name decls) graph = ExtendT (lookupName name graph) decls
+-- Combine "AdditiveMagma" [] "Pointed0" [] "Carrier"
 parse (Combine name1 ren1 name2 ren2 nameSrc) graph =
   let srcThry = lookupName nameSrc graph
-      path1 = getPath graph srcThry  (lookupName name1 graph)
-      path2 = getPath graph srcThry  (lookupName name2 graph) 
+      path1 = getPath graph srcThry (lookupName name1 graph)
+      path2 = getPath graph srcThry (lookupName name2 graph) 
   in CombineP (QPath path1 $ Map.fromList ren1) (QPath path2 $ Map.fromList ren2)
 
   
@@ -94,7 +93,7 @@ computeExtend newDecls srcThry =
 extThry :: [Constr] -> Theory -> Theory 
 extThry newConstrs thry =
   if noNameConflict newConstrNames (symbols thry)
-  then Theory (params thry) $ newFields (fields thry) -- TODO: Decl added to param? 
+  then Theory (params thry) $ newFields (fields thry) -- TODO: Decl added to param?
   else error $ "Cannot create theory "
   where newConstrNames = constrsNames newConstrs
         newFields NoFields = Fields newConstrs
@@ -104,7 +103,15 @@ extThry newConstrs thry =
 data UTriangle = UTriangle { -- upside triangle
    uLeft  :: View,
    uRight :: View }               
+{-
+getView src qp = View src (pathTarget $ path qp) (composeMaps $ (NE.toList (NE.map mapping $ path qp)) ++ [mapp qp])
 
+compViewsPrint :: StrExpr -> TGraph -> [View]
+compViewsPrint strExpr graph =
+  let CombineP qp1 qp2 = parse strExpr graph
+      src = pathSource $ path qp1
+   in [getView src qp1,getView src qp2] 
+-}
 computeCombine :: QPath -> QPath -> UTriangle
 computeCombine qpath1 qpath2 =
   let isTriangle = (pathSource $ path qpath1) == (pathSource $ path qpath2)
@@ -123,21 +130,22 @@ upsideTriangle v1 v2 =
 -- Precondition: Called after checkGuards
 createDiamond :: View -> View -> UTriangle
 createDiamond left right =
-  let commonSrc = source $ left
-      lThry = target left
-      rThry = target right 
-      newThry =
-        Theory (ParamDecl $ disjointUnion3 (getParams $ params commonSrc) (getParams $ params lThry) (getParams $ params rThry))
-               (Fields    $ disjointUnion3 (getFields $ fields commonSrc) (getFields $ fields lThry) (getFields $ fields rThry))
-      lView = View lThry newThry (mapping $ right)
-      rView = View rThry newThry (mapping $ left) 
+ let commonSrc = source $ left
+     lThry = target left
+     rThry = target right
+     srcMapped = applyMapping commonSrc (mapping left)
+     newThry =
+        Theory (ParamDecl $ disjointUnion3 (getParams $ params srcMapped) (getParams $ params lThry) (getParams $ params rThry))
+               (Fields    $ disjointUnion3 (getFields $ fields srcMapped) (getFields $ fields lThry) (getFields $ fields rThry))
+     lView = View lThry newThry (mapping $ right)
+     rView = View rThry newThry (mapping $ left) 
   in upsideTriangle lView rView
 
 getPath :: TGraph -> Theory -> Theory -> Path
 getPath graph src trgt =
   if src == trgt
   then error "source and target theories need to be different"
-  else NE.fromList $ getPath' (Map.elems $ edges graph) src trgt 
+  else NE.fromList $ (getPath' (Map.elems $ edges graph) src trgt)
 
 getPath' :: [View] -> Theory -> Theory -> [View]
 getPath' edgesList src dest =
@@ -164,7 +172,7 @@ pathSource :: Path -> Theory
 pathSource p = source $ NE.head p
 
 pathTarget :: Path -> Theory
-pathTarget p = target $ NE.head p 
+pathTarget p = target $ NE.last p 
 
 constrsNames :: [Constr] -> [Name_]
 constrsNames constrs = map (\(Constr n _) -> nameToStr n) constrs 
