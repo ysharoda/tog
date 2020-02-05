@@ -24,7 +24,6 @@ library
                      , Tog.Term
                      , Tog.TypeCheck
                      , Tog.Unify
-                     , Tog.Hom
                      , Tog.Utils
 
   other-modules:       Data.Collect
