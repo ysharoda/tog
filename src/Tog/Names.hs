@@ -153,7 +153,7 @@ instance Pretty Name where
   pretty (Name _ x) = text x
 
 instance Pretty QName where
-  pretty (QName n ns) = pretty n 
-    -- mconcat $ intersperse "." $ map pretty $ reverse (n : ns)
+  pretty (QName n ns) = 
+    mconcat $ intersperse "." $ map pretty $ reverse (n : ns)
 
 

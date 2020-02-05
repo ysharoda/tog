@@ -285,3 +285,40 @@ prettyTel = group . prs . reverse
 
     pr (x, e) = parens (pretty x <+> text ":" <+> pretty e)
 
+-- Printing declarations as it would be written by the user 
+------------------------------------------------------------------------
+
+class Pretty a => MorePretty a where
+  morePretty :: a -> Doc
+--  morePretty = pretty
+
+instance MorePretty Module where
+  morePretty (Module name pars exports decls) =
+    let parsDoc =
+          let ds = [parens (morePretty n <+> ":" <+> morePretty ty) | (n, ty) <- pars]
+          in if null ds then [] else [mconcat ds]
+    in hsep ([text "\nmodule", morePretty name] ++ parsDoc ++ ["where"]) $$>
+       vcat (map morePretty decls)
+
+instance MorePretty TypeSig where
+  morePretty (Sig n e) =
+   morePretty n <+> text ":" //> pretty e
+
+instance MorePretty Name where
+  morePretty (Name _ str) = text str  
+  
+instance MorePretty QName where
+  morePretty (QName n qn) = morePretty n 
+
+instance MorePretty Expr where
+  morePretty = pretty
+  
+instance MorePretty Decl where
+  morePretty d = case d of
+    Record ts -> text "record" <+> morePretty ts <+> text "where"
+    RecDef r xs con fs ->
+      indent 2 $ 
+      align (vsep [text "constructor" <+> morePretty con, text "field"]) $$>
+      vcat (map morePretty fs)
+    _ -> pretty d 
+

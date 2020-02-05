@@ -107,15 +107,7 @@ extThry newConstrs thry =
 data UTriangle = UTriangle { -- upside triangle
    uLeft  :: View,
    uRight :: View }               
-{-
-getView src qp = View src (pathTarget $ path qp) (composeMaps $ (NE.toList (NE.map mapping $ path qp)) ++ [mapp qp])
 
-compViewsPrint :: StrExpr -> TGraph -> [View]
-compViewsPrint strExpr graph =
-  let CombineP qp1 qp2 = parse strExpr graph
-      src = pathSource $ path qp1
-   in [getView src qp1,getView src qp2] 
--}
 computeCombine :: QPath -> QPath -> UTriangle
 computeCombine qpath1 qpath2 =
   let isTriangle = (pathSource $ path qpath1) == (pathSource $ path qpath2)
