@@ -297,7 +297,7 @@ instance MorePretty Module where
     let parsDoc =
           let ds = [parens (morePretty n <+> ":" <+> morePretty ty) | (n, ty) <- pars]
           in if null ds then [] else [mconcat ds]
-    in hsep ([text "\nmodule", morePretty name] ++ parsDoc ++ ["where"]) $$>
+    in hsep ([text "module", morePretty name] ++ parsDoc ++ ["where"]) $$>
        vcat (map morePretty decls)
 
 instance MorePretty TypeSig where
@@ -320,5 +320,7 @@ instance MorePretty Decl where
       indent 2 $ 
       align (vsep [text "constructor" <+> morePretty con, text "field"]) $$>
       vcat (map morePretty fs)
+    Module_ m -> morePretty m
+    Import _ _ -> "" 
     _ -> pretty d 
 

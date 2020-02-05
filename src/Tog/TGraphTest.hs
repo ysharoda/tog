@@ -12,30 +12,42 @@ run :: TGraph -> IO ()
 run graph =
   let checkOutput (Left err)   = err
       checkOutput (Right mods) = morePretty mods 
-  in putStrLn $ unlines $ map (show . checkOutput) $ typeCheck graph  
+  in putStrLn $ show $ checkOutput $ scopeCheck graph  
 
-typeCheck :: TGraph -> [Either PP.Doc Tog.Abstract.Module]
-typeCheck graph =
-  let thrs = nodes graph
-      records = Map.elems $ Map.mapWithKey theoriesToRecords thrs
-  in map (scopeCheckModule . createModule) records 
+{-
+typeCheck :: TGraph -> Either PP.Doc Tog.AbstractModule
+typeCheck graph = do
+  mbErr <- runExceptT $ do
+    exceptShowErr "Scope" $ scopeCheck graph 
+-}
+scopeCheck :: TGraph -> Either PP.Doc Tog.Abstract.Module
+scopeCheck graph =
+  scopeCheckModule $ createModules $ nodes graph 
 
-theoriesToRecords :: Name_ -> Theory -> Decl 
-theoriesToRecords thryName (Theory ps fs) =
+theoryToRecord :: Name_ -> Theory -> Decl 
+theoryToRecord thryName (Theory ps fs) =
   Record (Name (noSrcLoc,thryName)) ps
          (RecordDeclDef (Name (noSrcLoc,"Set")) (Name (noSrcLoc,thryName++"C")) fs)  
 
-createModule :: Decl -> Abs.Module
-createModule record = 
-  Module (Name (noSrcLoc,"MathScheme")) NoParams [record] 
+recordToModule :: Int -> Decl -> Decl
+recordToModule num record =
+  Module_ $ Module (Name (noSrcLoc,"MathScheme"++show num)) NoParams [record] 
+
+createModules :: Map.Map Name_ Theory -> Abs.Module
+createModules theories =
+  let records = Map.elems $ Map.mapWithKey theoryToRecord theories
+      numRecPair = Map.fromList $ zip [1..length theories] records
+  in Module (Name (noSrcLoc,"MathScheme")) NoParams $ 
+       Map.elems $ Map.mapWithKey recordToModule numRecPair 
+
 
 {- -------------- building the theory graph -------------- -} 
 
 pmgraph :: TGraph 
 pmgraph =  
   def "AddPM"    (Combine "AdditiveMagma" [] "Pointed0" [] "Carrier") $ 
-  def "Pointed0" (Rename "Pointed" [("A","Nat"),("e","0")]) $
-  def "AdditiveMagma" (Rename "Magma" [("A","Nat"),("op","+")]) $ 
+  def "Pointed0" (Rename "Pointed" [("A","Nat"),("e","zero")]) $
+  def "AdditiveMagma" (Rename "Magma" [("A","Nat"),("op","plus")]) $ 
   def "PointedMagma"  (Combine "Magma" [] "Pointed" [] "Carrier") $
   def "Magma"   (Extend "Carrier" ["op : A -> A -> A"]) $ 
   def "Pointed" (Extend "Carrier" ["e  : A"]) $
