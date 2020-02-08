@@ -106,7 +106,13 @@ extThry newConstrs thry =
 -- ----------- COMBINE ----------- 
 data UTriangle = UTriangle { -- upside triangle
    uLeft  :: View,
-   uRight :: View }               
+   uRight :: View }
+
+getDest :: UTriangle -> Theory
+getDest utri =
+  if (target (uLeft utri) == target (uRight utri))
+  then target $ uLeft utri
+  else error "Views have different targets"
 
 computeCombine :: QPath -> QPath -> UTriangle
 computeCombine qpath1 qpath2 =

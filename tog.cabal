@@ -54,7 +54,8 @@ library
                      , Tog.Raw.Print
                      , Tog.DerivingInsts
                      , Tog.TGraph
-                     , Tog.TGraphTest 
+                     , Tog.TGraphTest
+                     , Tog.TGraphState 
 
   build-depends:       array >= 0.4
                      , base >= 4.6
