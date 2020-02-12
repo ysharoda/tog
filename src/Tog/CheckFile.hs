@@ -6,7 +6,8 @@
 module Tog.CheckFile
   ( -- * Program checking
     checkFile,
-    checkModule
+    checkModule,
+    checkGraph 
   ) where
 
 import qualified Control.Lens                     as L
@@ -484,12 +485,19 @@ checkFile' _ decls0 ret = do
     (mbErr, sig, _) <- runTC sigEmpty () s $ do
       magnifyTC (const (initEnv C0)) $ checkModule decls0 $ return ()
       checkSignature
-    -- putStrLn $ show $ SA.morePretty decls0
+    putStrLn $ show $ SA.morePretty decls0
     ret sig $ either Just (\() -> Nothing) mbErr
-  where
     -- recordNames (Module _ _ _ decs) = length decs
-    checkSignature :: TC t r (CheckState t) ()
-    checkSignature = do
+
+putStrLn' :: MonadIO m => String -> m ()
+putStrLn' = liftIO . putStrLn
+
+drawLine :: MonadIO m => m ()
+drawLine =
+      putStrLn' "------------------------------------------------------------------------"
+
+checkSignature :: IsTerm t => TC t r (CheckState t) ()
+checkSignature = do
       sig <- askSignature
       unsolvedMvs <- metas sig
       quiet <- confQuiet <$> readConf
@@ -526,9 +534,27 @@ checkFile' _ decls0 ret = do
         drawLine
       unless (HS.null unsolvedMvs) $ checkError $ UnsolvedMetas unsolvedMvs
 
-    putStrLn' :: MonadIO m => String -> m ()
-    putStrLn' = liftIO . putStrLn
+{-
+   s <- initCheckState
+    -- For the time being we always start a dummy block here
+    (mbErr, sig, _) <- runTC sigEmpty () s $ do
+      magnifyTC (const (initEnv C0)) $ checkModule decls0 $ return ()
+      checkSignature
+    -- putStrLn $ show $ SA.morePretty decls0
+    ret sig $ either Just (\() -> Nothing) mbErr
+-}
 
-    drawLine :: MonadIO m => m ()
-    drawLine =
-      putStrLn' "------------------------------------------------------------------------"
+-- checkGraph :: SA.Module -> IO ()
+-- checkGraph :: TGraph -> IO (Either PP.Doc (), Signature SA.Module, CheckState)
+
+checkGraph :: SA.Module -> IO PP.Doc
+checkGraph grModule = do 
+  s <- initCheckState :: IO (CheckState Simple)
+  (modErr,_,_) <- runTC sigEmpty () s $ do
+    magnifyTC (const (initEnv C0)) $ checkModule grModule $ return ()
+    checkSignature
+  return $ case modErr of
+    Right doc  -> error $ show doc
+    Left  tmod -> tmod 
+-- ret sig -- $ either Just (\() -> Nothing) mbErr 
+
