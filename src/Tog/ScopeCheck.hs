@@ -226,6 +226,8 @@ import qualified Tog.Raw                          as C
 import           Tog.Abstract
 import qualified Tog.PrettyPrint                  as PP
 import           Tog.PrettyPrint                  (render, Pretty(..), (<+>), ($$), (//>))
+import           Tog.TGraphTest
+import           Tog.TGraph                       (nodes) 
 
 #include "impossible.h"
 
@@ -505,12 +507,15 @@ resolveImportedModule n = do
 
 -- | Scope checks a top-level module.
 scopeCheckModule :: C.Module -> Either PP.Doc Module
-scopeCheckModule (C.Module (C.Name ((l, c), s)) pars ds) =
+scopeCheckModule (C.Module (C.Name ((l, c), s)) pars (C.DeclC ds)) =
   case evalCheck (initScope q) (checkModule' q pars ds return) of
     Left err -> Left $ pretty err
     Right (x, _) -> Right x
   where
     q = QName (Name (SrcLoc l c) s) []
+scopeCheckModule (C.Module _ _ (C.MExprC mexprs)) =
+    scopeCheckModule $ createModules $ nodes $ createGraph mexprs 
+    
 
 -- Useful for debugging.
 scopeCheckFile :: FilePath -> IO ()
@@ -525,11 +530,12 @@ scopeCheckFile fp = do
 -- | Scope checks a module.  Returns the generated module, and possibly
 -- some declarations containing auto-imports and the like.
 checkModule :: C.Module -> CCheck (Module, [C.Decl])
-checkModule (C.Module name pars ds) ret = do
+checkModule (C.Module name pars (C.DeclC ds)) ret = do
   name <- return $ mkName name
   -- Qualify the name of the module
   qname <- qualifyName name
   checkModule' qname pars ds ret
+checkModule _ _ = error "Invalid Module" 
 
 checkModule' :: QName -> C.Params -> [C.Decl] -> CCheck (Module, [C.Decl])
 checkModule' qname@(QName name _) pars ds ret = do
@@ -692,7 +698,7 @@ checkDecls ds ret = case ds of
     let m = case imp of
           C.ImportNoArgs m -> m
           C.ImportArgs m _ -> m
-    checkDecls (C.Import imp : C.Open m : ds) ret
+    checkDecls (C.Import imp : C.Open m : ds) ret  
   where
     takeFunDefs :: C.Name -> [C.Decl] -> ([([C.Pattern], C.FunDefBody)], [C.Decl])
     takeFunDefs _ [] =

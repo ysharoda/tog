@@ -16,6 +16,8 @@ import           Tog.Term
 import           Tog.CheckFile
 import           Tog.Parse
 import           Tog.ScopeCheck
+--import           Tog.TGraph
+--import           Tog.TGraphTest 
 -- import           Tog.Hom
 
 
@@ -120,6 +122,7 @@ processFile file ret = do
     s   <- lift $ readFile file
     raw <- exceptShowErr "Parse" $ parseModule s
     -- exceptShowErr "Scope" $ scopeCheckModule raw
+   -- putStrLn $ show $ morePretty sraw 
     exceptShowErr "Scope" $ scopeCheckModule raw
     -- (appendToModule raw $ (map createHom $ readModuleRecords raw))
   case mbErr of

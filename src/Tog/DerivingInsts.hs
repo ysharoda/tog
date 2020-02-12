@@ -65,3 +65,15 @@ deriving instance Generics.Typeable Decl
 
 deriving instance Generics.Data Module
 deriving instance Generics.Typeable Module
+
+deriving instance Generics.Data DeclOrMexpr
+deriving instance Generics.Typeable DeclOrMexpr
+
+deriving instance Generics.Data ModExpr
+deriving instance Generics.Typeable ModExpr
+
+deriving instance Generics.Data RenPair
+deriving instance Generics.Typeable RenPair 
+
+deriving instance Generics.Data Rens
+deriving instance Generics.Typeable Rens 

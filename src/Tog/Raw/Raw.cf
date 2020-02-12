@@ -1,11 +1,15 @@
 entrypoints Module;
 entrypoints Expr;
+entrypoints ModExpr; 
 
 layout "where";
 layout "field";
 layout "postulate";
 
-Module. Module ::= "module" Name Params "where" "{" [Decl] "}";
+Module. Module ::= "module" Name Params "where" "{" DeclOrMexpr "}";
+
+DeclC.  DeclOrMexpr  ::= [Decl];
+MExprC. DeclOrMexpr  ::= [ModExpr]; 
 
 position token Name ((letter | '_') (letter | digit | '-' | '\'' | '_')*) ;
 
@@ -23,6 +27,19 @@ OpenImport. Decl  ::= "open" "import" Import;
 Import.     Decl  ::= "import" Import;
 Postulate.  Decl  ::= "postulate" "{" [TypeSig] "}";
 Module_.    Decl  ::= Module;
+
+separator ModExpr ";";
+
+Theory.     ModExpr ::= "Theory" Name "=" "{" [Constr] "}";
+Extend.     ModExpr ::= Name "=" "extend" Name "{" [Constr] "}";
+Rename.     ModExpr ::= Name "=" "rename" Name Rens;
+Combine.    ModExpr ::= Name "=" "combine" Name Rens Name Rens "over" Name;  
+
+NoRens.   Rens ::= ;
+Rens.     Rens ::= "{" [RenPair] "}";
+
+separator RenPair ";";
+RenPair.  RenPair ::= Name "to" Name; 
 
 separator TypeSig ";";
 

@@ -1,0 +1,17 @@
+module MathScheme where
+
+Theory Empty = {} 
+
+Carrier = extend Empty {A : Set} 
+
+Pointed = extend Carrier {e : A}
+
+Magma = extend Carrier {op : A -> A -> A}
+
+PointedMagma = combine Pointed Magma over Carrier
+
+AdditiveMagma = rename Magma {op to plus}
+
+PointedZero = rename Pointed {e to zero}
+
+AddPM = combine AdditiveMagma PointedZero over Carrier 

@@ -25,16 +25,3 @@ rawPrintAfterScopeChecking file =
         Left  err -> return $ Left err 
         Right raw -> return $ scopeCheckModule raw 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
