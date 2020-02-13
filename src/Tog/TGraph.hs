@@ -77,7 +77,7 @@ extThry newConstrs thry =
 -- ----------- COMBINE ----------- 
 data UTriangle = UTriangle { -- upside triangle
    uLeft  :: GView,
-   uRight :: GView }
+   uRight :: GView } deriving Show 
 
 getDest :: UTriangle -> GTheory
 getDest utri =
@@ -101,16 +101,6 @@ upsideTriangle v1 v2 =
   if (target v1 == target v2)
   then UTriangle v1 v2
   else error "Views have different targets"
-
-
-
-{-
-applyCompositeMapping :: GTheory -> Path -> Mapping -> GTheory
-applyCompositeMapping thry pth mappings =
-  applyMapping thry $
-     composeMaps $ (map (\(GView _ _ m) -> m) $ NE.toList $ pth) ++ [mappings]
-     
--}
 
 -- Precondition: Called after checkGuards
 createDiamond :: QPath -> QPath -> UTriangle
@@ -203,27 +193,32 @@ injectiveMapping m srcThry =
 disjointUnion3 :: Eq a => [a] -> [a] -> [a] ->  [a]
 disjointUnion3 l1 l2 l3 = l1 ++ (l2 List.\\ l1) ++ (l3 List.\\ l1)
 
-composeMapsToFunc :: [Mapping] -> RenameFunc 
-composeMapsToFunc mapsList =
-  foldr (.) id $ List.map mapAsFunc $ List.reverse mapsList
 
-composeViewsToFunc :: [GView] -> RenameFunc
-composeViewsToFunc viewsList =
-  composeMapsToFunc (List.map mapping viewsList) 
+{- -------- Composing Maps ----------- -}
+
+-- The list representation of Maps
+composeTwoMaps :: Mapping -> Mapping -> Mapping
+composeTwoMaps m1 m2 = Map.fromList $ composeTwoMaps' (Map.toList m1) m2 
+
+composeTwoMaps' :: [(Name_ ,Name_)] -> Mapping -> [(Name_,Name_)]
+composeTwoMaps' [] m = Map.toList m 
+composeTwoMaps' ((x,y):ls) m =
+  case  Map.lookup y m of
+    Just val -> (x,val) : composeTwoMaps' ls (Map.delete y m)
+    Nothing  -> (x,y)   : composeTwoMaps' ls m 
 
 composeMaps :: [Mapping] -> Mapping
-composeMaps ls =
-  funcToMapping (composeMapsToFunc ls) (Map.keys $ head ls) 
-
-funcToMapping :: RenameFunc -> [Name_] -> Mapping   
-funcToMapping f syms =
-  Map.fromList $ zip syms (map f syms)
+composeMaps mapsList =
+  foldr composeTwoMaps Map.empty mapsList
 
 mapAsFunc :: Mapping -> RenameFunc 
 mapAsFunc m x =
   case Map.lookup x m of
     Nothing  -> x
     Just val -> val
+
+{- ------------------------------------------------ -} 
+    
 
 symbols :: GTheory -> [Name_]
 symbols thry =

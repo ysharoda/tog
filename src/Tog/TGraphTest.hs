@@ -54,7 +54,7 @@ createModules theories =
 
 getModExprs :: Abs.Module -> [Abs.ModExpr]
 getModExprs (Abs.Module _ _ (Abs.MExprC mexprs)) = mexprs
-
+getModExprs _ = error "No Modular expressions" 
 
 {- -------------- building the theory graph -------------- -} 
 {-
