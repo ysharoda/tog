@@ -38,43 +38,8 @@ data TGraph = TGraph{ -- check if I would rather use only a map of edges
     edges :: Map.Map Name_ GView } 
   deriving (Eq, Ord, Show, Read, Generics.Typeable, Generics.Data)
 
--- foldr :: (a -> b -> b) -> b -> Map k a -> b
--- instance Foldable TGraph where
---   foldr f (TGraph nodes edges) 
 
--- foldr createGraph' emptyGraph [mexprs] 
-
-{- ------------------- Read The Input  ----------------- -}
-
-type InputMap = [(Name_,Name_)]
-type SConstr  = String 
-
-data StrExpr = Rename Name_ InputMap 
-             | Extend Name_ [SConstr]
-             | Combine Name_ InputMap Name_ InputMap Name_
-
-{-
-data ModExpr = RenameT Theory Mapping
-               | ExtendT Theory [Constr]
-               | CombineP QPath QPath deriving Show
-
-def :: Name_ -> StrExpr -> TGraph -> TGraph
-def name strExpr graph =
-  case parse strExpr graph of
-    RenameT srcThry renMap   -> updateGraph graph name $ Left  (computeRename renMap srcThry)
-    ExtendT srcThry newDecls -> updateGraph graph name $ Left  (computeExtend newDecls srcThry)
-    CombineP qpath1 qpath2   -> updateGraph graph name $ Right (computeCombine qpath1 qpath2) 
-
-parse :: StrExpr -> TGraph -> ModExpr
-parse (Rename name ren) graph = RenameT (lookupName name graph) (Map.fromList ren)
-parse (Extend name decls) graph = ExtendT (lookupName name graph) (map parseConstr decls)
--- Combine "AdditiveMagma" [] "Pointed0" [] "Carrier"
-parse (Combine name1 ren1 name2 ren2 nameSrc) graph =
-  let srcThry = lookupName nameSrc graph
-      path1 = getPath graph srcThry (lookupName name1 graph)
-      path2 = getPath graph srcThry (lookupName name2 graph) 
-  in CombineP (QPath path1 $ Map.fromList ren1) (QPath path2 $ Map.fromList ren2)
--}
+{- ------------------- Build the Graph  ----------------- -}
   
 updateGraph ::  TGraph -> Name_ -> Either GView UTriangle -> TGraph
 updateGraph graph newThryName (Left view) =
@@ -123,11 +88,13 @@ getDest utri =
 computeCombine :: QPath -> QPath -> UTriangle
 computeCombine qpath1 qpath2 =
   let isTriangle = (pathSource $ path qpath1) == (pathSource $ path qpath2)
-      src = pathSource $ path qpath1
-      getView qp = GView src (pathTarget $ path qp) (composeMaps $ (NE.toList (NE.map mapping $ path qp)) ++ [mapp qp])
-   in if (not isTriangle) || (not $ checkGuards (path qpath1) (path qpath2)) 
+  --    src = pathSource $ path qpath1
+  --    getView qp = GView src (pathTarget $ path qp) (composeMaps $ (NE.toList (NE.map mapping $ path qp)) ++ [mapp qp])
+   in if (not isTriangle)
       then error "The two theories do not meet at the source"
-      else createDiamond (getView qpath1) (getView qpath2) 
+      else if (not $ checkGuards qpath1 qpath2)
+      then error "Name Clash!"         
+      else createDiamond qpath1 qpath2 
    
 upsideTriangle :: GView -> GView -> UTriangle
 upsideTriangle v1 v2 =
@@ -135,27 +102,37 @@ upsideTriangle v1 v2 =
   then UTriangle v1 v2
   else error "Views have different targets"
 
+
+
+{-
+applyCompositeMapping :: GTheory -> Path -> Mapping -> GTheory
+applyCompositeMapping thry pth mappings =
+  applyMapping thry $
+     composeMaps $ (map (\(GView _ _ m) -> m) $ NE.toList $ pth) ++ [mappings]
+     
+-}
+
 -- Precondition: Called after checkGuards
-createDiamond :: GView -> GView -> UTriangle
+createDiamond :: QPath -> QPath -> UTriangle
 createDiamond left right =
- let commonSrc = source $ left
-     lThry = target left
-     rThry = target right
-     srcMapped = applyMapping commonSrc (mapping left)
+ let commonSrc = qpathSource left
+     lThry = applyCompositeMapping (qpathTarget left)  (path left)  (mapp left)
+     rThry = applyCompositeMapping (qpathTarget right) (path right) (mapp right)
+     srcMapped = applyCompositeMapping commonSrc (path left) (mapp left)
      newThry =
        GTheory (ParamDecl $ disjointUnion3 (getParams $ params srcMapped) (getParams $ params lThry) (getParams $ params rThry))
                (Fields    $ disjointUnion3 (getFields $ fields srcMapped) (getFields $ fields lThry) (getFields $ fields rThry))
-     lView = GView lThry newThry (mapping $ right)
-     rView = GView rThry newThry (mapping $ left) 
+     lView = GView lThry newThry (mapp $ right)
+     rView = GView rThry newThry (mapp $ left) 
   in upsideTriangle lView rView
 
-getPath :: TGraph -> GTheory -> GTheory -> Path
+getPath :: TGraph -> GTheory -> GTheory -> Path 
 getPath graph src trgt =
   if src == trgt
   then error "source and target theories need to be different"
   else NE.fromList $ (getPath' (Map.elems $ edges graph) src trgt)
 
-getPath' :: [GView] -> GTheory -> GTheory -> [GView]
+getPath' :: [GView] -> GTheory -> GTheory -> [GView] 
 getPath' edgesList src dest =
   let answer = [v | v <- edgesList, target v == dest, source v == src]
       viewsToDest = [v | v <- edgesList, target v == dest]
@@ -176,6 +153,12 @@ lookupName name graph =
     Nothing -> error $ name ++ "is not a valid theory name"
     Just t  -> t
 
+qpathSource :: QPath -> GTheory
+qpathSource qp = pathSource $ path qp
+
+qpathTarget :: QPath -> GTheory
+qpathTarget qp = pathTarget $ path qp 
+
 pathSource :: Path -> GTheory
 pathSource p = source $ NE.head p
 
@@ -188,8 +171,13 @@ constrsNames constrs = map (\(Constr n _) -> nameToStr n) constrs
 applyMapping :: GTheory -> Mapping -> GTheory
 applyMapping thry m =
   GTheory (Generics.everywhere (Generics.mkT $ mapAsFunc m) (params thry)) 
-          (Generics.everywhere (Generics.mkT $ mapAsFunc m) (fields thry)) 
+          (Generics.everywhere (Generics.mkT $ mapAsFunc m) (fields thry))
 
+applyCompositeMapping :: GTheory -> Path -> Mapping -> GTheory
+applyCompositeMapping thry pth mappings =
+  applyMapping thry $
+     composeMaps $ (map (\(GView _ _ m) -> m) $ NE.toList $ pth) ++ [mappings]
+     
 noNameConflict :: [Name_] -> [Name_] -> Bool
 noNameConflict frst scnd = List.intersect frst scnd == []
 
@@ -247,12 +235,15 @@ symbols thry =
     fieldNames = Generics.everything (++) (Generics.mkQ [] (\(Constr (Name (_,n)) _) -> [n])) thry
   in argNames ++ fieldNames     
 
-checkGuards :: Path -> Path -> Bool
-checkGuards path1 path2 =
-  let sameSource = (pathSource path1) == (pathSource path2)
-      srcSymbols = symbols $ pathSource path1
-   in sameSource && 
-      (List.map (composeViewsToFunc (NE.toList path1)) srcSymbols) == (List.map (composeViewsToFunc (NE.toList path2)) srcSymbols)
+checkGuards :: QPath -> QPath -> Bool
+checkGuards qpath1 qpath2 =
+  let sameSource = (pathSource $ path qpath1) == (pathSource $ path qpath2)
+      -- mapsList views renMap = (mapAsFunc renMap)
+      symsMapped qp = symbols $ applyCompositeMapping (pathSource $ path qp) (path qp) (mapp qp) 
+      trgtSyms1 = symsMapped qpath1 
+      trgtSyms2 = symsMapped qpath2
+   in sameSource &&
+      trgtSyms1 == trgtSyms2 
 
 noSrcLoc :: (Int,Int)
 noSrcLoc = (0,0) 
@@ -266,3 +257,35 @@ parseConstr constr =
   in  if length namTyp /= 2 then error "invalid declaration"
       else Constr (Name (noSrcLoc, head namTyp)) (get_expr $ parseExpr $ last namTyp) 
       
+
+{-
+type InputMap = [(Name_,Name_)]
+type SConstr  = String 
+
+
+
+data StrExpr = Rename Name_ InputMap 
+             | Extend Name_ [SConstr]
+             | Combine Name_ InputMap Name_ InputMap Name_
+
+data ModExpr = RenameT Theory Mapping
+               | ExtendT Theory [Constr]
+               | CombineP QPath QPath deriving Show
+
+def :: Name_ -> StrExpr -> TGraph -> TGraph
+def name strExpr graph =
+  case parse strExpr graph of
+    RenameT srcThry renMap   -> updateGraph graph name $ Left  (computeRename renMap srcThry)
+    ExtendT srcThry newDecls -> updateGraph graph name $ Left  (computeExtend newDecls srcThry)
+    CombineP qpath1 qpath2   -> updateGraph graph name $ Right (computeCombine qpath1 qpath2) 
+
+parse :: StrExpr -> TGraph -> ModExpr
+parse (Rename name ren) graph = RenameT (lookupName name graph) (Map.fromList ren)
+parse (Extend name decls) graph = ExtendT (lookupName name graph) (map parseConstr decls)
+-- Combine "AdditiveMagma" [] "Pointed0" [] "Carrier"
+parse (Combine name1 ren1 name2 ren2 nameSrc) graph =
+  let srcThry = lookupName nameSrc graph
+      path1 = getPath graph srcThry (lookupName name1 graph)
+      path2 = getPath graph srcThry (lookupName name2 graph) 
+  in CombineP (QPath path1 $ Map.fromList ren1) (QPath path2 $ Map.fromList ren2)
+-}

@@ -4,8 +4,6 @@ import qualified Data.Map        as Map
 
 import           Tog.TGraph      as TGraph
 import           Tog.Raw.Abs     as Abs
--- import           Tog.Abstract(Module,morePretty)   
--- import qualified Tog.PrettyPrint as PP
 
 getName :: Name -> String
 getName (Name (_,str)) = str 
@@ -54,6 +52,9 @@ createModules theories =
   in Module (Name (noSrcLoc,"MathScheme")) NoParams $ 
        DeclC (Map.elems $ modules) 
 
+getModExprs :: Abs.Module -> [Abs.ModExpr]
+getModExprs (Abs.Module _ _ (Abs.MExprC mexprs)) = mexprs
+
 
 {- -------------- building the theory graph -------------- -} 
 {-
@@ -75,7 +76,10 @@ initGraph = TGraph (Map.singleton "Empty" emptyThry) (Map.empty)
 
 -}
 {- ------------------ Printing ---------------------- -} 
-{- 
+{-
+-- import           Tog.Abstract(Module,morePretty)   
+-- import qualified Tog.PrettyPrint as PP
+
 scopeCheckGraph :: TGraph -> Either PP.Doc Abs.Module
 scopeCheckGraph tgraph = scopeCheckModule $ createModules $ nodes tgraph  
   

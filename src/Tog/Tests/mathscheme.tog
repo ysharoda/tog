@@ -15,3 +15,7 @@ AdditiveMagma = rename Magma {op to plus}
 PointedZero = rename Pointed {e to zero}
 
 AddPM = combine AdditiveMagma PointedZero over Carrier 
+
+CarrierB = rename Carrier {A to B}  
+
+MagmaB = combine CarrierB Magma {A to B} over Carrier 
