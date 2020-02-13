@@ -10,12 +10,29 @@ Magma = extend Carrier {op : A -> A -> A}
 
 PointedMagma = combine Pointed Magma over Carrier
 
-AdditiveMagma = rename Magma {op to plus}
+LeftUnital = extend PointedMagma { lunit : {x : A} -> op e x == x }
 
-PointedZero = rename Pointed {e to zero}
+RightUnital = extend PointedMagma { runit : {x : A} -> op x e == x }
 
-AddPM = combine AdditiveMagma PointedZero over Carrier 
+Unital = combine LeftUnital RightUnital over PointedMagma
 
-CarrierB = rename Carrier {A to B}  
+Semigroup = extend Magma {assoc : {x y z : A} -> (op (op x y) z) == (op x (op y z)) }
 
-MagmaB = combine CarrierB Magma {A to B} over Carrier 
+Monoid = combine Unital Semigroup over Magma 
+
+AddPointedMagma = rename PointedMagma {op to plus ; e to zero }
+
+AddMonoid = combine Monoid {op to plus ; e to zero} AddPointedMagma over PointedMagma 
+
+{- ------------------- Problem ----------------------------- -} 
+
+{- if the additive arrow is defined this way -} 
+
+-- AddMagma = rename Magma {op to plus}
+
+-- PointedZero = rename Pointed {e to zero}
+
+-- AddPointedMagma = combine AddMagma PointedZero over Carrier 
+
+{- it cannot be combined with Monoid, because there is not arrow from PointdMagma to AddPointedMagma -} 
+-- AddMonoid = combine AddPointedMagma Monoid {op to plus ; e to zero} over PointedMagma
