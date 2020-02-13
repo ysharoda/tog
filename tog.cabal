@@ -25,7 +25,9 @@ library
                      , Tog.TypeCheck
                      , Tog.Unify
                      , Tog.Utils
-
+                     , Tog.TGraph
+                     , Tog.TGraphTest
+                     
   other-modules:       Data.Collect
                      , Tog.Instrumentation.Conf
                      , Tog.Instrumentation.Debug
@@ -53,8 +55,6 @@ library
                      , Tog.Raw.Par
                      , Tog.Raw.Print
                      , Tog.DerivingInsts
-                     , Tog.TGraph
-                     , Tog.TGraphTest
                   --   , Tog.TGraphState 
 
   build-depends:       array >= 0.4
