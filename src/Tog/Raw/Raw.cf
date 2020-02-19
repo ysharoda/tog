@@ -16,7 +16,7 @@ separator Language ";";
 separator Decl ";";
 
 TheoryC.  Language ::= "Theory" Name "=" "{" [Constr] "}";
-MappingC. Language ::= Name "=" "view" "{" [ViewPair] "}";
+MappingC. Language ::= "Map" Name "=" Rens;
 ModExprC. Language ::= Name "=" ModExpr; 
 
 position token Name ((letter | '_') (letter | digit | '-' | '\'' | '_')*) ;
@@ -36,12 +36,10 @@ Module_.    Decl  ::= Module;
 
 Extend.      ModExpr ::= "extend" Name "{" [Constr] "}";
 Rename.      ModExpr ::= "rename" Name Rens;
+RenameUsing. ModExpr ::= "rename" Name "using" Rens; 
 CombineOver. ModExpr ::= "combine" Name Rens Name Rens "over" Name;
 Combine.     ModExpr ::= Name "||" Name;
 Transport.   ModExpr ::= Name "@" Name;
-
-separator ViewPair ";";
-ViewPair. ViewPair ::= Name "as" Name;
 
 NoRens.   Rens ::= ;
 Rens.     Rens ::= "{" [RenPair] "}";

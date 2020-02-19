@@ -81,6 +81,4 @@ deriving instance Generics.Typeable RenPair
 deriving instance Generics.Data Rens
 deriving instance Generics.Typeable Rens
 
-deriving instance Generics.Data ViewPair
-deriving instance Generics.Typeable ViewPair 
 
