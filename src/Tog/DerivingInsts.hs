@@ -66,8 +66,11 @@ deriving instance Generics.Typeable Decl
 deriving instance Generics.Data Module
 deriving instance Generics.Typeable Module
 
-deriving instance Generics.Data DeclOrMexpr
-deriving instance Generics.Typeable DeclOrMexpr
+deriving instance Generics.Data DeclOrLE
+deriving instance Generics.Typeable DeclOrLE
+
+deriving instance Generics.Data Language
+deriving instance Generics.Typeable Language 
 
 deriving instance Generics.Data ModExpr
 deriving instance Generics.Typeable ModExpr
@@ -76,4 +79,8 @@ deriving instance Generics.Data RenPair
 deriving instance Generics.Typeable RenPair 
 
 deriving instance Generics.Data Rens
-deriving instance Generics.Typeable Rens 
+deriving instance Generics.Typeable Rens
+
+deriving instance Generics.Data ViewPair
+deriving instance Generics.Typeable ViewPair 
+

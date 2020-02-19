@@ -1,0 +1,9 @@
+module MathScheme where
+
+Theory Empty = {}
+
+Carrier = extend Empty {A : Set}
+
+Additive = view {A as Nat} 
+
+AddCarrier = Additive @ Carrier 

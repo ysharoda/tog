@@ -1,22 +1,28 @@
 entrypoints Module;
 entrypoints Expr;
-entrypoints ModExpr; 
+entrypoints Language;
+entrypoints Rens; 
 
 layout "where";
 layout "field";
 layout "postulate";
 
-Module. Module ::= "module" Name Params "where" "{" DeclOrMexpr "}";
+Module. Module ::= "module" Name Params "where" "{" DeclOrLE "}";
 
-DeclC.  DeclOrMexpr  ::= [Decl];
-MExprC. DeclOrMexpr  ::= [ModExpr]; 
+Decl_.   DeclOrLE ::= [Decl];
+Lang_.   DeclOrLE ::= [Language];
+
+separator Language ";";
+separator Decl ";";
+
+TheoryC.  Language ::= "Theory" Name "=" "{" [Constr] "}";
+MappingC. Language ::= Name "=" "view" "{" [ViewPair] "}";
+ModExprC. Language ::= Name "=" ModExpr; 
 
 position token Name ((letter | '_') (letter | digit | '-' | '\'' | '_')*) ;
 
 Qual.    QName ::= QName "." Name;
 NotQual. QName ::= Name;
-
-separator Decl ";";
 
 TypeSig.    Decl  ::= TypeSig;
 FunDef.     Decl  ::= Name [Pattern] FunDefBody;
@@ -28,12 +34,14 @@ Import.     Decl  ::= "import" Import;
 Postulate.  Decl  ::= "postulate" "{" [TypeSig] "}";
 Module_.    Decl  ::= Module;
 
-separator ModExpr ";";
+Extend.      ModExpr ::= "extend" Name "{" [Constr] "}";
+Rename.      ModExpr ::= "rename" Name Rens;
+CombineOver. ModExpr ::= "combine" Name Rens Name Rens "over" Name;
+Combine.     ModExpr ::= Name "||" Name;
+Transport.   ModExpr ::= Name "@" Name;
 
-Theory.     ModExpr ::= "Theory" Name "=" "{" [Constr] "}";
-Extend.     ModExpr ::= Name "=" "extend" Name "{" [Constr] "}";
-Rename.     ModExpr ::= Name "=" "rename" Name Rens;
-Combine.    ModExpr ::= Name "=" "combine" Name Rens Name Rens "over" Name;  
+separator ViewPair ";";
+ViewPair. ViewPair ::= Name "as" Name;
 
 NoRens.   Rens ::= ;
 Rens.     Rens ::= "{" [RenPair] "}";

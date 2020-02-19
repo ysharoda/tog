@@ -507,14 +507,14 @@ resolveImportedModule n = do
 
 -- | Scope checks a top-level module.
 scopeCheckModule :: C.Module -> Either PP.Doc Module
-scopeCheckModule (C.Module (C.Name ((l, c), s)) pars (C.DeclC ds)) =
+scopeCheckModule (C.Module (C.Name ((l, c), s)) pars (C.Decl_ ds)) =
   case evalCheck (initScope q) (checkModule' q pars ds return) of
     Left err -> Left $ pretty err
     Right (x, _) -> Right x
   where
     q = QName (Name (SrcLoc l c) s) []
-scopeCheckModule (C.Module _ _ (C.MExprC mexprs)) =
-    scopeCheckModule $ createModules $ nodes $ createGraph mexprs 
+scopeCheckModule (C.Module _ _ (C.Lang_ defs)) =
+   scopeCheckModule $ createModules $ graphNodes $ computeGraphState defs 
     
 
 -- Useful for debugging.
@@ -530,7 +530,7 @@ scopeCheckFile fp = do
 -- | Scope checks a module.  Returns the generated module, and possibly
 -- some declarations containing auto-imports and the like.
 checkModule :: C.Module -> CCheck (Module, [C.Decl])
-checkModule (C.Module name pars (C.DeclC ds)) ret = do
+checkModule (C.Module name pars (C.Decl_ ds)) ret = do
   name <- return $ mkName name
   -- Qualify the name of the module
   qname <- qualifyName name

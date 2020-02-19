@@ -33,6 +33,7 @@ data QPath = QPath { -- Qualified path, i.e. a path with a rename
     path :: Path,
     mapp :: Mapping } deriving Show 
 
+  
 data TGraph = TGraph{ -- check if I would rather use only a map of edges
     nodes :: Map.Map Name_ GTheory,
     edges :: Map.Map Name_ GView } 
@@ -52,6 +53,11 @@ updateGraph graph newThryName (Right ut) =
           `Map.union` (edges graph)
 
 {- ------------------- Elaborate Into TheoryGraph ---------------- -}
+
+computeTransport :: Mapping -> GTheory -> GView
+computeTransport rmap thry =
+  GView thry (applyMapping thry rmap)
+        (injectiveMapping rmap thry)   
 
 -- --------- RENAME -----------
 computeRename :: Mapping -> GTheory -> GView  
@@ -133,7 +139,13 @@ getPath' edgesList src dest =
       then error "path not found"
       else List.head p 
   
-  
+
+{- --------------------------------------------------------------- -}
+liftMapping :: Mapping -> GTheory -> GView
+liftMapping namesMap srcThry =
+  GView srcThry (applyMapping srcThry namesMap)
+        (injectiveMapping namesMap srcThry)
+        
 
 {- ------------------------ Utils --------------------------------- -}
 
