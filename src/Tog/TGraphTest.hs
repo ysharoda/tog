@@ -60,9 +60,10 @@ modExpr gs name mexpr =
       GraphState
         (updateGraph (graph gs) (getName name) $ Left $ computeRename (rensToMapping gs rlist) (srcThry srcName))
         (renames gs)
-    RenameUsing srcName listName ->
-      GraphState
-        (updateGraph (graph gs) (getName name) $ Left $ computeRename (rensToMapping gs listName) (srcThry srcName))
+    RenameUsing srcName mapName ->
+     let mapin = (renames gs) Map.! (getName mapName) 
+     in GraphState
+        (updateGraph (graph gs) (getName name) $ Left $ computeRename mapin (srcThry srcName))
         (renames gs)
     CombineOver trgt1 ren1 trgt2 ren2 srcName ->
      let gr = graph gs 
@@ -78,10 +79,9 @@ modExpr gs name mexpr =
         Abs.CombineOver trgt1 NoRens trgt2 NoRens (Name ((0,0),"Carrier"))
           -- TODO: (computeCommonSource name1 name2)
     Transport n srcName ->
-     let mapin = (renames gs) Map.! (getName n)
-     in GraphState
-        (updateGraph (graph gs) (getName name) $ Left $ computeTransport mapin $ srcThry srcName)
-        (renames gs) 
+     GraphState
+      (updateGraph (graph gs) (getName name) $ Left $ computeTransport (rensToMapping gs n) $ srcThry srcName)
+      (renames gs) 
   where
    srcThry n = lookupName (getName n) (graph gs) 
 
@@ -132,12 +132,15 @@ createGraph' (GraphState graph mapins) (Abs.Combinator newName body) =
         
 --computeCommonSource :: GTheory -> GTheory -> GTheory
 --computeCommonSource d1 d2 =
-      
+  NoRens.   Rens ::= "{" "}";
+Rens.     Rens ::= "{" [RenPair] "}";
+NameRens. Rens ::= Name; 
+    
         
 -}
 
 rensToMapping :: GraphState -> Rens -> Mapping
---rensToMapping gs (NameRens n) = (renames gs) Map.! (getName n)
+rensToMapping gs (NameRens n) = (renames gs) Map.! (getName n)
 rensToMapping _  NoRens = Map.empty
 rensToMapping _ (Rens rlist) = Map.fromList $ map (\(RenPair x y) -> (getName x,getName y)) rlist
 

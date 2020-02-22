@@ -44,12 +44,19 @@ data TGraph = TGraph{ -- check if I would rather use only a map of edges
   
 updateGraph ::  TGraph -> Name_ -> Either GView UTriangle -> TGraph
 updateGraph graph newThryName (Left view) =
-  TGraph (Map.insert newThryName (target view)  $ nodes graph)
+  let srcName = getTheoryName graph $ source view
+  in TGraph (Map.insert newThryName (target view)  $ nodes graph)
          (Map.insert ("To"++newThryName) view $ edges graph)
 -- TODO: find a way to get the name of the source theory. 
 updateGraph graph newThryName (Right ut) =
-  TGraph (Map.insert newThryName (target $ uLeft ut) $ nodes graph)
-       $ (Map.fromList [("To"++newThryName++"1",uLeft ut),("To"++newThryName++"2",uRight ut)])
+  let srcNameL = getTheoryName graph $ source $ uLeft ut
+      srcNameR = getTheoryName graph $ source $ uRight ut
+      srcNameD = getTheoryName graph $ source $ diagonal ut 
+  in 
+   TGraph (Map.insert newThryName (target $ uLeft ut) $ nodes graph)
+        $ (Map.fromList [("To"++newThryName++"1",uLeft ut),
+                         ("To"++newThryName++"2",uRight ut),
+                         ("To"++newThryName++"D",diagonal ut)])
           `Map.union` (edges graph)
 
 {- ------------------- Elaborate Into TheoryGraph ---------------- -}
@@ -82,12 +89,13 @@ extThry newConstrs thry =
 
 -- ----------- COMBINE ----------- 
 data UTriangle = UTriangle { -- upside triangle
-   uLeft  :: GView,
-   uRight :: GView } deriving Show 
+   uLeft    :: GView,
+   uRight   :: GView,
+   diagonal :: GView} deriving Show 
 
 getDest :: UTriangle -> GTheory
 getDest utri =
-  if (target (uLeft utri) == target (uRight utri))
+  if (target (uLeft utri) == target (uRight utri)) && (target (uRight utri) == target (diagonal utri)) 
   then target $ uLeft utri
   else error "Views have different targets"
 
@@ -102,10 +110,10 @@ computeCombine qpath1 qpath2 =
       then error "Name Clash!"         
       else createDiamond qpath1 qpath2 
    
-upsideTriangle :: GView -> GView -> UTriangle
-upsideTriangle v1 v2 =
-  if (target v1 == target v2)
-  then UTriangle v1 v2
+upsideTriangle :: GView -> GView -> GView -> UTriangle
+upsideTriangle v1 v2 diag =
+  if (target v1 == target v2) && (target v2 == target diag) 
+  then UTriangle v1 v2 diag 
   else error "Views have different targets"
 
 -- Precondition: Called after checkGuards
@@ -118,15 +126,34 @@ createDiamond left right =
      newThry =
        GTheory (ParamDecl $ disjointUnion3 (getParams $ params srcMapped) (getParams $ params lThry) (getParams $ params rThry))
                (Fields    $ disjointUnion3 (getFields $ fields srcMapped) (getFields $ fields lThry) (getFields $ fields rThry))
-     lView = GView lThry newThry (mapp $ right)
-     rView = GView rThry newThry (mapp $ left) 
-  in upsideTriangle lView rView
+     allMaps qp = composeMaps $ (map (\(GView _ _ m) -> m) $ NE.toList $ path qp) ++ [mapp qp]
+     lView = GView (qpathTarget left)  newThry $ injectiveMapping (allMaps left) (qpathTarget left)
+     rView = GView (qpathTarget right) newThry $ injectiveMapping (allMaps right) (qpathTarget right) 
+     diag  = GView commonSrc newThry $ injectiveMapping (allMaps left) commonSrc   
+  in upsideTriangle lView rView diag
+
+{-
+injectiveMapping :: Mapping -> GTheory -> Mapping
+
+composeMaps :: [Mapping] -> Mapping
+composeMaps mapsList =
+  foldr composeTwoMaps Map.empty mapsList
+
+mapAsFunc :: Mapping -> RenameFunc 
+mapAsFunc m x =
+  case Map.lookup x m of
+    Nothing  -> x
+    Just val -> val
+-} 
 
 getPath :: TGraph -> GTheory -> GTheory -> Path 
 getPath graph src trgt =
   if src == trgt
-  then error "source and target theories need to be different"
-  else NE.fromList $ (getPath' (Map.elems $ edges graph) src trgt)
+  then error $ "source and target theories need to be different: source = " ++ getTheoryName graph src  ++ "; target = " ++ getTheoryName graph trgt
+  else let p =  getPath' (Map.elems $ edges graph) src trgt
+       in if p /= []
+          then NE.fromList $ getPath' (Map.elems $ edges graph) src trgt 
+          else error $ "path from " ++ getTheoryName graph src ++ " to " ++ getTheoryName graph trgt ++ " not found"
 
 getPath' :: [GView] -> GTheory -> GTheory -> [GView] 
 getPath' edgesList src dest =
@@ -136,10 +163,31 @@ getPath' edgesList src dest =
               else [(getPath' edgesList src (source v)) ++ [v] | v <- viewsToDest]
       p = List.filter (\ls -> pathSource (NE.fromList ls) == src) found             
    in if p == []
-      then error "path not found"
+      then [] 
       else List.head p 
-  
 
+getTheoryName :: TGraph -> GTheory -> Name_
+getTheoryName graph thry =
+  let theories = Map.toList $ nodes graph
+      targets = [k | (k,a) <- theories, a == thry]      
+   in if length targets == 1
+      then head targets
+      else if length targets == 0
+      then error $ "Theory Not found" ++ show theories 
+      else error $ "Multiple theories with the same name : " ++ (show targets) 
+
+getViewName :: TGraph -> GView -> Name_
+getViewName graph view =
+  let ed = Map.toList $ edges graph
+      targets = [k | (k,a) <- ed, a == view]      
+   in if length targets == 1
+      then head targets
+      else if length targets == 0
+      then error "View Not found"
+      else error "Multiple Views with the same name"           
+
+           
+                               
 {- --------------------------------------------------------------- -}
 liftMapping :: Mapping -> GTheory -> GView
 liftMapping namesMap srcThry =
@@ -189,18 +237,19 @@ noNameConflict frst scnd = List.intersect frst scnd == []
 validMapping :: Mapping -> GTheory -> Bool
 validMapping namesMap thry =
   let fsts = Map.keys namesMap 
-      snds = Map.elems namesMap      
-      nonIdMaps  = Map.filterWithKey (\k a -> k /= a) namesMap
-      noConflict = noNameConflict (Map.elems nonIdMaps) (symbols thry) 
+      snds = Map.elems namesMap
+      syms = symbols thry 
+      relevantMaps = [(k,a) | (k,a) <- Map.toList namesMap, (elem k syms), k/=a]
+      noConflict = noNameConflict (map snd relevantMaps) (syms) 
       allUnique xs = List.nub xs == xs 
-   in allUnique snds && allUnique fsts && noConflict
+   in allUnique (map fst relevantMaps) && allUnique (map snd relevantMaps) && noConflict
 
 -- turns a rename list into an injective mapping over the symbols of the source theory. 
 injectiveMapping :: Mapping -> GTheory -> Mapping
 injectiveMapping m srcThry =
   if validMapping m srcThry
   then Map.fromList $ List.map (\x -> (x, mapAsFunc m x)) $ symbols srcThry
-  else error "invalid Mapping"
+  else error $ "cannot apply mapping " ++ (show (Map.toList m)) ++ " to theory with symbols " ++ show (symbols srcThry) 
 
 disjointUnion3 :: Eq a => [a] -> [a] -> [a] ->  [a]
 disjointUnion3 l1 l2 l3 = l1 ++ (l2 List.\\ l1) ++ (l3 List.\\ l1)
@@ -247,10 +296,10 @@ checkGuards qpath1 qpath2 =
   let sameSource = (pathSource $ path qpath1) == (pathSource $ path qpath2)
       -- mapsList views renMap = (mapAsFunc renMap)
       symsMapped qp = symbols $ applyCompositeMapping (pathSource $ path qp) (path qp) (mapp qp) 
-      trgtSyms1 = symsMapped qpath1 
+      trgtSyms1 = symsMapped qpath1
       trgtSyms2 = symsMapped qpath2
-   in sameSource &&
-      trgtSyms1 == trgtSyms2 
+   in if (sameSource &&
+      trgtSyms1 == trgtSyms2) then True else error $ "Name Clash! between " ++ (show trgtSyms1) ++ " and " ++ (show trgtSyms2) 
 
 noSrcLoc :: (Int,Int)
 noSrcLoc = (0,0) 
