@@ -226,8 +226,7 @@ import qualified Tog.Raw                          as C
 import           Tog.Abstract
 import qualified Tog.PrettyPrint                  as PP
 import           Tog.PrettyPrint                  (render, Pretty(..), (<+>), ($$), (//>))
-import           Tog.TGraphTest
-import           Tog.TGraph                       (nodes) 
+import           Tog.TGraphTest 
 
 #include "impossible.h"
 

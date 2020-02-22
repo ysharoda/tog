@@ -44,15 +44,10 @@ data TGraph = TGraph{ -- check if I would rather use only a map of edges
   
 updateGraph ::  TGraph -> Name_ -> Either GView UTriangle -> TGraph
 updateGraph graph newThryName (Left view) =
-  let srcName = getTheoryName graph $ source view
-  in TGraph (Map.insert newThryName (target view)  $ nodes graph)
+  TGraph (Map.insert newThryName (target view)  $ nodes graph)
          (Map.insert ("To"++newThryName) view $ edges graph)
 -- TODO: find a way to get the name of the source theory. 
 updateGraph graph newThryName (Right ut) =
-  let srcNameL = getTheoryName graph $ source $ uLeft ut
-      srcNameR = getTheoryName graph $ source $ uRight ut
-      srcNameD = getTheoryName graph $ source $ diagonal ut 
-  in 
    TGraph (Map.insert newThryName (target $ uLeft ut) $ nodes graph)
         $ (Map.fromList [("To"++newThryName++"1",uLeft ut),
                          ("To"++newThryName++"2",uRight ut),
@@ -236,9 +231,7 @@ noNameConflict frst scnd = List.intersect frst scnd == []
 -- noConflist --> The new names do not occur in the theory
 validMapping :: Mapping -> GTheory -> Bool
 validMapping namesMap thry =
-  let fsts = Map.keys namesMap 
-      snds = Map.elems namesMap
-      syms = symbols thry 
+  let syms = symbols thry 
       relevantMaps = [(k,a) | (k,a) <- Map.toList namesMap, (elem k syms), k/=a]
       noConflict = noNameConflict (map snd relevantMaps) (syms) 
       allUnique xs = List.nub xs == xs 
