@@ -19,7 +19,7 @@ TheoryC.  Language ::= "Theory" Name "=" "{" [Constr] "}";
 MappingC. Language ::= "Map" Name "=" Rens;
 ModExprC. Language ::= Name "=" ModExpr; 
 
-position token Name ((letter | '_') (letter | digit | '-' | '\'' | '_')*) ;
+position token Name ((((letter | '_') (letter | digit | '-' | '\'' | '_')*) | '+' | '*' | '|' | '<' | '>' | '=' | '\\' | '/' | '@' | digit)+) ;
 
 Qual.    QName ::= QName "." Name;
 NotQual. QName ::= Name;
@@ -36,13 +36,14 @@ Module_.    Decl  ::= Module;
 
 Extend.      ModExpr ::= "extend" Name "{" [Constr] "}";
 Rename.      ModExpr ::= "rename" Name Rens;
-RenameUsing. ModExpr ::= "rename" Name "using" Rens; 
+RenameUsing. ModExpr ::= "rename" Name "using" Name; 
 CombineOver. ModExpr ::= "combine" Name Rens Name Rens "over" Name;
 Combine.     ModExpr ::= Name "||" Name;
-Transport.   ModExpr ::= Name "@" Name;
+Transport.   ModExpr ::= Rens "@" Name;
 
-NoRens.   Rens ::= ;
+NoRens.   Rens ::= "{" "}";
 Rens.     Rens ::= "{" [RenPair] "}";
+NameRens. Rens ::= Name; 
 
 separator RenPair ";";
 RenPair.  RenPair ::= Name "to" Name; 
