@@ -151,6 +151,7 @@ RightSelfInverse = extend LeftShelfSig {rightSelfInverse_|> : {x y : A} -> (|> (
 Kei = combine LeftSpindle {} RightSelfInverse {} over LeftShelfSig
 Semigroup = extend Magma {associative_op : {x y z : A} -> op (op x y) z == op x (op y z) }
 AdditiveSemigroup = combine AdditiveMagma {} Semigroup plus over Magma
+MultSemigroup = combine MultMagma {} Semigroup times over Magma 
 CommutativeSemigroup = combine CommutativeMagma {} Semigroup {} over Magma 
 AdditiveCommutativeSemigroup = combine AdditiveMagma {} CommutativeSemigroup plus over Magma 
 LeftCancellativeSemigroup = combine Semigroup {} LeftCancellativeMagma {} over Magma
@@ -200,26 +201,30 @@ InverseSemigroup = combine PseudoInverse {} PseudoInvolution {} over PseudoInver
 Group  = combine Monoid {} Inverse {} over PointedMagma 
 Group1 = combine Group one Monoid1 {} over Monoid
 GroupInv = combine Group inv InverseUnaryOperation {} over UnaryOperation 
-GroupPlus = combine AdditiveMonoid {} Group {op to + ; e to 0} over Monoid 
-AdditiveGroup = combine GroupPlus inv GroupInv  {op to + ; e to 0} over Group 
+GroupPlus = combine AdditiveMonoid {} Group plus-zero over Monoid 
+AdditiveGroup = combine GroupPlus inv GroupInv  plus-zero over Group 
 CommutativeGroup = combine Group {} CommutativeMonoid {} over Monoid
-AbelianGroup = combine CommutativeGroup {op to + ; e to 0} AdditiveGroup {} over Group
-
-{- ------------------- Problem ----------------------------- -} 
-
-{- if the additive arrow is defined this way -} 
-
--- AddMagma = rename Magma {op to plus}
-
--- PMplus = combine PointedMagma {op to plus ; e to zero} AddMagma over Magma 
-
--- PointedZero = rename Pointed {e to zero}
-
--- AddPointedMagma = combine AddMagma PointedZero over Carrier 
-
-{- it cannot be combined with Monoid, because there is not arrow from PointdMagma to AddPointedMagma -} 
--- AddMonoid = combine AddPointedMagma Monoid {op to plus ; e to zero} over PointedMagma
-
+AbelianGroup = combine CommutativeGroup {op to + ; e to 0 ; inv to neg} AdditiveGroup {inv to neg} over Group
+RingoidSig = combine MultMagma {} AdditiveMagma {} over Carrier 
+Ringoid0Sig = combine RingoidSig {} PointedZero {} over Carrier 
+Ringoid1Sig = combine RingoidSig {} PointedOne  {} over Carrier
+Ringoid01Sig = combine Ringoid0Sig {} Ringoid1Sig {} over RingoidSig
+NonassociativeNondistributiveRing = combine AbelianGroup {} RingoidSig {} over AdditiveMagma 
+LeftRingoid  = extend RingoidSig { leftDistributive_*_+  : {x y z : A} -> * x (+ y z) == + (* x y) (* x z) }
+RightRingoid = extend RingoidSig { rightDistributive_*_+ : {x y z : A} -> * (+ y z) x == + (* y x) (* z x) }
+Ringoid = combine LeftRingoid {} RightRingoid {} over RingoidSig 
+NonassociativeRing = combine NonassociativeNondistributiveRing {} Ringoid {} over RingoidSig
+PrimeRingoidSig = combine RingoidSig {} UnaryOperation {} over Carrier
+AndDeMorgan = extend PrimeRingoidSig {andDeMorgan_*_+_prime : {x y z : A} -> prime (* x y) == + (prime x) (prime y) }
+OrDeMorgran = extend PrimeRingoidSig {orDeMorgan_+_*_prime  : {x y z : A} -> prime (+ x y) == * (prime x) (prime y) }
+DualDeMorgan = combine AndDeMorgan {} OrDeMorgran {} over PrimeRingoidSig
+NonDistributiveAddPreSemiring  = combine AdditiveCommutativeSemigroup {} RingoidSig {} over AdditiveMagma
+-- NonDistributiveRightPreSemiring = combine AdditiveCommutativeSemigroup {} RingoidSig {} over AdditiveMagma
+AssociativeLeftRingoid = combine MultSemigroup {} LeftRingoid {} over MultMagma 
+LeftPreSemiring = combine AssociativeLeftRingoid {} NonDistributiveAddPreSemiring {} over RingoidSig 
+AssociativeRightRingoid = combine MultSemigroup {} RightRingoid {} over MultMagma 
+RightPreSemiring = combine AssociativeRightRingoid {} NonDistributiveAddPreSemiring {} over RingoidSig 
+PreSemiring = combine LeftPreSemiring {} RightRingoid {} over RingoidSig
 
 
 
