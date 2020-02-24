@@ -204,12 +204,15 @@ GroupInv = combine Group inv InverseUnaryOperation {} over UnaryOperation
 GroupPlus = combine AdditiveMonoid {} Group plus-zero over Monoid 
 AdditiveGroup = combine GroupPlus inv GroupInv  plus-zero over Group 
 CommutativeGroup = combine Group {} CommutativeMonoid {} over Monoid
-AbelianGroup = combine CommutativeGroup {op to + ; e to 0 ; inv to neg} AdditiveGroup {inv to neg} over Group
+MultGroup = combine MultMonoid {} GroupInv times-one over Monoid
+CommutativeGroup = combine Group {} CommutativeMonoid {} over Monoid
+AbelianGroup = combine CommutativeGroup times-one MultGroup {} over Group
+AbelianAdditiveGroup = combine AdditiveGroup {} CommutativeAdditiveMagma {} over AdditiveMagma 
 RingoidSig = combine MultMagma {} AdditiveMagma {} over Carrier 
 Ringoid0Sig = combine RingoidSig {} PointedZero {} over Carrier 
 Ringoid1Sig = combine RingoidSig {} PointedOne  {} over Carrier
 Ringoid01Sig = combine Ringoid0Sig {} Ringoid1Sig {} over RingoidSig
-NonassociativeNondistributiveRing = combine AbelianGroup {} RingoidSig {} over AdditiveMagma 
+NonassociativeNondistributiveRing = combine AbelianGroup {} RingoidSig {} over MultMagma 
 LeftRingoid  = extend RingoidSig { leftDistributive_*_+  : {x y z : A} -> * x (+ y z) == + (* x y) (* x z) }
 RightRingoid = extend RingoidSig { rightDistributive_*_+ : {x y z : A} -> * (+ y z) x == + (* y x) (* z x) }
 Ringoid = combine LeftRingoid {} RightRingoid {} over RingoidSig 
@@ -225,6 +228,12 @@ LeftPreSemiring = combine AssociativeLeftRingoid {} NonDistributiveAddPreSemirin
 AssociativeRightRingoid = combine MultSemigroup {} RightRingoid {} over MultMagma 
 RightPreSemiring = combine AssociativeRightRingoid {} NonDistributiveAddPreSemiring {} over RingoidSig 
 PreSemiring = combine LeftPreSemiring {} RightRingoid {} over RingoidSig
-
-
-
+AssocPlusRingoid  = combine RingoidSig {} AdditiveSemigroup {} over AdditiveMagma
+AssocTimesRingoid = combine RingoidSig {} MultSemigroup {} over Magma
+AssociativeNonDistributiveRingoid = combine AssocPlusRingoid {} AssocTimesRingoid {} over RingoidSig 
+NearSemiring  = combine AssociativeNonDistributiveRingoid {} RightRingoid {} over RingoidSig
+-- NearSemifield = combine NearSemiring {} Group times-one over
+AddGroup_RingoidSig = combine AdditiveGroup {} RingoidSig {} over AdditiveMagma 
+NearRing = combine AddGroup_RingoidSig {} AssociativeRightRingoid plus-zero over RingoidSig
+AbelianAddGroup_Ringoid = combine AbelianAdditiveGroup {} Ringoid {} over AdditiveMagma 
+Rng = combine AbelianAddGroup_Ringoid {} AssocTimesRingoid {} over RingoidSig
