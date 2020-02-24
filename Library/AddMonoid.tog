@@ -1,0 +1,43 @@
+module RenameMonoid where
+
+Theory Empty = {} 
+Carrier = extend Empty {A : Set}
+Map plus = {op to +}
+Map times = {op to *} 
+Map zero = {e to 0}
+Map one = {e to 1}
+Map plus-zero = {op to + ; e to 0}
+Map times-one = {op to * ; e to 1} 
+Map nat  = {A to Nat}
+Map linv = {op to linv}
+Map rinv = {op to rinv}
+Map natPlus = {A to Nat; op to +}
+Map natZero = {A to Nat; e to 0} 
+-- TODO: define these by composing the one above
+Map additive = { A to Nat ; e to 0 ; op to + } 
+
+Pointed = extend Carrier {e : A}
+Pointed0 = rename Pointed zero 
+
+Magma = extend Carrier {op : A -> A -> A}
+AdditiveMagma = rename Magma plus
+
+PointedMagma = combine Pointed {} Magma {} over Carrier
+Pointed0Magma = combine Pointed0 {} PointedMagma zero over Pointed
+PointedPlusMagma = combine AdditiveMagma {} PointedMagma plus over Magma
+AdditivePointedMagma = combine Pointed0Magma plus PointedPlusMagma zero over PointedMagma
+
+LeftUnital = extend PointedMagma { lunit_e : {x : A} -> op e x == x }
+RightUnital = extend PointedMagma { runit_e : {x : A} -> op x e == x }
+Unital = combine LeftUnital {} RightUnital {} over PointedMagma
+AddLeftUnital = combine AdditivePointedMagma {} LeftUnital plus-zero over PointedMagma 
+AddRightUnital = combine AdditivePointedMagma {} RightUnital plus-zero over PointedMagma
+AddUnital  = combine AddRightUnital {} Unital plus-zero over RightUnital
+AddUnital' = combine AddLeftUnital {} Unital plus-zero over LeftUnital
+
+Semigroup = extend Magma {associative_op : {x y z : A} -> op (op x y) z == op x (op y z) }
+AdditiveSemigroup = combine AdditiveMagma {} Semigroup plus over Magma
+
+Monoid = combine Unital {} Semigroup {} over Magma 
+AddMonoid = combine Monoid plus-zero AddUnital {} over Unital
+

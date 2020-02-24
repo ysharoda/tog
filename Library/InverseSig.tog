@@ -1,0 +1,43 @@
+module InverseSig where
+
+Map plus = {op to +}
+Map times = {op to *} 
+Map zero = {e to 0}
+Map one = {e to 1}
+Map plus-zero = {op to + ; e to 0}
+Map times-one = {op to * ; e to 1} 
+Map nat  = {A to Nat}
+Map linv = {op to linv}
+Map rinv = {op to rinv}
+Map natPlus = {A to Nat; op to +}
+Map natZero = {A to Nat; e to 0}
+Map inv = {prime to inv} 
+-- TODO: define these by composing the one above
+Map additive = { A to Nat ; e to 0 ; op to + } 
+
+
+
+Theory Empty = {} 
+Carrier = extend Empty {A : Set}
+Pointed = extend Carrier {e : A}
+PointedZero = rename Pointed zero
+PointedOne  = rename Pointed one 
+
+TwoPointed = combine Pointed {e to e1} Pointed {e to e2} over Carrier 
+TwoPointed01 = rename TwoPointed {e to zero ; e to one} -- Graph here
+
+UnaryOperation = extend Carrier {prime : A -> A}
+PointedUnarySystem = combine UnaryOperation {} Pointed {} over Carrier
+FixedPoint = extend PointedUnarySystem {fixes_prime_e : prime e == e} 
+
+Magma = extend Carrier {op : A -> A -> A}
+PointedMagma = combine Pointed {} Magma {} over Carrier
+
+InvolutiveMagmaSig = combine UnaryOperation {} Magma {} over Carrier 
+-- InvolutivePointedMagmaSig = combine UnaryOperation {} PointedMagma {} over Carrier 
+-- ------ alternative definition --------- 
+InvolutivePointedMagmaSig = combine PointedUnarySystem {} Magma {} over Carrier
+
+InverseUnaryOperation = rename UnaryOperation inv
+
+InverseSig = combine InverseUnaryOperation {} InvolutivePointedMagmaSig inv over UnaryOperation
