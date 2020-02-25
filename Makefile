@@ -9,9 +9,7 @@ all: build-deps build
 
 .PHONY : build-deps
 build-deps:
-ifndef $(find-bnfc)
-	cabal update
-	cabal install BNFC 
+ifndef $(find_bnfc)
 endif 
 
 .PHONY: build

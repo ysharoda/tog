@@ -139,3 +139,4 @@ processFile file ret = do
 main :: IO ()
 main = do
         join $ execParser $ info (helper <*> parseMain) fullDesc 
+
