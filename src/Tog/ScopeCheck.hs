@@ -515,7 +515,7 @@ scopeCheckModule (C.Module (C.Name ((l, c), s)) pars (C.Decl_ ds)) =
     q = QName (Name (SrcLoc l c) s) []
 scopeCheckModule (C.Module _ _ (C.Lang_ defs)) =
   let thrs = createModules $ graphNodes $ computeGraphState defs
-  in scopeCheckModule $ processModule thrs -- $ appendToModule thrs $ map createHom $ readModuleRecords thrs
+  in scopeCheckModule $ thrs -- processModule thrs -- $ appendToModule thrs $ map createHom $ readModuleRecords thrs
 
 {- -------- for testing ------- -}
 
