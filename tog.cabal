@@ -27,7 +27,6 @@ library
                      , Tog.Utils
                      , Tog.TGraph
                      , Tog.TGraphTest
-                     , Tog.Hom 
                      
   other-modules:       Data.Collect
                      , Tog.Instrumentation.Conf
