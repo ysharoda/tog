@@ -27,6 +27,11 @@ library
                      , Tog.Utils
                      , Tog.TGraph
                      , Tog.TGraphTest
+                     , Tog.Hom
+                     , Tog.Algebra
+                     , Tog.EqTheory
+                     , Tog.TUtils
+                     , Tog.TypeConversions
                      
   other-modules:       Data.Collect
                      , Tog.Instrumentation.Conf

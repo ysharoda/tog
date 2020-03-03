@@ -10,14 +10,31 @@ type Name_ = String
 noSrcLoc :: (Int,Int)
 noSrcLoc = (0,0) 
 
+homFuncName :: String 
+homFuncName = "hom"
+
 createId :: String -> Expr
 createId str = Id $ NotQual $ Name (noSrcLoc,str)
 
 getNameAsStr :: Name -> Name_
 getNameAsStr (Name (_,n)) = n 
 
+mkName :: Name_ -> Name
+mkName str = Name (noSrcLoc,str) 
+
+mkConstructor :: Name_ -> Name
+mkConstructor str = mkName $ str ++ "C" 
+
+setType :: Name
+setType = mkName "Set"
+
 getConstrName :: Constr -> Name_
 getConstrName (Constr n _) = getNameAsStr n 
+
+getArgName :: Arg -> [Name_]
+getArgName (Arg (Id (NotQual (Name (_,n))))) = [n]
+--getArgName (Fun e1 e2) = 
+  --Generics.mkQ [] (\(Id (NotQual (Name (_,n)))) -> [n]) arg
 
 getBindingArgNames :: Binding -> [Name_]
 getBindingArgNames (Bind args _) =
@@ -38,7 +55,7 @@ notQualDecl declName =
 -- For Name Monoid and number 1, the output is M1 
 genCharName :: Name_ -> Int -> Name_
 genCharName declName num =
-  show (head declName) ++ show num
+  (take 1 declName) ++ show num
 
 createName :: Name_ -> Name
 createName str = Name (noSrcLoc,str) 
@@ -57,7 +74,6 @@ exprArity expr =
 
 genVars :: Int -> [String] 
 genVars i = zipWith (++) (take i $ repeat "x") $ map show [1..i]
-
 
 
 -- creates something like (M1 : Monoid A1)  

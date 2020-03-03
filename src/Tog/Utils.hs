@@ -39,8 +39,23 @@ isAxiom _ = False
 getExpr :: Constr -> Expr
 getExpr (Constr _ e) = e 
 
+getBindingArgs :: Binding -> [Arg]
+getBindingArgs (Bind  args _) = args
+getBindingArgs (HBind args _) = args 
+
+getBindingExpr :: Binding -> Expr
+getBindingExpr (Bind  _ expr) = expr
+getBindingExpr (HBind _ expr) = expr
+
 liftFilter :: (Expr -> Bool) -> [Constr] -> [Constr] 
 liftFilter p l = [c | c <- l, p $ getExpr c] 
+
+checkParam :: (Expr -> Bool) -> Params -> Params
+checkParam _ (NoParams) = NoParams
+checkParam p (ParamDecl binds) =
+  let sorts = [b | b <- binds, p (getBindingExpr b)]
+  in if sorts == [] then NoParams else ParamDecl sorts 
+checkParam _ _ = NoParams
 
 classify :: [Constr] -> ([Constr],[Constr],[Constr])
 classify constrs = classify' constrs ([],[],[])
@@ -85,11 +100,11 @@ getQname :: QName -> Maybe String
 getQname qn@(NotQual _) = qn ^? _NotQual.to getName._Just 
 getQname    (Qual q n)  = (++) <$> getQname q <*> getName n
 -- (++) <$> ((++) <$> qname q <*> pure ".") <*> name n 
-
+{-
 getArgName :: Arg -> Maybe String 
 getArgName arg@(Arg  _) = arg ^? _Arg._Id.to getQname._Just 
 getArgName arg@(HArg _) = arg ^? _HArg._Id.to getQname._Just
-
+-}
 getRecordName :: Decl -> Maybe String 
 getRecordName (Record name _ _) = getName name
 getRecordName _ = Nothing
@@ -130,13 +145,7 @@ renameBinding oldName newName (Bind args expr)
 renameBinding oldName newName (HBind args expr) 
    = HBind (map (renameArg oldName newName) args) (renameExpr oldName newName expr)
 
-getBindingArgs :: Binding -> [Arg]
-getBindingArgs (Bind  args _) = args
-getBindingArgs (HBind args _) = args 
 
-getBindingExpr :: Binding -> Expr
-getBindingExpr (Bind  _ expr) = expr
-getBindingExpr (HBind _ expr) = expr
 
 data Flag = Hide | Explicit deriving Eq
 

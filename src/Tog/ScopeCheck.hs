@@ -227,7 +227,7 @@ import           Tog.Abstract
 import qualified Tog.PrettyPrint                  as PP
 import           Tog.PrettyPrint                  (render, Pretty(..), (<+>), ($$), (//>))
 import           Tog.TGraphTest 
-import           Tog.Hom 
+import           Tog.Algebra  
 
 #include "impossible.h"
 
@@ -515,10 +515,10 @@ scopeCheckModule (C.Module (C.Name ((l, c), s)) pars (C.Decl_ ds)) =
     q = QName (Name (SrcLoc l c) s) []
 scopeCheckModule (C.Module _ _ (C.Lang_ defs)) =
   let thrs = createModules $ graphNodes $ computeGraphState defs
-  in scopeCheckModule $ thrs -- processModule thrs -- $ appendToModule thrs $ map createHom $ readModuleRecords thrs
+  in scopeCheckModule $ processModule thrs 
 
 {- -------- for testing ------- -}
-
+{-
 start mod = map createHom $ readModuleRecords mod
 -- start mod = map rawPrintAfterParsing 
 -- test ∷ FilePath → IO [Constr]]
@@ -532,7 +532,7 @@ test file =
            return $ processModule $ createModules $ graphNodes $ computeGraphState defs
            -- $ show $ length $ readModRecs mod -- $ Module n p $ readModuleRecords decls -- (decls ++ (map createHom $ readRecords decls)) 
  
-
+-}
 
 {- ---------------------------- -} 
      
