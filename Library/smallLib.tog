@@ -1,0 +1,15 @@
+module smallLib where
+
+Theory Empty = {} 
+Carrier = extend Empty {A : Set}
+Pointed = extend Carrier {e : A}
+Magma = extend Carrier {op : A -> A -> A}
+--PointedMagma = combine Pointed {} Magma {} over Carrier
+
+{-
+Constr (Name ((0,0),"pres-op")) (Pi (Tel [HBind [Arg (Id (NotQual (Name ((0,0),"x1"))))] (App [Arg (Id (NotQual (Name ((0,0),"A"))))]),HBind [Arg (Id (NotQual (Name ((0,0),"x2"))))] (App [Arg (Id (NotQual (Name ((0,0),"A"))))])]) (Eq (App [Arg (Id (NotQual (Name ((0,0),"hom")))),Arg (App [Arg (App [Arg (Id (NotQual (Name ((0,0),"op")))),Arg (Id (NotQual (Name ((0,0),"M1"))))]),Arg (Id (NotQual (Name ((0,0),"x1")))),Arg (Id (NotQual (Name ((0,0),"x2"))))])])
+
+(App [Arg (App [Arg (Id (NotQual (Name ((0,0),"op")))),Arg (Id (NotQual (Name ((0,0),"M2"))))]),
+Arg (App [Arg (Id (NotQual (Name ((0,0),"hom")))),Arg (Id (NotQual (Name ((0,0),"x1"))))]),Arg (App [Arg (Id (NotQual (Name ((0,0),"hom")))),Arg (Id (NotQual (Name ((0,0),"x2"))))])])))]))]))])
+
+-} 

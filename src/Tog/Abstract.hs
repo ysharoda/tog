@@ -310,8 +310,19 @@ instance MorePretty Name where
 instance MorePretty QName where
   morePretty (QName n qn) = morePretty n 
 
+instance MorePretty Head where
+  morePretty (Var n) = morePretty n
+  morePretty (Def qn) = morePretty qn
+  morePretty (J srcloc) = text "J" 
+
+
 instance MorePretty Expr where
+--  morePretty (App head elim) = morePretty head <> morePretty elim 
   morePretty = pretty
+
+instance MorePretty Elim where
+  morePretty (Proj x) = morePretty x
+  morePretty elim = pretty elim 
   
 instance MorePretty Decl where
   morePretty d = case d of
