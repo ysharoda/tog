@@ -33,6 +33,7 @@ getConstrName (Constr n _) = getNameAsStr n
 
 getArgName :: Arg -> [Name_]
 getArgName (Arg (Id (NotQual (Name (_,n))))) = [n]
+getArgName _ = error "Not an identifier"
 --getArgName (Fun e1 e2) = 
   --Generics.mkQ [] (\(Id (NotQual (Name (_,n)))) -> [n]) arg
 

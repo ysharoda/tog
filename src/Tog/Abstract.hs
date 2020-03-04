@@ -331,6 +331,10 @@ instance MorePretty Decl where
       indent 2 $ 
       align (vsep [text "constructor" <+> morePretty con, text "field"]) $$>
       vcat (map morePretty fs)
+    Data ts -> text "data" <+> morePretty ts <+> text "where"
+    DataDef qn ns tys ->
+      indent 2 $
+      vcat (map morePretty tys) 
     Module_ m -> morePretty m
     Import _ _ -> "" 
     _ -> pretty d 

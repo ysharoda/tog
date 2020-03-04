@@ -1,9 +1,10 @@
 module Tog.Algebra where
 
 import Tog.Raw.Abs 
---import Tog.EqTheory
-import Tog.Hom
 import Tog.TypeConversions
+import Tog.EqTheory
+import Tog.Hom
+import Tog.TermLang 
 --import qualified Data.Generics as Generics
 
 import Tog.Parse
@@ -11,48 +12,58 @@ import Tog.TGraphTest
 
 processModule :: Module -> Module
 processModule (Module n p (Decl_ decls)) =
-  Module n p $ Decl_ $ map createHomThry decls   
+  Module n p $ Decl_ $ map createTermLang decls   
 processModule _ = error $ "Unparsed theory expressions exists" 
 --processModule_ decls =   Generics.everything (++) (Generics.mkQ [] (\(Module_ m) -> [m])) decls
 
-  
+{- ------- Filtering the EqTheories ------------ -} 
+
+type InnerModule = Decl
+
+getEqTheories :: InnerModule -> [EqTheory]
+getEqTheories (Module_ (Module _ _ (Decl_ decls))) =
+  let records = filter (\r -> not $ isEmptyTheory r) $ concatMap declRecords decls
+  in map recordToEqTheory records 
+getEqTheories x = map recordToEqTheory $ declRecords x
+
 declRecords :: Decl -> [TRecord]
 declRecords (Record n p r) = [TRecord n p r]
 declRecords (Module_ (Module _ _ (Decl_ decls))) = concatMap declRecords decls 
 declRecords _ = [] 
 
+{- ------- Creating Homomorphisms ------------ -} 
+
+createHomThry :: InnerModule -> InnerModule
+createHomThry m@(Module_ (Module n p (Decl_ decls))) =
+  let hom = map (homThryToDecl . homomorphism) $ getEqTheories m
+  in Module_ $ Module n p $ Decl_ (decls ++ hom)
+createHomThry _ = error $ "record not contained in an inner module"
+
 isEmptyTheory :: TRecord -> Bool 
 isEmptyTheory (TRecord _ NoParams (RecordDecl _)) = True
 isEmptyTheory (TRecord _ NoParams (RecordDef  _ NoFields)) = True
 isEmptyTheory (TRecord _ NoParams (RecordDeclDef _ _ NoFields)) = True
-isEmptyTheory _ = False 
+isEmptyTheory _ = False
 
-createHomThry :: InnerModule -> InnerModule
-createHomThry (Module_ (Module n p (Decl_ decls))) =
-  let records = filter (\r -> not $ isEmptyTheory r) $ concatMap declRecords decls 
-      hom = map (homThryToDecl . homomorphism . recordToEqTheory) records 
-  in Module_ $ Module n p $ Decl_ (decls ++ hom)
-createHomThry _ = error $ "record not contained in an inner module"
-  
-type InnerModule = Decl
+{- -------- Creating Term Language -------------- -}
 
-{-
-appendToModule :: Module -> [Decl] -> Module
-appendToModule (Module n p (Decl_ decls)) moreDecls = Module n p $ Decl_ (decls ++ moreDecls)
-appendToModule _ _ = error $ "Theory expressions are not properly flattened" 
+createTermLang :: InnerModule -> InnerModule
+createTermLang m@(Module_ (Module n p (Decl_ decls))) =
+  let thrs = getEqTheories m
+      filterTh = filter (\t -> not $ getThryName t == "Carrier" || getThryName t == "Empty") thrs 
+      lang = map (termLangToDecl . termLang) $ filterTh-- getEqTheories filterTh
+  in Module_ $ Module n p $ Decl_ (decls ++ lang) 
+createTermLang _ = error $ "record not contained in an inner module"
 
-appendToModule_ :: InnerModule -> [Decl] -> InnerModule
-appendToModule_ (Module_ (Module n p (Decl_ decls))) newDecls =
-  Module_ $ Module n p (Decl_ $ decls ++ newDecls)
-appendToModule_ _ _ = error $ "record not contained in an inner module"   
--}
-
+test :: FilePath -> IO Module 
 test file =
   do s <- readFile file
      case (parseModule s) of
        Right (Module _ _ (Lang_ defs)) ->
         do putStrLn "Generating Hom"
            return $ processModule $ createModules $ graphNodes $ computeGraphState defs
+       Right _ -> error "Invalid declaration"
+       Left _ -> error "Cannot create modules"     
            -- $ show $ length $ readModRecs mod -- $ Module n p $ readModuleRecords decls -- (decls ++ (map createHom $ readRecords decls)) 
 
 
