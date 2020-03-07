@@ -4,7 +4,8 @@ import Tog.Raw.Abs
 import Tog.TypeConversions
 import Tog.EqTheory
 import Tog.Hom
-import Tog.TermLang 
+import Tog.TermLang
+import Tog.ProductTheory 
 --import qualified Data.Generics as Generics
 
 import Tog.Parse
@@ -12,7 +13,8 @@ import Tog.TGraphTest
 
 processModule :: Module -> Module
 processModule (Module n p (Decl_ decls)) =
-  Module n p $ Decl_ $ map createTermLang decls   
+   Module n p $ Decl_ $ genProdType : map createProdAlgebra decls
+  -- Module n p $ Decl_ $ map createTermLang decls   
 processModule _ = error $ "Unparsed theory expressions exists" 
 --processModule_ decls =   Generics.everything (++) (Generics.mkQ [] (\(Module_ m) -> [m])) decls
 
@@ -55,6 +57,16 @@ createTermLang m@(Module_ (Module n p (Decl_ decls))) =
   in Module_ $ Module n p $ Decl_ (decls ++ lang) 
 createTermLang _ = error $ "record not contained in an inner module"
 
+{- ---------- Creating Product Algebras ----------- -}
+createProdAlgebra :: InnerModule -> InnerModule
+createProdAlgebra m@(Module_ (Module n p (Decl_ decls))) =
+  let thrs = getEqTheories m
+      filterTh = filter (\t -> not $ getThryName t == "Carrier" || getThryName t == "Empty") thrs 
+      prod = map (prodTheoryToDecl . productThry) $ filterTh-- getEqTheories filterTh
+  in Module_ $ Module n p $ Decl_ (decls ++ prod) 
+createProdAlgebra _ = error $ "record not contained in an inner module"
+
+{- ----------------- Testing ---------------------- -} 
 test :: FilePath -> IO Module 
 test file =
   do s <- readFile file

@@ -32,6 +32,8 @@ library
                      , Tog.EqTheory
                      , Tog.TUtils
                      , Tog.TypeConversions
+                     , Tog.TermLang
+                     , Tog.ProductTheory
                      
   other-modules:       Data.Collect
                      , Tog.Instrumentation.Conf

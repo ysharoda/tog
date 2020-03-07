@@ -2,6 +2,7 @@ module Tog.EqTheory where
 
 import Tog.Raw.Abs   
 import Tog.TUtils 
+import Data.Generics as Generics(Data,Typeable)
 
 -- uni sorted equational theory
 -- the waist determines how many parameters we have in the theory, like in Musa's work
@@ -13,7 +14,8 @@ data EqTheory = EqTheory {
   getSort       :: Constr , 
   getFuncTypes  :: [Constr],
   getAxioms     :: [Constr],
-  getWaist      :: Waist } deriving (Show,Eq) 
+  getWaist      :: Waist } deriving (Show,Eq,Generics.Data,Generics.Typeable)
+
 
 getSortName :: EqTheory -> Name_ 
 getSortName eqThry = getConstrName $ getSort eqThry
