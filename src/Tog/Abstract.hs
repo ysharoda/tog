@@ -324,18 +324,29 @@ instance MorePretty Elim where
   morePretty (Proj x) = morePretty x
   morePretty elim = pretty elim 
   
-instance MorePretty Decl where
+instance MorePretty Decl where  
   morePretty d = case d of
-    Record ts -> text "record" <+> morePretty ts <+> text "where"
+    Record ts -> text "record" <+> headerTypeSig ts <+> text "where"
     RecDef r xs con fs ->
       indent 2 $ 
       align (vsep [text "constructor" <+> morePretty con, text "field"]) $$>
       vcat (map morePretty fs)
-    Data ts -> text "data" <+> morePretty ts <+> text "where"
+    Data ts -> text "data" <+> headerTypeSig ts <+> text "where"
     DataDef qn ns tys ->
       indent 2 $
       vcat (map morePretty tys) 
     Module_ m -> morePretty m
     Import _ _ -> "" 
-    _ -> pretty d 
+    _ -> pretty d
+   where
+    headerTypeExpr e = case e of
+     Pi{} -> 
+       align $ prettyTel tel <+> text ":" // pretty b
+      where
+        (tel, b) = piView e
+        piView (Pi x a b) = ((x, a) :) *** id $ piView b
+        piView a          = ([], a)
+     _ -> ":" <+> pretty e 
+    headerTypeSig (Sig n e) =
+      morePretty n //> headerTypeExpr e
 

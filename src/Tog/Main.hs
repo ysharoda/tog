@@ -16,9 +16,6 @@ import           Tog.Term
 import           Tog.CheckFile
 import           Tog.Parse
 import           Tog.ScopeCheck
---import           Tog.TGraph
---import           Tog.TGraphTest 
--- import           Tog.Hom
 
 
 parseTypeCheckConf :: Parser Conf
@@ -121,10 +118,7 @@ processFile file ret = do
   mbErr <- runExceptT $ do
     s   <- lift $ readFile file
     raw <- exceptShowErr "Parse" $ parseModule s
-    -- exceptShowErr "Scope" $ scopeCheckModule raw
-   -- putStrLn $ show $ morePretty sraw 
     exceptShowErr "Scope" $ scopeCheckModule raw
-    -- (appendToModule raw $ (map createHom $ readModuleRecords raw))
   case mbErr of
     Left err  -> ret (sigEmpty :: Signature Simple) (Just err)
     Right int -> checkFile int $ \sig mbErr' ->
