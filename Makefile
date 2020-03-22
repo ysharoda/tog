@@ -10,6 +10,8 @@ all: build-deps build
 .PHONY : build-deps
 build-deps:
 ifndef $(find_bnfc)
+	cabal update
+	cabal install --dependencies-only
 endif 
 
 .PHONY: build
@@ -45,7 +47,7 @@ modules.pdf: $(bnfc_output) $(hs_sources)
 	graphmod -i src -i bnfc src/Tog/Main.hs | dot -T pdf -o modules.pdf
 
 .PHONY: install-prof
-install-prof: $(bnfc_output) $(hs_sources)
+install-prof: $(build-deps) $(bnfc_output) $(hs_sources)
 	stack build --library-profiling --executable-profiling
 
 .PHONY: install
