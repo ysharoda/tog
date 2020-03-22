@@ -5,8 +5,9 @@ import Tog.TypeConversions
 import Tog.EqTheory
 import Tog.Hom
 import Tog.TermLang
-import Tog.ProductTheory 
-import qualified Data.Generics as Generics
+import Tog.ProductTheory
+import Tog.Signature 
+--import qualified Data.Generics as Generics
 
 import Tog.Parse
 import Tog.TGraphTest 
@@ -22,7 +23,8 @@ leverageThry thry =
  let hom = (homThryToDecl . homomorphism) thry
      trmlang = (termLangToDecl . termLang) thry
      prodthry = (prodTheoryToDecl . productThry) thry
- in [hom,trmlang,prodthry]    
+     sigs = (sigToDecl . signature_) thry  
+ in [hom,trmlang,prodthry,sigs]    
 
 genEverything :: InnerModule -> InnerModule
 genEverything m@(Module_ (Module n p (Decl_ decls))) =
@@ -51,7 +53,7 @@ isEmptyTheory (TRecord _ NoParams (RecordDeclDef _ _ NoFields)) = True
 isEmptyTheory _ = False
 
 {- ----------------- Testing ---------------------- -} 
---test :: FilePath -> IO Module 
+test :: FilePath -> IO Module 
 test file =
   do s <- readFile file
      case (parseModule s) of
