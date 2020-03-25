@@ -1,6 +1,6 @@
 module Tog.TypeConversions where
 
-import Tog.EqTheory
+import qualified Tog.EqTheory as Eq
 import Tog.Hom 
 import Tog.Raw.Abs       as Abs
 import Tog.TUtils 
@@ -8,9 +8,9 @@ import Tog.Utils
 
 data TRecord = TRecord Name Params RecordBody deriving (Show,Eq) 
 
-recordToEqTheory :: TRecord -> EqTheory
+recordToEqTheory :: TRecord -> Eq.EqTheory
 recordToEqTheory record@(TRecord name params _) =
-  EqTheory (getNameAsStr name) 
+  Eq.EqTheory (getNameAsStr name) 
    (getRecordSort record)
    (getRecordComps isFunc record)
    (getRecordComps isAxiom record)

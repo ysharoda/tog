@@ -1,8 +1,8 @@
 module Tog.Hom where
 
-import Tog.Raw.Abs 
-import Tog.TUtils 
-import Tog.EqTheory 
+import           Tog.Raw.Abs 
+import           Tog.TUtils 
+import qualified Tog.EqTheory as Eq
 
 type HiddenBinds = [Binding]
 type ExplicitBinds = [Binding]
@@ -27,12 +27,12 @@ genInstParams isHidden (Constr name typ) =
 thryInstName :: Name_ -> Int -> Name_ 
 thryInstName thryName index = genCharName thryName index
 
-createThryInsts :: EqTheory -> [Binding]
+createThryInsts :: Eq.EqTheory -> [Binding]
 createThryInsts eqThry =
-  [Bind [Arg $  createId $ thryInstName (getThryName eqThry) 1]
-        (createThryInstType (getThryName eqThry) (thryArgs eqThry) 1) ,
-   Bind [Arg $  createId $ thryInstName (getThryName eqThry) 2]
-        (createThryInstType (getThryName eqThry) (thryArgs eqThry) 2) ]
+  [Bind [Arg $  createId $ thryInstName (Eq.thryName eqThry) 1]
+        (createThryInstType (Eq.thryName eqThry) (Eq.thryArgs eqThry) 1) ,
+   Bind [Arg $  createId $ thryInstName (Eq.thryName eqThry) 2]
+        (createThryInstType (Eq.thryName eqThry) (Eq.thryArgs eqThry) 2) ]
 
 {- ---------------- The  Hom Function ------------------ -}
 
@@ -53,13 +53,13 @@ applyConstr thryName isParam constr =
   if isParam then qualDecl (getConstrName constr) (thryName)
   else notQualDecl (getConstrName constr)  
 
-genPresAxioms :: EqTheory -> [Constr]
+genPresAxioms :: Eq.EqTheory -> [Constr]
 genPresAxioms eqthry = 
-  let decls = getFuncTypes eqthry
-      args = take ((getWaist eqthry) - 1) decls
-      flds = drop ((getWaist eqthry) - 1) decls  
-  in (map (oneAxiom (getThryName eqthry) True) $ args)
-  ++  (map (oneAxiom (getThryName eqthry) False) $ flds)
+  let decls = Eq.funcTypes eqthry
+      args = take ((Eq.waist eqthry) - 1) decls
+      flds = drop ((Eq.waist eqthry) - 1) decls  
+  in (map (oneAxiom (Eq.thryName eqthry) True) $ args)
+  ++  (map (oneAxiom (Eq.thryName eqthry) False) $ flds)
   
 -- e : A 
 oneAxiom :: Name_ -> Bool -> FuncType -> Axiom 
@@ -77,7 +77,7 @@ genBinding thryName isParam expr =
  let vars =  map (\x -> Arg $ createId x) $ genVars $ exprArity expr
      instName = thryInstName thryName 1
      argQualName arg =
-        if isParam then map (\x -> notQualDecl (x ++ show 1)) (getArgName arg)
+        if isParam then map (\x -> notQualDecl (x ++ "1")) (getArgName arg)
         else map (\n -> qualDecl n instName) (getArgName arg)
      -- A list of types in the expression 
      exprTypes (App arg) = concatMap argQualName arg
@@ -142,7 +142,7 @@ genEq thryName isParam constr =
 
 {- ------------ The Hom Record -------------------- -}
 
-homomorphism :: EqTheory -> HomThry 
+homomorphism :: Eq.EqTheory -> HomThry 
 homomorphism eqThry =
   let -- instances and instNames should both have length exactly 2
     instances = (createThryInsts eqThry)
@@ -151,9 +151,9 @@ homomorphism eqThry =
       in if length names == 2 then (head names, last names)
          else error "Generating Hom: Error while creating recod isntances" 
   in HomThry
-      (getThryName eqThry ++ "Hom")
-      (map (genInstParams True) (thryArgs eqThry))
+      (Eq.thryName eqThry ++ "Hom")
+      (map (genInstParams True) (Eq.thryArgs eqThry))
       instances 
-      (genHomFunc (length (thryArgs eqThry) == 0) (getConstrName $ getSort eqThry) instName1 instName2)
+      (genHomFunc (length (Eq.thryArgs eqThry) == 0) (getConstrName $ Eq.sort eqThry) instName1 instName2)
       (genPresAxioms eqThry) 
          

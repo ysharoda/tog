@@ -1,31 +1,32 @@
 module Tog.EqTheory where 
 
 import Tog.Raw.Abs   
-import Tog.TUtils 
-import Data.Generics as Generics(Data,Typeable)
+import Tog.TUtils (Name_, getConstrName)
+import Data.Generics as Generics(Data)
 
 -- uni sorted equational theory
--- the waist determines how many parameters we have in the theory, like in Musa's work
+-- the waist determines how many parameters we have in the theory, 
+-- like in Musa's work
 type Waist = Int
 
--- Becuase the declarations are telescopes, a theory with waist n, has the first n declarations as parameters. 
+-- Because the declarations are telescopes, a theory with waist n, 
+-- has the first n declarations as parameters. 
 data EqTheory = EqTheory {
-  getThryName       :: Name_  ,
-  getSort       :: Constr , 
-  getFuncTypes  :: [Constr],
-  getAxioms     :: [Constr],
-  getWaist      :: Waist } deriving (Show,Eq,Generics.Data,Generics.Typeable)
-
+  thryName   :: Name_  ,
+  sort       :: Constr , 
+  funcTypes  :: [Constr],
+  axioms     :: [Constr],
+  waist      :: Waist }
+  deriving (Data)
 
 getSortName :: EqTheory -> Name_ 
-getSortName eqThry = getConstrName $ getSort eqThry
+getSortName = getConstrName . sort
+
+decls :: EqTheory -> [Constr]
+decls thry = sort thry : (funcTypes thry) ++ (axioms thry) 
 
 thryArgs :: EqTheory -> [Constr]
-thryArgs thry =
-  let decls = [getSort thry] ++ (getFuncTypes thry) ++ (getAxioms thry) 
-  in  take (getWaist thry) decls
+thryArgs thry = take (waist thry) $ decls thry
 
 thryFields :: EqTheory -> [Constr]
-thryFields thry =
-  let decls = [getSort thry] ++ (getFuncTypes thry) ++ (getAxioms thry) 
-  in  drop (getWaist thry) decls
+thryFields thry = drop (waist thry) $ decls thry

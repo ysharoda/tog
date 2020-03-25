@@ -15,7 +15,7 @@ signature_ :: EqTheory -> Signature
 signature_ thry =
   let ren (Name (_,x)) = if (x == "Set") then mkName x else mkName $ x++"S"
       renThry = Generics.everywhere (Generics.mkT ren) thry 
-  in Signature (getThryName renThry++"Sig") (getSort renThry) (getFuncTypes renThry) (getWaist renThry) 
+  in Signature (thryName renThry++"Sig") (sort renThry) (funcTypes renThry) (waist renThry) 
 
 params :: Signature -> Params
 params sig = if (sigWaist sig == 0) then NoParams

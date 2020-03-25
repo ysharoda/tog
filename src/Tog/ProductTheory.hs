@@ -1,8 +1,8 @@
 module Tog.ProductTheory where
 
-import Tog.Raw.Abs
-import Tog.TUtils
-import Tog.EqTheory
+import           Tog.Raw.Abs
+import           Tog.TUtils
+import qualified Tog.EqTheory as Eq
 
 import qualified Data.Generics as Generics
 
@@ -15,21 +15,21 @@ data ProductTheory = ProductTheory {
   axioms   :: [Constr] , 
   waist    :: Int   }
 
-productThry :: EqTheory -> ProductTheory
+productThry :: Eq.EqTheory -> ProductTheory
 productThry thry =
   let -- apply renames to avoid the shadowing problem of Tog
       ren (Name (_,x)) = if (x == "Set") then mkName x else mkName $ x++"P"
       renThry = Generics.everywhere (Generics.mkT ren) thry 
-      thrySort = getSort renThry
+      thrySort = Eq.sort renThry
   in ProductTheory
    (prodThryName renThry) 
    (thrySort)
-   (map (productField $ getConstrName thrySort) (getFuncTypes renThry))
-   (map (productField $ getConstrName thrySort) (getAxioms renThry))
-   (getWaist renThry)
+   (map (productField $ getConstrName thrySort) (Eq.funcTypes renThry))
+   (map (productField $ getConstrName thrySort) (Eq.axioms renThry))
+   (Eq.waist renThry)
 
-prodThryName :: EqTheory -> Name_
-prodThryName thry = getThryName thry ++ "Prod"
+prodThryName :: Eq.EqTheory -> Name_
+prodThryName thry = Eq.thryName thry ++ "Prod"
 
 -- Generate the prod type declaration 
 -- data Prod (A : Set) (B : Set) : Set
