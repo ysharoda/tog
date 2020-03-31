@@ -2,12 +2,11 @@ module Tog.Algebra where
 
 import Tog.Raw.Abs 
 import Tog.TypeConversions
-import Tog.EqTheory
+import qualified Tog.EqTheory as Eq
 import Tog.Hom
 import Tog.TermLang
 import Tog.ProductTheory
 import Tog.Signature 
---import qualified Data.Generics as Generics
 
 import Tog.Parse
 import Tog.TGraphTest 
@@ -18,7 +17,7 @@ processModule (Module n p (Decl_ decls)) =
 processModule _ = error $ "Unparsed theory expressions exists" 
 --processModule_ decls =   Generics.everything (++) (Generics.mkQ [] (\(Module_ m) -> [m])) decls
 
-leverageThry :: EqTheory -> [Decl]
+leverageThry :: Eq.EqTheory -> [Decl]
 leverageThry thry =
  let hom = (homThryToDecl . homomorphism) thry
      trmlang = (termLangToDecl . termLang) thry
@@ -35,7 +34,7 @@ genEverything x = x
 
 type InnerModule = Decl
 
-getEqTheories :: InnerModule -> [EqTheory]
+getEqTheories :: InnerModule -> [Eq.EqTheory]
 getEqTheories (Module_ (Module _ _ (Decl_ decls))) =
   let records = filter (\r -> not $ isEmptyTheory r) $ concatMap declRecords decls
   in map recordToEqTheory records 
