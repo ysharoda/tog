@@ -2,7 +2,6 @@ module Tog.TUtils where
 
 import Tog.Raw.Abs
 import Tog.DerivingInsts()
--- import Tog.AbstractTypes
 import qualified Data.Generics as Generics
 
 type Name_ = String
@@ -83,13 +82,6 @@ createThryInstType thryName thryParams index =
   App $ [Arg $ createId thryName] ++
         map (\constr -> Arg $ createId $ (getConstrName constr) ++ show index) thryParams
 
-
-
-
-
-
-
-  
 
 {- ----- creating pres axioms ------- -}
 {-
