@@ -1,3 +1,4 @@
+-- Horribly named 'Utils' module that is a grab-bag of stuff
 {-# LANGUAGE TemplateHaskell #-}
 module Tog.Utils where
 
@@ -47,9 +48,6 @@ getBindingExpr :: Binding -> Expr
 getBindingExpr (Bind  _ expr) = expr
 getBindingExpr (HBind _ expr) = expr
 
-liftFilter :: (Expr -> Bool) -> [Constr] -> [Constr] 
-liftFilter p l = [c | c <- l, p $ getExpr c] 
-
 checkParam :: (Expr -> Bool) -> Params -> Params
 checkParam _ (NoParams) = NoParams
 checkParam p (ParamDecl binds) =
@@ -66,22 +64,11 @@ classify constrs = classify' constrs ([],[],[])
          else if isAxiom (getExpr c) then classify' cs (sorts,funcs,c:axioms)
          else error "Cannot classify declaration."
 
-nameToStr :: Name -> String
-nameToStr (Name (_,n)) = n 
-
-qnameToStr :: QName -> String
-qnameToStr (NotQual name) = nameToStr name 
-qnameToStr (Qual q  name) = qnameToStr q ++ "." ++ nameToStr name              
-
 createIdNQ :: String -> Expr
 createIdNQ str = Id $ NotQual $ Name ((0,0),str)
 
 strToArg :: String -> Arg 
 strToArg str = Arg $ createIdNQ str
-
-nameStr :: Name -> String 
-nameStr (Name (_,n)) = n
-
 
 {- ------------------------------------------------------------ -} 
 {- ---------------------- Getters ----------------------------- -} 
@@ -100,11 +87,7 @@ getQname :: QName -> Maybe String
 getQname qn@(NotQual _) = qn ^? _NotQual.to getName._Just 
 getQname    (Qual q n)  = (++) <$> getQname q <*> getName n
 -- (++) <$> ((++) <$> qname q <*> pure ".") <*> name n 
-{-
-getArgName :: Arg -> Maybe String 
-getArgName arg@(Arg  _) = arg ^? _Arg._Id.to getQname._Just 
-getArgName arg@(HArg _) = arg ^? _HArg._Id.to getQname._Just
--}
+
 getRecordName :: Decl -> Maybe String 
 getRecordName (Record name _ _) = getName name
 getRecordName _ = Nothing
@@ -145,19 +128,16 @@ renameBinding oldName newName (Bind args expr)
 renameBinding oldName newName (HBind args expr) 
    = HBind (map (renameArg oldName newName) args) (renameExpr oldName newName expr)
 
-
-
-data Flag = Hide | Explicit deriving Eq
+data Flag = Hide | Explicit
 
 mergeBindings :: Flag -> Binding -> Binding -> [Binding]
 mergeBindings f b1 b2 =
   let merge = getBindingExpr b1 == getBindingExpr b2
       mergedArgs = (getBindingArgs b1 ++ getBindingArgs b2)
-      hide  = (f == Hide) 
-   in case (merge,hide) of
-    (True,True)  -> [HBind mergedArgs (getBindingExpr b1)]
-    (True,False) -> [Bind  mergedArgs (getBindingExpr b1)]
-    (False,_)    -> [b1,b2]
+   in case (merge, f) of
+    (True,Hide)     -> [HBind mergedArgs (getBindingExpr b1)]
+    (True,Explicit) -> [Bind  mergedArgs (getBindingExpr b1)]
+    (False,_)       -> [b1,b2]
 
 renameExpr :: String -> String -> Expr -> Expr 
 renameExpr oldName newName ex =

@@ -28,7 +28,7 @@ getRecordSort record =
 getRecordComps :: (Expr -> Bool) -> TRecord -> [Constr]
 getRecordComps p (TRecord _ params body) =
  let par = checkParam p params
-     con = liftFilter p $ getRecordConstrs body
+     con = filter (p . getExpr) $ getRecordConstrs body
  in (paramToConstr par) ++ con
 
 homThryToDecl :: HomThry -> Decl
