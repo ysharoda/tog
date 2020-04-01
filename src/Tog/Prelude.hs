@@ -1,15 +1,5 @@
-{-# LANGUAGE CPP #-}
 module Tog.Prelude
   ( module Prelude
-#if __GLASGOW_HASKELL__ < 710
-  , (Control.Applicative.<*>)
-  , Control.Applicative.Applicative
-  , Data.Foldable.Foldable
-  , Data.Traversable.Traversable
-  , Control.Applicative.pure
-  , Data.Traversable.sequenceA
-  , Data.Traversable.traverse
-#endif
   , (!!)
   , (Control.Arrow.***)
   , (Control.Monad.<=<)
