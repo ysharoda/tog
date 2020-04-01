@@ -100,7 +100,6 @@ getFields :: Fields -> [Constr]
 getFields NoFields = []
 getFields (Fields ls) = ls 
 
-
 {- ------------------------------------------------------------ -} 
 {- ------------------ Rename Functions ------------------------ -} 
 {- ------------------------------------------------------------ -} 
@@ -127,17 +126,6 @@ renameBinding oldName newName (Bind args expr)
    = Bind  (map (renameArg oldName newName) args) (renameExpr oldName newName expr)
 renameBinding oldName newName (HBind args expr) 
    = HBind (map (renameArg oldName newName) args) (renameExpr oldName newName expr)
-
-data Flag = Hide | Explicit
-
-mergeBindings :: Flag -> Binding -> Binding -> [Binding]
-mergeBindings f b1 b2 =
-  let merge = getBindingExpr b1 == getBindingExpr b2
-      mergedArgs = (getBindingArgs b1 ++ getBindingArgs b2)
-   in case (merge, f) of
-    (True,Hide)     -> [HBind mergedArgs (getBindingExpr b1)]
-    (True,Explicit) -> [Bind  mergedArgs (getBindingExpr b1)]
-    (False,_)       -> [b1,b2]
 
 renameExpr :: String -> String -> Expr -> Expr 
 renameExpr oldName newName ex =
