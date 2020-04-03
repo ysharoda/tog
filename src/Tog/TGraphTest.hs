@@ -72,7 +72,7 @@ modExpr gs name mexpr =
          qpath1 = QPath p1 $ rensToMapping gs ren1
          qpath2 = QPath p2 $ rensToMapping gs ren2
      in GraphState
-        (updateGraph gr (getName name) $ Right $ computeCombine qpath1 qpath2)
+        (updateGraph gr (getName name) $ Right $ computeCombine (graph gs) qpath1 qpath2)
         (renames gs)  
     Combine trgt1 trgt2 ->
       modExpr gs name $

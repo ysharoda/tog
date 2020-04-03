@@ -94,14 +94,14 @@ getDest utri =
   then target $ uLeft utri
   else error "Views have different targets"
 
-computeCombine :: QPath -> QPath -> UTriangle
-computeCombine qpath1 qpath2 =
+computeCombine :: TGraph -> QPath -> QPath -> UTriangle
+computeCombine gr qpath1 qpath2 =
   let isTriangle = (pathSource $ path qpath1) == (pathSource $ path qpath2)
   --    src = pathSource $ path qpath1
   --    getView qp = GView src (pathTarget $ path qp) (composeMaps $ (NE.toList (NE.map mapping $ path qp)) ++ [mapp qp])
    in if (not isTriangle)
       then error "The two theories do not meet at the source"
-      else if (not $ checkGuards qpath1 qpath2)
+      else if (not $ checkGuards gr qpath1 qpath2)
       then error "Name Clash!"         
       else createDiamond qpath1 qpath2 
    
@@ -284,15 +284,16 @@ symbols thry =
     fieldNames = Generics.everything (++) (Generics.mkQ [] (\(Constr (Name (_,n)) _) -> [n])) thry
   in argNames ++ fieldNames     
 
-checkGuards :: QPath -> QPath -> Bool
-checkGuards qpath1 qpath2 =
+checkGuards :: TGraph -> QPath -> QPath -> Bool
+checkGuards gr qpath1 qpath2 =
   let sameSource = (pathSource $ path qpath1) == (pathSource $ path qpath2)
       -- mapsList views renMap = (mapAsFunc renMap)
       symsMapped qp = symbols $ applyCompositeMapping (pathSource $ path qp) (path qp) (mapp qp) 
       trgtSyms1 = symsMapped qpath1
       trgtSyms2 = symsMapped qpath2
    in if (sameSource &&
-      trgtSyms1 == trgtSyms2) then True else error $ "Name Clash! between " ++ (show trgtSyms1) ++ " and " ++ (show trgtSyms2) 
+      trgtSyms1 == trgtSyms2) then True else error $ "Name Clash! between " ++ (show trgtSyms1)
+                                             ++ " and " ++ (show trgtSyms2) ++ " when combining " ++ (getTheoryName gr $ qpathTarget qpath1) ++ " and " ++ (getTheoryName gr $ qpathTarget qpath2) 
 
 noSrcLoc :: (Int,Int)
 noSrcLoc = (0,0) 
