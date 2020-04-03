@@ -1,12 +1,11 @@
+cabal-version:       2.2
 name:                tog
-version:             0.1.0
-license:             BSD3
+version:             0.2.0
+license:             BSD-3-Clause
 author:              Francesco Mazzoli
 maintainer:          f@mazzo.li
 build-type:          Simple
-cabal-version:       >= 1.10
-tested-with:         GHC == 7.6.3
-                     GHC == 7.8.3
+tested-with:         GHC == 8.6.5
 
 library
   exposed-modules:     Tog.Abstract
@@ -24,17 +23,18 @@ library
                      , Tog.Term
                      , Tog.TypeCheck
                      , Tog.Unify
-                     , Tog.Utils
-                     , Tog.TGraph
-                     , Tog.TGraphTest
-                     , Tog.Hom
-                     , Tog.Algebra
-                     , Tog.EqTheory
-                     , Tog.TUtils
-                     , Tog.TypeConversions
-                     , Tog.TermLang
-                     , Tog.ProductTheory
-                     , Tog.Signature 
+                     -- new for 0.2.0
+                     , Tog.Deriving.Utils
+                     , Tog.Deriving.TGraph
+                     , Tog.Deriving.TGraphTest
+                     , Tog.Deriving.Hom
+                     , Tog.Deriving.Algebra
+                     , Tog.Deriving.EqTheory
+                     , Tog.Deriving.TUtils
+                     , Tog.Deriving.TypeConversions
+                     , Tog.Deriving.TermLang
+                     , Tog.Deriving.ProductTheory
+                     , Tog.Deriving.Signature 
                      
   other-modules:       Data.Collect
                      , Tog.Instrumentation.Conf
@@ -109,8 +109,8 @@ library
   build-tools:         alex, happy
 
   default-extensions:  BangPatterns
-                     , CPP
                      , DataKinds
+                     , CPP
                      , DefaultSignatures
                      , DeriveDataTypeable
                      , DeriveFoldable

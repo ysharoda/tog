@@ -1,8 +1,8 @@
-module Tog.ProductTheory where
+module Tog.Deriving.ProductTheory where
 
 import           Tog.Raw.Abs
-import           Tog.TUtils
-import qualified Tog.EqTheory as Eq
+import           Tog.Deriving.TUtils
+import qualified Tog.Deriving.EqTheory as Eq
 
 import qualified Data.Generics as Generics
 

@@ -1,16 +1,15 @@
-module Tog.Algebra where
+module Tog.Deriving.Algebra where
 
-import Tog.Raw.Abs 
-import Tog.TypeConversions
-import Tog.EqTheory
-import Tog.Hom
-import Tog.TermLang
-import Tog.ProductTheory
-import Tog.Signature 
---import qualified Data.Generics as Generics
+import           Tog.Raw.Abs 
+import qualified Tog.Deriving.EqTheory as Eq
+import           Tog.Deriving.Hom
+import           Tog.Deriving.TermLang
+import           Tog.Deriving.TGraphTest 
+import           Tog.Deriving.ProductTheory
+import           Tog.Deriving.Signature 
+import           Tog.Deriving.TypeConversions
 
 import Tog.Parse
-import Tog.TGraphTest 
 
 processModule :: Module -> Module
 processModule (Module n p (Decl_ decls)) =
@@ -18,7 +17,7 @@ processModule (Module n p (Decl_ decls)) =
 processModule _ = error $ "Unparsed theory expressions exists" 
 --processModule_ decls =   Generics.everything (++) (Generics.mkQ [] (\(Module_ m) -> [m])) decls
 
-leverageThry :: EqTheory -> [Decl]
+leverageThry :: Eq.EqTheory -> [Decl]
 leverageThry thry =
  let hom = (homThryToDecl . homomorphism) thry
      trmlang = (termLangToDecl . termLang) thry
@@ -35,10 +34,10 @@ genEverything x = x
 
 type InnerModule = Decl
 
-getEqTheories :: InnerModule -> [EqTheory]
+getEqTheories :: InnerModule -> [Eq.EqTheory]
 getEqTheories (Module_ (Module _ _ (Decl_ decls))) =
-  let records = filter (\r -> not $ isEmptyTheory r) $ concatMap declRecords decls
-  in map recordToEqTheory records 
+  map recordToEqTheory $ 
+    filter (not . isEmptyTheory) $ concatMap declRecords decls
 getEqTheories x = map recordToEqTheory $ declRecords x
 
 declRecords :: Decl -> [TRecord]
@@ -69,14 +68,11 @@ test file =
 
 
 {-
-
 getRecords :: Module -> [TRecord] 
 getRecords (Module _ _ (Decl_ mdecls)) = concatMap records mdecls 
  where records (Record n p r) = [TRecord n p r]
        records (Module_ (Module _ _ (Decl_ decls))) = concatMap records decls 
        records _ = [] 
-
-
 
 processModule_ mod =
  let records = readInnerModuleRecords mod
@@ -89,11 +85,7 @@ declRecords (Record n p r) = [TRecord n p r]
 declRecords _ = [] 
 -}
 
---testSyb :: Module -> [Record]
 {-
-testSyb decl = 
-  Generics.everything (++) (Generics.mkQ [] (\(Id n) -> [n])) decl
-
 
 -- needed for testing 
 recordToDecl :: [TRecord] -> [Decl]
@@ -119,12 +111,6 @@ createHomThry m@(Module_ (Module n p (Decl_ decls))) =
   let hom = map (homThryToDecl . homomorphism) $ getEqTheories m
   in Module_ $ Module n p $ Decl_ (decls ++ hom)
 createHomThry _ = error $ "record not contained in an inner module"
-
-isEmptyTheory :: TRecord -> Bool 
-isEmptyTheory (TRecord _ NoParams (RecordDecl _)) = True
-isEmptyTheory (TRecord _ NoParams (RecordDef  _ NoFields)) = True
-isEmptyTheory (TRecord _ NoParams (RecordDeclDef _ _ NoFields)) = True
-isEmptyTheory _ = False
 
 {- -------- Creating Term Language -------------- -}
 

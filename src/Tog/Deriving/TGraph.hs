@@ -1,17 +1,17 @@
-module Tog.TGraph where
+module Tog.Deriving.TGraph where
 
-import Tog.Raw.Abs
-import Tog.Utils
-import Tog.DerivingInsts()
-  
 import qualified Data.Generics      as Generics
 import qualified Data.List          as List
 import qualified Data.Map           as Map
 import qualified Data.List.NonEmpty as NE
 import           Data.List.Split
 import           Data.Char(isSpace)
-import           Tog.Parse(parseExpr) 
 
+import           Tog.Raw.Abs
+import           Tog.Deriving.Utils
+import           Tog.DerivingInsts()
+import           Tog.Parse(parseExpr) 
+  
 
 type Name_ = String
 type Path  = NE.NonEmpty GView
@@ -211,7 +211,7 @@ pathTarget :: Path -> GTheory
 pathTarget p = target $ NE.last p 
 
 constrsNames :: [Constr] -> [Name_]
-constrsNames constrs = map (\(Constr n _) -> nameToStr n) constrs 
+constrsNames constrs = map (\(Constr (Name (_, n)) _) -> n) constrs 
 
 applyMapping :: GTheory -> Mapping -> GTheory
 applyMapping thry m =
@@ -306,36 +306,3 @@ parseConstr constr =
       get_expr (Right r) = r
   in  if length namTyp /= 2 then error "invalid declaration"
       else Constr (Name (noSrcLoc, head namTyp)) (get_expr $ parseExpr $ last namTyp) 
-      
-
-{-
-type InputMap = [(Name_,Name_)]
-type SConstr  = String 
-
-
-
-data StrExpr = Rename Name_ InputMap 
-             | Extend Name_ [SConstr]
-             | Combine Name_ InputMap Name_ InputMap Name_
-
-data ModExpr = RenameT Theory Mapping
-               | ExtendT Theory [Constr]
-               | CombineP QPath QPath deriving Show
-
-def :: Name_ -> StrExpr -> TGraph -> TGraph
-def name strExpr graph =
-  case parse strExpr graph of
-    RenameT srcThry renMap   -> updateGraph graph name $ Left  (computeRename renMap srcThry)
-    ExtendT srcThry newDecls -> updateGraph graph name $ Left  (computeExtend newDecls srcThry)
-    CombineP qpath1 qpath2   -> updateGraph graph name $ Right (computeCombine qpath1 qpath2) 
-
-parse :: StrExpr -> TGraph -> ModExpr
-parse (Rename name ren) graph = RenameT (lookupName name graph) (Map.fromList ren)
-parse (Extend name decls) graph = ExtendT (lookupName name graph) (map parseConstr decls)
--- Combine "AdditiveMagma" [] "Pointed0" [] "Carrier"
-parse (Combine name1 ren1 name2 ren2 nameSrc) graph =
-  let srcThry = lookupName nameSrc graph
-      path1 = getPath graph srcThry (lookupName name1 graph)
-      path2 = getPath graph srcThry (lookupName name2 graph) 
-  in CombineP (QPath path1 $ Map.fromList ren1) (QPath path2 $ Map.fromList ren2)
--}

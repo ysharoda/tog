@@ -1,9 +1,9 @@
-module Tog.TGraphTest where
+module Tog.Deriving.TGraphTest where
 
-import qualified Data.Map        as Map
+import qualified Data.Map            as Map
 
-import           Tog.TGraph      as TGraph
-import           Tog.Raw.Abs     as Abs
+import           Tog.Deriving.TGraph as TGraph
+import           Tog.Raw.Abs         as Abs
 
 getName :: Name -> String
 getName (Name (_,str)) = str

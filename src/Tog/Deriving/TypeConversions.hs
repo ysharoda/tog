@@ -1,10 +1,10 @@
-module Tog.TypeConversions where
+module Tog.Deriving.TypeConversions where
 
-import qualified Tog.EqTheory as Eq
-import Tog.Hom 
-import Tog.Raw.Abs       as Abs
-import Tog.TUtils 
-import Tog.Utils 
+import qualified Tog.Deriving.EqTheory as Eq
+import           Tog.Deriving.Hom 
+import           Tog.Deriving.TUtils 
+import           Tog.Deriving.Utils 
+import           Tog.Raw.Abs           as Abs
 
 data TRecord = TRecord Name Params RecordBody deriving (Show,Eq) 
 
@@ -28,7 +28,7 @@ getRecordSort record =
 getRecordComps :: (Expr -> Bool) -> TRecord -> [Constr]
 getRecordComps p (TRecord _ params body) =
  let par = checkParam p params
-     con = liftFilter p $ getRecordConstrs body
+     con = filter (p . getExpr) $ getRecordConstrs body
  in (paramToConstr par) ++ con
 
 homThryToDecl :: HomThry -> Decl

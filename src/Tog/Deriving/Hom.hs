@@ -1,8 +1,8 @@
-module Tog.Hom where
+module Tog.Deriving.Hom where
 
 import           Tog.Raw.Abs 
-import           Tog.TUtils 
-import qualified Tog.EqTheory as Eq
+import           Tog.Deriving.TUtils 
+import qualified Tog.Deriving.EqTheory as Eq
 
 type HiddenBinds = [Binding]
 type ExplicitBinds = [Binding]

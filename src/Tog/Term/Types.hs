@@ -732,9 +732,7 @@ data Constant f t
   -- ^ A record, with its constructor and projections.
   | Function !(FunInst t)
   -- ^ A function, which might be waiting for instantiation
-#if __GLASGOW_HASKELL__ >= 708
   deriving (Typeable)
-#endif
 
 deriving instance (Eq (f QName t), Eq (f Projection t), Eq t) => Eq (Constant f t)
 deriving instance (Show (f QName t), Show (f Projection t), Show t) => Show (Constant f t)
