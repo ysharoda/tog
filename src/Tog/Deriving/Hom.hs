@@ -20,8 +20,8 @@ data HomThry = HomThry {
   
 genInstParams :: Bool -> Constr -> Binding
 genInstParams isHidden (Constr name typ) =
-  let arg1 = Arg $ createId $ genCharName (getNameAsStr name) 1
-      arg2 = Arg $ createId $ genCharName (getNameAsStr name) 2
+  let arg1 = Arg $ createId $ genCharName (name_ name) 1
+      arg2 = Arg $ createId $ genCharName (name_ name) 2
   in if isHidden then (HBind [arg1,arg2] typ) else (Bind [arg1,arg2] typ)
 
 thryInstName :: Name_ -> Int -> Name_ 
@@ -64,7 +64,7 @@ genPresAxioms eqthry =
 -- e : A 
 oneAxiom :: Name_ -> Bool -> FuncType -> Axiom 
 oneAxiom thryName isParam c@(Constr name typ) =
-  Constr (mkName $ "pres-" ++ getNameAsStr name)
+  Constr (mkName $ "pres-" ++ name_ name)
    (Pi (Tel $ genBinding thryName isParam typ) (genEq thryName isParam c))       
 
 {-
@@ -107,7 +107,7 @@ genHomFuncApp instName isParam constr@(Constr _ expr) =
 genHomFuncArg :: Constr -> Name_ -> [Arg]
 genHomFuncArg (Constr name expr) instName =
   -- qualifying by the instance name  
-  let funcName = App [Arg $ createId (getNameAsStr name), Arg $ createId instName] 
+  let funcName = App [Arg $ createId (name_ name), Arg $ createId instName] 
       vars  = map (\x -> createId x) $ genVars $ exprArity expr
    in case expr of
        Id qname -> [Arg $ Id qname] 

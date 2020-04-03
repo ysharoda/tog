@@ -71,7 +71,7 @@ params pt = if (waist pt == 0) then NoParams
 
 fldsToBinding :: Constr -> Binding
 fldsToBinding (Constr nm typ) =
-  Bind [Arg $ createId $ getNameAsStr nm] typ 
+  Bind [Arg $ createId $ name_ nm] typ 
 
 prodTheoryToDecl :: ProductTheory -> Decl
 prodTheoryToDecl pthry@(ProductTheory nm srt fs axs wst) =

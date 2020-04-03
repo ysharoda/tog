@@ -4,14 +4,10 @@ import qualified Data.Generics      as Generics
 import qualified Data.List          as List
 import qualified Data.Map           as Map
 import qualified Data.List.NonEmpty as NE
-import           Data.List.Split
-import           Data.Char(isSpace)
 
 import           Tog.Raw.Abs
 import           Tog.Deriving.Utils
 import           Tog.DerivingInsts()
-import           Tog.Parse(parseExpr) 
-  
 
 type Name_ = String
 type Path  = NE.NonEmpty GView
@@ -21,31 +17,30 @@ type Mapping = Map.Map Name_ Name_
 data GTheory = GTheory {
     params :: Params,
     fields :: Fields }
-  deriving (Eq, Ord, Show, Read, Generics.Typeable, Generics.Data)
+  deriving (Eq, Ord, Show, Generics.Typeable, Generics.Data)
 
-data GView   = GView{
+data GView   = GView {
     source  :: GTheory,
     target  :: GTheory,
     mapping :: Mapping }  
-  deriving (Eq, Ord, Show, Read, Generics.Typeable, Generics.Data)
+  deriving (Eq, Ord, Show, Generics.Typeable, Generics.Data)
 
 data QPath = QPath { -- Qualified path, i.e. a path with a rename
     path :: Path,
     mapp :: Mapping } deriving Show 
 
-  
-data TGraph = TGraph{ -- check if I would rather use only a map of edges
+data TGraph = TGraph { -- check if I would rather use only a map of edges
     nodes :: Map.Map Name_ GTheory,
     edges :: Map.Map Name_ GView } 
-  deriving (Eq, Ord, Show, Read, Generics.Typeable, Generics.Data)
+  deriving (Eq, Ord, Show, Generics.Typeable, Generics.Data)
 
 
 {- ------------------- Build the Graph  ----------------- -}
   
 updateGraph ::  TGraph -> Name_ -> Either GView UTriangle -> TGraph
 updateGraph graph newThryName (Left view) =
-  TGraph (Map.insert newThryName (target view)  $ nodes graph)
-         (Map.insert ("To"++newThryName) view $ edges graph)
+  TGraph (Map.insert newThryName (target view) $ nodes graph)
+         (Map.insert ("To"++newThryName) view  $ edges graph)
 -- TODO: find a way to get the name of the source theory. 
 updateGraph graph newThryName (Right ut) =
    TGraph (Map.insert newThryName (target $ uLeft ut) $ nodes graph)
@@ -86,11 +81,12 @@ extThry newConstrs thry =
 data UTriangle = UTriangle { -- upside triangle
    uLeft    :: GView,
    uRight   :: GView,
-   diagonal :: GView} deriving Show 
+   diagonal :: GView }
 
 getDest :: UTriangle -> GTheory
 getDest utri =
-  if (target (uLeft utri) == target (uRight utri)) && (target (uRight utri) == target (diagonal utri)) 
+  if (target (uLeft utri) == target (uRight utri)) && 
+     (target (uRight utri) == target (diagonal utri)) 
   then target $ uLeft utri
   else error "Views have different targets"
 
@@ -126,20 +122,6 @@ createDiamond left right =
      rView = GView (qpathTarget right) newThry $ injectiveMapping (allMaps right) (qpathTarget right) 
      diag  = GView commonSrc newThry $ injectiveMapping (allMaps left) commonSrc   
   in upsideTriangle lView rView diag
-
-{-
-injectiveMapping :: Mapping -> GTheory -> Mapping
-
-composeMaps :: [Mapping] -> Mapping
-composeMaps mapsList =
-  foldr composeTwoMaps Map.empty mapsList
-
-mapAsFunc :: Mapping -> RenameFunc 
-mapAsFunc m x =
-  case Map.lookup x m of
-    Nothing  -> x
-    Just val -> val
--} 
 
 getPath :: TGraph -> GTheory -> GTheory -> Path 
 getPath graph src trgt =
@@ -181,8 +163,6 @@ getViewName graph view =
       then error "View Not found"
       else error "Multiple Views with the same name"           
 
-           
-                               
 {- --------------------------------------------------------------- -}
 liftMapping :: Mapping -> GTheory -> GView
 liftMapping namesMap srcThry =
@@ -262,8 +242,7 @@ composeTwoMaps' ((x,y):ls) m =
     Nothing  -> (x,y)   : composeTwoMaps' ls m 
 
 composeMaps :: [Mapping] -> Mapping
-composeMaps mapsList =
-  foldr composeTwoMaps Map.empty mapsList
+composeMaps mapsList = foldr composeTwoMaps Map.empty mapsList
 
 mapAsFunc :: Mapping -> RenameFunc 
 mapAsFunc m x =
@@ -272,7 +251,6 @@ mapAsFunc m x =
     Just val -> val
 
 {- ------------------------------------------------ -} 
-    
 
 symbols :: GTheory -> [Name_]
 symbols thry =
@@ -293,15 +271,3 @@ checkGuards qpath1 qpath2 =
       trgtSyms2 = symsMapped qpath2
    in if (sameSource &&
       trgtSyms1 == trgtSyms2) then True else error $ "Name Clash! between " ++ (show trgtSyms1) ++ " and " ++ (show trgtSyms2) 
-
-noSrcLoc :: (Int,Int)
-noSrcLoc = (0,0) 
-
-parseConstr :: String -> Constr
-parseConstr constr =
-  let trim = List.dropWhileEnd isSpace . List.dropWhile isSpace
-      namTyp = map trim $ splitOn ":" constr
-      get_expr (Left _) = error "invalide declaration"
-      get_expr (Right r) = r
-  in  if length namTyp /= 2 then error "invalid declaration"
-      else Constr (Name (noSrcLoc, head namTyp)) (get_expr $ parseExpr $ last namTyp) 

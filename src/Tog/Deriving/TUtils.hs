@@ -16,8 +16,8 @@ homFuncName = "hom"
 createId :: String -> Expr
 createId str = Id $ NotQual $ Name (noSrcLoc,str)
 
-getNameAsStr :: Name -> Name_
-getNameAsStr (Name (_,n)) = n 
+name_ :: Name -> Name_
+name_ (Name (_,n)) = n 
 
 mkName :: Name_ -> Name
 mkName str = Name (noSrcLoc,str) 
@@ -29,7 +29,7 @@ setType :: Name
 setType = mkName "Set"
 
 getConstrName :: Constr -> Name_
-getConstrName (Constr n _) = getNameAsStr n 
+getConstrName (Constr n _) = name_ n 
 
 getArgName :: Arg -> [Name_]
 getArgName (Arg (Id (NotQual (Name (_,n))))) = [n]

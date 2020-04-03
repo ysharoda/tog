@@ -26,7 +26,7 @@ params sig = if (sigWaist sig == 0) then NoParams
 
 fldsToBinding :: Constr -> Binding
 fldsToBinding (Constr nm typ) =
-  Bind [Arg $ createId $ getNameAsStr nm] typ 
+  Bind [Arg $ createId $ name_ nm] typ 
 
 sigToDecl :: Signature -> Decl
 sigToDecl sig@(Signature nm srt fts wst) =

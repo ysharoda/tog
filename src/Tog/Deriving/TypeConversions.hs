@@ -10,7 +10,7 @@ data TRecord = TRecord Name Params RecordBody deriving (Show,Eq)
 
 recordToEqTheory :: TRecord -> Eq.EqTheory
 recordToEqTheory record@(TRecord name params _) =
-  Eq.EqTheory (getNameAsStr name) 
+  Eq.EqTheory (name_ name) 
    (getRecordSort record)
    (getRecordComps isFunc record)
    (getRecordComps isAxiom record)
