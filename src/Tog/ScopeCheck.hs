@@ -226,8 +226,9 @@ import qualified Tog.Raw                          as C
 import           Tog.Abstract
 import qualified Tog.PrettyPrint                  as PP
 import           Tog.PrettyPrint                  (render, Pretty(..), (<+>), ($$), (//>))
-import           Tog.TGraphTest 
-import           Tog.Algebra  
+
+import           Tog.Deriving.TGraphTest 
+import           Tog.Deriving.Algebra  
 
 #include "impossible.h"
 
@@ -518,24 +519,6 @@ scopeCheckModule (C.Module _ _ (C.Lang_ defs)) =
   in scopeCheckModule $ processModule thrs 
 
 {- -------- for testing ------- -}
-{-
-start mod = map createHom $ readModuleRecords mod
--- start mod = map rawPrintAfterParsing 
--- test ∷ FilePath → IO [Constr]]
-
-
-test file =
-  do s <- readFile file
-     case (parseModule s) of
-       Right (C.Module _ _ (C.Lang_ defs)) ->
-        do putStrLn "Generating Hom"
-           return $ processModule $ createModules $ graphNodes $ computeGraphState defs
-           -- $ show $ length $ readModRecs mod -- $ Module n p $ readModuleRecords decls -- (decls ++ (map createHom $ readRecords decls)) 
- 
--}
-
-{- ---------------------------- -} 
-     
 
 -- Useful for debugging.
 scopeCheckFile :: FilePath -> IO ()

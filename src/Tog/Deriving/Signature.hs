@@ -1,9 +1,10 @@
-module Tog.Signature where
+module Tog.Deriving.Signature where
+
+import Data.Generics as Generics(Data,Typeable,mkT,everywhere)
 
 import Tog.Raw.Abs
-import Tog.TUtils
-import Tog.EqTheory 
-import Data.Generics as Generics(Data,Typeable,mkT,everywhere)
+import Tog.Deriving.TUtils
+import Tog.Deriving.EqTheory 
 
 data Signature = Signature {
   sigName :: Name_ ,

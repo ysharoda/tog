@@ -24,17 +24,17 @@ library
                      , Tog.TypeCheck
                      , Tog.Unify
                      -- new for 0.2.0
-                     , Tog.Utils
-                     , Tog.TGraph
-                     , Tog.TGraphTest
-                     , Tog.Hom
-                     , Tog.Algebra
-                     , Tog.EqTheory
-                     , Tog.TUtils
-                     , Tog.TypeConversions
-                     , Tog.TermLang
-                     , Tog.ProductTheory
-                     , Tog.Signature 
+                     , Tog.Deriving.Utils
+                     , Tog.Deriving.TGraph
+                     , Tog.Deriving.TGraphTest
+                     , Tog.Deriving.Hom
+                     , Tog.Deriving.Algebra
+                     , Tog.Deriving.EqTheory
+                     , Tog.Deriving.TUtils
+                     , Tog.Deriving.TypeConversions
+                     , Tog.Deriving.TermLang
+                     , Tog.Deriving.ProductTheory
+                     , Tog.Deriving.Signature 
                      
   other-modules:       Data.Collect
                      , Tog.Instrumentation.Conf

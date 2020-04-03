@@ -1,6 +1,6 @@
 -- Horribly named 'Utils' module that is a grab-bag of stuff
 {-# LANGUAGE TemplateHaskell #-}
-module Tog.Utils where
+module Tog.Deriving.Utils where
 
 import Control.Lens
 

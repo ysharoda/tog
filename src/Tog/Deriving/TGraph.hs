@@ -1,17 +1,17 @@
-module Tog.TGraph where
+module Tog.Deriving.TGraph where
 
-import Tog.Raw.Abs
-import Tog.Utils
-import Tog.DerivingInsts()
-  
 import qualified Data.Generics      as Generics
 import qualified Data.List          as List
 import qualified Data.Map           as Map
 import qualified Data.List.NonEmpty as NE
 import           Data.List.Split
 import           Data.Char(isSpace)
-import           Tog.Parse(parseExpr) 
 
+import           Tog.Raw.Abs
+import           Tog.Deriving.Utils
+import           Tog.DerivingInsts()
+import           Tog.Parse(parseExpr) 
+  
 
 type Name_ = String
 type Path  = NE.NonEmpty GView

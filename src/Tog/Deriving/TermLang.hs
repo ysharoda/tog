@@ -1,10 +1,11 @@
-module Tog.TermLang(termLang, termLangToDecl) where
+module Tog.Deriving.TermLang(termLang, termLangToDecl) where
 
-import Tog.Raw.Abs (Constr, Name(Name), Decl(Data), Params(NoParams), 
-  DataBody(DataDeclDef))
-import Tog.TUtils (Name_, mkName, getConstrName, setType)
-import qualified Tog.EqTheory as Eq
 import Data.Generics (everywhere, mkT)
+
+import           Tog.Raw.Abs (Constr, Name(Name), Decl(Data), Params(NoParams), 
+  DataBody(DataDeclDef))
+import           Tog.Deriving.TUtils (Name_, mkName, getConstrName, setType)
+import qualified Tog.Deriving.EqTheory as Eq
 
 -- skip record as the projectors are not used
 data TermLang = TermLang Name_ [Constr]

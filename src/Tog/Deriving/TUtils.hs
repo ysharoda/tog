@@ -1,8 +1,9 @@
-module Tog.TUtils where
+module Tog.Deriving.TUtils where
 
-import Tog.Raw.Abs
-import Tog.DerivingInsts()
 import qualified Data.Generics as Generics
+
+import           Tog.Raw.Abs
+import           Tog.DerivingInsts()
 
 type Name_ = String
 

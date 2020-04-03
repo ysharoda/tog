@@ -1,15 +1,15 @@
-module Tog.Algebra where
+module Tog.Deriving.Algebra where
 
-import Tog.Raw.Abs 
-import Tog.TypeConversions
-import qualified Tog.EqTheory as Eq
-import Tog.Hom
-import Tog.TermLang
-import Tog.ProductTheory
-import Tog.Signature 
+import           Tog.Raw.Abs 
+import qualified Tog.Deriving.EqTheory as Eq
+import           Tog.Deriving.Hom
+import           Tog.Deriving.TermLang
+import           Tog.Deriving.TGraphTest 
+import           Tog.Deriving.ProductTheory
+import           Tog.Deriving.Signature 
+import           Tog.Deriving.TypeConversions
 
 import Tog.Parse
-import Tog.TGraphTest 
 
 processModule :: Module -> Module
 processModule (Module n p (Decl_ decls)) =
