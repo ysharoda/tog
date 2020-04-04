@@ -1,69 +1,69 @@
-module Tog.Deriving.TGraphTest where
+module Tog.Deriving.TGraphTest
+  ( computeGraph 
+  , createModules -- used in Algebra
+  , graphNodes    -- used in Algebra
+  ) where
 
 import qualified Data.Map            as Map
 
 import           Tog.Deriving.Types
 import           Tog.Deriving.TGraph
-import           Tog.Deriving.TUtils (noSrcLoc, name_)
+import           Tog.Deriving.TUtils (mkName, name_)
 import           Tog.Raw.Abs         as Abs
 
 moduleName :: String
 moduleName = "MathScheme" 
 
-data GraphState = GraphState{
+data Graph = Graph {
   graph   :: TGraph,
-  renames :: (Map.Map Name_ Rename)}
+  renames :: Map.Map Name_ Rename }
 
-graphNodes :: GraphState -> Map.Map Name_ GTheory
-graphNodes gs = nodes $ graph gs
+graphNodes :: Graph -> Map.Map Name_ GTheory
+graphNodes = nodes . graph
 
-graphEdges :: GraphState -> Map.Map Name_ GView
-graphEdges gs = edges $ graph gs
+graphEdges :: Graph -> Map.Map Name_ GView
+graphEdges = edges . graph
 
-initGraphState :: GraphState 
-initGraphState =
-  GraphState (TGraph Map.empty Map.empty) (Map.empty) 
+initGraph :: Graph 
+initGraph = Graph (TGraph Map.empty Map.empty) (Map.empty) 
 
-computeGraphState :: [Abs.Language] ->  GraphState 
-computeGraphState defs = 
-  foldl updateState initGraphState defs
+computeGraph :: [Abs.Language] ->  Graph 
+computeGraph = foldl add initGraph
 
--- data LangExt = MExprC ModExpr | TheoryC Theory | RenLC RenList
-updateState :: GraphState -> Abs.Language -> GraphState
-updateState gstate (TheoryC name clist)  = theory  gstate name clist
-updateState gstate (MappingC name vlist) = renList gstate name vlist
-updateState gstate (ModExprC name mexps) = modExpr gstate name mexps
+add :: Graph -> Abs.Language -> Graph
+add g (TheoryC name clist)  = theory  g name clist
+add g (MappingC name vlist) = renList g name vlist
+add g (ModExprC name mexps) = modExpr g name mexps
 
-theory :: GraphState -> Name -> [Abs.Constr] -> GraphState
+theory :: Graph -> Name -> [Abs.Constr] -> Graph
 theory gs thryName cList =
-  GraphState  
+  Graph  
    (TGraph (Map.insert (name_ thryName) newThry $ graphNodes gs) (graphEdges gs))
    (renames gs) 
   where newThry  = (GTheory NoParams $ flds cList)
         flds [] = NoFields
         flds ls = Fields ls              
 
-renList :: GraphState -> Name -> Rens -> GraphState 
+renList :: Graph -> Name -> Rens -> Graph 
 renList gs name rens =
-  GraphState (graph gs) $
-    Map.insert (name_ name) (rensToRename gs rens) (renames gs)
+  gs { renames = Map.insert (name_ name) (rensToRename gs rens) (renames gs) }
 
-getTheory :: Name -> GraphState -> GTheory
+getTheory :: Name -> Graph -> GTheory
 getTheory n gs = lookupName (name_ n) (graph gs)
 
-modExpr :: GraphState -> Name -> Abs.ModExpr -> GraphState
+modExpr :: Graph -> Name -> Abs.ModExpr -> Graph
 modExpr gs name mexpr =
   case mexpr of
     Extend srcName clist ->
-      GraphState (updateGraph (graph gs) (name_ name) $ Left $ computeExtend clist (getTheory srcName gs))
+      Graph (updateGraph (graph gs) (name_ name) $ Left $ computeExtend clist (getTheory srcName gs))
         (renames gs)
     Rename srcName rlist ->   
-      GraphState
+      Graph
         (updateGraph (graph gs) (name_ name) $ Left $ computeRename (rensToRename gs rlist) (getTheory srcName gs))
         (renames gs)
     RenameUsing srcName mapName ->
      let mapin = (renames gs) Map.! (name_ mapName) 
-     in GraphState
+     in Graph
         (updateGraph (graph gs) (name_ name) $ Left $ computeRename mapin (getTheory srcName gs))
         (renames gs)
     CombineOver trgt1 ren1 trgt2 ren2 srcName ->
@@ -73,7 +73,7 @@ modExpr gs name mexpr =
          p2 = getPath gr s $ getTheory trgt2 gs
          qpath1 = QPath p1 $ rensToRename gs ren1
          qpath2 = QPath p2 $ rensToRename gs ren2
-     in GraphState
+     in Graph
         (updateGraph gr (name_ name) $ Right $ computeCombine qpath1 qpath2)
         (renames gs)  
     Combine trgt1 trgt2 ->
@@ -81,11 +81,11 @@ modExpr gs name mexpr =
         Abs.CombineOver trgt1 NoRens trgt2 NoRens (Name ((0,0),"Carrier"))
           -- TODO: (computeCommonSource name1 name2)
     Transport n srcName ->
-     GraphState
+     Graph
       (updateGraph (graph gs) (name_ name) $ Left $ computeTransport (rensToRename gs n) $ getTheory srcName gs)
       (renames gs) 
 
-rensToRename :: GraphState -> Rens -> Rename
+rensToRename :: Graph -> Rens -> Rename
 rensToRename gs (NameRens n) = (renames gs) Map.! (name_ n)
 rensToRename _  NoRens = Map.empty
 rensToRename _ (Rens rlist) = Map.fromList $ map (\(RenPair x y) -> (name_ x,name_ y)) rlist
@@ -94,20 +94,15 @@ rensToRename _ (Rens rlist) = Map.fromList $ map (\(RenPair x y) -> (name_ x,nam
 
 theoryToRecord :: Name_ -> GTheory -> Decl 
 theoryToRecord thryName (GTheory ps fs) =
-  Record (Name (noSrcLoc,thryName)) ps
-         (RecordDeclDef (Name (noSrcLoc,"Set")) (Name (noSrcLoc,thryName++"C")) fs)  
+  Record (mkName thryName) ps
+         (RecordDeclDef (mkName "Set") (mkName $ thryName++"C") fs)  
 
 recordToModule :: Name_ -> Decl -> Decl
 recordToModule thryName record =
-  Module_ $ Module (Name (noSrcLoc,thryName)) NoParams $ Decl_ [record] 
+  Module_ $ Module (mkName thryName) NoParams $ Decl_ [record] 
 
 createModules :: Map.Map Name_ GTheory -> Abs.Module
 createModules theories =
   let records = Map.mapWithKey theoryToRecord theories
       modules = Map.mapWithKey recordToModule records 
-  in Module (Name (noSrcLoc,moduleName)) NoParams $  
-       Decl_ (Map.elems $ modules) 
-
-getLibDecls :: Abs.Module -> [Abs.Language]
-getLibDecls (Abs.Module _ _ (Abs.Lang_ ls)) = ls
-getLibDecls _ = error "No Module expressions" 
+  in Module (mkName moduleName) NoParams $ Decl_ $ Map.elems modules 
