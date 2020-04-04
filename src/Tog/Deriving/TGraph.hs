@@ -57,8 +57,6 @@ extThry newConstrs thry =
 computeCombine :: QPath -> QPath -> PushOut
 computeCombine qpath1 qpath2 =
   let isTriangle = (pathSource $ path qpath1) == (pathSource $ path qpath2)
-  --    src = pathSource $ path qpath1
-  --    getView qp = GView src (pathTarget $ path qp) (composeMaps $ (NE.toList (NE.map ren $ path qp)) ++ [ren qp])
    in if (not isTriangle)
       then error "The two theories do not meet at the source"
       else if (not $ checkGuards qpath1 qpath2)
@@ -68,7 +66,7 @@ computeCombine qpath1 qpath2 =
 -- Precondition: Called after checkGuards
 createDiamond :: QPath -> QPath -> PushOut
 createDiamond left right =
- let commonSrc = qpathSource left
+ let commonSrc = pathSource $ path left
      lThry = applyCompositeRename (qpathTarget left)  (path left)  (ren left)
      rThry = applyCompositeRename (qpathTarget right) (path right) (ren right)
      srcMapped = applyCompositeRename commonSrc (path left) (ren left)
@@ -83,12 +81,10 @@ createDiamond left right =
 
 getPath :: TGraph -> GTheory -> GTheory -> Path 
 getPath graph src trgt =
-  if src == trgt
-  then error $ "source and target theories need to be different: source = " ++ getTheoryName graph src  ++ "; target = " ++ getTheoryName graph trgt
-  else let p =  getPath' (Map.elems $ edges graph) src trgt
-       in if p /= []
-          then NE.fromList $ getPath' (Map.elems $ edges graph) src trgt 
-          else error $ "path from " ++ getTheoryName graph src ++ " to " ++ getTheoryName graph trgt ++ " not found"
+  let p =  getPath' (Map.elems $ edges graph) src trgt
+  in if p /= []
+     then NE.fromList p
+     else error "no path found"
 
 getPath' :: [GView] -> GTheory -> GTheory -> [GView] 
 getPath' edgesList src dest =
@@ -100,16 +96,6 @@ getPath' edgesList src dest =
    in if p == []
       then [] 
       else List.head p 
-
-getTheoryName :: TGraph -> GTheory -> Name_
-getTheoryName graph thry =
-  let theories = Map.toList $ nodes graph
-      targets = [k | (k,a) <- theories, a == thry]      
-   in if length targets == 1
-      then head targets
-      else if length targets == 0
-      then error $ "Theory Not found" ++ show theories 
-      else error $ "Multiple theories with the same name : " ++ (show targets) 
 
 getViewName :: TGraph -> GView -> Name_
 getViewName graph view =
@@ -136,9 +122,6 @@ lookupName name graph =
     Nothing -> error $ name ++ "is not a valid theory name"
     Just t  -> t
 
-qpathSource :: QPath -> GTheory
-qpathSource qp = pathSource $ path qp
-
 qpathTarget :: QPath -> GTheory
 qpathTarget qp = pathTarget $ path qp 
 
@@ -146,7 +129,7 @@ pathSource :: Path -> GTheory
 pathSource p = source $ NE.head p
 
 pathTarget :: Path -> GTheory
-pathTarget p = target $ NE.last p 
+pathTarget = target . NE.last
 
 constrsNames :: [Constr] -> [Name_]
 constrsNames constrs = map (\(Constr (Name (_, n)) _) -> n) constrs 
@@ -189,24 +172,24 @@ disjointUnion3 l1 l2 l3 = l1 ++ (l2 List.\\ l1) ++ (l3 List.\\ l1)
 {- -------- Composing Maps ----------- -}
 
 -- The list representation of Maps
+-- The algorithm is weird because empty maps are identity maps
 composeTwoMaps :: Rename -> Rename -> Rename
-composeTwoMaps m1 m2 = Map.fromList $ composeTwoMaps' (Map.toList m1) m2 
-
-composeTwoMaps' :: [(Name_ ,Name_)] -> Rename -> [(Name_,Name_)]
-composeTwoMaps' [] m = Map.toList m 
-composeTwoMaps' ((x,y):ls) m =
-  case  Map.lookup y m of
-    Just val -> (x,val) : composeTwoMaps' ls (Map.delete y m)
-    Nothing  -> (x,y)   : composeTwoMaps' ls m 
+composeTwoMaps m1 m2 = 
+  let k1 = Map.keys m1
+      k2 = Map.keys m2
+      -- all the things only renamed in m2
+      k3 = k2 List.\\ k1
+      updateFrom m k m' = maybe m' (\v -> Map.insert k v m') (Map.lookup k m)
+      -- initialize from the keys k3 in m2
+      m3 = foldr (updateFrom m2) Map.empty k3 in
+  -- and then insert all that is in m1, looking up in m2 and defaulting
+  Map.foldrWithKey (\k a m -> Map.insert k (Map.findWithDefault a k m2) m) m3 m1
 
 composeMaps :: [Rename] -> Rename
 composeMaps mapsList = foldr composeTwoMaps Map.empty mapsList
 
 mapAsFunc :: Rename -> RenameFunc 
-mapAsFunc m x =
-  case Map.lookup x m of
-    Nothing  -> x
-    Just val -> val
+mapAsFunc m = \x -> Map.findWithDefault x x m
 
 {- ------------------------------------------------ -} 
 

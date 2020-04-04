@@ -48,25 +48,29 @@ renList gs name rens =
   GraphState (graph gs) $
     Map.insert (name_ name) (rensToRename gs rens) (renames gs)
 
+getTheory :: Name -> GraphState -> GTheory
+getTheory n gs = lookupName (name_ n) (graph gs)
+
 modExpr :: GraphState -> Name -> Abs.ModExpr -> GraphState
 modExpr gs name mexpr =
   case mexpr of
     Extend srcName clist ->
-      GraphState (updateGraph (graph gs) (name_ name) $ Left $ computeExtend clist (srcThry srcName))
+      GraphState (updateGraph (graph gs) (name_ name) $ Left $ computeExtend clist (getTheory srcName gs))
         (renames gs)
     Rename srcName rlist ->   
       GraphState
-        (updateGraph (graph gs) (name_ name) $ Left $ computeRename (rensToRename gs rlist) (srcThry srcName))
+        (updateGraph (graph gs) (name_ name) $ Left $ computeRename (rensToRename gs rlist) (getTheory srcName gs))
         (renames gs)
     RenameUsing srcName mapName ->
      let mapin = (renames gs) Map.! (name_ mapName) 
      in GraphState
-        (updateGraph (graph gs) (name_ name) $ Left $ computeRename mapin (srcThry srcName))
+        (updateGraph (graph gs) (name_ name) $ Left $ computeRename mapin (getTheory srcName gs))
         (renames gs)
     CombineOver trgt1 ren1 trgt2 ren2 srcName ->
-     let gr = graph gs 
-         p1 = getPath gr (srcThry srcName) (lookupName (name_ trgt1) gr)
-         p2 = getPath gr (srcThry srcName) (lookupName (name_ trgt2) gr)
+     let s = getTheory srcName gs
+         gr = graph gs
+         p1 = getPath gr s $ getTheory trgt1 gs
+         p2 = getPath gr s $ getTheory trgt2 gs
          qpath1 = QPath p1 $ rensToRename gs ren1
          qpath2 = QPath p2 $ rensToRename gs ren2
      in GraphState
@@ -78,10 +82,8 @@ modExpr gs name mexpr =
           -- TODO: (computeCommonSource name1 name2)
     Transport n srcName ->
      GraphState
-      (updateGraph (graph gs) (name_ name) $ Left $ computeTransport (rensToRename gs n) $ srcThry srcName)
+      (updateGraph (graph gs) (name_ name) $ Left $ computeTransport (rensToRename gs n) $ getTheory srcName gs)
       (renames gs) 
-  where
-   srcThry n = lookupName (name_ n) (graph gs) 
 
 rensToRename :: GraphState -> Rens -> Rename
 rensToRename gs (NameRens n) = (renames gs) Map.! (name_ n)
