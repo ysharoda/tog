@@ -29,13 +29,13 @@ updateGraph graph newThryName (Right ut) =
 
 computeTransport :: Rename -> GTheory -> GView
 computeTransport rmap thry =
-  GView thry (applyRename thry rmap)
+  GView thry (renameThy thry rmap)
         (injectiveRename rmap thry)   
 
 -- --------- RENAME -----------
 computeRename :: Rename -> GTheory -> GView  
 computeRename namesMap srcThry =
-  GView srcThry (applyRename srcThry namesMap)
+  GView srcThry (renameThy srcThry namesMap)
        (injectiveRename namesMap srcThry)
 
 -- --------- EXTENSION ---------
@@ -46,7 +46,7 @@ computeExtend newDecls srcThry =
             
 extThry :: [Constr] -> GTheory -> GTheory 
 extThry newConstrs thry =
-  if noNameConflict newConstrNames (symbols thry)
+  if List.intersect newConstrNames (symbols thry) == []
   then GTheory (params thry) $ newFields (fields thry) -- TODO: Decl added to param?
   else error $ "Cannot create theory "
   where newConstrNames = constrsNames newConstrs
@@ -56,7 +56,7 @@ extThry newConstrs thry =
 -- ----------- COMBINE ----------- 
 computeCombine :: QPath -> QPath -> PushOut
 computeCombine qpath1 qpath2 =
-  let isTriangle = (pathSource $ path qpath1) == (pathSource $ path qpath2)
+  let isTriangle = (qpathSource qpath1) == (qpathSource qpath2)
    in if (not isTriangle)
       then error "The two theories do not meet at the source"
       else if (not $ checkGuards qpath1 qpath2)
@@ -66,7 +66,7 @@ computeCombine qpath1 qpath2 =
 -- Precondition: Called after checkGuards
 createDiamond :: QPath -> QPath -> PushOut
 createDiamond left right =
- let commonSrc = pathSource $ path left
+ let commonSrc = qpathSource left
      lThry = applyCompositeRename (qpathTarget left)  (path left)  (ren left)
      rThry = applyCompositeRename (qpathTarget right) (path right) (ren right)
      srcMapped = applyCompositeRename commonSrc (path left) (ren left)
@@ -92,27 +92,10 @@ getPath' edgesList src dest =
       viewsToDest = [v | v <- edgesList, target v == dest]
       found = if answer /= [] then [[head answer]]
               else [(getPath' edgesList src (source v)) ++ [v] | v <- viewsToDest]
-      p = List.filter (\ls -> pathSource (NE.fromList ls) == src) found             
+      p = List.filter (\ls -> (source $ NE.head (NE.fromList ls)) == src) found             
    in if p == []
       then [] 
       else List.head p 
-
-getViewName :: TGraph -> GView -> Name_
-getViewName graph view =
-  let ed = Map.toList $ edges graph
-      targets = [k | (k,a) <- ed, a == view]      
-   in if length targets == 1
-      then head targets
-      else if length targets == 0
-      then error "View Not found"
-      else error "Multiple Views with the same name"           
-
-{- --------------------------------------------------------------- -}
-liftRename :: Rename -> GTheory -> GView
-liftRename namesMap srcThry =
-  GView srcThry (applyRename srcThry namesMap)
-        (injectiveRename namesMap srcThry)
-        
 
 {- ------------------------ Utils --------------------------------- -}
 
@@ -122,39 +105,33 @@ lookupName name graph =
     Nothing -> error $ name ++ "is not a valid theory name"
     Just t  -> t
 
+qpathSource :: QPath -> GTheory
+qpathSource = source . NE.head . path
+
 qpathTarget :: QPath -> GTheory
-qpathTarget qp = pathTarget $ path qp 
-
-pathSource :: Path -> GTheory
-pathSource p = source $ NE.head p
-
-pathTarget :: Path -> GTheory
-pathTarget = target . NE.last
+qpathTarget = target . NE.last . path
 
 constrsNames :: [Constr] -> [Name_]
 constrsNames constrs = map (\(Constr (Name (_, n)) _) -> n) constrs 
 
-applyRename :: GTheory -> Rename -> GTheory
-applyRename thry m =
+renameThy :: GTheory -> Rename -> GTheory
+renameThy thry m =
   GTheory (gmap (mapAsFunc m) (params thry)) 
           (gmap (mapAsFunc m) (fields thry))
 
 applyCompositeRename :: GTheory -> Path -> Rename -> GTheory
 applyCompositeRename thry pth rena =
-  applyRename thry $
+  renameThy thry $
      composeMaps $ (map (\(GView _ _ m) -> m) $ NE.toList $ pth) ++ [rena]
      
-noNameConflict :: [Name_] -> [Name_] -> Bool
-noNameConflict frst scnd = List.intersect frst scnd == []
-
 -- allUnique snds --> no two symbols mapped to the same name
 -- allUnique fsts --> no symbol mapped to two different names
 -- noConflist --> The new names do not occur in the theory
 validRename :: Rename -> GTheory -> Bool
 validRename namesMap thry =
   let syms = symbols thry 
-      relevantMaps = [(k,a) | (k,a) <- Map.toList namesMap, (elem k syms), k/=a]
-      noConflict = noNameConflict (map snd relevantMaps) (syms) 
+      relevantMaps = [(k,a) | (k,a) <- Map.toList namesMap, k `elem` syms, k/=a]
+      noConflict = List.intersect (map snd relevantMaps) syms == []
       allUnique xs = List.nub xs == xs 
    in allUnique (map fst relevantMaps) && allUnique (map snd relevantMaps) && noConflict
 
@@ -205,8 +182,8 @@ symbols thry =
 
 checkGuards :: QPath -> QPath -> Bool
 checkGuards qpath1 qpath2 =
-  let sameSource = (pathSource $ path qpath1) == (pathSource $ path qpath2)
-      symsMapped qp = symbols $ applyCompositeRename (pathSource $ path qp) (path qp) (ren qp) 
+  let sameSource = (qpathSource qpath1) == (qpathSource qpath2)
+      symsMapped qp = symbols $ applyCompositeRename (qpathSource qp) (path qp) (ren qp) 
       trgtSyms1 = symsMapped qpath1
       trgtSyms2 = symsMapped qpath2
    in if (sameSource &&
