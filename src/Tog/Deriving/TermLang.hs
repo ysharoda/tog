@@ -2,8 +2,8 @@ module Tog.Deriving.TermLang(termLang, termLangToDecl) where
 
 import           Tog.Raw.Abs (Constr, Name(Name), Decl(Data), Params(NoParams), 
   DataBody(DataDeclDef))
-import           Tog.Deriving.TUtils (Name_, mkName, getConstrName, setType)
-import           Tog.Deriving.Types (gmap)
+import           Tog.Deriving.TUtils (mkName, getConstrName, setType)
+import           Tog.Deriving.Types (Name_, gmap)
 import qualified Tog.Deriving.EqTheory as Eq
 
 -- skip record as the projectors are not used

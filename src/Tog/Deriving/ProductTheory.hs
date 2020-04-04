@@ -2,7 +2,7 @@ module Tog.Deriving.ProductTheory where
 
 import           Tog.Raw.Abs
 import           Tog.Deriving.TUtils
-import           Tog.Deriving.Types (gmap)
+import           Tog.Deriving.Types (gmap, Name_)
 import qualified Tog.Deriving.EqTheory as Eq
 
 data Product = Product Constr Constr

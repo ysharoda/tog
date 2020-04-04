@@ -4,8 +4,7 @@ import qualified Data.Generics as Generics
 
 import           Tog.Raw.Abs
 import           Tog.DerivingInsts()
-
-type Name_ = String
+import           Tog.Deriving.Types (Name_)
 
 noSrcLoc :: (Int,Int)
 noSrcLoc = (0,0) 

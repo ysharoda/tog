@@ -2,6 +2,7 @@ module Tog.Deriving.Hom where
 
 import           Tog.Raw.Abs 
 import           Tog.Deriving.TUtils 
+import           Tog.Deriving.Types (Name_)
 import qualified Tog.Deriving.EqTheory as Eq
 
 type HiddenBinds = [Binding]

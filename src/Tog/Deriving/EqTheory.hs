@@ -3,7 +3,8 @@ module Tog.Deriving.EqTheory where
 import Data.Generics as Generics(Data)
 
 import Tog.Raw.Abs   
-import Tog.Deriving.TUtils (Name_, getConstrName)
+import Tog.Deriving.TUtils (getConstrName)
+import Tog.Deriving.Types  (Name_)
 
 -- uni sorted equational theory
 -- the waist determines how many parameters we have in the theory, 

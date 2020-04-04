@@ -7,6 +7,7 @@ import qualified Data.List.NonEmpty as NE
 
 import           Tog.Raw.Abs
 import           Tog.Deriving.Utils
+import           Tog.Deriving.TUtils
 import           Tog.Deriving.Types
 
 type RenameFunc = Name_ -> Name_
@@ -29,27 +30,24 @@ updateGraph graph newThryName (Right ut) =
 
 computeTransport :: Rename -> GTheory -> GView
 computeTransport rmap thry =
-  GView thry (renameThy thry rmap)
-        (injectiveRename rmap thry)   
+  GView thry (renameThy thry rmap) (validateRen thry rmap)   
 
 -- --------- RENAME -----------
 computeRename :: Rename -> GTheory -> GView  
 computeRename namesMap srcThry =
-  GView srcThry (renameThy srcThry namesMap)
-       (injectiveRename namesMap srcThry)
+  GView srcThry (renameThy srcThry namesMap) (validateRen srcThry namesMap)
 
 -- --------- EXTENSION ---------
 computeExtend :: [Constr] -> GTheory -> GView
 computeExtend newDecls srcThry =
-  GView srcThry (extThry newDecls srcThry)
-       (injectiveRename Map.empty srcThry)
+  GView srcThry (extThry newDecls srcThry) (validateRen srcThry Map.empty)
             
 extThry :: [Constr] -> GTheory -> GTheory 
 extThry newConstrs thry =
   if List.intersect newConstrNames (symbols thry) == []
   then GTheory (params thry) $ newFields (fields thry) -- TODO: Decl added to param?
   else error $ "Cannot create theory "
-  where newConstrNames = constrsNames newConstrs
+  where newConstrNames = map getConstrName newConstrs
         newFields NoFields = Fields newConstrs
         newFields (Fields fs) = Fields (fs ++ newConstrs)
 
@@ -74,9 +72,9 @@ createDiamond left right =
        GTheory (ParamDecl $ disjointUnion3 (getParams $ params srcMapped) (getParams $ params lThry) (getParams $ params rThry))
                (Fields    $ disjointUnion3 (getFields $ fields srcMapped) (getFields $ fields lThry) (getFields $ fields rThry))
      allMaps qp = composeMaps $ (map (\(GView _ _ m) -> m) $ NE.toList $ path qp) ++ [ren qp]
-     lView = GView (qpathTarget left)  newThry $ injectiveRename (allMaps left) (qpathTarget left)
-     rView = GView (qpathTarget right) newThry $ injectiveRename (allMaps right) (qpathTarget right) 
-     diag  = GView commonSrc newThry $ injectiveRename (allMaps left) commonSrc   
+     lView = GView (qpathTarget left)  newThry $ validateRen (qpathTarget left) (allMaps left)
+     rView = GView (qpathTarget right) newThry $ validateRen (qpathTarget right) (allMaps right)
+     diag  = GView commonSrc newThry $ validateRen commonSrc (allMaps left)
   in pushout lView rView diag
 
 getPath :: TGraph -> GTheory -> GTheory -> Path 
@@ -111,9 +109,6 @@ qpathSource = source . NE.head . path
 qpathTarget :: QPath -> GTheory
 qpathTarget = target . NE.last . path
 
-constrsNames :: [Constr] -> [Name_]
-constrsNames constrs = map (\(Constr (Name (_, n)) _) -> n) constrs 
-
 renameThy :: GTheory -> Rename -> GTheory
 renameThy thry m =
   GTheory (gmap (mapAsFunc m) (params thry)) 
@@ -136,8 +131,8 @@ validRename namesMap thry =
    in allUnique (map fst relevantMaps) && allUnique (map snd relevantMaps) && noConflict
 
 -- turns a rename list into an injective mapping over the symbols of the source theory. 
-injectiveRename :: Rename -> GTheory -> Rename
-injectiveRename m srcThry =
+validateRen :: GTheory -> Rename -> Rename
+validateRen srcThry m =
   if validRename m srcThry
   then Map.fromList $ List.map (\x -> (x, mapAsFunc m x)) $ symbols srcThry
   else error $ "cannot apply rename " ++ (show (Map.toList m)) ++ " to theory with symbols " ++ show (symbols srcThry) 
@@ -163,22 +158,24 @@ composeTwoMaps m1 m2 =
   Map.foldrWithKey (\k a m -> Map.insert k (Map.findWithDefault a k m2) m) m3 m1
 
 composeMaps :: [Rename] -> Rename
-composeMaps mapsList = foldr composeTwoMaps Map.empty mapsList
+composeMaps = foldr composeTwoMaps Map.empty
 
 mapAsFunc :: Rename -> RenameFunc 
 mapAsFunc m = \x -> Map.findWithDefault x x m
 
 {- ------------------------------------------------ -} 
 
+getArgs :: Params -> [Arg]
+getArgs NoParams = []
+getArgs (ParamDef _) = [] 
+getArgs (ParamDecl binds) = foldr (\a b -> getBindingArgs a ++ b) [] binds
+
 symbols :: GTheory -> [Name_]
 symbols thry =
   let 
-    getArgs NoParams = []
-    getArgs (ParamDef _) = [] 
-    getArgs (ParamDecl bindsList) = Prelude.foldr (++) [] $ Prelude.map getBindingArgs bindsList 
     argNames   = Generics.everything (++) (Generics.mkQ [] (\(Id (NotQual (Name (_,n)))) -> [n])) (getArgs $ params thry)    
-    fieldNames = Generics.everything (++) (Generics.mkQ [] (\(Constr (Name (_,n)) _) -> [n])) thry
-  in argNames ++ fieldNames     
+    fieldNames = Generics.listify (\(Constr (Name (_, _)) _) -> True) thry
+  in argNames ++ map getConstrName fieldNames     
 
 checkGuards :: QPath -> QPath -> Bool
 checkGuards qpath1 qpath2 =

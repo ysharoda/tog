@@ -3,9 +3,9 @@ module Tog.Deriving.Signature where
 import Data.Generics as Generics(Data,Typeable)
 
 import Tog.Raw.Abs
-import Tog.Deriving.TUtils
-import Tog.Deriving.Types    (gmap)
 import Tog.Deriving.EqTheory 
+import Tog.Deriving.TUtils
+import Tog.Deriving.Types    (gmap, Name_)
 
 data Signature = Signature {
   sigName :: Name_ ,
