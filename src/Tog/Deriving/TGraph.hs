@@ -7,14 +7,13 @@ import qualified Data.List.NonEmpty as NE
 
 import           Tog.Raw.Abs
 import           Tog.Deriving.Utils
-import           Tog.DerivingInsts()
 import           Tog.Deriving.Types
 
 type RenameFunc = Name_ -> Name_
 
 {- ------------------- Build the Graph  ----------------- -}
   
-updateGraph ::  TGraph -> Name_ -> Either GView UTriangle -> TGraph
+updateGraph ::  TGraph -> Name_ -> Either GView PushOut -> TGraph
 updateGraph graph newThryName (Left view) =
   TGraph (Map.insert newThryName (target view) $ nodes graph)
          (Map.insert ("To"++newThryName) view  $ edges graph)
@@ -55,19 +54,7 @@ extThry newConstrs thry =
         newFields (Fields fs) = Fields (fs ++ newConstrs)
 
 -- ----------- COMBINE ----------- 
-data UTriangle = UTriangle { -- upside triangle
-   uLeft    :: GView,
-   uRight   :: GView,
-   diagonal :: GView }
-
-getDest :: UTriangle -> GTheory
-getDest utri =
-  if (target (uLeft utri) == target (uRight utri)) && 
-     (target (uRight utri) == target (diagonal utri)) 
-  then target $ uLeft utri
-  else error "Views have different targets"
-
-computeCombine :: QPath -> QPath -> UTriangle
+computeCombine :: QPath -> QPath -> PushOut
 computeCombine qpath1 qpath2 =
   let isTriangle = (pathSource $ path qpath1) == (pathSource $ path qpath2)
   --    src = pathSource $ path qpath1
@@ -78,14 +65,8 @@ computeCombine qpath1 qpath2 =
       then error "Name Clash!"         
       else createDiamond qpath1 qpath2 
    
-upsideTriangle :: GView -> GView -> GView -> UTriangle
-upsideTriangle v1 v2 diag =
-  if (target v1 == target v2) && (target v2 == target diag) 
-  then UTriangle v1 v2 diag 
-  else error "Views have different targets"
-
 -- Precondition: Called after checkGuards
-createDiamond :: QPath -> QPath -> UTriangle
+createDiamond :: QPath -> QPath -> PushOut
 createDiamond left right =
  let commonSrc = qpathSource left
      lThry = applyCompositeRename (qpathTarget left)  (path left)  (ren left)
@@ -98,7 +79,7 @@ createDiamond left right =
      lView = GView (qpathTarget left)  newThry $ injectiveRename (allMaps left) (qpathTarget left)
      rView = GView (qpathTarget right) newThry $ injectiveRename (allMaps right) (qpathTarget right) 
      diag  = GView commonSrc newThry $ injectiveRename (allMaps left) commonSrc   
-  in upsideTriangle lView rView diag
+  in pushout lView rView diag
 
 getPath :: TGraph -> GTheory -> GTheory -> Path 
 getPath graph src trgt =
