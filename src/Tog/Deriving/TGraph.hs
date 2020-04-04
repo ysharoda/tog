@@ -136,8 +136,8 @@ constrsNames constrs = map (\(Constr (Name (_, n)) _) -> n) constrs
 
 applyRename :: GTheory -> Rename -> GTheory
 applyRename thry m =
-  GTheory (grename (mapAsFunc m) (params thry)) 
-          (grename (mapAsFunc m) (fields thry))
+  GTheory (gmap (mapAsFunc m) (params thry)) 
+          (gmap (mapAsFunc m) (fields thry))
 
 applyCompositeRename :: GTheory -> Path -> Rename -> GTheory
 applyCompositeRename thry pth rena =

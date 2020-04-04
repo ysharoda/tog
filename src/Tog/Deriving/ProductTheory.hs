@@ -2,9 +2,8 @@ module Tog.Deriving.ProductTheory where
 
 import           Tog.Raw.Abs
 import           Tog.Deriving.TUtils
+import           Tog.Deriving.Types (gmap)
 import qualified Tog.Deriving.EqTheory as Eq
-
-import qualified Data.Generics as Generics
 
 data Product = Product Constr Constr
 
@@ -19,7 +18,7 @@ productThry :: Eq.EqTheory -> ProductTheory
 productThry thry =
   let -- apply renames to avoid the shadowing problem of Tog
       ren (Name (_,x)) = if (x == "Set") then mkName x else mkName $ x++"P"
-      renThry = Generics.everywhere (Generics.mkT ren) thry 
+      renThry = gmap ren thry 
       thrySort = Eq.sort renThry
   in ProductTheory
    (prodThryName renThry) 
@@ -62,7 +61,7 @@ productField origSort constr =
   let adjustSort arg@(App [Arg (Id (NotQual (Name (_,srt))))]) =
         if (srt == origSort) then prodTyp srt else arg
       adjustSort x = x  
-  in Generics.everywhere (Generics.mkT $ adjustSort) constr 
+  in gmap adjustSort constr
 
 params :: ProductTheory -> Params
 params pt = if (waist pt == 0) then NoParams
