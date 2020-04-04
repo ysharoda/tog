@@ -8,32 +8,9 @@ import qualified Data.List.NonEmpty as NE
 import           Tog.Raw.Abs
 import           Tog.Deriving.Utils
 import           Tog.DerivingInsts()
+import           Tog.Deriving.Types
 
-type Name_ = String
-type Path  = NE.NonEmpty GView
 type RenameFunc = Name_ -> Name_
-type Mapping = Map.Map Name_ Name_
-
-data GTheory = GTheory {
-    params :: Params,
-    fields :: Fields }
-  deriving (Eq, Ord, Show, Generics.Typeable, Generics.Data)
-
-data GView   = GView {
-    source  :: GTheory,
-    target  :: GTheory,
-    mapping :: Mapping }  
-  deriving (Eq, Ord, Show, Generics.Typeable, Generics.Data)
-
-data QPath = QPath { -- Qualified path, i.e. a path with a rename
-    path :: Path,
-    mapp :: Mapping } deriving Show 
-
-data TGraph = TGraph { -- check if I would rather use only a map of edges
-    nodes :: Map.Map Name_ GTheory,
-    edges :: Map.Map Name_ GView } 
-  deriving (Eq, Ord, Show, Generics.Typeable, Generics.Data)
-
 
 {- ------------------- Build the Graph  ----------------- -}
   
@@ -51,22 +28,22 @@ updateGraph graph newThryName (Right ut) =
 
 {- ------------------- Elaborate Into TheoryGraph ---------------- -}
 
-computeTransport :: Mapping -> GTheory -> GView
+computeTransport :: Rename -> GTheory -> GView
 computeTransport rmap thry =
-  GView thry (applyMapping thry rmap)
-        (injectiveMapping rmap thry)   
+  GView thry (applyRename thry rmap)
+        (injectiveRename rmap thry)   
 
 -- --------- RENAME -----------
-computeRename :: Mapping -> GTheory -> GView  
+computeRename :: Rename -> GTheory -> GView  
 computeRename namesMap srcThry =
-  GView srcThry (applyMapping srcThry namesMap)
-       (injectiveMapping namesMap srcThry)
+  GView srcThry (applyRename srcThry namesMap)
+       (injectiveRename namesMap srcThry)
 
 -- --------- EXTENSION ---------
 computeExtend :: [Constr] -> GTheory -> GView
 computeExtend newDecls srcThry =
   GView srcThry (extThry newDecls srcThry)
-       (injectiveMapping Map.empty srcThry)
+       (injectiveRename Map.empty srcThry)
             
 extThry :: [Constr] -> GTheory -> GTheory 
 extThry newConstrs thry =
@@ -94,7 +71,7 @@ computeCombine :: QPath -> QPath -> UTriangle
 computeCombine qpath1 qpath2 =
   let isTriangle = (pathSource $ path qpath1) == (pathSource $ path qpath2)
   --    src = pathSource $ path qpath1
-  --    getView qp = GView src (pathTarget $ path qp) (composeMaps $ (NE.toList (NE.map mapping $ path qp)) ++ [mapp qp])
+  --    getView qp = GView src (pathTarget $ path qp) (composeMaps $ (NE.toList (NE.map ren $ path qp)) ++ [ren qp])
    in if (not isTriangle)
       then error "The two theories do not meet at the source"
       else if (not $ checkGuards qpath1 qpath2)
@@ -111,16 +88,16 @@ upsideTriangle v1 v2 diag =
 createDiamond :: QPath -> QPath -> UTriangle
 createDiamond left right =
  let commonSrc = qpathSource left
-     lThry = applyCompositeMapping (qpathTarget left)  (path left)  (mapp left)
-     rThry = applyCompositeMapping (qpathTarget right) (path right) (mapp right)
-     srcMapped = applyCompositeMapping commonSrc (path left) (mapp left)
+     lThry = applyCompositeRename (qpathTarget left)  (path left)  (ren left)
+     rThry = applyCompositeRename (qpathTarget right) (path right) (ren right)
+     srcMapped = applyCompositeRename commonSrc (path left) (ren left)
      newThry =
        GTheory (ParamDecl $ disjointUnion3 (getParams $ params srcMapped) (getParams $ params lThry) (getParams $ params rThry))
                (Fields    $ disjointUnion3 (getFields $ fields srcMapped) (getFields $ fields lThry) (getFields $ fields rThry))
-     allMaps qp = composeMaps $ (map (\(GView _ _ m) -> m) $ NE.toList $ path qp) ++ [mapp qp]
-     lView = GView (qpathTarget left)  newThry $ injectiveMapping (allMaps left) (qpathTarget left)
-     rView = GView (qpathTarget right) newThry $ injectiveMapping (allMaps right) (qpathTarget right) 
-     diag  = GView commonSrc newThry $ injectiveMapping (allMaps left) commonSrc   
+     allMaps qp = composeMaps $ (map (\(GView _ _ m) -> m) $ NE.toList $ path qp) ++ [ren qp]
+     lView = GView (qpathTarget left)  newThry $ injectiveRename (allMaps left) (qpathTarget left)
+     rView = GView (qpathTarget right) newThry $ injectiveRename (allMaps right) (qpathTarget right) 
+     diag  = GView commonSrc newThry $ injectiveRename (allMaps left) commonSrc   
   in upsideTriangle lView rView diag
 
 getPath :: TGraph -> GTheory -> GTheory -> Path 
@@ -164,10 +141,10 @@ getViewName graph view =
       else error "Multiple Views with the same name"           
 
 {- --------------------------------------------------------------- -}
-liftMapping :: Mapping -> GTheory -> GView
-liftMapping namesMap srcThry =
-  GView srcThry (applyMapping srcThry namesMap)
-        (injectiveMapping namesMap srcThry)
+liftRename :: Rename -> GTheory -> GView
+liftRename namesMap srcThry =
+  GView srcThry (applyRename srcThry namesMap)
+        (injectiveRename namesMap srcThry)
         
 
 {- ------------------------ Utils --------------------------------- -}
@@ -193,15 +170,15 @@ pathTarget p = target $ NE.last p
 constrsNames :: [Constr] -> [Name_]
 constrsNames constrs = map (\(Constr (Name (_, n)) _) -> n) constrs 
 
-applyMapping :: GTheory -> Mapping -> GTheory
-applyMapping thry m =
+applyRename :: GTheory -> Rename -> GTheory
+applyRename thry m =
   GTheory (Generics.everywhere (Generics.mkT $ mapAsFunc m) (params thry)) 
           (Generics.everywhere (Generics.mkT $ mapAsFunc m) (fields thry))
 
-applyCompositeMapping :: GTheory -> Path -> Mapping -> GTheory
-applyCompositeMapping thry pth mappings =
-  applyMapping thry $
-     composeMaps $ (map (\(GView _ _ m) -> m) $ NE.toList $ pth) ++ [mappings]
+applyCompositeRename :: GTheory -> Path -> Rename -> GTheory
+applyCompositeRename thry pth rena =
+  applyRename thry $
+     composeMaps $ (map (\(GView _ _ m) -> m) $ NE.toList $ pth) ++ [rena]
      
 noNameConflict :: [Name_] -> [Name_] -> Bool
 noNameConflict frst scnd = List.intersect frst scnd == []
@@ -209,8 +186,8 @@ noNameConflict frst scnd = List.intersect frst scnd == []
 -- allUnique snds --> no two symbols mapped to the same name
 -- allUnique fsts --> no symbol mapped to two different names
 -- noConflist --> The new names do not occur in the theory
-validMapping :: Mapping -> GTheory -> Bool
-validMapping namesMap thry =
+validRename :: Rename -> GTheory -> Bool
+validRename namesMap thry =
   let syms = symbols thry 
       relevantMaps = [(k,a) | (k,a) <- Map.toList namesMap, (elem k syms), k/=a]
       noConflict = noNameConflict (map snd relevantMaps) (syms) 
@@ -218,11 +195,11 @@ validMapping namesMap thry =
    in allUnique (map fst relevantMaps) && allUnique (map snd relevantMaps) && noConflict
 
 -- turns a rename list into an injective mapping over the symbols of the source theory. 
-injectiveMapping :: Mapping -> GTheory -> Mapping
-injectiveMapping m srcThry =
-  if validMapping m srcThry
+injectiveRename :: Rename -> GTheory -> Rename
+injectiveRename m srcThry =
+  if validRename m srcThry
   then Map.fromList $ List.map (\x -> (x, mapAsFunc m x)) $ symbols srcThry
-  else error $ "cannot apply mapping " ++ (show (Map.toList m)) ++ " to theory with symbols " ++ show (symbols srcThry) 
+  else error $ "cannot apply rename " ++ (show (Map.toList m)) ++ " to theory with symbols " ++ show (symbols srcThry) 
 
 disjointUnion3 :: Eq a => [a] -> [a] -> [a] ->  [a]
 disjointUnion3 l1 l2 l3 = l1 ++ (l2 List.\\ l1) ++ (l3 List.\\ l1)
@@ -231,20 +208,20 @@ disjointUnion3 l1 l2 l3 = l1 ++ (l2 List.\\ l1) ++ (l3 List.\\ l1)
 {- -------- Composing Maps ----------- -}
 
 -- The list representation of Maps
-composeTwoMaps :: Mapping -> Mapping -> Mapping
+composeTwoMaps :: Rename -> Rename -> Rename
 composeTwoMaps m1 m2 = Map.fromList $ composeTwoMaps' (Map.toList m1) m2 
 
-composeTwoMaps' :: [(Name_ ,Name_)] -> Mapping -> [(Name_,Name_)]
+composeTwoMaps' :: [(Name_ ,Name_)] -> Rename -> [(Name_,Name_)]
 composeTwoMaps' [] m = Map.toList m 
 composeTwoMaps' ((x,y):ls) m =
   case  Map.lookup y m of
     Just val -> (x,val) : composeTwoMaps' ls (Map.delete y m)
     Nothing  -> (x,y)   : composeTwoMaps' ls m 
 
-composeMaps :: [Mapping] -> Mapping
+composeMaps :: [Rename] -> Rename
 composeMaps mapsList = foldr composeTwoMaps Map.empty mapsList
 
-mapAsFunc :: Mapping -> RenameFunc 
+mapAsFunc :: Rename -> RenameFunc 
 mapAsFunc m x =
   case Map.lookup x m of
     Nothing  -> x
@@ -265,8 +242,7 @@ symbols thry =
 checkGuards :: QPath -> QPath -> Bool
 checkGuards qpath1 qpath2 =
   let sameSource = (pathSource $ path qpath1) == (pathSource $ path qpath2)
-      -- mapsList views renMap = (mapAsFunc renMap)
-      symsMapped qp = symbols $ applyCompositeMapping (pathSource $ path qp) (path qp) (mapp qp) 
+      symsMapped qp = symbols $ applyCompositeRename (pathSource $ path qp) (path qp) (ren qp) 
       trgtSyms1 = symsMapped qpath1
       trgtSyms2 = symsMapped qpath2
    in if (sameSource &&

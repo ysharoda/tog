@@ -2,6 +2,7 @@ module Tog.Deriving.TGraphTest where
 
 import qualified Data.Map            as Map
 
+import           Tog.Deriving.Types
 import           Tog.Deriving.TGraph
 import           Tog.Deriving.TUtils (noSrcLoc, name_)
 import           Tog.Raw.Abs         as Abs
@@ -11,7 +12,7 @@ moduleName = "MathScheme"
 
 data GraphState = GraphState{
   graph   :: TGraph,
-  renames :: (Map.Map Name_ Mapping)}
+  renames :: (Map.Map Name_ Rename)}
 
 graphNodes :: GraphState -> Map.Map Name_ GTheory
 graphNodes gs = nodes $ graph gs
@@ -45,7 +46,7 @@ theory gs thryName cList =
 renList :: GraphState -> Name -> Rens -> GraphState 
 renList gs name rens =
   GraphState (graph gs) $
-    Map.insert (name_ name) (rensToMapping gs rens) (renames gs)
+    Map.insert (name_ name) (rensToRename gs rens) (renames gs)
 
 modExpr :: GraphState -> Name -> Abs.ModExpr -> GraphState
 modExpr gs name mexpr =
@@ -55,7 +56,7 @@ modExpr gs name mexpr =
         (renames gs)
     Rename srcName rlist ->   
       GraphState
-        (updateGraph (graph gs) (name_ name) $ Left $ computeRename (rensToMapping gs rlist) (srcThry srcName))
+        (updateGraph (graph gs) (name_ name) $ Left $ computeRename (rensToRename gs rlist) (srcThry srcName))
         (renames gs)
     RenameUsing srcName mapName ->
      let mapin = (renames gs) Map.! (name_ mapName) 
@@ -66,8 +67,8 @@ modExpr gs name mexpr =
      let gr = graph gs 
          p1 = getPath gr (srcThry srcName) (lookupName (name_ trgt1) gr)
          p2 = getPath gr (srcThry srcName) (lookupName (name_ trgt2) gr)
-         qpath1 = QPath p1 $ rensToMapping gs ren1
-         qpath2 = QPath p2 $ rensToMapping gs ren2
+         qpath1 = QPath p1 $ rensToRename gs ren1
+         qpath2 = QPath p2 $ rensToRename gs ren2
      in GraphState
         (updateGraph gr (name_ name) $ Right $ computeCombine qpath1 qpath2)
         (renames gs)  
@@ -77,15 +78,15 @@ modExpr gs name mexpr =
           -- TODO: (computeCommonSource name1 name2)
     Transport n srcName ->
      GraphState
-      (updateGraph (graph gs) (name_ name) $ Left $ computeTransport (rensToMapping gs n) $ srcThry srcName)
+      (updateGraph (graph gs) (name_ name) $ Left $ computeTransport (rensToRename gs n) $ srcThry srcName)
       (renames gs) 
   where
    srcThry n = lookupName (name_ n) (graph gs) 
 
-rensToMapping :: GraphState -> Rens -> Mapping
-rensToMapping gs (NameRens n) = (renames gs) Map.! (name_ n)
-rensToMapping _  NoRens = Map.empty
-rensToMapping _ (Rens rlist) = Map.fromList $ map (\(RenPair x y) -> (name_ x,name_ y)) rlist
+rensToRename :: GraphState -> Rens -> Rename
+rensToRename gs (NameRens n) = (renames gs) Map.! (name_ n)
+rensToRename _  NoRens = Map.empty
+rensToRename _ (Rens rlist) = Map.fromList $ map (\(RenPair x y) -> (name_ x,name_ y)) rlist
 
 {- ------------------------------------------------------------- -} 
 
@@ -107,4 +108,4 @@ createModules theories =
 
 getLibDecls :: Abs.Module -> [Abs.Language]
 getLibDecls (Abs.Module _ _ (Abs.Lang_ ls)) = ls
-getLibDecls _ = error "No Modular expressions" 
+getLibDecls _ = error "No Module expressions" 
