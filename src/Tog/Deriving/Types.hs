@@ -1,5 +1,6 @@
 module Tog.Deriving.Types
-  ( Name_ , Path, Rename
+  ( Name_ , Path
+  , Rename, grename
   , GTheory(..)
   , GView(..)
   , QPath(..)
@@ -17,6 +18,9 @@ import           Tog.DerivingInsts ()  -- for instances of Tog AST
 type Name_ = String
 type Path  = NE.NonEmpty GView
 type Rename = Map.Map Name_ Name_
+
+grename :: (Generics.Typeable a, Generics.Data b) => (a -> a) -> b -> b
+grename r x = Generics.everywhere (Generics.mkT $ r) x
 
 data GTheory = GTheory {
     params :: Params,
