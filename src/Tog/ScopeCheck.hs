@@ -227,8 +227,8 @@ import           Tog.Abstract
 import qualified Tog.PrettyPrint                  as PP
 import           Tog.PrettyPrint                  (render, Pretty(..), (<+>), ($$), (//>))
 
-import           Tog.Deriving.TGraphTest
-import           Tog.Deriving.Algebra 
+import           Tog.Deriving.TGraphTest          (computeGraph, createModules, graphNodes)
+import           Tog.Deriving.Algebra             (processModule)
 
 #include "impossible.h"
 
