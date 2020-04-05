@@ -19,9 +19,8 @@ defsToModule = createModules . graphNodes . computeGraph
 
 processModule :: Module -> Module
 processModule (Module n p (Decl_ decls)) =
-   Module n p $ Decl_ $ genProdType : map genEverything decls   
+   Module n p $ Decl_ $ prodType : map genEverything decls   
 processModule _ = error $ "Unparsed theory expressions exists" 
---processModule_ decls =   Generics.everything (++) (Generics.mkQ [] (\(Module_ m) -> [m])) decls
 
 leverageThry :: Eq.EqTheory -> [Decl]
 leverageThry thry =
@@ -64,7 +63,7 @@ test file =
      case (parseModule s) of
        Right (Module _ _ (Lang_ defs)) ->
         do putStrLn "Generating Hom"
-           return $ processModule $ createModules $ graphNodes $ computeGraph defs
+           return $ processDefs defs
        Right _ -> error "Invalid declaration"
        Left _ -> error "Cannot create modules"     
 

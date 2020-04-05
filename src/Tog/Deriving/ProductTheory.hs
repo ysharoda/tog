@@ -30,17 +30,17 @@ productThry thry =
 prodThryName :: Eq.EqTheory -> Name_
 prodThryName thry = Eq.thryName thry ++ "Prod"
 
--- Generate the prod type declaration 
+-- prod type declaration 
 -- data Prod (A : Set) (B : Set) : Set
-genProdType :: Decl 
-genProdType =
+prodType :: Decl 
+prodType =
   Data (mkName "Prod")
-  (ParamDecl [Bind [Arg $ createId "A",Arg $ createId "B"]
+  (ParamDecl [Bind [Arg $ createId "A", Arg $ createId "B"]
      $ App [Arg $ createId "Set"]])
   (DataDeclDef (mkName "Set") [])  
 
 prodSortName :: Name -> Name
-prodSortName (Name (_,n)) = mkName $ "Prod" ++ n  
+prodSortName n = mkName $ "Prod" ++ name_ n  
 
 prodTyp :: Name_ -> Expr
 prodTyp sortName =
