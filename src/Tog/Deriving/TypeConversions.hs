@@ -35,10 +35,10 @@ getRecordComps p (TRecord _ params body) =
  in (paramToConstr par) ++ con
 
 homThryToDecl :: HomThry -> Decl
-homThryToDecl (HomThry nm hargs eargs func axioms) =
+homThryToDecl (HomThry nm hargs eargs fnc axioms) =
   Record (mkName nm)
    (mkParams $ hargs ++ eargs)
-   (RecordDeclDef setType (mkConstructor nm) (mkField $ func : axioms))
+   (RecordDeclDef setType (mkName $ nm ++ "C") (mkField $ fnc : axioms))
 
 {- ----------- Helper Functions --------------- -}
 

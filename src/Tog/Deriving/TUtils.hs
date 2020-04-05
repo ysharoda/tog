@@ -10,8 +10,8 @@ module Tog.Deriving.TUtils
   , getArgName
   , exprArity
   , getBindingArgNames
-  , mkConstructor
   , mkArg
+  , fldsToBinding
   ) where
 
 import qualified Data.Generics as Generics
@@ -27,9 +27,6 @@ createId = Id . NotQual . mkName
 
 mkName :: Name_ -> Name
 mkName str = Name ((0,0),str) 
-
-mkConstructor :: Name_ -> Name
-mkConstructor str = mkName $ str ++ "C" 
 
 setType :: Name
 setType = mkName "Set"
@@ -84,3 +81,7 @@ createThryInstType thryName thryParams index =
 mkField :: [Constr] -> Fields
 mkField [] = NoFields 
 mkField xs = Fields xs
+
+fldsToBinding :: Constr -> Binding
+fldsToBinding (Constr nm typ) = Bind [mkArg $ nm^.name] typ 
+

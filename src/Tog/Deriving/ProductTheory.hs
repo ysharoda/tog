@@ -65,9 +65,6 @@ params pt = if (waist pt == 0) then NoParams
   else let pars = take (waist pt) ([sort pt] ++ (funcs pt) ++ (axioms pt))
        in ParamDecl $ map fldsToBinding pars     
 
-fldsToBinding :: Constr -> Binding
-fldsToBinding (Constr nm typ) = Bind [mkArg $ nm^.name] typ 
-
 prodTheoryToDecl :: ProductTheory -> Decl
 prodTheoryToDecl pthry@(ProductTheory nm srt fs axs wst) =
   Record (mkName nm)

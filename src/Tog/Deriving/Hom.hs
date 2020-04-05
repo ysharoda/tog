@@ -14,11 +14,11 @@ type FuncType = Constr
 type Axiom = Constr 
 
 data HomThry = HomThry {
-  getHomName       :: Name_ ,
-  getHiddenArgs    :: HiddenBinds,
-  getExplictArgs   :: ExplicitBinds, 
-  getHomFunc       :: Constr,
-  getPresAxioms    :: [Constr] }
+  homName     :: Name_ ,
+  hiddenArgs  :: HiddenBinds,
+  explictArgs :: ExplicitBinds, 
+  func        :: Constr,
+  presAxioms  :: [Constr] }
       
 homFuncName :: String 
 homFuncName = "hom"

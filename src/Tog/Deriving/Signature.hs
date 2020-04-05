@@ -33,9 +33,6 @@ params sig = if (waist sig == 0) then NoParams
   else let pars = take (waist sig) (sort sig : funcType sig)
        in ParamDecl $ map fldsToBinding pars 
 
-fldsToBinding :: Constr -> Binding
-fldsToBinding (Constr nm typ) = Bind [mkArg $ nm^.name] typ 
-
 sigToDecl :: Signature -> Decl
 sigToDecl sig@(Signature nm srt fts wst) =
   Record (mkName $ sname sig) (params sig)
