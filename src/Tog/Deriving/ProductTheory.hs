@@ -8,8 +8,6 @@ import           Tog.Deriving.Types (gmap, Name_)
 import qualified Tog.Deriving.EqTheory as Eq
 import           Tog.Deriving.Lenses   (name)
 
-data Product = Product Constr Constr
-
 data ProductTheory = ProductTheory {
   prodName :: Name_    ,
   sort     :: Constr   , 
