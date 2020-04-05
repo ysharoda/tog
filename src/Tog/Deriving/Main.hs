@@ -1,4 +1,4 @@
-module Tog.Deriving.Algebra where
+module Tog.Deriving.Main where
 
 import           Tog.Raw.Abs 
 import qualified Tog.Deriving.EqTheory as Eq

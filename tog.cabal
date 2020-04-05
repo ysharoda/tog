@@ -28,7 +28,7 @@ library
                      , Tog.Deriving.TGraph
                      , Tog.Deriving.TGraphTest
                      , Tog.Deriving.Hom
-                     , Tog.Deriving.Algebra
+                     , Tog.Deriving.Main
                      , Tog.Deriving.EqTheory
                      , Tog.Deriving.TUtils
                      , Tog.Deriving.TypeConversions

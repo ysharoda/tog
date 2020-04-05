@@ -220,15 +220,15 @@ import           Data.List.NonEmpty (NonEmpty(..), (<|))
 
 import           Tog.Prelude
 import           Tog.Instrumentation
-import           Tog.Names                        hiding (mkName)
+import           Tog.Names                hiding (mkName)
 import           Tog.Parse
-import qualified Tog.Raw                          as C
+import qualified Tog.Raw                  as C
 import           Tog.Abstract
-import qualified Tog.PrettyPrint                  as PP
-import           Tog.PrettyPrint                  (render, Pretty(..), (<+>), ($$), (//>))
+import qualified Tog.PrettyPrint          as PP
+import           Tog.PrettyPrint          (render, Pretty(..), (<+>), ($$), (//>))
 
-import           Tog.Deriving.TGraphTest          (computeGraph, createModules, graphNodes)
-import           Tog.Deriving.Algebra             (processModule)
+import           Tog.Deriving.TGraphTest  (computeGraph, createModules, graphNodes)
+import           Tog.Deriving.Main        (processModule)
 
 #include "impossible.h"
 
