@@ -29,8 +29,8 @@ genInstParams bind (Constr name typ) =
 createThryInsts :: Eq.EqTheory -> [Binding]
 createThryInsts t =
   let nam = Eq.thryName t in
-  [Bind [mkArg nam 1] (createThryInstType nam (Eq.thryArgs t) 1) ,
-   Bind [mkArg nam 2] (createThryInstType nam (Eq.thryArgs t) 2) ]
+  [Bind [mkArg nam 1] (createThryInstType nam (Eq.args t) 1) ,
+   Bind [mkArg nam 2] (createThryInstType nam (Eq.args t) 2) ]
 
 {- ---------------- The  Hom Function ------------------ -}
 
@@ -48,8 +48,8 @@ genPresAxioms eqthry =
   let parms = Eq.waist eqthry - 1
       decls = Eq.funcTypes eqthry
       (args, flds) = splitAt parms decls
-  in (map (oneAxiom (Eq.thryName eqthry) True) $ args)
-  ++  (map (oneAxiom (Eq.thryName eqthry) False) $ flds)
+  in (map (oneAxiom (Eq.thryName eqthry) True) args)
+  ++  (map (oneAxiom (Eq.thryName eqthry) False) flds)
   
 -- e : A 
 oneAxiom :: Name_ -> Bool -> FuncType -> Axiom 
@@ -126,7 +126,7 @@ homomorphism eqThry =
          else error "Generating Hom: Error while creating recod isntances" 
   in HomThry
       (Eq.thryName eqThry ++ "Hom")
-      (map (genInstParams Bind) (Eq.thryArgs eqThry))
+      (map (genInstParams Bind) (Eq.args eqThry))
       instances 
-      (genHomFunc (length (Eq.thryArgs eqThry) == 0) (getConstrName $ Eq.sort eqThry) instName1 instName2)
+      (genHomFunc (length (Eq.args eqThry) == 0) (getConstrName $ Eq.sort eqThry) instName1 instName2)
       (genPresAxioms eqThry) 

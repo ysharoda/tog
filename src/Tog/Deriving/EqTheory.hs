@@ -1,9 +1,11 @@
-module Tog.Deriving.EqTheory where 
+module Tog.Deriving.EqTheory
+  ( EqTheory(EqTheory, thryName, sort, funcTypes, waist, axioms)
+  , args
+  ) where 
 
 import Data.Generics as Generics(Data)
 
 import Tog.Raw.Abs   
-import Tog.Deriving.TUtils (getConstrName)
 import Tog.Deriving.Types  (Name_)
 
 -- uni sorted equational theory
@@ -21,14 +23,8 @@ data EqTheory = EqTheory {
   waist      :: Waist }
   deriving (Data)
 
-getSortName :: EqTheory -> Name_ 
-getSortName = getConstrName . sort
-
 decls :: EqTheory -> [Constr]
-decls thry = sort thry : (funcTypes thry) ++ (axioms thry) 
+decls thry = sort thry : funcTypes thry ++ axioms thry
 
-thryArgs :: EqTheory -> [Constr]
-thryArgs thry = take (waist thry) $ decls thry
-
-thryFields :: EqTheory -> [Constr]
-thryFields thry = drop (waist thry) $ decls thry
+args :: EqTheory -> [Constr]
+args thry = take (waist thry) $ decls thry
