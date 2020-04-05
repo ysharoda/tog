@@ -1,6 +1,14 @@
 -- Horribly named 'Utils' module that is a grab-bag of stuff
 {-# LANGUAGE TemplateHaskell #-}
-module Tog.Deriving.Utils where
+module Tog.Deriving.Utils 
+  ( getParams
+  , getFields
+  , getBindingArgs
+  , getBindingExpr
+  , isFunc, isAxiom, isSort
+  , checkParam
+  , getExpr
+  ) where
 
 import Control.Lens
 
@@ -55,21 +63,6 @@ checkParam p (ParamDecl binds) =
   in if sorts == [] then NoParams else ParamDecl sorts 
 checkParam _ _ = NoParams
 
-classify :: [Constr] -> ([Constr],[Constr],[Constr])
-classify constrs = classify' constrs ([],[],[])
- where classify' [] tuple = tuple 
-       classify' (c:cs) (sorts,funcs,axioms) = 
-         if isSort (getExpr c)       then classify' cs (c:sorts,funcs,axioms)
-         else if isFunc (getExpr c)  then classify' cs (sorts,c:funcs,axioms)
-         else if isAxiom (getExpr c) then classify' cs (sorts,funcs,c:axioms)
-         else error "Cannot classify declaration."
-
-createIdNQ :: String -> Expr
-createIdNQ str = Id $ NotQual $ Name ((0,0),str)
-
-strToArg :: String -> Arg 
-strToArg str = Arg $ createIdNQ str
-
 {- ------------------------------------------------------------ -} 
 {- ---------------------- Getters ----------------------------- -} 
 {- ------------------------------------------------------------ -} 
@@ -89,10 +82,6 @@ getQname :: QName -> String
 getQname (NotQual n) = getName n
 getQname (Qual q n)  = getQname q ++ getName n
 
-getRecordName :: Decl -> Maybe String 
-getRecordName (Record name _ _) = Just $ getName name
-getRecordName _ = Nothing
-
 getParams :: Params -> [Binding]
 getParams (ParamDecl bs) = bs
 getParams _ = []
@@ -100,38 +89,3 @@ getParams _ = []
 getFields :: Fields -> [Constr] 
 getFields NoFields = []
 getFields (Fields ls) = ls 
-
-{- ------------------------------------------------------------ -} 
-{- ------------------ Rename Functions ------------------------ -} 
-{- ------------------------------------------------------------ -} 
-
-setName :: String -> String -> Name -> Name 
-setName _ = set nameLens
-
--- In case of a qualified name, only the last part of it is renamed. 
-setQname :: String -> String -> QName -> QName 
-setQname oldName newName (NotQual name) = NotQual $ setName oldName newName name 
-setQname oldName newName (Qual qn name) = Qual qn $ setName oldName newName name 
--- qn & _Qual._2._Name._2 .~ newName 
-
-renameArg :: String -> String -> Arg -> Arg  
-renameArg oldName newName (Arg  expr) = Arg  $ renameExpr oldName newName expr
-renameArg oldName newName (HArg expr) = HArg $ renameExpr oldName newName expr
--- arg & _Arg._Id._NotQual._Name._2 .~ newName 
-
-renameBinding :: String -> String -> Binding -> Binding 
-renameBinding oldName newName (Bind args expr) 
-   = Bind  (map (renameArg oldName newName) args) (renameExpr oldName newName expr)
-renameBinding oldName newName (HBind args expr) 
-   = HBind (map (renameArg oldName newName) args) (renameExpr oldName newName expr)
-
-renameExpr :: String -> String -> Expr -> Expr 
-renameExpr oldName newName ex =
-  case ex of
-    Lam names expr      -> Lam (map (setName oldName newName) names) (renExpr expr)
-    Pi (Tel binds) expr -> Pi (Tel $ map (renameBinding oldName newName) binds) (renExpr expr)
-    Fun expr1 expr2     -> Fun (renExpr expr1) (renExpr expr2) 
-    Eq  expr1 expr2     -> Eq  (renExpr expr1) (renExpr expr2) 
-    App args            -> App $ map (renameArg oldName newName) args   
-    Id  qn              -> Id  $ setQname oldName newName qn
-  where renExpr = renameExpr oldName newName 
