@@ -516,8 +516,17 @@ scopeCheckModule (C.Module (C.Name ((l, c), s)) pars (C.Decl_ ds)) =
     q = QName (Name (SrcLoc l c) s) []
 scopeCheckModule (C.Module _ _ (C.Lang_ defs)) =
   let thrs = createModules $ graphNodes $ computeGraph defs
-  in scopeCheckModule $ processModule thrs 
+  in scopeCheckModule $ processModule thrs
 
+{-
+test file = do 
+ s <- readFile file
+ case parseModule s of
+   Left err -> putStrLn $ render err
+   Right (C.Module _ _ (C.Lang_ defs)) -> 
+     let thrs = createModules $ graphNodes $ computeGraph defs
+     in putStrLn $ show $ processModule thrs  
+-}
 {- -------- for testing ------- -}
 
 -- Useful for debugging.
