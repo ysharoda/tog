@@ -1,4 +1,7 @@
-module Tog.Deriving.TermLang(termLang, termLangToDecl) where
+module Tog.Deriving.TermLang
+  ( termLang
+  , termLangToDecl
+  ) where
 
 import           Control.Lens ((^.))
 

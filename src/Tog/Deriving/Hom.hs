@@ -1,4 +1,7 @@
-module Tog.Deriving.Hom where
+module Tog.Deriving.Hom
+ ( HomThry (HomThry)
+ , homomorphism
+ ) where
 
 import           Control.Lens ((^.))
 
@@ -88,17 +91,6 @@ genHomFuncApp build constr@(Constr _ expr) =
        Fun _ _  -> [Arg $ App $ (Arg $ App funcName):vars]
        x -> error $ "Invalid expr " ++ show x
  in App $ homFuc ++ funcApp 
-
-genHomFuncArg :: Constr -> Name_ -> [Arg]
-genHomFuncArg (Constr nm expr) instName =
-  -- qualifying by the instance name  
-  let funcName = qualDecl (nm^.name) instName
-      vars  = map mkArg $ genVars $ exprArity expr
-   in case expr of
-       Id qname -> [Arg $ Id qname] 
-       App _    -> Arg funcName:vars
-       Fun _ _  -> [Arg $ App $ (Arg funcName:vars)]
-       x -> error $ "Invalid expr " ++ show x
 
 genLHS ::  (Constr -> Expr) -> Constr -> Expr
 genLHS = genHomFuncApp

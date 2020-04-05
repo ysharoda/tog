@@ -1,12 +1,13 @@
-module Tog.Deriving.ProductTheory where
-
-import           Control.Lens ((^.))
+module Tog.Deriving.ProductTheory
+  ( prodType
+  , prodTheoryToDecl
+  , productThry
+  ) where
 
 import           Tog.Raw.Abs
 import           Tog.Deriving.TUtils
 import           Tog.Deriving.Types (gmap, Name_)
 import qualified Tog.Deriving.EqTheory as Eq
-import           Tog.Deriving.Lenses   (name)
 
 data ProductTheory = ProductTheory {
   prodName :: Name_    ,
@@ -39,17 +40,9 @@ prodType =
   (ParamDecl [Bind [mkArg "A", mkArg "B"] $ notQualDecl "Set"])
   (DataDeclDef (mkName "Set") [])  
 
-prodSortName :: Name -> Name
-prodSortName n = mkName $ "Prod" ++ n^.name
-
 prodTyp :: Name_ -> Expr
 prodTyp sortName =
   let aSort = mkArg sortName in App [mkArg "Prod", aSort, aSort]      
-
-productSort :: Constr -> Constr
-productSort sortC =
-  let prodtyp = prodTyp $ getConstrName sortC
-  in Constr (prodSortName $ mkName $ getConstrName sortC) prodtyp
 
 productField :: Name_ -> Constr -> Constr
 productField origSort constr =

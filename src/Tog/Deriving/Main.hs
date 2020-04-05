@@ -1,4 +1,6 @@
-module Tog.Deriving.Main where
+module Tog.Deriving.Main
+  ( processDefs
+  ) where
 
 import qualified Data.Map              as Map
 

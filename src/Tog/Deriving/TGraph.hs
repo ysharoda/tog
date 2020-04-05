@@ -1,4 +1,12 @@
-module Tog.Deriving.TGraph where
+module Tog.Deriving.TGraph
+  ( lookupName
+  , updateGraph
+  , computeExtend
+  , computeRename
+  , getPath
+  , computeTransport
+  , computeCombine
+  ) where
 
 import qualified Data.Generics      as Generics
 import qualified Data.List          as List

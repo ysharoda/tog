@@ -1,4 +1,4 @@
-module Tog.Deriving.Debug where
+module Tog.Deriving.Debug (test) where
 
 import           Tog.Raw.Abs
 import           Tog.Parse

@@ -1,4 +1,8 @@
-module Tog.Deriving.TypeConversions where
+module Tog.Deriving.TypeConversions
+  ( TRecord( TRecord )
+  , homThryToDecl
+  , recordToEqTheory
+  ) where
 
 import           Control.Lens ((^.))
 
