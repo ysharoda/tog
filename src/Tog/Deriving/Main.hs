@@ -1,6 +1,8 @@
 module Tog.Deriving.Main where
 
-import           Tog.Raw.Abs 
+import qualified Data.Map              as Map
+
+import           Tog.Raw.Abs           as Abs
 import qualified Tog.Deriving.EqTheory as Eq
 import           Tog.Deriving.Hom
 import           Tog.Deriving.TermLang
@@ -8,8 +10,8 @@ import           Tog.Deriving.TGraphTest
 import           Tog.Deriving.ProductTheory
 import           Tog.Deriving.Signature 
 import           Tog.Deriving.TypeConversions
-
-import Tog.Parse
+import           Tog.Deriving.Types
+import           Tog.Deriving.TUtils  (mkName)
 
 processDefs :: [Language] -> Module
 processDefs = processModule . defsToModule
@@ -56,14 +58,22 @@ isEmptyTheory (TRecord _ NoParams (RecordDef  _ NoFields)) = True
 isEmptyTheory (TRecord _ NoParams (RecordDeclDef _ _ NoFields)) = True
 isEmptyTheory _ = False
 
-{- ----------------- Testing ---------------------- -} 
-test :: FilePath -> IO Module 
-test file =
-  do s <- readFile file
-     case (parseModule s) of
-       Right (Module _ _ (Lang_ defs)) ->
-        do putStrLn "Generating Hom"
-           return $ processDefs defs
-       Right _ -> error "Invalid declaration"
-       Left _ -> error "Cannot create modules"     
+{- ------------------------------------------------------------- -} 
 
+mathscheme :: Name
+mathscheme = mkName "MathScheme" 
+
+theoryToRecord :: Name_ -> GTheory -> Decl 
+theoryToRecord thryName (GTheory ps fs) =
+  Record (mkName thryName) ps
+         (RecordDeclDef (mkName "Set") (mkName $ thryName++"C") fs)  
+
+recordToModule :: Name_ -> Decl -> Decl
+recordToModule thryName record =
+  Module_ $ Module (mkName thryName) NoParams $ Decl_ [record] 
+
+createModules :: Map.Map Name_ GTheory -> Abs.Module
+createModules theories =
+  let records = Map.mapWithKey theoryToRecord theories
+      modules = Map.mapWithKey recordToModule records 
+  in Module mathscheme NoParams $ Decl_ $ Map.elems modules 

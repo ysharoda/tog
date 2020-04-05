@@ -1,18 +1,14 @@
 module Tog.Deriving.TGraphTest
   ( computeGraph 
-  , createModules -- used in Algebra
-  , graphNodes    -- used in Algebra
+  , graphNodes
   ) where
 
 import qualified Data.Map            as Map
 
 import           Tog.Deriving.Types
 import           Tog.Deriving.TGraph
-import           Tog.Deriving.TUtils (mkName, name_)
+import           Tog.Deriving.TUtils (name_)
 import           Tog.Raw.Abs         as Abs
-
-moduleName :: String
-moduleName = "MathScheme" 
 
 data Graph = Graph {
   graph   :: TGraph,
@@ -90,19 +86,3 @@ rensToRename gs (NameRens n) = (renames gs) Map.! (name_ n)
 rensToRename _  NoRens = Map.empty
 rensToRename _ (Rens rlist) = Map.fromList $ map (\(RenPair x y) -> (name_ x,name_ y)) rlist
 
-{- ------------------------------------------------------------- -} 
-
-theoryToRecord :: Name_ -> GTheory -> Decl 
-theoryToRecord thryName (GTheory ps fs) =
-  Record (mkName thryName) ps
-         (RecordDeclDef (mkName "Set") (mkName $ thryName++"C") fs)  
-
-recordToModule :: Name_ -> Decl -> Decl
-recordToModule thryName record =
-  Module_ $ Module (mkName thryName) NoParams $ Decl_ [record] 
-
-createModules :: Map.Map Name_ GTheory -> Abs.Module
-createModules theories =
-  let records = Map.mapWithKey theoryToRecord theories
-      modules = Map.mapWithKey recordToModule records 
-  in Module (mkName moduleName) NoParams $ Decl_ $ Map.elems modules 
