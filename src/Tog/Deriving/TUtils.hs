@@ -1,4 +1,20 @@
-module Tog.Deriving.TUtils where
+module Tog.Deriving.TUtils
+  ( getConstrName
+  , name_
+  , mkName
+  , setType
+  , createId
+  , mkField
+  , shortName
+  , createThryInstType
+  , homFuncName
+  , qualDecl, notQualDecl
+  , genVars
+  , getArgName
+  , exprArity
+  , getBindingArgNames
+  , mkConstructor
+  ) where
 
 import qualified Data.Generics as Generics
 
@@ -6,20 +22,17 @@ import           Tog.Raw.Abs
 import           Tog.DerivingInsts()
 import           Tog.Deriving.Types (Name_)
 
-noSrcLoc :: (Int,Int)
-noSrcLoc = (0,0) 
-
 homFuncName :: String 
 homFuncName = "hom"
 
 createId :: String -> Expr
-createId str = Id $ NotQual $ Name (noSrcLoc,str)
+createId = Id . NotQual . mkName
 
 name_ :: Name -> Name_
 name_ (Name (_,n)) = n 
 
 mkName :: Name_ -> Name
-mkName str = Name (noSrcLoc,str) 
+mkName str = Name ((0,0),str) 
 
 mkConstructor :: Name_ -> Name
 mkConstructor str = mkName $ str ++ "C" 
@@ -40,7 +53,6 @@ getBindingArgNames (Bind args _) =
 getBindingArgNames (HBind args e) =
   getBindingArgNames (Bind args e)
 
-
 -- for decl e of monoid instance M1, the output is (e M1) 
 qualDecl :: Name_ -> Name_ -> Expr
 qualDecl declName instName =
@@ -53,9 +65,6 @@ notQualDecl declName =
 -- For Name Monoid and number 1, the output is M1 
 shortName :: Name_ -> Int -> Name_
 shortName declName num = take 1 declName ++ show num
-
-createName :: Name_ -> Name
-createName str = Name (noSrcLoc,str) 
 
 exprArity :: Expr -> Int
 exprArity expr =

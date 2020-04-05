@@ -36,6 +36,6 @@ fldsToBinding (Constr nm typ) = Bind [Arg $ createId $ name_ nm] typ
 
 sigToDecl :: Signature -> Decl
 sigToDecl sig@(Signature nm srt fts wst) =
-  Record (mkName nm) (params sig)
+  Record (mkName $ name sig) (params sig)
     (RecordDeclDef setType (mkName $ nm ++ "SigC")
       (mkField $ drop wst (srt : fts)))
