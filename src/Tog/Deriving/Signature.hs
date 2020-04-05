@@ -1,10 +1,11 @@
 module Tog.Deriving.Signature where
 
-import Data.Generics as Generics(Data,Typeable,mkT,everywhere)
+import Data.Generics as Generics(Data,Typeable)
 
 import Tog.Raw.Abs
-import Tog.Deriving.TUtils
 import Tog.Deriving.EqTheory 
+import Tog.Deriving.TUtils
+import Tog.Deriving.Types    (gmap, Name_)
 
 data Signature = Signature {
   sigName :: Name_ ,
@@ -16,7 +17,7 @@ data Signature = Signature {
 signature_ :: EqTheory -> Signature
 signature_ thry =
   let ren (Name (_,x)) = if (x == "Set") then mkName x else mkName $ x++"S"
-      renThry = Generics.everywhere (Generics.mkT ren) thry 
+      renThry = gmap ren thry 
   in Signature (thryName renThry++"Sig") (sort renThry) (funcTypes renThry) (waist renThry) 
 
 params :: Signature -> Params
@@ -26,7 +27,7 @@ params sig = if (sigWaist sig == 0) then NoParams
 
 fldsToBinding :: Constr -> Binding
 fldsToBinding (Constr nm typ) =
-  Bind [Arg $ createId $ getNameAsStr nm] typ 
+  Bind [Arg $ createId $ name_ nm] typ 
 
 sigToDecl :: Signature -> Decl
 sigToDecl sig@(Signature nm srt fts wst) =

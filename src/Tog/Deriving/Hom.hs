@@ -2,6 +2,7 @@ module Tog.Deriving.Hom where
 
 import           Tog.Raw.Abs 
 import           Tog.Deriving.TUtils 
+import           Tog.Deriving.Types (Name_)
 import qualified Tog.Deriving.EqTheory as Eq
 
 type HiddenBinds = [Binding]
@@ -16,23 +17,20 @@ data HomThry = HomThry {
   getHomFunc       :: Constr,
   getPresAxioms    :: [Constr] }
       
-{- --------- The Parameters of the hom record ----------------- -} 
-  
-genInstParams :: Bool -> Constr -> Binding
-genInstParams isHidden (Constr name typ) =
-  let arg1 = Arg $ createId $ genCharName (getNameAsStr name) 1
-      arg2 = Arg $ createId $ genCharName (getNameAsStr name) 2
-  in if isHidden then (HBind [arg1,arg2] typ) else (Bind [arg1,arg2] typ)
+mkArg :: Name_ -> Int -> Arg
+mkArg nam k = Arg $ createId $ shortName nam k
 
-thryInstName :: Name_ -> Int -> Name_ 
-thryInstName thryName index = genCharName thryName index
+{- --------- The Parameters of the hom record ----------------- -} 
+
+genInstParams :: ([Arg] -> Expr -> Binding) -> Constr -> Binding
+genInstParams bind (Constr name typ) =
+  let n = name_ name in bind [mkArg n 1, mkArg n 2] typ
 
 createThryInsts :: Eq.EqTheory -> [Binding]
-createThryInsts eqThry =
-  [Bind [Arg $  createId $ thryInstName (Eq.thryName eqThry) 1]
-        (createThryInstType (Eq.thryName eqThry) (Eq.thryArgs eqThry) 1) ,
-   Bind [Arg $  createId $ thryInstName (Eq.thryName eqThry) 2]
-        (createThryInstType (Eq.thryName eqThry) (Eq.thryArgs eqThry) 2) ]
+createThryInsts t =
+  let nam = Eq.thryName t in
+  [Bind [mkArg nam 1] (createThryInstType nam (Eq.args t) 1) ,
+   Bind [mkArg nam 2] (createThryInstType nam (Eq.args t) 2) ]
 
 {- ---------------- The  Hom Function ------------------ -}
 
@@ -45,39 +43,27 @@ genHomFunc isQualified sortName inst1Name inst2Name =
              
 {- ------------ Preservation Axioms ----------------- -}
 
--- presAxioms :: FuncType -> Axiom 
-
--- Change the names of the parameters t
-applyConstr :: Name_ -> Bool -> Constr -> Expr
-applyConstr thryName isParam constr =
-  if isParam then qualDecl (getConstrName constr) (thryName)
-  else notQualDecl (getConstrName constr)  
-
 genPresAxioms :: Eq.EqTheory -> [Constr]
 genPresAxioms eqthry = 
-  let decls = Eq.funcTypes eqthry
-      args = take ((Eq.waist eqthry) - 1) decls
-      flds = drop ((Eq.waist eqthry) - 1) decls  
-  in (map (oneAxiom (Eq.thryName eqthry) True) $ args)
-  ++  (map (oneAxiom (Eq.thryName eqthry) False) $ flds)
+  let parms = Eq.waist eqthry - 1
+      decls = Eq.funcTypes eqthry
+      (args, flds) = splitAt parms decls
+  in (map (oneAxiom (Eq.thryName eqthry) True) args)
+  ++  (map (oneAxiom (Eq.thryName eqthry) False) flds)
   
 -- e : A 
 oneAxiom :: Name_ -> Bool -> FuncType -> Axiom 
 oneAxiom thryName isParam c@(Constr name typ) =
-  Constr (mkName $ "pres-" ++ getNameAsStr name)
-   (Pi (Tel $ genBinding thryName isParam typ) (genEq thryName isParam c))       
+  Constr (mkName $ "pres-" ++ name_ name)
+   (Pi (Tel $ genBinding thryName isParam typ) (genEq thryName c))       
 
-{-
-argQualName instName isParam arg =
-        if isParam then map (\n -> qualDecl n instName) (getArgName arg)
-        else map notQualDecl (getArgName arg)
--}
 genBinding :: Name_ -> Bool -> Expr -> [Binding]
 genBinding thryName isParam expr =
- let vars =  map (\x -> Arg $ createId x) $ genVars $ exprArity expr
-     instName = thryInstName thryName 1
+ let vars =  map (Arg . createId) $ genVars $ exprArity expr
+     instName = shortName thryName 1
      argQualName arg =
-        if isParam then map (\x -> notQualDecl (x ++ "1")) (getArgName arg)
+        if isParam 
+        then map (\x -> notQualDecl (x ++ "1")) (getArgName arg)
         else map (\n -> qualDecl n instName) (getArgName arg)
      -- A list of types in the expression 
      exprTypes (App arg) = concatMap argQualName arg
@@ -85,13 +71,11 @@ genBinding thryName isParam expr =
      exprTypes _ = error "invalid expression"
  in zipWith (\v ty -> HBind [v] ty) vars (exprTypes expr)
 
-genHomFuncApp :: Name_ -> Bool -> Constr -> Expr
-genHomFuncApp instName isParam constr@(Constr _ expr) =
+genHomFuncApp :: (Constr -> Expr) -> Constr -> Expr
+genHomFuncApp build constr@(Constr _ expr) =
  let (App homFuc)   = notQualDecl homFuncName 
-     (App funcName) =
-       if isParam then notQualDecl (getConstrName constr)
-       else qualDecl (getConstrName constr) instName
-     vars  = map (\x -> createId x) $ genVars $ exprArity expr
+     (App funcName) = build constr
+     vars  = map createId $ genVars $ exprArity expr
      funcApp = case expr of
        Id qname -> [Arg $ Id qname] 
        App _    -> map Arg $ (App funcName):vars
@@ -99,61 +83,50 @@ genHomFuncApp instName isParam constr@(Constr _ expr) =
        x -> error $ "Invalid expr " ++ show x
  in App $ homFuc ++ funcApp 
 
-{-
-(App [Arg (Id (NotQual (Name ((17,14),"h")))),Arg (App [Arg (Id (NotQual (Name ((17,17),"e")))),Arg (Id (NotQual (Name ((17,19),"M1"))))])]) 
-
--} 
-
 genHomFuncArg :: Constr -> Name_ -> [Arg]
 genHomFuncArg (Constr name expr) instName =
   -- qualifying by the instance name  
-  let funcName = App [Arg $ createId (getNameAsStr name), Arg $ createId instName] 
-      vars  = map (\x -> createId x) $ genVars $ exprArity expr
+  let funcName = App [Arg $ createId (name_ name), Arg $ createId instName] 
+      vars  = map createId $ genVars $ exprArity expr
    in case expr of
        Id qname -> [Arg $ Id qname] 
-       App _    -> map Arg $ funcName:vars
-       Fun _ _  -> [Arg $ App $ map Arg $ funcName:vars]
+       App _    -> map Arg (funcName:vars)
+       Fun _ _  -> [Arg $ App $ map Arg (funcName:vars)]
        x -> error $ "Invalid expr " ++ show x
 
-genLHS :: Name_ -> Bool -> Constr -> Expr
-genLHS  instName isParam constr = genHomFuncApp instName isParam constr
+genLHS ::  (Constr -> Expr) -> Constr -> Expr
+genLHS = genHomFuncApp
 
-genRHS ::  Name_ -> Bool -> Constr -> Expr
-genRHS instName isParam constr@(Constr _ expr) =
-  let funcName = if isParam then  notQualDecl (getConstrName constr) 
-                 else qualDecl (getConstrName constr) instName
-     -- vars  = map (\x -> createId x) $ genVars $ exprArity expr
-      vars = map (\x -> createId x) $ genVars $ exprArity expr
-      args = map (\x -> Arg $ App $ [Arg $ createId homFuncName, Arg x]) vars
-   --   (App args) = 
-    --    genHomFuncApp instName isParam constr
-      -- args x =  error $ "Invalid expr " ++ show x
---      args (App [Arg a]) = args a
---      args (App (a:as)) = args (App [a]) ++ (args $ App as)
---      args (Fun e1 e2)  = args e1 ++ args e2  
-  in App $ [Arg funcName] ++ args 
+genRHS ::  (Constr -> Expr) -> Constr -> Expr
+genRHS build constr@(Constr _ expr) =
+  let vars = map createId $ genVars $ exprArity expr
+      args = map (\x -> Arg $ App [Arg $ createId homFuncName, Arg x]) vars
+  in App $ [Arg $ build constr] ++ args 
 
-genEq :: Name_ -> Bool -> Constr -> Expr
-genEq thryName isParam constr =
-  let inst1Name = thryInstName thryName 1 
-      inst2Name = thryInstName thryName 2
-  in  Eq (genLHS inst1Name isParam constr)
-         (genRHS inst2Name isParam constr) 
+mkDecl :: Bool -> Name_ -> Constr -> Expr
+mkDecl True  _ c = notQualDecl $ getConstrName c
+mkDecl False n c = qualDecl (getConstrName c) n
+
+genEq :: Name_ -> Constr -> Expr
+genEq n constr =
+  let n1 = shortName n 1 
+      n2 = shortName n 2
+  in  Eq (genLHS (mkDecl True  n1) constr)
+         (genRHS (mkDecl False n2) constr) 
 
 {- ------------ The Hom Record -------------------- -}
 
 homomorphism :: Eq.EqTheory -> HomThry 
 homomorphism eqThry =
   let -- instances and instNames should both have length exactly 2
-    instances = (createThryInsts eqThry)
+    instances = createThryInsts eqThry
     (instName1 , instName2)  =
       let names = concatMap getBindingArgNames instances
       in if length names == 2 then (head names, last names)
          else error "Generating Hom: Error while creating recod isntances" 
   in HomThry
       (Eq.thryName eqThry ++ "Hom")
-      (map (genInstParams True) (Eq.thryArgs eqThry))
+      (map (genInstParams Bind) (Eq.args eqThry))
       instances 
-      (genHomFunc (length (Eq.thryArgs eqThry) == 0) (getConstrName $ Eq.sort eqThry) instName1 instName2)
+      (genHomFunc (length (Eq.args eqThry) == 0) (getConstrName $ Eq.sort eqThry) instName1 instName2)
       (genPresAxioms eqThry) 
-         

@@ -4,8 +4,7 @@ import qualified Data.Generics as Generics
 
 import           Tog.Raw.Abs
 import           Tog.DerivingInsts()
-
-type Name_ = String
+import           Tog.Deriving.Types (Name_)
 
 noSrcLoc :: (Int,Int)
 noSrcLoc = (0,0) 
@@ -16,8 +15,8 @@ homFuncName = "hom"
 createId :: String -> Expr
 createId str = Id $ NotQual $ Name (noSrcLoc,str)
 
-getNameAsStr :: Name -> Name_
-getNameAsStr (Name (_,n)) = n 
+name_ :: Name -> Name_
+name_ (Name (_,n)) = n 
 
 mkName :: Name_ -> Name
 mkName str = Name (noSrcLoc,str) 
@@ -29,7 +28,7 @@ setType :: Name
 setType = mkName "Set"
 
 getConstrName :: Constr -> Name_
-getConstrName (Constr n _) = getNameAsStr n 
+getConstrName (Constr n _) = name_ n 
 
 getArgName :: Arg -> [Name_]
 getArgName (Arg (Id (NotQual (Name (_,n))))) = [n]
@@ -52,9 +51,8 @@ notQualDecl declName =
   App [Arg (createId $ declName)]
 
 -- For Name Monoid and number 1, the output is M1 
-genCharName :: Name_ -> Int -> Name_
-genCharName declName num =
-  (take 1 declName) ++ show num
+shortName :: Name_ -> Int -> Name_
+shortName declName num = take 1 declName ++ show num
 
 createName :: Name_ -> Name
 createName str = Name (noSrcLoc,str) 

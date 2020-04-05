@@ -74,22 +74,23 @@ strToArg str = Arg $ createIdNQ str
 {- ---------------------- Getters ----------------------------- -} 
 {- ------------------------------------------------------------ -} 
 
-makePrisms ''Name 
+nameLens :: Lens' Name String
+nameLens = lens (\(Name (_,s)) -> s) (\(Name x) s -> Name (fst x, s))
+
 makePrisms ''QName  
 makePrisms ''Arg
 makePrisms ''Binding
 makePrisms ''Expr
 
-getName :: Name -> Maybe String 
-getName n = n ^? _Name._2
+getName :: Name -> String 
+getName n = n ^. nameLens
 
-getQname :: QName -> Maybe String 
-getQname qn@(NotQual _) = qn ^? _NotQual.to getName._Just 
-getQname    (Qual q n)  = (++) <$> getQname q <*> getName n
--- (++) <$> ((++) <$> qname q <*> pure ".") <*> name n 
+getQname :: QName -> String 
+getQname (NotQual n) = getName n
+getQname (Qual q n)  = getQname q ++ getName n
 
 getRecordName :: Decl -> Maybe String 
-getRecordName (Record name _ _) = getName name
+getRecordName (Record name _ _) = Just $ getName name
 getRecordName _ = Nothing
 
 getParams :: Params -> [Binding]
@@ -105,10 +106,7 @@ getFields (Fields ls) = ls
 {- ------------------------------------------------------------ -} 
 
 setName :: String -> String -> Name -> Name 
-setName oldName newName n = 
-  if getName n == Just oldName 
-  then n & _Name._2 .~ newName 
-  else n 
+setName _ = set nameLens
 
 -- In case of a qualified name, only the last part of it is renamed. 
 setQname :: String -> String -> QName -> QName 

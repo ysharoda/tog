@@ -228,7 +228,6 @@ import qualified Tog.PrettyPrint                  as PP
 import           Tog.PrettyPrint                  (render, Pretty(..), (<+>), ($$), (//>))
 
 import           Tog.Deriving.TGraphTest 
-import           Tog.Deriving.Algebra  
 
 #include "impossible.h"
 

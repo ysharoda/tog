@@ -4,48 +4,20 @@ import qualified Data.Generics      as Generics
 import qualified Data.List          as List
 import qualified Data.Map           as Map
 import qualified Data.List.NonEmpty as NE
-import           Data.List.Split
-import           Data.Char(isSpace)
 
 import           Tog.Raw.Abs
 import           Tog.Deriving.Utils
-import           Tog.DerivingInsts()
-import           Tog.Parse(parseExpr) 
-  
+import           Tog.Deriving.TUtils
+import           Tog.Deriving.Types
 
-type Name_ = String
-type Path  = NE.NonEmpty GView
 type RenameFunc = Name_ -> Name_
-type Mapping = Map.Map Name_ Name_
-
-data GTheory = GTheory {
-    params :: Params,
-    fields :: Fields }
-  deriving (Eq, Ord, Show, Read, Generics.Typeable, Generics.Data)
-
-data GView   = GView{
-    source  :: GTheory,
-    target  :: GTheory,
-    mapping :: Mapping }  
-  deriving (Eq, Ord, Show, Read, Generics.Typeable, Generics.Data)
-
-data QPath = QPath { -- Qualified path, i.e. a path with a rename
-    path :: Path,
-    mapp :: Mapping } deriving Show 
-
-  
-data TGraph = TGraph{ -- check if I would rather use only a map of edges
-    nodes :: Map.Map Name_ GTheory,
-    edges :: Map.Map Name_ GView } 
-  deriving (Eq, Ord, Show, Read, Generics.Typeable, Generics.Data)
-
 
 {- ------------------- Build the Graph  ----------------- -}
   
-updateGraph ::  TGraph -> Name_ -> Either GView UTriangle -> TGraph
+updateGraph ::  TGraph -> Name_ -> Either GView PushOut -> TGraph
 updateGraph graph newThryName (Left view) =
-  TGraph (Map.insert newThryName (target view)  $ nodes graph)
-         (Map.insert ("To"++newThryName) view $ edges graph)
+  TGraph (Map.insert newThryName (target view) $ nodes graph)
+         (Map.insert ("To"++newThryName) view  $ edges graph)
 -- TODO: find a way to get the name of the source theory. 
 updateGraph graph newThryName (Right ut) =
    TGraph (Map.insert newThryName (target $ uLeft ut) $ nodes graph)
@@ -56,99 +28,61 @@ updateGraph graph newThryName (Right ut) =
 
 {- ------------------- Elaborate Into TheoryGraph ---------------- -}
 
-computeTransport :: Mapping -> GTheory -> GView
+computeTransport :: Rename -> GTheory -> GView
 computeTransport rmap thry =
-  GView thry (applyMapping thry rmap)
-        (injectiveMapping rmap thry)   
+  GView thry (renameThy thry rmap) (validateRen thry rmap)   
 
 -- --------- RENAME -----------
-computeRename :: Mapping -> GTheory -> GView  
+computeRename :: Rename -> GTheory -> GView  
 computeRename namesMap srcThry =
-  GView srcThry (applyMapping srcThry namesMap)
-       (injectiveMapping namesMap srcThry)
+  GView srcThry (renameThy srcThry namesMap) (validateRen srcThry namesMap)
 
 -- --------- EXTENSION ---------
 computeExtend :: [Constr] -> GTheory -> GView
 computeExtend newDecls srcThry =
-  GView srcThry (extThry newDecls srcThry)
-       (injectiveMapping Map.empty srcThry)
+  GView srcThry (extThry newDecls srcThry) (validateRen srcThry Map.empty)
             
 extThry :: [Constr] -> GTheory -> GTheory 
 extThry newConstrs thry =
-  if noNameConflict newConstrNames (symbols thry)
+  if List.intersect newConstrNames (symbols thry) == []
   then GTheory (params thry) $ newFields (fields thry) -- TODO: Decl added to param?
   else error $ "Cannot create theory "
-  where newConstrNames = constrsNames newConstrs
+  where newConstrNames = map getConstrName newConstrs
         newFields NoFields = Fields newConstrs
         newFields (Fields fs) = Fields (fs ++ newConstrs)
 
 -- ----------- COMBINE ----------- 
-data UTriangle = UTriangle { -- upside triangle
-   uLeft    :: GView,
-   uRight   :: GView,
-   diagonal :: GView} deriving Show 
-
-getDest :: UTriangle -> GTheory
-getDest utri =
-  if (target (uLeft utri) == target (uRight utri)) && (target (uRight utri) == target (diagonal utri)) 
-  then target $ uLeft utri
-  else error "Views have different targets"
-
-computeCombine :: TGraph -> QPath -> QPath -> UTriangle
-computeCombine gr qpath1 qpath2 =
-  let isTriangle = (pathSource $ path qpath1) == (pathSource $ path qpath2)
-  --    src = pathSource $ path qpath1
-  --    getView qp = GView src (pathTarget $ path qp) (composeMaps $ (NE.toList (NE.map mapping $ path qp)) ++ [mapp qp])
+computeCombine :: QPath -> QPath -> PushOut
+computeCombine qpath1 qpath2 =
+  let isTriangle = (qpathSource qpath1) == (qpathSource qpath2)
    in if (not isTriangle)
       then error "The two theories do not meet at the source"
-      else if (not $ checkGuards gr qpath1 qpath2)
+      else if (not $ checkGuards qpath1 qpath2)
       then error "Name Clash!"         
       else createDiamond qpath1 qpath2 
    
-upsideTriangle :: GView -> GView -> GView -> UTriangle
-upsideTriangle v1 v2 diag =
-  if (target v1 == target v2) && (target v2 == target diag) 
-  then UTriangle v1 v2 diag 
-  else error "Views have different targets"
-
 -- Precondition: Called after checkGuards
-createDiamond :: QPath -> QPath -> UTriangle
+createDiamond :: QPath -> QPath -> PushOut
 createDiamond left right =
  let commonSrc = qpathSource left
-     lThry = applyCompositeMapping (qpathTarget left)  (path left)  (mapp left)
-     rThry = applyCompositeMapping (qpathTarget right) (path right) (mapp right)
-     srcMapped = applyCompositeMapping commonSrc (path left) (mapp left)
+     lThry = applyCompositeRename (qpathTarget left)  (path left)  (ren left)
+     rThry = applyCompositeRename (qpathTarget right) (path right) (ren right)
+     srcMapped = applyCompositeRename commonSrc (path left) (ren left)
      newThry =
        GTheory (ParamDecl $ disjointUnion3 (getParams $ params srcMapped) (getParams $ params lThry) (getParams $ params rThry))
                (Fields    $ disjointUnion3 (getFields $ fields srcMapped) (getFields $ fields lThry) (getFields $ fields rThry))
-     allMaps qp = composeMaps $ (map (\(GView _ _ m) -> m) $ NE.toList $ path qp) ++ [mapp qp]
-     lView = GView (qpathTarget left)  newThry $ injectiveMapping (allMaps left) (qpathTarget left)
-     rView = GView (qpathTarget right) newThry $ injectiveMapping (allMaps right) (qpathTarget right) 
-     diag  = GView commonSrc newThry $ injectiveMapping (allMaps left) commonSrc   
-  in upsideTriangle lView rView diag
-
-{-
-injectiveMapping :: Mapping -> GTheory -> Mapping
-
-composeMaps :: [Mapping] -> Mapping
-composeMaps mapsList =
-  foldr composeTwoMaps Map.empty mapsList
-
-mapAsFunc :: Mapping -> RenameFunc 
-mapAsFunc m x =
-  case Map.lookup x m of
-    Nothing  -> x
-    Just val -> val
--} 
+     allMaps qp = composeMaps $ (map (\(GView _ _ m) -> m) $ NE.toList $ path qp) ++ [ren qp]
+     lView = GView (qpathTarget left)  newThry $ validateRen (qpathTarget left) (allMaps left)
+     rView = GView (qpathTarget right) newThry $ validateRen (qpathTarget right) (allMaps right)
+     diag  = GView commonSrc newThry $ validateRen commonSrc (allMaps left)
+  in pushout lView rView diag
 
 getPath :: TGraph -> GTheory -> GTheory -> Path 
 getPath graph src trgt =
-  if src == trgt
-  then error $ "source and target theories need to be different: source = " ++ getTheoryName graph src  ++ "; target = " ++ getTheoryName graph trgt
-  else let p =  getPath' (Map.elems $ edges graph) src trgt
-       in if p /= []
-          then NE.fromList $ getPath' (Map.elems $ edges graph) src trgt 
-          else error $ "path from " ++ getTheoryName graph src ++ " to " ++ getTheoryName graph trgt ++ " not found"
+  let p =  getPath' (Map.elems $ edges graph) src trgt
+  in if p /= []
+     then NE.fromList p
+     else error "no path found"
 
 getPath' :: [GView] -> GTheory -> GTheory -> [GView] 
 getPath' edgesList src dest =
@@ -156,39 +90,10 @@ getPath' edgesList src dest =
       viewsToDest = [v | v <- edgesList, target v == dest]
       found = if answer /= [] then [[head answer]]
               else [(getPath' edgesList src (source v)) ++ [v] | v <- viewsToDest]
-      p = List.filter (\ls -> pathSource (NE.fromList ls) == src) found             
+      p = List.filter (\ls -> (source $ NE.head (NE.fromList ls)) == src) found             
    in if p == []
       then [] 
       else List.head p 
-
-getTheoryName :: TGraph -> GTheory -> Name_
-getTheoryName graph thry =
-  let theories = Map.toList $ nodes graph
-      targets = [k | (k,a) <- theories, a == thry]      
-   in if length targets == 1
-      then head targets
-      else if length targets == 0
-      then error $ "Theory Not found" ++ show theories 
-      else error $ "Multiple theories with the same name : " ++ (show targets) 
-
-getViewName :: TGraph -> GView -> Name_
-getViewName graph view =
-  let ed = Map.toList $ edges graph
-      targets = [k | (k,a) <- ed, a == view]      
-   in if length targets == 1
-      then head targets
-      else if length targets == 0
-      then error "View Not found"
-      else error "Multiple Views with the same name"           
-
-           
-                               
-{- --------------------------------------------------------------- -}
-liftMapping :: Mapping -> GTheory -> GView
-liftMapping namesMap srcThry =
-  GView srcThry (applyMapping srcThry namesMap)
-        (injectiveMapping namesMap srcThry)
-        
 
 {- ------------------------ Utils --------------------------------- -}
 
@@ -199,50 +104,38 @@ lookupName name graph =
     Just t  -> t
 
 qpathSource :: QPath -> GTheory
-qpathSource qp = pathSource $ path qp
+qpathSource = source . NE.head . path
 
 qpathTarget :: QPath -> GTheory
-qpathTarget qp = pathTarget $ path qp 
+qpathTarget = target . NE.last . path
 
-pathSource :: Path -> GTheory
-pathSource p = source $ NE.head p
+renameThy :: GTheory -> Rename -> GTheory
+renameThy thry m =
+  GTheory (gmap (mapAsFunc m) (params thry)) 
+          (gmap (mapAsFunc m) (fields thry))
 
-pathTarget :: Path -> GTheory
-pathTarget p = target $ NE.last p 
-
-constrsNames :: [Constr] -> [Name_]
-constrsNames constrs = map (\(Constr (Name (_, n)) _) -> n) constrs 
-
-applyMapping :: GTheory -> Mapping -> GTheory
-applyMapping thry m =
-  GTheory (Generics.everywhere (Generics.mkT $ mapAsFunc m) (params thry)) 
-          (Generics.everywhere (Generics.mkT $ mapAsFunc m) (fields thry))
-
-applyCompositeMapping :: GTheory -> Path -> Mapping -> GTheory
-applyCompositeMapping thry pth mappings =
-  applyMapping thry $
-     composeMaps $ (map (\(GView _ _ m) -> m) $ NE.toList $ pth) ++ [mappings]
+applyCompositeRename :: GTheory -> Path -> Rename -> GTheory
+applyCompositeRename thry pth rena =
+  renameThy thry $
+     composeMaps $ (map (\(GView _ _ m) -> m) $ NE.toList $ pth) ++ [rena]
      
-noNameConflict :: [Name_] -> [Name_] -> Bool
-noNameConflict frst scnd = List.intersect frst scnd == []
-
 -- allUnique snds --> no two symbols mapped to the same name
 -- allUnique fsts --> no symbol mapped to two different names
 -- noConflist --> The new names do not occur in the theory
-validMapping :: Mapping -> GTheory -> Bool
-validMapping namesMap thry =
+validRename :: Rename -> GTheory -> Bool
+validRename namesMap thry =
   let syms = symbols thry 
-      relevantMaps = [(k,a) | (k,a) <- Map.toList namesMap, (elem k syms), k/=a]
-      noConflict = noNameConflict (map snd relevantMaps) (syms) 
+      relevantMaps = [(k,a) | (k,a) <- Map.toList namesMap, k `elem` syms, k/=a]
+      noConflict = List.intersect (map snd relevantMaps) syms == []
       allUnique xs = List.nub xs == xs 
    in allUnique (map fst relevantMaps) && allUnique (map snd relevantMaps) && noConflict
 
 -- turns a rename list into an injective mapping over the symbols of the source theory. 
-injectiveMapping :: Mapping -> GTheory -> Mapping
-injectiveMapping m srcThry =
-  if validMapping m srcThry
+validateRen :: GTheory -> Rename -> Rename
+validateRen srcThry m =
+  if validRename m srcThry
   then Map.fromList $ List.map (\x -> (x, mapAsFunc m x)) $ symbols srcThry
-  else error $ "cannot apply mapping " ++ (show (Map.toList m)) ++ " to theory with symbols " ++ show (symbols srcThry) 
+  else error $ "cannot apply rename " ++ (show (Map.toList m)) ++ " to theory with symbols " ++ show (symbols srcThry) 
 
 disjointUnion3 :: Eq a => [a] -> [a] -> [a] ->  [a]
 disjointUnion3 l1 l2 l3 = l1 ++ (l2 List.\\ l1) ++ (l3 List.\\ l1)
@@ -251,58 +144,44 @@ disjointUnion3 l1 l2 l3 = l1 ++ (l2 List.\\ l1) ++ (l3 List.\\ l1)
 {- -------- Composing Maps ----------- -}
 
 -- The list representation of Maps
-composeTwoMaps :: Mapping -> Mapping -> Mapping
-composeTwoMaps m1 m2 = Map.fromList $ composeTwoMaps' (Map.toList m1) m2 
+-- The algorithm is weird because empty maps are identity maps
+composeTwoMaps :: Rename -> Rename -> Rename
+composeTwoMaps m1 m2 = 
+  let k1 = Map.keys m1
+      k2 = Map.keys m2
+      -- all the things only renamed in m2
+      k3 = k2 List.\\ k1
+      updateFrom m k m' = maybe m' (\v -> Map.insert k v m') (Map.lookup k m)
+      -- initialize from the keys k3 in m2
+      m3 = foldr (updateFrom m2) Map.empty k3 in
+  -- and then insert all that is in m1, looking up in m2 and defaulting
+  Map.foldrWithKey (\k a m -> Map.insert k (Map.findWithDefault a k m2) m) m3 m1
 
-composeTwoMaps' :: [(Name_ ,Name_)] -> Mapping -> [(Name_,Name_)]
-composeTwoMaps' [] m = Map.toList m 
-composeTwoMaps' ((x,y):ls) m =
-  case  Map.lookup y m of
-    Just val -> (x,val) : composeTwoMaps' ls (Map.delete y m)
-    Nothing  -> (x,y)   : composeTwoMaps' ls m 
+composeMaps :: [Rename] -> Rename
+composeMaps = foldr composeTwoMaps Map.empty
 
-composeMaps :: [Mapping] -> Mapping
-composeMaps mapsList =
-  foldr composeTwoMaps Map.empty mapsList
-
-mapAsFunc :: Mapping -> RenameFunc 
-mapAsFunc m x =
-  case Map.lookup x m of
-    Nothing  -> x
-    Just val -> val
+mapAsFunc :: Rename -> RenameFunc 
+mapAsFunc m = \x -> Map.findWithDefault x x m
 
 {- ------------------------------------------------ -} 
-    
+
+getArgs :: Params -> [Arg]
+getArgs NoParams = []
+getArgs (ParamDef _) = [] 
+getArgs (ParamDecl binds) = foldr (\a b -> getBindingArgs a ++ b) [] binds
 
 symbols :: GTheory -> [Name_]
 symbols thry =
   let 
-    getArgs NoParams = []
-    getArgs (ParamDef _) = [] 
-    getArgs (ParamDecl bindsList) = Prelude.foldr (++) [] $ Prelude.map getBindingArgs bindsList 
     argNames   = Generics.everything (++) (Generics.mkQ [] (\(Id (NotQual (Name (_,n)))) -> [n])) (getArgs $ params thry)    
-    fieldNames = Generics.everything (++) (Generics.mkQ [] (\(Constr (Name (_,n)) _) -> [n])) thry
-  in argNames ++ fieldNames     
+    fieldNames = Generics.listify (\(Constr (Name (_, _)) _) -> True) thry
+  in argNames ++ map getConstrName fieldNames     
 
-checkGuards :: TGraph -> QPath -> QPath -> Bool
-checkGuards gr qpath1 qpath2 =
-  let sameSource = (pathSource $ path qpath1) == (pathSource $ path qpath2)
-      -- mapsList views renMap = (mapAsFunc renMap)
-      symsMapped qp = symbols $ applyCompositeMapping (pathSource $ path qp) (path qp) (mapp qp) 
+checkGuards :: QPath -> QPath -> Bool
+checkGuards qpath1 qpath2 =
+  let sameSource = (qpathSource qpath1) == (qpathSource qpath2)
+      symsMapped qp = symbols $ applyCompositeRename (qpathSource qp) (path qp) (ren qp) 
       trgtSyms1 = symsMapped qpath1
       trgtSyms2 = symsMapped qpath2
    in if (sameSource &&
-      trgtSyms1 == trgtSyms2) then True else error $ "Name Clash! between " ++ (show trgtSyms1)
-                                             ++ " and " ++ (show trgtSyms2) ++ " when combining " ++ (getTheoryName gr $ qpathTarget qpath1) ++ " and " ++ (getTheoryName gr $ qpathTarget qpath2) 
-
-noSrcLoc :: (Int,Int)
-noSrcLoc = (0,0) 
-
-parseConstr :: String -> Constr
-parseConstr constr =
-  let trim = List.dropWhileEnd isSpace . List.dropWhile isSpace
-      namTyp = map trim $ splitOn ":" constr
-      get_expr (Left _) = error "invalide declaration"
-      get_expr (Right r) = r
-  in  if length namTyp /= 2 then error "invalid declaration"
-      else Constr (Name (noSrcLoc, head namTyp)) (get_expr $ parseExpr $ last namTyp) 
+      trgtSyms1 == trgtSyms2) then True else error $ "Name Clash! between " ++ (show trgtSyms1) ++ " and " ++ (show trgtSyms2) 

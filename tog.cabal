@@ -35,6 +35,7 @@ library
                      , Tog.Deriving.TermLang
                      , Tog.Deriving.ProductTheory
                      , Tog.Deriving.Signature 
+                     , Tog.Deriving.Types 
                      
   other-modules:       Data.Collect
                      , Tog.Instrumentation.Conf
