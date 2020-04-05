@@ -1,0 +1,32 @@
+module Monoids where
+
+Map plus = {op to +}
+Map zero = {e to 0}
+Map one = {e to 1}
+Map plus-zero = {op to + ; e to 0}
+Map additive = { e to 0 ; op to + }
+
+Theory Empty = {} 
+Carrier = extend Empty {A : Set}
+Pointed = extend Carrier {e : A}
+PointedZero = rename Pointed zero
+PointedOne  = rename Pointed one
+Magma = extend Carrier {op : A -> A -> A}
+AdditiveMagma = rename Magma plus
+PointedMagma = combine Pointed {} Magma {} over Carrier
+LeftUnital = extend PointedMagma { lunit_e : {x : A} -> op e x == x }
+RightUnital = extend PointedMagma { runit_e : {x : A} -> op x e == x }
+Unital = combine LeftUnital {} RightUnital {} over PointedMagma
+Semigroup = extend Magma {associative_op : {x y z : A} -> op (op x y) z == op x (op y z) }
+CommutativeMagma = extend Magma {commutative_op : {x y : A} -> op x y == op y x}
+CommutativeSemigroup = combine CommutativeMagma {} Semigroup {} over Magma
+Monoid = combine Unital {} Semigroup {} over Magma
+CommutativeMonoid = combine Monoid {} CommutativeSemigroup {} over Semigroup
+
+PointedMagma = combine Pointed {} Magma {} over Carrier
+Pointed0Magma = combine PointedZero {} PointedMagma zero over Pointed
+PointedPlusMagma = combine AdditiveMagma {} PointedMagma plus over Magma
+AdditivePointedMagma = combine Pointed0Magma plus PointedPlusMagma zero over PointedMagma
+AdditiveSemigroup = combine AdditiveMagma {} Semigroup plus over Magma
+AdditiveCommutativeSemigroup = combine AdditiveMagma {} CommutativeSemigroup plus over Magma
+AdditiveMonoid = combine AdditivePointedMagma {} Monoid plus-zero over PointedMagma
