@@ -42,13 +42,10 @@ genProdType =
 prodSortName :: Name -> Name
 prodSortName (Name (_,n)) = mkName $ "Prod" ++ n  
 
---sortConstr ++ prodSort ++ ba2i with replacement 
-
 prodTyp :: Name_ -> Expr
 prodTyp sortName =
   let nameAsArg = Arg $ createId $ sortName
   in App [Arg $ createId "Prod", nameAsArg, nameAsArg]      
-
 
 productSort :: Constr -> Constr
 productSort sortC =
@@ -77,16 +74,4 @@ prodTheoryToDecl pthry@(ProductTheory nm srt fs axs wst) =
   Record (mkName nm)
     (params pthry)
     (RecordDeclDef (mkName "Set") (mkName $ nm ++ "C") 
-      (let flds = drop wst ([srt] ++ fs ++ axs)
-       in if flds == [] then NoFields else Fields flds))
-
-
-{-
-
-[Data (Name ((0,0),"Prod")) (ParamDecl [Bind [Arg (Id (NotQual (Name ((0,0),"A")))),Arg (Id (NotQual (Name ((0,0),"B"))))] (App [Arg (Id (NotQual (Name ((0,0),"Set"))))])]) (DataDecl (Name ((0,0),"Set"))),
-
-Module_ (Module (Name ((0,0),"Carrier")) NoParams (Decl_ [Record (Name ((0,0),"Carrier")) NoParams (RecordDeclDef (Name ((0,0),"Set")) (Name ((0,0),"CarrierC")) (Fields [Constr (Name ((4,25),"A")) (App [Arg (Id (NotQual (Name ((4,29),"Set"))))])]))])),Module_ (Module (Name ((0,0),"Empty")) NoParams (Decl_ [Record (Name ((0,0),"Empty")) NoParams (RecordDeclDef (Name ((0,0),"Set")) (Name ((0,0),"EmptyC")) NoFields)])),Module_ (Module (Name ((0,0),"Magma")) NoParams (Decl_ [Record (Name ((0,0),"Magma")) NoParams (RecordDeclDef (Name ((0,0),"Set")) (Name ((0,0),"MagmaC")) (Fields [Constr (Name ((4,25),"A")) (App [Arg (Id (NotQual (Name ((4,29),"Set"))))]),Constr (Name ((6,25),"op")) (Fun (App [Arg (Id (NotQual (Name ((6,30),"A"))))]) (Fun (App [Arg (Id (NotQual (Name ((6,35),"A"))))]) (App [Arg (Id (NotQual (Name ((6,40),"A"))))])))])),Record (Name ((0,0),"MagmaProd")) NoParams (RecordDeclDef (Name ((0,0),"Set")) (Name ((0,0),"MagmaProdC")) (Fields [Constr (Name ((4,25),"A")) (App [Arg (Id (NotQual (Name ((4,29),"Set"))))]),Constr (Name ((0,0),"ProdA")) (App [Arg (Id (NotQual (Name ((0,0),"Prod")))),Arg (Id (NotQual (Name ((0,0),"A")))),Arg (Id (NotQual (Name ((0,0),"A"))))]),
-Constr (Name ((6,25),"op")) (Fun (App [Arg (Id (NotQual (Name ((0,0),"ProdA"))))]) (Fun (App [Arg (Id (NotQual (Name ((0,0),"ProdA"))))]) (App [Arg (Id (NotQual (Name ((0,0),"ProdA"))))])))]))])),Module_ (Module (Name ((0,0),"Pointed")) NoParams (Decl_ [Record (Name ((0,0),"Pointed")) NoParams (RecordDeclDef (Name ((0,0),"Set")) (Name ((0,0),"PointedC")) (Fields [Constr (Name ((4,25),"A")) (App [Arg (Id (NotQual (Name ((4,29),"Set"))))]),Constr (Name ((5,27),"e")) (App [Arg (Id (NotQual (Name ((5,31),"A"))))])])),Record (Name ((0,0),"PointedProd")) NoParams (RecordDeclDef (Name ((0,0),"Set")) (Name ((0,0),"PointedProdC")) (Fields [Constr (Name ((4,25),"A")) (App [Arg (Id (NotQual (Name ((4,29),"Set"))))]),Constr (Name ((0,0),"ProdA")) (App [Arg (Id (NotQual (Name ((0,0),"Prod")))),Arg (Id (NotQual (Name ((0,0),"A")))),Arg (Id (NotQual (Name ((0,0),"A"))))]),Constr (Name ((5,27),"e")) (App [Arg (Id (NotQual (Name ((0,0),"ProdA"))))])]))]))])
-
-
--} 
+      (mkField $ drop wst (srt : fs ++ axs)))

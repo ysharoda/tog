@@ -77,3 +77,7 @@ createThryInstType :: Name_ -> [Constr] -> Int -> Expr
 createThryInstType thryName thryParams index =
   App $ [Arg $ createId thryName] ++
         map (\constr -> Arg $ createId $ (getConstrName constr) ++ show index) thryParams
+
+mkField :: [Constr] -> Fields
+mkField [] = NoFields 
+mkField xs = Fields xs

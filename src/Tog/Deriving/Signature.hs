@@ -1,37 +1,41 @@
-module Tog.Deriving.Signature where
+module Tog.Deriving.Signature 
+  ( Signature
+  , signature_
+  , sigToDecl
+  ) where
 
 import Data.Generics as Generics(Data,Typeable)
 
 import Tog.Raw.Abs
-import Tog.Deriving.EqTheory 
+import qualified Tog.Deriving.EqTheory as Eq
 import Tog.Deriving.TUtils
 import Tog.Deriving.Types    (gmap, Name_)
 
 data Signature = Signature {
-  sigName :: Name_ ,
-  sigSort :: Constr,
-  sigFuncType :: [Constr],
-  sigWaist :: Int } 
-  deriving (Show,Eq,Generics.Data,Generics.Typeable)
+  name :: Name_ ,
+  sort :: Constr,
+  funcType :: [Constr],
+  waist :: Int } 
+  deriving (Generics.Data,Generics.Typeable)
 
-signature_ :: EqTheory -> Signature
-signature_ thry =
-  let ren (Name (_,x)) = if (x == "Set") then mkName x else mkName $ x++"S"
-      renThry = gmap ren thry 
-  in Signature (thryName renThry++"Sig") (sort renThry) (funcTypes renThry) (waist renThry) 
+ren :: Name -> Name
+ren n = mkName $ if (nam == "Set") then nam else nam ++ "S"
+  where nam = name_ n
+
+signature_ :: Eq.EqTheory -> Signature
+signature_ thry = let t = gmap ren thry in 
+  Signature (Eq.thryName t ++ "Sig") (Eq.sort t) (Eq.funcTypes t) (Eq.waist t) 
 
 params :: Signature -> Params
-params sig = if (sigWaist sig == 0) then NoParams
-  else let pars = take (sigWaist sig) (sigSort sig : sigFuncType sig)
+params sig = if (waist sig == 0) then NoParams
+  else let pars = take (waist sig) (sort sig : funcType sig)
        in ParamDecl $ map fldsToBinding pars 
 
 fldsToBinding :: Constr -> Binding
-fldsToBinding (Constr nm typ) =
-  Bind [Arg $ createId $ name_ nm] typ 
+fldsToBinding (Constr nm typ) = Bind [Arg $ createId $ name_ nm] typ 
 
 sigToDecl :: Signature -> Decl
 sigToDecl sig@(Signature nm srt fts wst) =
   Record (mkName nm) (params sig)
-    (RecordDeclDef (mkName "Set") (mkName $ nm ++ "SigC")
-      (let flds = drop wst (srt : fts)
-       in if flds == [] then NoFields else Fields flds)) 
+    (RecordDeclDef setType (mkName $ nm ++ "SigC")
+      (mkField $ drop wst (srt : fts)))

@@ -35,7 +35,7 @@ homThryToDecl :: HomThry -> Decl
 homThryToDecl (HomThry name hargs eargs func axioms) =
   Record (mkName name)
    (mkParams $ hargs ++ eargs)
-   (RecordDeclDef setType (mkConstructor name) (mkFields $ func : axioms))      
+   (RecordDeclDef setType (mkConstructor name) (mkField $ func : axioms))
 
 {- ----------- Helper Functions --------------- -}
 
@@ -43,10 +43,6 @@ mkParams :: [Binding] -> Params
 mkParams [] = NoParams
 mkParams ls = ParamDecl ls    
 
-mkFields :: [Constr] -> Fields
-mkFields [] = NoFields
-mkFields ls = Fields ls    
-   
 paramToConstr :: Abs.Params -> [Constr] 
 paramToConstr NoParams = []
 paramToConstr (ParamDecl binds) = concatMap bindingToConstr binds
@@ -56,7 +52,7 @@ bindingToConstr :: Abs.Binding -> [Constr]
 bindingToConstr bind =
   let names = concatMap getArgName $ getBindingArgs bind
       typ = getBindingExpr bind
-  in map (\n -> Constr (Name (noSrcLoc,n)) typ) names  
+  in map (\n -> Constr (mkName n) typ) names  
 
 getRecordConstrs :: Abs.RecordBody -> [Constr]
 getRecordConstrs (RecordDef _ fields) = getFieldConstrs fields 
