@@ -45,9 +45,9 @@ genHomFunc isQualified sortName inst1Name inst2Name =
 
 genPresAxioms :: Eq.EqTheory -> [Constr]
 genPresAxioms eqthry = 
-  let decls = Eq.funcTypes eqthry
-      args = take ((Eq.waist eqthry) - 1) decls
-      flds = drop ((Eq.waist eqthry) - 1) decls  
+  let parms = Eq.waist eqthry - 1
+      decls = Eq.funcTypes eqthry
+      (args, flds) = splitAt parms decls
   in (map (oneAxiom (Eq.thryName eqthry) True) $ args)
   ++  (map (oneAxiom (Eq.thryName eqthry) False) $ flds)
   
