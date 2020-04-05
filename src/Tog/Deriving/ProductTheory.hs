@@ -1,9 +1,12 @@
 module Tog.Deriving.ProductTheory where
 
+import           Control.Lens ((^.))
+
 import           Tog.Raw.Abs
 import           Tog.Deriving.TUtils
 import           Tog.Deriving.Types (gmap, Name_)
 import qualified Tog.Deriving.EqTheory as Eq
+import           Tog.Deriving.Lenses   (name)
 
 data Product = Product Constr Constr
 
@@ -39,7 +42,7 @@ prodType =
   (DataDeclDef (mkName "Set") [])  
 
 prodSortName :: Name -> Name
-prodSortName n = mkName $ "Prod" ++ name_ n  
+prodSortName n = mkName $ "Prod" ++ n^.name
 
 prodTyp :: Name_ -> Expr
 prodTyp sortName =
@@ -63,7 +66,7 @@ params pt = if (waist pt == 0) then NoParams
        in ParamDecl $ map fldsToBinding pars     
 
 fldsToBinding :: Constr -> Binding
-fldsToBinding (Constr nm typ) = Bind [mkArg $ name_ nm] typ 
+fldsToBinding (Constr nm typ) = Bind [mkArg $ nm^.name] typ 
 
 prodTheoryToDecl :: ProductTheory -> Decl
 prodTheoryToDecl pthry@(ProductTheory nm srt fs axs wst) =

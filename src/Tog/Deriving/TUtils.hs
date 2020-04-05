@@ -1,6 +1,5 @@
 module Tog.Deriving.TUtils
   ( getConstrName
-  , name_
   , mkName
   , setType
   , mkField
@@ -16,16 +15,15 @@ module Tog.Deriving.TUtils
   ) where
 
 import qualified Data.Generics as Generics
+import           Control.Lens ((^.))
 
 import           Tog.Raw.Abs
 import           Tog.DerivingInsts()
 import           Tog.Deriving.Types (Name_)
+import           Tog.Deriving.Lenses (name)
 
 createId :: String -> Expr
 createId = Id . NotQual . mkName
-
-name_ :: Name -> Name_
-name_ (Name (_,n)) = n 
 
 mkName :: Name_ -> Name
 mkName str = Name ((0,0),str) 
@@ -37,7 +35,7 @@ setType :: Name
 setType = mkName "Set"
 
 getConstrName :: Constr -> Name_
-getConstrName (Constr n _) = name_ n 
+getConstrName (Constr n _) = n ^. name
 
 getArgName :: Arg -> [Name_]
 getArgName (Arg (Id (NotQual (Name (_,n))))) = [n]

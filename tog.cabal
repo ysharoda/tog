@@ -36,6 +36,7 @@ library
                      , Tog.Deriving.ProductTheory
                      , Tog.Deriving.Signature 
                      , Tog.Deriving.Types 
+                     , Tog.Deriving.Lenses 
                      , Tog.Deriving.Debug
                      
   other-modules:       Data.Collect

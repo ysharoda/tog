@@ -1,9 +1,12 @@
 module Tog.Deriving.Hom where
 
+import           Control.Lens ((^.))
+
 import           Tog.Raw.Abs 
 import           Tog.Deriving.TUtils 
 import           Tog.Deriving.Types (Name_)
 import qualified Tog.Deriving.EqTheory as Eq
+import           Tog.Deriving.Lenses   (name)
 
 type HiddenBinds = [Binding]
 type ExplicitBinds = [Binding]
@@ -26,8 +29,8 @@ mkArg' nam n = mkArg $ shortName nam n
 {- --------- The Parameters of the hom record ----------------- -} 
 
 genInstParams :: ([Arg] -> Expr -> Binding) -> Constr -> Binding
-genInstParams bind (Constr name typ) =
-  let n = name_ name in bind [mkArg' n 1, mkArg' n 2] typ
+genInstParams bind (Constr nm typ) =
+  let n = nm^.name in bind [mkArg' n 1, mkArg' n 2] typ
 
 createThryInsts :: Eq.EqTheory -> [Binding]
 createThryInsts t =
@@ -56,8 +59,8 @@ genPresAxioms eqthry =
   
 -- e : A 
 oneAxiom :: Name_ -> Bool -> FuncType -> Axiom 
-oneAxiom thryName isParam c@(Constr name typ) =
-  Constr (mkName $ "pres-" ++ name_ name)
+oneAxiom thryName isParam c@(Constr nm typ) =
+  Constr (mkName $ "pres-" ++ nm^.name)
    (Pi (Tel $ genBinding thryName isParam typ) (genEq thryName c))       
 
 genBinding :: Name_ -> Bool -> Expr -> [Binding]
@@ -87,9 +90,9 @@ genHomFuncApp build constr@(Constr _ expr) =
  in App $ homFuc ++ funcApp 
 
 genHomFuncArg :: Constr -> Name_ -> [Arg]
-genHomFuncArg (Constr name expr) instName =
+genHomFuncArg (Constr nm expr) instName =
   -- qualifying by the instance name  
-  let funcName = qualDecl (name_ name) instName
+  let funcName = qualDecl (nm^.name) instName
       vars  = map mkArg $ genVars $ exprArity expr
    in case expr of
        Id qname -> [Arg $ Id qname] 
@@ -107,15 +110,12 @@ genRHS build constr@(Constr _ expr) =
   in App $ [Arg $ build constr] ++ args 
 
 mkDecl :: Name_ -> Constr -> Expr
--- mkDecl True  _ c = notQualDecl $ getConstrName c
 mkDecl n c = qualDecl (getConstrName c) n
 
 genEq :: Name_ -> Constr -> Expr
 genEq n constr =
-  let n1 = shortName n 1 
-      n2 = shortName n 2
-  in  Eq (genLHS (mkDecl n1) constr)
-         (genRHS (mkDecl n2) constr) 
+  Eq (genLHS (mkDecl $ shortName n 1) constr)
+     (genRHS (mkDecl $ shortName n 2) constr) 
 
 {- ------------ The Hom Record -------------------- -}
 

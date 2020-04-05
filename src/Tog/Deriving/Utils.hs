@@ -10,8 +10,6 @@ module Tog.Deriving.Utils
   , getExpr
   ) where
 
-import Control.Lens
-
 import Tog.Raw.Abs 
 
 isSort :: Expr -> Bool
@@ -67,20 +65,9 @@ checkParam _ _ = NoParams
 {- ---------------------- Getters ----------------------------- -} 
 {- ------------------------------------------------------------ -} 
 
-nameLens :: Lens' Name String
-nameLens = lens (\(Name (_,s)) -> s) (\(Name x) s -> Name (fst x, s))
-
-makePrisms ''QName  
-makePrisms ''Arg
-makePrisms ''Binding
-makePrisms ''Expr
-
-getName :: Name -> String 
-getName n = n ^. nameLens
-
-getQname :: QName -> String 
-getQname (NotQual n) = getName n
-getQname (Qual q n)  = getQname q ++ getName n
+-- makePrisms ''Arg
+-- makePrisms ''Binding
+-- makePrisms ''Expr
 
 getParams :: Params -> [Binding]
 getParams (ParamDecl bs) = bs

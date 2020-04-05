@@ -5,14 +5,16 @@ module Tog.Deriving.Signature
   ) where
 
 import Data.Generics as Generics(Data,Typeable)
+import           Control.Lens ((^.))
 
 import Tog.Raw.Abs
 import qualified Tog.Deriving.EqTheory as Eq
 import Tog.Deriving.TUtils
 import Tog.Deriving.Types    (gmap, Name_)
+import Tog.Deriving.Lenses   (name)
 
 data Signature = Signature {
-  name :: Name_ ,
+  sname :: Name_ ,
   sort :: Constr,
   funcType :: [Constr],
   waist :: Int } 
@@ -20,7 +22,7 @@ data Signature = Signature {
 
 ren :: Name -> Name
 ren n = mkName $ if (nam == "Set") then nam else nam ++ "S"
-  where nam = name_ n
+  where nam = n^.name
 
 signature_ :: Eq.EqTheory -> Signature
 signature_ thry = let t = gmap ren thry in 
@@ -32,10 +34,10 @@ params sig = if (waist sig == 0) then NoParams
        in ParamDecl $ map fldsToBinding pars 
 
 fldsToBinding :: Constr -> Binding
-fldsToBinding (Constr nm typ) = Bind [mkArg $ name_ nm] typ 
+fldsToBinding (Constr nm typ) = Bind [mkArg $ nm^.name] typ 
 
 sigToDecl :: Signature -> Decl
 sigToDecl sig@(Signature nm srt fts wst) =
-  Record (mkName $ name sig) (params sig)
+  Record (mkName $ sname sig) (params sig)
     (RecordDeclDef setType (mkName $ nm ++ "SigC")
       (mkField $ drop wst (srt : fts)))

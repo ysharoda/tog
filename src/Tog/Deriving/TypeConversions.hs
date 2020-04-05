@@ -1,7 +1,10 @@
 module Tog.Deriving.TypeConversions where
 
+import           Control.Lens ((^.))
+
 import qualified Tog.Deriving.EqTheory as Eq
 import           Tog.Deriving.Hom 
+import           Tog.Deriving.Lenses   (name)
 import           Tog.Deriving.TUtils 
 import           Tog.Deriving.Utils 
 import           Tog.Raw.Abs           as Abs
@@ -9,8 +12,8 @@ import           Tog.Raw.Abs           as Abs
 data TRecord = TRecord Name Params RecordBody deriving (Show,Eq) 
 
 recordToEqTheory :: TRecord -> Eq.EqTheory
-recordToEqTheory record@(TRecord name params _) =
-  Eq.EqTheory (name_ name) 
+recordToEqTheory record@(TRecord nm params _) =
+  Eq.EqTheory (nm^.name) 
    (getRecordSort record)
    (getRecordComps isFunc record)
    (getRecordComps isAxiom record)
@@ -32,10 +35,10 @@ getRecordComps p (TRecord _ params body) =
  in (paramToConstr par) ++ con
 
 homThryToDecl :: HomThry -> Decl
-homThryToDecl (HomThry name hargs eargs func axioms) =
-  Record (mkName name)
+homThryToDecl (HomThry nm hargs eargs func axioms) =
+  Record (mkName nm)
    (mkParams $ hargs ++ eargs)
-   (RecordDeclDef setType (mkConstructor name) (mkField $ func : axioms))
+   (RecordDeclDef setType (mkConstructor nm) (mkField $ func : axioms))
 
 {- ----------- Helper Functions --------------- -}
 
