@@ -48,8 +48,8 @@ genPresAxioms eqthry =
   let parms = Eq.waist eqthry - 1
       decls = Eq.funcTypes eqthry
       (args, flds) = splitAt parms decls
-  in (map (oneAxiom (Eq.thryName eqthry) True) args)
-  ++  (map (oneAxiom (Eq.thryName eqthry) False) flds)
+  in (map (oneAxiom (Eq.thryName eqthry) True) args) ++ 
+     (map (oneAxiom (Eq.thryName eqthry) False) flds)
   
 -- e : A 
 oneAxiom :: Name_ -> Bool -> FuncType -> Axiom 
@@ -62,9 +62,9 @@ genBinding thryName isParam expr =
  let vars =  map (Arg . createId) $ genVars $ exprArity expr
      instName = shortName thryName 1
      argQualName arg =
-        if isParam 
-        then map (\x -> notQualDecl (x ++ "1")) (getArgName arg)
-        else map (\n -> qualDecl n instName) (getArgName arg)
+       if isParam 
+       then map (\x -> notQualDecl (x ++ "1")) (getArgName arg)
+       else map (\n -> qualDecl n instName) (getArgName arg)
      -- A list of types in the expression 
      exprTypes (App arg) = concatMap argQualName arg
      exprTypes (Fun e1 e2) = (exprTypes e1) ++ (exprTypes e2)
@@ -103,16 +103,16 @@ genRHS build constr@(Constr _ expr) =
       args = map (\x -> Arg $ App [Arg $ createId homFuncName, Arg x]) vars
   in App $ [Arg $ build constr] ++ args 
 
-mkDecl :: Bool -> Name_ -> Constr -> Expr
-mkDecl True  _ c = notQualDecl $ getConstrName c
-mkDecl False n c = qualDecl (getConstrName c) n
+mkDecl :: Name_ -> Constr -> Expr
+-- mkDecl True  _ c = notQualDecl $ getConstrName c
+mkDecl n c = qualDecl (getConstrName c) n
 
 genEq :: Name_ -> Constr -> Expr
 genEq n constr =
   let n1 = shortName n 1 
       n2 = shortName n 2
-  in  Eq (genLHS (mkDecl True  n1) constr)
-         (genRHS (mkDecl False n2) constr) 
+  in  Eq (genLHS (mkDecl n1) constr)
+         (genRHS (mkDecl n2) constr) 
 
 {- ------------ The Hom Record -------------------- -}
 
@@ -128,5 +128,5 @@ homomorphism eqThry =
       (Eq.thryName eqThry ++ "Hom")
       (map (genInstParams Bind) (Eq.args eqThry))
       instances 
-      (genHomFunc (length (Eq.args eqThry) == 0) (getConstrName $ Eq.sort eqThry) instName1 instName2)
+      (genHomFunc (length (Eq.args eqThry) == 0) (getConstrName $ Eq.sort eqThry) instName1 instName2) 
       (genPresAxioms eqThry) 

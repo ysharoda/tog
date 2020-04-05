@@ -44,7 +44,7 @@ getBindingArgNames (HBind args e) =
 -- for decl e of monoid instance M1, the output is (e M1) 
 qualDecl :: Name_ -> Name_ -> Expr
 qualDecl declName instName =
-  App [Arg (createId $ declName), Arg (createId instName)]
+  App [Arg (createId declName), Arg (createId instName)]
 
 notQualDecl :: Name_ -> Expr 
 notQualDecl declName =
