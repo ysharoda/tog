@@ -51,9 +51,8 @@ notQualDecl declName =
   App [Arg (createId $ declName)]
 
 -- For Name Monoid and number 1, the output is M1 
-genCharName :: Name_ -> Int -> Name_
-genCharName declName num =
-  (take 1 declName) ++ show num
+shortName :: Name_ -> Int -> Name_
+shortName declName num = take 1 declName ++ show num
 
 createName :: Name_ -> Name
 createName str = Name (noSrcLoc,str) 
