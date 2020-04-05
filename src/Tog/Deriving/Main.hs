@@ -11,6 +11,12 @@ import           Tog.Deriving.TypeConversions
 
 import Tog.Parse
 
+processDefs :: [Language] -> Module
+processDefs = processModule . defsToModule
+
+defsToModule :: [Language] -> Module
+defsToModule = createModules . graphNodes . computeGraph
+
 processModule :: Module -> Module
 processModule (Module n p (Decl_ decls)) =
    Module n p $ Decl_ $ genProdType : map genEverything decls   

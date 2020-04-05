@@ -227,8 +227,7 @@ import           Tog.Abstract
 import qualified Tog.PrettyPrint          as PP
 import           Tog.PrettyPrint          (render, Pretty(..), (<+>), ($$), (//>))
 
-import           Tog.Deriving.TGraphTest  (computeGraph, createModules, graphNodes)
-import           Tog.Deriving.Main        (processModule)
+import           Tog.Deriving.Main        (processDefs)
 
 #include "impossible.h"
 
@@ -515,8 +514,7 @@ scopeCheckModule (C.Module (C.Name ((l, c), s)) pars (C.Decl_ ds)) =
   where
     q = QName (Name (SrcLoc l c) s) []
 scopeCheckModule (C.Module _ _ (C.Lang_ defs)) =
-  let thrs = createModules $ graphNodes $ computeGraph defs
-  in scopeCheckModule $ processModule thrs
+  scopeCheckModule $ processDefs defs
 
 {-
 test file = do 
