@@ -17,20 +17,23 @@ data HomThry = HomThry {
   getHomFunc       :: Constr,
   getPresAxioms    :: [Constr] }
       
-mkArg :: Name_ -> Int -> Arg
-mkArg nam k = Arg $ createId $ shortName nam k
+homFuncName :: String 
+homFuncName = "hom"
+
+mkArg' :: Name_ -> Int -> Arg
+mkArg' nam n = mkArg $ shortName nam n
 
 {- --------- The Parameters of the hom record ----------------- -} 
 
 genInstParams :: ([Arg] -> Expr -> Binding) -> Constr -> Binding
 genInstParams bind (Constr name typ) =
-  let n = name_ name in bind [mkArg n 1, mkArg n 2] typ
+  let n = name_ name in bind [mkArg' n 1, mkArg' n 2] typ
 
 createThryInsts :: Eq.EqTheory -> [Binding]
 createThryInsts t =
   let nam = Eq.thryName t in
-  [Bind [mkArg nam 1] (createThryInstType nam (Eq.args t) 1) ,
-   Bind [mkArg nam 2] (createThryInstType nam (Eq.args t) 2) ]
+  [Bind [mkArg' nam 1] (createThryInstType nam (Eq.args t) 1) ,
+   Bind [mkArg' nam 2] (createThryInstType nam (Eq.args t) 2) ]
 
 {- ---------------- The  Hom Function ------------------ -}
 
@@ -59,7 +62,7 @@ oneAxiom thryName isParam c@(Constr name typ) =
 
 genBinding :: Name_ -> Bool -> Expr -> [Binding]
 genBinding thryName isParam expr =
- let vars =  map (Arg . createId) $ genVars $ exprArity expr
+ let vars =  map mkArg $ genVars $ exprArity expr
      instName = shortName thryName 1
      argQualName arg =
        if isParam 
@@ -75,23 +78,23 @@ genHomFuncApp :: (Constr -> Expr) -> Constr -> Expr
 genHomFuncApp build constr@(Constr _ expr) =
  let (App homFuc)   = notQualDecl homFuncName 
      (App funcName) = build constr
-     vars  = map createId $ genVars $ exprArity expr
+     vars  = map mkArg $ genVars $ exprArity expr
      funcApp = case expr of
        Id qname -> [Arg $ Id qname] 
-       App _    -> map Arg $ (App funcName):vars
-       Fun _ _  -> [Arg $ App $ map Arg $ (App funcName):vars]
+       App _    -> (Arg $ App funcName):vars
+       Fun _ _  -> [Arg $ App $ (Arg $ App funcName):vars]
        x -> error $ "Invalid expr " ++ show x
  in App $ homFuc ++ funcApp 
 
 genHomFuncArg :: Constr -> Name_ -> [Arg]
 genHomFuncArg (Constr name expr) instName =
   -- qualifying by the instance name  
-  let funcName = App [Arg $ createId (name_ name), Arg $ createId instName] 
-      vars  = map createId $ genVars $ exprArity expr
+  let funcName = qualDecl (name_ name) instName
+      vars  = map mkArg $ genVars $ exprArity expr
    in case expr of
        Id qname -> [Arg $ Id qname] 
-       App _    -> map Arg (funcName:vars)
-       Fun _ _  -> [Arg $ App $ map Arg (funcName:vars)]
+       App _    -> Arg funcName:vars
+       Fun _ _  -> [Arg $ App $ (Arg funcName:vars)]
        x -> error $ "Invalid expr " ++ show x
 
 genLHS ::  (Constr -> Expr) -> Constr -> Expr
@@ -99,8 +102,8 @@ genLHS = genHomFuncApp
 
 genRHS ::  (Constr -> Expr) -> Constr -> Expr
 genRHS build constr@(Constr _ expr) =
-  let vars = map createId $ genVars $ exprArity expr
-      args = map (\x -> Arg $ App [Arg $ createId homFuncName, Arg x]) vars
+  let vars = map mkArg $ genVars $ exprArity expr
+      args = map (\x -> Arg $ App [mkArg homFuncName, x]) vars
   in App $ [Arg $ build constr] ++ args 
 
 mkDecl :: Name_ -> Constr -> Expr

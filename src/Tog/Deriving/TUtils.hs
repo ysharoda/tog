@@ -3,17 +3,16 @@ module Tog.Deriving.TUtils
   , name_
   , mkName
   , setType
-  , createId
   , mkField
   , shortName
   , createThryInstType
-  , homFuncName
   , qualDecl, notQualDecl
   , genVars
   , getArgName
   , exprArity
   , getBindingArgNames
   , mkConstructor
+  , mkArg
   ) where
 
 import qualified Data.Generics as Generics
@@ -21,9 +20,6 @@ import qualified Data.Generics as Generics
 import           Tog.Raw.Abs
 import           Tog.DerivingInsts()
 import           Tog.Deriving.Types (Name_)
-
-homFuncName :: String 
-homFuncName = "hom"
 
 createId :: String -> Expr
 createId = Id . NotQual . mkName
@@ -53,14 +49,14 @@ getBindingArgNames (Bind args _) =
 getBindingArgNames (HBind args e) =
   getBindingArgNames (Bind args e)
 
--- for decl e of monoid instance M1, the output is (e M1) 
 qualDecl :: Name_ -> Name_ -> Expr
-qualDecl declName instName =
-  App [Arg (createId declName), Arg (createId instName)]
+qualDecl declName instName = App [mkArg declName, mkArg instName]
 
 notQualDecl :: Name_ -> Expr 
-notQualDecl declName =
-  App [Arg (createId $ declName)]
+notQualDecl declName = App [mkArg declName]
+
+mkArg :: Name_ -> Arg
+mkArg = Arg . createId
 
 -- For Name Monoid and number 1, the output is M1 
 shortName :: Name_ -> Int -> Name_
@@ -84,8 +80,8 @@ genVars i = zipWith (++) (take i $ repeat "x") $ map show [1..i]
 -- creates something like (M1 : Monoid A1)  
 createThryInstType :: Name_ -> [Constr] -> Int -> Expr 
 createThryInstType thryName thryParams index =
-  App $ [Arg $ createId thryName] ++
-        map (\constr -> Arg $ createId $ (getConstrName constr) ++ show index) thryParams
+  App $ [mkArg thryName] ++
+        map (\constr -> mkArg $ (getConstrName constr) ++ show index) thryParams
 
 mkField :: [Constr] -> Fields
 mkField [] = NoFields 

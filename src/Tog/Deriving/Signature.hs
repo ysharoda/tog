@@ -32,7 +32,7 @@ params sig = if (waist sig == 0) then NoParams
        in ParamDecl $ map fldsToBinding pars 
 
 fldsToBinding :: Constr -> Binding
-fldsToBinding (Constr nm typ) = Bind [Arg $ createId $ name_ nm] typ 
+fldsToBinding (Constr nm typ) = Bind [mkArg $ name_ nm] typ 
 
 sigToDecl :: Signature -> Decl
 sigToDecl sig@(Signature nm srt fts wst) =

@@ -35,8 +35,7 @@ prodThryName thry = Eq.thryName thry ++ "Prod"
 prodType :: Decl 
 prodType =
   Data (mkName "Prod")
-  (ParamDecl [Bind [Arg $ createId "A", Arg $ createId "B"]
-     $ App [Arg $ createId "Set"]])
+  (ParamDecl [Bind [mkArg "A", mkArg "B"] $ notQualDecl "Set"])
   (DataDeclDef (mkName "Set") [])  
 
 prodSortName :: Name -> Name
@@ -44,13 +43,11 @@ prodSortName n = mkName $ "Prod" ++ name_ n
 
 prodTyp :: Name_ -> Expr
 prodTyp sortName =
-  let nameAsArg = Arg $ createId $ sortName
-  in App [Arg $ createId "Prod", nameAsArg, nameAsArg]      
+  let aSort = mkArg sortName in App [mkArg "Prod", aSort, aSort]      
 
 productSort :: Constr -> Constr
 productSort sortC =
-  let nameAsArg = Arg $ createId $ getConstrName sortC
-      prodtyp   = App [Arg $ createId "Prod", nameAsArg, nameAsArg]      
+  let prodtyp = prodTyp $ getConstrName sortC
   in Constr (prodSortName $ mkName $ getConstrName sortC) prodtyp
 
 productField :: Name_ -> Constr -> Constr
@@ -66,8 +63,7 @@ params pt = if (waist pt == 0) then NoParams
        in ParamDecl $ map fldsToBinding pars     
 
 fldsToBinding :: Constr -> Binding
-fldsToBinding (Constr nm typ) =
-  Bind [Arg $ createId $ name_ nm] typ 
+fldsToBinding (Constr nm typ) = Bind [mkArg $ name_ nm] typ 
 
 prodTheoryToDecl :: ProductTheory -> Decl
 prodTheoryToDecl pthry@(ProductTheory nm srt fs axs wst) =
