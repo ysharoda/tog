@@ -32,8 +32,8 @@ setType = mkName "Set"
 getConstrName :: Constr -> Name_
 getConstrName (Constr n _) = n ^. name
 
-getArgName :: Arg -> [Name_]
-getArgName (Arg (Id (NotQual (Name (_,n))))) = [n]
+getArgName :: Arg -> Name_
+getArgName (Arg (Id (NotQual (Name (_,n))))) = n
 getArgName _ = error "Not an identifier"
 
 qualDecl :: Name_ -> Name_ -> Expr

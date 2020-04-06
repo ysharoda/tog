@@ -57,7 +57,7 @@ paramToConstr (ParamDef _) = []
       
 bindingToConstr :: Abs.Binding -> [Constr]
 bindingToConstr bind =
-  let names = concatMap getArgName $ getBindingArgs bind
+  let names = map getArgName $ getBindingArgs bind
       typ = getBindingExpr bind
   in map (\n -> Constr (mkName n) typ) names  
 

@@ -73,10 +73,10 @@ genBinding thryName isParam expr =
      instName = shortName thryName 1
      argQualName arg =
        if isParam 
-       then map (\x -> notQualDecl (x ++ "1")) (getArgName arg)
-       else map (\n -> qualDecl n instName) (getArgName arg)
+       then notQualDecl (getArgName arg ++ "1")
+       else qualDecl (getArgName arg) instName
      -- A list of types in the expression 
-     exprTypes (App arg) = concatMap argQualName arg
+     exprTypes (App arg) = map argQualName arg
      exprTypes (Fun e1 e2) = (exprTypes e1) ++ (exprTypes e2)
      exprTypes _ = error "invalid expression"
  in zipWith (\v ty -> HBind [v] ty) vars (exprTypes expr)
