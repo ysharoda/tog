@@ -4,11 +4,11 @@ module Tog.Deriving.TypeConversions
   , recordToEqTheory
   ) where
 
-import           Control.Lens ((^.))
+import           Control.Lens ((^.), view)
 
 import qualified Tog.Deriving.EqTheory as Eq
 import           Tog.Deriving.Hom 
-import           Tog.Deriving.Lenses   (name)
+import           Tog.Deriving.Lenses   (name, cExpr)
 import           Tog.Deriving.TUtils 
 import           Tog.Deriving.Utils 
 import           Tog.Raw.Abs           as Abs
@@ -35,7 +35,7 @@ getRecordSort record =
 getRecordComps :: (Expr -> Bool) -> TRecord -> [Constr]
 getRecordComps p (TRecord _ params body) =
  let par = checkParam p params
-     con = filter (p . getExpr) $ getRecordConstrs body
+     con = filter (p . view cExpr) $ getRecordConstrs body
  in (paramToConstr par) ++ con
 
 homThryToDecl :: HomThry -> Decl

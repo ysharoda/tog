@@ -35,11 +35,12 @@ genInstParams :: ([Arg] -> Expr -> Binding) -> Constr -> Binding
 genInstParams bind (Constr nm typ) =
   let n = nm^.name in bind [mkArg' n 1, mkArg' n 2] typ
 
-createThryInsts :: Eq.EqTheory -> [Binding]
+createThryInsts :: Eq.EqTheory -> ((Binding, Name_), (Binding, Name_))
 createThryInsts t =
-  let nam = Eq.thryName t in
-  [Bind [mkArg' nam 1] (createThryInstType nam (Eq.args t) 1) ,
-   Bind [mkArg' nam 2] (createThryInstType nam (Eq.args t) 2) ]
+  let nam = Eq.thryName t
+      (n1, n2) = (shortName nam 1, shortName nam 2) in
+  ((Bind [mkArg n1] (createThryInstType nam (Eq.args t) 1), n1) ,
+   (Bind [mkArg n2] (createThryInstType nam (Eq.args t) 2), n2) )
 
 {- ---------------- The  Hom Function ------------------ -}
 
@@ -113,15 +114,11 @@ genEq n constr =
 
 homomorphism :: Eq.EqTheory -> HomThry 
 homomorphism eqThry =
-  let -- instances and instNames should both have length exactly 2
-    instances = createThryInsts eqThry
-    (instName1 , instName2)  =
-      let names = concatMap getBindingArgNames instances
-      in if length names == 2 then (head names, last names)
-         else error "Generating Hom: Error while creating recod isntances" 
+  let 
+    ((i1, n1), (i2, n2)) = createThryInsts eqThry
   in HomThry
       (Eq.thryName eqThry ++ "Hom")
       (map (genInstParams Bind) (Eq.args eqThry))
-      instances 
-      (genHomFunc (length (Eq.args eqThry) == 0) (getConstrName $ Eq.sort eqThry) instName1 instName2) 
+      [i1, i2]
+      (genHomFunc (length (Eq.args eqThry) == 0) (getConstrName $ Eq.sort eqThry) n1 n2) 
       (genPresAxioms eqThry) 

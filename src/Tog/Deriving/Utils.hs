@@ -7,7 +7,6 @@ module Tog.Deriving.Utils
   , getBindingExpr
   , isFunc, isAxiom, isSort
   , checkParam
-  , getExpr
   ) where
 
 import Tog.Raw.Abs 
@@ -42,9 +41,6 @@ isAxiom (Fun e e') = isAxiom e && isAxiom e'
 isAxiom (App args@((HArg _):_)) = and $ map (\(HArg a) -> isAxiom a) args
 isAxiom (App args@((Arg  _):_)) = and $ map (\(Arg a)  -> isAxiom a) args
 isAxiom _ = False 
-
-getExpr :: Constr -> Expr
-getExpr (Constr _ e) = e 
 
 getBindingArgs :: Binding -> [Arg]
 getBindingArgs (Bind  args _) = args

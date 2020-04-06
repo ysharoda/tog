@@ -9,12 +9,10 @@ module Tog.Deriving.TUtils
   , genVars
   , getArgName
   , exprArity
-  , getBindingArgNames
   , mkArg
   , fldsToBinding
   ) where
 
-import qualified Data.Generics as Generics
 import           Control.Lens ((^.))
 
 import           Tog.Raw.Abs
@@ -37,12 +35,6 @@ getConstrName (Constr n _) = n ^. name
 getArgName :: Arg -> [Name_]
 getArgName (Arg (Id (NotQual (Name (_,n))))) = [n]
 getArgName _ = error "Not an identifier"
-
-getBindingArgNames :: Binding -> [Name_]
-getBindingArgNames (Bind args _) =
-  Generics.everything (++) (Generics.mkQ [] (\(Id (NotQual (Name (_,n)))) -> [n])) args
-getBindingArgNames (HBind args e) =
-  getBindingArgNames (Bind args e)
 
 qualDecl :: Name_ -> Name_ -> Expr
 qualDecl declName instName = App [mkArg declName, mkArg instName]
