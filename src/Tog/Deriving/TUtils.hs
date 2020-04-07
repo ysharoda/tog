@@ -11,6 +11,7 @@ module Tog.Deriving.TUtils
   , exprArity
   , mkArg
   , fldsToBinding
+  , mkParams
   ) where
 
 import           Control.Lens ((^.))
@@ -62,13 +63,13 @@ exprArity expr =
    in count expr -1
 
 genVars :: Int -> [String] 
-genVars i = zipWith (++) (take i $ repeat "x") $ map show [1..i]
+genVars i = map (\z -> 'x' : show z)  [1..i]
 
 -- creates something like (M1 : Monoid A1)  
 createThryInstType :: Name_ -> [Constr] -> Int -> Expr 
 createThryInstType thryName thryParams index =
-  App $ [mkArg thryName] ++
-        map (\constr -> mkArg $ (getConstrName constr) ++ show index) thryParams
+  App $ mkArg thryName :
+        map (\constr -> mkArg $ getConstrName constr ++ show index) thryParams
 
 mkField :: [Constr] -> Fields
 mkField [] = NoFields 
@@ -76,4 +77,8 @@ mkField xs = Fields xs
 
 fldsToBinding :: Constr -> Binding
 fldsToBinding (Constr nm typ) = Bind [mkArg $ nm^.name] typ 
+
+mkParams :: [Binding] -> Params
+mkParams [] = NoParams
+mkParams ls = ParamDecl ls    
 
