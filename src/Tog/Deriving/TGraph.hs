@@ -23,18 +23,18 @@ type RenameFunc = Name_ -> Name_
 
 {- ------------------- Build the Graph  ----------------- -}
   
-updateGraph ::  TGraph -> Name_ -> Either GView PushOut -> TGraph
-updateGraph graph nm (Left view) =
-  over nodes (Map.insert nm (target view)) $
-  over edges (Map.insert ("To"++nm) view) graph
+updateGraph ::   Name_ -> Either GView PushOut -> TGraph -> TGraph
+updateGraph nm (Left view) =
+  over nodes (Map.insert nm (target view)) .
+  over edges (Map.insert ("To"++nm) view)
 
 -- TODO: find a way to get the name of the source theory. 
-updateGraph graph nm (Right ut) =
-   over nodes (Map.insert nm (target $ uLeft ut)) $
+updateGraph nm (Right ut) =
+   over nodes (Map.insert nm (target $ uLeft ut)) .
    over edges (\e -> foldr (uncurry Map.insert) e 
                         [("To"++nm++"1",uLeft ut),
                          ("To"++nm++"2",uRight ut),
-                         ("To"++nm++"D",diagonal ut)]) graph
+                         ("To"++nm++"D",diagonal ut)])
 
 {- ------------------- Elaborate Into TheoryGraph ---------------- -}
 

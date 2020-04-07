@@ -38,7 +38,7 @@ theory nm cList = over graph (over nodes (Map.insert (nm^.name) newThry))
   where newThry  = GTheory NoParams $ mkField cList
 
 renList :: Name -> Rens -> Graph -> Graph
-renList nm rens gs =
+renList nm rens gs = 
   over renames (Map.insert (nm^.name) (rensToRename gs rens)) gs
 
 getTheory :: Graph -> Name -> GTheory
@@ -51,14 +51,14 @@ modExpr nam mexpr gs =
   case mexpr of
     Extend srcName clist ->
       over graph
-        (\g -> updateGraph g n $ Left $ computeExtend clist (look srcName)) gs
+        (updateGraph n $ Left $ computeExtend clist (look srcName)) gs
     Rename srcName rlist ->   
       over graph
-        (\g -> updateGraph g n $ Left $ computeRename (rensToRename gs rlist) (look srcName)) gs
+        (updateGraph n $ Left $ computeRename (rensToRename gs rlist) (look srcName)) gs
     RenameUsing srcName nm ->
      let mapin = (gs^.renames) Map.! (nm^.name) 
      in over graph
-        (\g -> updateGraph g n $ Left $ computeRename mapin (look srcName))
+        (updateGraph n $ Left $ computeRename mapin (look srcName))
         gs
     CombineOver trgt1 ren1 trgt2 ren2 srcName ->
      let s = look srcName
@@ -68,14 +68,14 @@ modExpr nam mexpr gs =
          qpath1 = QPath p1 $ rensToRename gs ren1
          qpath2 = QPath p2 $ rensToRename gs ren2
      in over graph
-        (\g -> updateGraph g n $ Right $ computeCombine qpath1 qpath2) gs
+        (updateGraph n $ Right $ computeCombine qpath1 qpath2) gs
     Combine trgt1 trgt2 ->
       modExpr nam
         (Abs.CombineOver trgt1 NoRens trgt2 NoRens (mkName "Carrier")) gs
           -- TODO: (computeCommonSource name1 name2)
     Transport nn srcName -> -- Transport amounts to renaming
      over graph
-      (\g -> updateGraph g n $ Left $ computeRename (rensToRename gs nn) $ look srcName)
+      (updateGraph n $ Left $ computeRename (rensToRename gs nn) $ look srcName)
       gs
 
 rensToRename :: Graph -> Rens -> Rename
