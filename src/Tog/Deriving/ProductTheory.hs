@@ -43,11 +43,5 @@ productField origSort constr =
       adjustSort x = x  
   in gmap adjustSort constr
 
-params :: Eq.EqTheory -> Params
-params pt = mkParams $ map fldsToBinding $ Eq.args pt
-
 prodTheoryToDecl :: Eq.EqTheory -> Decl
-prodTheoryToDecl pthry@(Eq.EqTheory nm srt fs axs wst) =
-  Record (mkName nm) (params pthry)
-    (RecordDeclDef setType (mkName $ nm ++ "C")
-      (mkField $ drop wst (srt : fs ++ axs)))
+prodTheoryToDecl = Eq.toDecl (++ "C")
