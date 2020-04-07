@@ -55,9 +55,9 @@ genHomFunc isQualified sortName inst1Name inst2Name =
 
 genPresAxioms :: Eq.EqTheory -> [Constr]
 genPresAxioms eqthry = 
-  let parms = Eq.waist eqthry - 1
-      decls = Eq.funcTypes eqthry
-      (args, flds) = splitAt parms decls
+  let nparms = Eq.waist eqthry - 1
+      decls  = Eq.funcTypes eqthry
+      (args, flds) = splitAt nparms decls
   in (map (oneAxiom (Eq.thryName eqthry) True) args) ++ 
      (map (oneAxiom (Eq.thryName eqthry) False) flds)
   
@@ -68,9 +68,9 @@ oneAxiom thryName isParam c@(Constr nm typ) =
    (Pi (Tel $ genBinding thryName isParam typ) (genEq thryName c))       
 
 genBinding :: Name_ -> Bool -> Expr -> [Binding]
-genBinding thryName isParam expr =
+genBinding n isParam expr =
  let vars =  map mkArg $ genVars $ exprArity expr
-     instName = shortName thryName 1
+     instName = shortName n 1
      argQualName arg =
        if isParam 
        then notQualDecl (getArgName arg ++ "1")
@@ -113,12 +113,13 @@ genEq n constr =
 {- ------------ The Hom Record -------------------- -}
 
 homomorphism :: Eq.EqTheory -> HomThry 
-homomorphism eqThry =
+homomorphism t =
   let 
-    ((i1, n1), (i2, n2)) = createThryInsts eqThry
+    ((i1, n1), (i2, n2)) = createThryInsts t
+    a = Eq.args t
   in HomThry
-      (Eq.thryName eqThry ++ "Hom")
-      (map (genInstParams Bind) (Eq.args eqThry))
+      (Eq.thryName t ++ "Hom")
+      (map (genInstParams Bind) a)
       [i1, i2]
-      (genHomFunc (length (Eq.args eqThry) == 0) (getConstrName $ Eq.sort eqThry) n1 n2) 
-      (genPresAxioms eqThry) 
+      (genHomFunc (length a == 0) (getConstrName $ Eq.sort t) n1 n2) 
+      (genPresAxioms t) 
