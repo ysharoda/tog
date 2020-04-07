@@ -46,10 +46,6 @@ homThryToDecl (HomThry nm hargs eargs fnc axioms) =
 
 {- ----------- Helper Functions --------------- -}
 
-mkParams :: [Binding] -> Params
-mkParams [] = NoParams
-mkParams ls = ParamDecl ls    
-
 paramToConstr :: Abs.Params -> [Constr] 
 paramToConstr NoParams = []
 paramToConstr (ParamDecl binds) = concatMap bindingToConstr binds
