@@ -20,10 +20,10 @@ data Graph = Graph {
 makeLenses ''Graph
 
 graphNodes :: Graph -> Map.Map Name_ GTheory
-graphNodes = nodes . view graph
+graphNodes = view (graph . nodes)
 
 initGraph :: Graph 
-initGraph = Graph (TGraph Map.empty Map.empty) (Map.empty) 
+initGraph = Graph emptyTG (Map.empty) 
 
 computeGraph :: [Abs.Language] ->  Graph 
 computeGraph = foldl add initGraph
@@ -34,9 +34,7 @@ add g (MappingC nm vlist) = renList nm vlist g
 add g (ModExprC nm mexps) = modExpr nm mexps g
 
 theory :: Name -> [Abs.Constr] -> Graph -> Graph
-theory nm cList =
-  over graph
-   (\g -> TGraph (Map.insert (nm^.name) newThry $ nodes g) (edges g))
+theory nm cList = over graph (over nodes (Map.insert (nm^.name) newThry))
   where newThry  = GTheory NoParams $ mkField cList
 
 renList :: Name -> Rens -> Graph -> Graph

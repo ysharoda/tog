@@ -12,6 +12,8 @@ import qualified Data.List          as List
 import qualified Data.Map           as Map
 import qualified Data.List.NonEmpty as NE
 
+import Control.Lens (over, (^.))
+
 import           Tog.Raw.Abs
 import           Tog.Deriving.Utils
 import           Tog.Deriving.TUtils
@@ -23,15 +25,16 @@ type RenameFunc = Name_ -> Name_
   
 updateGraph ::  TGraph -> Name_ -> Either GView PushOut -> TGraph
 updateGraph graph nm (Left view) =
-  TGraph (Map.insert nm (target view) $ nodes graph)
-         (Map.insert ("To"++nm) view  $ edges graph)
+  over nodes (Map.insert nm (target view)) $
+  over edges (Map.insert ("To"++nm) view) graph
+
 -- TODO: find a way to get the name of the source theory. 
 updateGraph graph nm (Right ut) =
-   TGraph (Map.insert nm (target $ uLeft ut) $ nodes graph)
-        $ (Map.fromList [("To"++nm++"1",uLeft ut),
+   over nodes (Map.insert nm (target $ uLeft ut)) $
+   over edges (\e -> foldr (uncurry Map.insert) e 
+                        [("To"++nm++"1",uLeft ut),
                          ("To"++nm++"2",uRight ut),
-                         ("To"++nm++"D",diagonal ut)])
-          `Map.union` (edges graph)
+                         ("To"++nm++"D",diagonal ut)]) graph
 
 {- ------------------- Elaborate Into TheoryGraph ---------------- -}
 
@@ -88,7 +91,7 @@ createDiamond left right =
 
 getPath :: TGraph -> GTheory -> GTheory -> Path 
 getPath graph src trgt =
-  let p =  getPath' (Map.elems $ edges graph) src trgt
+  let p =  getPath' (Map.elems $ graph^.edges) src trgt
   in case p of { [] -> error "no path found" ; _ -> NE.fromList p}
 
 getPath' :: [GView] -> GTheory -> GTheory -> [GView] 
@@ -105,7 +108,7 @@ getPath' edgesList src dest =
 
 lookupName :: Name_ -> TGraph -> GTheory
 lookupName name graph =
-  case (Map.lookup name $ nodes graph) of
+  case (Map.lookup name $ graph^.nodes) of
     Nothing -> error $ name ++ "is not a valid theory name"
     Just t  -> t
 

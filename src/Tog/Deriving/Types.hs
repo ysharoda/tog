@@ -1,3 +1,4 @@
+{-# LANGUAGE TemplateHaskell #-}
 module Tog.Deriving.Types
   ( Name_ , Path
   , Rename
@@ -5,13 +6,15 @@ module Tog.Deriving.Types
   , GTheory(..)
   , GView(..)
   , QPath(..)
-  , TGraph(..)
+  , TGraph, nodes, edges, emptyTG
   , PushOut( uLeft, uRight, diagonal, apex), pushout
   ) where
 
 import qualified Data.Generics      as Generics
 import qualified Data.List.NonEmpty as NE
 import qualified Data.Map           as Map
+
+import Control.Lens (makeLenses)
 
 import           Tog.Raw.Abs
 import           Tog.DerivingInsts ()  -- for instances of Tog AST
@@ -40,9 +43,14 @@ data QPath = QPath { -- Qualified path, i.e. a path with a rename
     ren  :: Rename }
 
 data TGraph = TGraph { -- check if I would rather use only a map of edges
-    nodes :: Map.Map Name_ GTheory,
-    edges :: Map.Map Name_ GView } 
+    _nodes :: Map.Map Name_ GTheory,
+    _edges :: Map.Map Name_ GView } 
   deriving (Generics.Typeable, Generics.Data)
+
+makeLenses ''TGraph
+
+emptyTG :: TGraph
+emptyTG = TGraph Map.empty Map.empty
 
 -- Pushouts
 data PushOut = PushOut { -- of a span
