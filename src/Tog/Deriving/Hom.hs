@@ -16,12 +16,7 @@ type ExplicitBinds = [Binding]
 type FuncType = Constr
 type Axiom = Constr 
 
-data HomThry = HomThry {
-  homName     :: Name_ ,
-  hiddenArgs  :: HiddenBinds,
-  explictArgs :: ExplicitBinds, 
-  func        :: Constr,
-  presAxioms  :: [Constr] }
+data HomThry = HomThry Name_ HiddenBinds ExplicitBinds Constr [Constr]
       
 homFuncName :: String 
 homFuncName = "hom"
