@@ -48,13 +48,14 @@ modExpr :: Name -> Abs.ModExpr -> Graph -> Graph
 modExpr nam mexpr gs =
   let n = nam^.name in
   let look = getTheory gs in
+  let rens = rensToRename gs
   case mexpr of
     Extend srcName clist ->
       over graph
         (updateGraph n $ Left $ computeExtend clist (look srcName)) gs
     Rename srcName rlist ->   
       over graph
-        (updateGraph n $ Left $ computeRename (rensToRename gs rlist) (look srcName)) gs
+        (updateGraph n $ Left $ computeRename (rens rlist) (look srcName)) gs
     RenameUsing srcName nm ->
      let mapin = (gs^.renames) Map.! (nm^.name) 
      in over graph
@@ -65,8 +66,8 @@ modExpr nam mexpr gs =
          gr = gs^.graph
          p1 = getPath gr s $ look trgt1
          p2 = getPath gr s $ look trgt2
-         qpath1 = QPath p1 $ rensToRename gs ren1
-         qpath2 = QPath p2 $ rensToRename gs ren2
+         qpath1 = QPath p1 $ rens ren1
+         qpath2 = QPath p2 $ rens ren2
      in over graph
         (updateGraph n $ Right $ computeCombine qpath1 qpath2) gs
     Combine trgt1 trgt2 ->
@@ -75,7 +76,7 @@ modExpr nam mexpr gs =
           -- TODO: (computeCommonSource name1 name2)
     Transport nn srcName -> -- Transport amounts to renaming
      over graph
-      (updateGraph n $ Left $ computeRename (rensToRename gs nn) $ look srcName)
+      (updateGraph n $ Left $ computeRename (rens nn) $ look srcName)
       gs
 
 rensToRename :: Graph -> Rens -> Rename
