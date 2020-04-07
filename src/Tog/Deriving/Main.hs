@@ -29,7 +29,7 @@ processModule _ = error $ "Unparsed theory expressions exists"
 
 leverageThry :: Eq.EqTheory -> [Decl]
 leverageThry thry =
- let hom = (homThryToDecl . homomorphism) thry
+ let hom = homomorphism thry
      trmlang = termLang thry
      prodthry = (prodTheoryToDecl . productThry) thry
      sigs = (sigToDecl . signature_) thry  

@@ -1,6 +1,5 @@
 module Tog.Deriving.Hom
- ( HomThry (HomThry)
- , homomorphism
+ ( homomorphism
  ) where
 
 import           Control.Lens ((^.))
@@ -11,13 +10,9 @@ import           Tog.Deriving.Types (Name_)
 import qualified Tog.Deriving.EqTheory as Eq
 import           Tog.Deriving.Lenses   (name)
 
-type HiddenBinds = [Binding]
-type ExplicitBinds = [Binding]
 type FuncType = Constr
 type Axiom = Constr 
 
-data HomThry = HomThry Name_ HiddenBinds ExplicitBinds Constr [Constr]
-      
 homFuncName :: String 
 homFuncName = "hom"
 
@@ -26,16 +21,16 @@ mkArg' nam n = mkArg $ shortName nam n
 
 {- --------- The Parameters of the hom record ----------------- -} 
 
-genInstParams :: ([Arg] -> Expr -> Binding) -> Constr -> Binding
-genInstParams bind (Constr nm typ) =
+recordParams :: ([Arg] -> Expr -> Binding) -> Constr -> Binding
+recordParams bind (Constr nm typ) =
   let n = nm^.name in bind [mkArg' n 1, mkArg' n 2] typ
 
 createThryInsts :: Eq.EqTheory -> ((Binding, Name_), (Binding, Name_))
 createThryInsts t =
   let nam = Eq.thryName t
       (n1, n2) = (shortName nam 1, shortName nam 2) in
-  ((Bind [mkArg n1] (createThryInstType nam (Eq.args t) 1), n1) ,
-   (Bind [mkArg n2] (createThryInstType nam (Eq.args t) 2), n2) )
+  ((Bind [mkArg n1] (declTheory nam (Eq.args t) 1), n1) ,
+   (Bind [mkArg n2] (declTheory nam (Eq.args t) 2), n2) )
 
 {- ---------------- The  Hom Function ------------------ -}
 
@@ -76,8 +71,8 @@ genBinding n isParam expr =
      exprTypes _ = error "invalid expression"
  in zipWith (\v ty -> HBind [v] ty) vars (exprTypes expr)
 
-genHomFuncApp :: (Constr -> Expr) -> Constr -> Expr
-genHomFuncApp build constr@(Constr _ expr) =
+genLHS :: (Constr -> Expr) -> Constr -> Expr
+genLHS build constr@(Constr _ expr) =
  let (App homFuc)   = notQualDecl homFuncName 
      (App funcName) = build constr
      vars  = map mkArg $ genVars $ exprArity expr
@@ -87,9 +82,6 @@ genHomFuncApp build constr@(Constr _ expr) =
        Fun _ _  -> [Arg $ App $ (Arg $ App funcName):vars]
        x -> error $ "Invalid expr " ++ show x
  in App $ homFuc ++ funcApp 
-
-genLHS ::  (Constr -> Expr) -> Constr -> Expr
-genLHS = genHomFuncApp
 
 genRHS ::  (Constr -> Expr) -> Constr -> Expr
 genRHS build constr@(Constr _ expr) =
@@ -107,14 +99,29 @@ genEq n constr =
 
 {- ------------ The Hom Record -------------------- -}
 
-homomorphism :: Eq.EqTheory -> HomThry 
+homomorphism :: Eq.EqTheory -> Decl
 homomorphism t =
-  let 
-    ((i1, n1), (i2, n2)) = createThryInsts t
-    a = Eq.args t
+  let ((i1, n1), (i2, n2)) = createThryInsts t
+      a = Eq.args t 
+      nm = Eq.thryName t ++ "Hom"
+      fnc = genHomFunc (length a == 0) (getConstrName $ Eq.sort t) n1 n2
+      axioms = genPresAxioms t
+  in Record (mkName nm)
+   (mkParams $ [i1, i2] ++ map (recordParams Bind) a)
+   (RecordDeclDef setType (mkName $ nm ++ "C") (mkField $ fnc : axioms))
+{-
   in HomThry
       (Eq.thryName t ++ "Hom")
-      (map (genInstParams Bind) a)
+      (map (recordParams Bind) a)
       [i1, i2]
       (genHomFunc (length a == 0) (getConstrName $ Eq.sort t) n1 n2) 
       (genPresAxioms t) 
+-}
+
+{-
+homThryToDecl :: HomThry -> Decl
+homThryToDecl (HomThry nm hargs eargs fnc axioms) =
+  Record (mkName nm)
+   (mkParams $ hargs ++ eargs)
+   (RecordDeclDef setType (mkName $ nm ++ "C") (mkField $ fnc : axioms))
+-}

@@ -1,19 +1,17 @@
 module Tog.Deriving.TypeConversions
-  ( TRecord( TRecord )
-  , homThryToDecl
-  , recordToEqTheory
+  ( recordToEqTheory
+  , TRecord (TRecord)
   ) where
 
 import           Control.Lens ((^.), view)
 
 import qualified Tog.Deriving.EqTheory as Eq
-import           Tog.Deriving.Hom 
 import           Tog.Deriving.Lenses   (name, cExpr)
 import           Tog.Deriving.TUtils 
 import           Tog.Deriving.Utils 
 import           Tog.Raw.Abs           as Abs
 
-data TRecord = TRecord Name Params RecordBody deriving (Show,Eq) 
+data TRecord = TRecord Name Params RecordBody
 
 recordToEqTheory :: TRecord -> Eq.EqTheory
 recordToEqTheory record@(TRecord nm params _) =
@@ -38,12 +36,6 @@ getRecordComps p (TRecord _ params body) =
      con = filter (p . view cExpr) $ getRecordConstrs body
  in (paramToConstr par) ++ con
 
-homThryToDecl :: HomThry -> Decl
-homThryToDecl (HomThry nm hargs eargs fnc axioms) =
-  Record (mkName nm)
-   (mkParams $ hargs ++ eargs)
-   (RecordDeclDef setType (mkName $ nm ++ "C") (mkField $ fnc : axioms))
-
 {- ----------- Helper Functions --------------- -}
 
 paramToConstr :: Abs.Params -> [Constr] 
@@ -58,13 +50,9 @@ bindingToConstr bind =
   in map (\n -> Constr (mkName n) typ) names  
 
 getRecordConstrs :: Abs.RecordBody -> [Constr]
-getRecordConstrs (RecordDef _ fields) = getFieldConstrs fields 
-getRecordConstrs (RecordDeclDef _ _ fields) = getFieldConstrs fields
+getRecordConstrs (RecordDef _ fields) = getFields fields 
+getRecordConstrs (RecordDeclDef _ _ fields) = getFields fields
 getRecordConstrs _ = []
-
-getFieldConstrs :: Abs.Fields -> [Constr]
-getFieldConstrs NoFields = []
-getFieldConstrs (Fields cs) = cs 
 
 paramsNum :: Abs.Params -> Int
 paramsNum NoParams = 0

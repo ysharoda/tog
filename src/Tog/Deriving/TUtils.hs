@@ -4,7 +4,7 @@ module Tog.Deriving.TUtils
   , setType
   , mkField
   , shortName
-  , createThryInstType
+  , declTheory
   , qualDecl, notQualDecl
   , genVars
   , getArgName
@@ -66,10 +66,9 @@ genVars :: Int -> [String]
 genVars i = map (\z -> 'x' : show z)  [1..i]
 
 -- creates something like (M1 : Monoid A1)  
-createThryInstType :: Name_ -> [Constr] -> Int -> Expr 
-createThryInstType thryName thryParams index =
-  App $ mkArg thryName :
-        map (\constr -> mkArg $ getConstrName constr ++ show index) thryParams
+declTheory :: Name_ -> [Constr] -> Int -> Expr 
+declTheory n params index =
+  App $ mkArg n : map (\p -> mkArg $ getConstrName p ++ show index) params
 
 mkField :: [Constr] -> Fields
 mkField [] = NoFields 
