@@ -23,6 +23,7 @@ type Rename = Map.Map Name_ Name_
 gmap :: (Generics.Typeable a, Generics.Data b) => (a -> a) -> b -> b
 gmap r x = Generics.everywhere (Generics.mkT r) x
 
+-- Eq is needed in building 'pushout' below
 data GTheory = GTheory {
     params :: Params,
     fields :: Fields }
@@ -32,7 +33,7 @@ data GView   = GView {
     source  :: GTheory,
     target  :: GTheory,
     rename :: Rename }  
-  deriving (Eq, Generics.Typeable, Generics.Data)
+  deriving (Generics.Typeable, Generics.Data)
 
 data QPath = QPath { -- Qualified path, i.e. a path with a rename
     path :: Path,
@@ -41,7 +42,7 @@ data QPath = QPath { -- Qualified path, i.e. a path with a rename
 data TGraph = TGraph { -- check if I would rather use only a map of edges
     nodes :: Map.Map Name_ GTheory,
     edges :: Map.Map Name_ GView } 
-  deriving (Eq, Generics.Typeable, Generics.Data)
+  deriving (Generics.Typeable, Generics.Data)
 
 -- Pushouts
 data PushOut = PushOut { -- of a span
