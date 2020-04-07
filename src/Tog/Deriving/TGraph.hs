@@ -4,7 +4,6 @@ module Tog.Deriving.TGraph
   , computeExtend
   , computeRename
   , getPath
-  , computeTransport
   , computeCombine
   ) where
 
@@ -23,27 +22,23 @@ type RenameFunc = Name_ -> Name_
 {- ------------------- Build the Graph  ----------------- -}
   
 updateGraph ::  TGraph -> Name_ -> Either GView PushOut -> TGraph
-updateGraph graph newThryName (Left view) =
-  TGraph (Map.insert newThryName (target view) $ nodes graph)
-         (Map.insert ("To"++newThryName) view  $ edges graph)
+updateGraph graph nm (Left view) =
+  TGraph (Map.insert nm (target view) $ nodes graph)
+         (Map.insert ("To"++nm) view  $ edges graph)
 -- TODO: find a way to get the name of the source theory. 
-updateGraph graph newThryName (Right ut) =
-   TGraph (Map.insert newThryName (target $ uLeft ut) $ nodes graph)
-        $ (Map.fromList [("To"++newThryName++"1",uLeft ut),
-                         ("To"++newThryName++"2",uRight ut),
-                         ("To"++newThryName++"D",diagonal ut)])
+updateGraph graph nm (Right ut) =
+   TGraph (Map.insert nm (target $ uLeft ut) $ nodes graph)
+        $ (Map.fromList [("To"++nm++"1",uLeft ut),
+                         ("To"++nm++"2",uRight ut),
+                         ("To"++nm++"D",diagonal ut)])
           `Map.union` (edges graph)
 
 {- ------------------- Elaborate Into TheoryGraph ---------------- -}
 
-computeTransport :: Rename -> GTheory -> GView
-computeTransport rmap thry =
-  GView thry (renameThy thry rmap) (validateRen thry rmap)   
-
 -- --------- RENAME -----------
 computeRename :: Rename -> GTheory -> GView  
-computeRename namesMap srcThry =
-  GView srcThry (renameThy srcThry namesMap) (validateRen srcThry namesMap)
+computeRename namesMap thry =
+  GView thry (renameThy thry namesMap) (validateRen thry namesMap)
 
 -- --------- EXTENSION ---------
 computeExtend :: [Constr] -> GTheory -> GView
@@ -73,35 +68,38 @@ computeCombine qpath1 qpath2 =
 createDiamond :: QPath -> QPath -> PushOut
 createDiamond left right =
  let commonSrc = qpathSource left
-     lThry = applyCompositeRename (qpathTarget left)  (path left)  (ren left)
-     rThry = applyCompositeRename (qpathTarget right) (path right) (ren right)
-     srcMapped = applyCompositeRename commonSrc (path left) (ren left)
+     lt = qpathTarget left
+     rt = qpathTarget right
+     lp = path left
+     rp = path right
+     lren = ren left
+     rren = ren right
+     lThry = applyCompositeRename lt lp lren
+     rThry = applyCompositeRename rt rp rren
+     srcMapped = applyCompositeRename commonSrc lp lren
      newThry =
        GTheory (ParamDecl $ disjointUnion3 (getParams $ params srcMapped) (getParams $ params lThry) (getParams $ params rThry))
                (Fields    $ disjointUnion3 (getFields $ fields srcMapped) (getFields $ fields lThry) (getFields $ fields rThry))
      allMaps qp = composeMaps $ (map (\(GView _ _ m) -> m) $ NE.toList $ path qp) ++ [ren qp]
-     lView = GView (qpathTarget left)  newThry $ validateRen (qpathTarget left) (allMaps left)
-     rView = GView (qpathTarget right) newThry $ validateRen (qpathTarget right) (allMaps right)
+     lView = GView lt newThry $ validateRen lt (allMaps left)
+     rView = GView rt newThry $ validateRen rt (allMaps right)
      diag  = GView commonSrc newThry $ validateRen commonSrc (allMaps left)
   in pushout lView rView diag
 
 getPath :: TGraph -> GTheory -> GTheory -> Path 
 getPath graph src trgt =
   let p =  getPath' (Map.elems $ edges graph) src trgt
-  in if p /= []
-     then NE.fromList p
-     else error "no path found"
+  in case p of { [] -> error "no path found" ; _ -> NE.fromList p}
 
 getPath' :: [GView] -> GTheory -> GTheory -> [GView] 
 getPath' edgesList src dest =
-  let answer = [v | v <- edgesList, target v == dest, source v == src]
-      viewsToDest = [v | v <- edgesList, target v == dest]
-      found = if answer /= [] then [[head answer]]
-              else [(getPath' edgesList src (source v)) ++ [v] | v <- viewsToDest]
-      p = List.filter (\ls -> (source $ NE.head (NE.fromList ls)) == src) found             
-   in if p == []
-      then [] 
-      else List.head p 
+  let viewsToDest = [v | v <- edgesList, target v == dest]
+      answer = filter (\v -> source v == src) viewsToDest
+      found = case answer of
+                []    -> [(getPath' edgesList src (source v)) ++ [v] | v <- viewsToDest]
+                (x:_) -> [[x]]
+      p = List.filter (\ls -> (source $ NE.head (NE.fromList ls)) == src) found
+   in case p of { [] -> [] ; (x : _) -> x }
 
 {- ------------------------ Utils --------------------------------- -}
 
@@ -134,9 +132,10 @@ validRename :: Rename -> GTheory -> Bool
 validRename namesMap thry =
   let syms = symbols thry 
       relevantMaps = [(k,a) | (k,a) <- Map.toList namesMap, k `elem` syms, k/=a]
-      noConflict = List.intersect (map snd relevantMaps) syms == []
       allUnique xs = List.nub xs == xs 
-   in allUnique (map fst relevantMaps) && allUnique (map snd relevantMaps) && noConflict
+   in allUnique (map fst relevantMaps) &&
+      allUnique (map snd relevantMaps) &&
+      List.intersect (map snd relevantMaps) syms == []
 
 -- turns a rename list into an injective mapping over the symbols of the source theory. 
 validateRen :: GTheory -> Rename -> Rename
@@ -169,21 +168,21 @@ composeMaps :: [Rename] -> Rename
 composeMaps = foldr composeTwoMaps Map.empty
 
 mapAsFunc :: Rename -> RenameFunc 
-mapAsFunc m = \x -> Map.findWithDefault x x m
+mapAsFunc r = \x -> Map.findWithDefault x x r
 
 {- ------------------------------------------------ -} 
 
 getArgs :: Params -> [Arg]
 getArgs NoParams = []
 getArgs (ParamDef _) = [] 
-getArgs (ParamDecl binds) = foldr (\a b -> getBindingArgs a ++ b) [] binds
+getArgs (ParamDecl binds) = concatMap getBindingArgs binds
 
 symbols :: GTheory -> [Name_]
 symbols thry =
   let 
-    argNames   = Generics.everything (++) (Generics.mkQ [] (\(Id (NotQual (Name (_,n)))) -> [n])) (getArgs $ params thry)    
+    argNames   = Generics.everything (++) (Generics.mkQ [] (\(Id (NotQual (Name (_,n)))) -> [n])) (getArgs $ params thry)
     fieldNames = Generics.listify (\(Constr (Name (_, _)) _) -> True) thry
-  in argNames ++ map getConstrName fieldNames     
+  in argNames ++ map getConstrName fieldNames
 
 checkGuards :: QPath -> QPath -> Bool
 checkGuards qpath1 qpath2 =
