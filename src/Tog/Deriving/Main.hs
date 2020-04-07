@@ -3,6 +3,7 @@ module Tog.Deriving.Main
   ) where
 
 import qualified Data.Map              as Map
+import           Control.Lens (view)
 
 import           Tog.Raw.Abs           as Abs
 import qualified Tog.Deriving.EqTheory as Eq
@@ -13,13 +14,13 @@ import           Tog.Deriving.ProductTheory
 import           Tog.Deriving.Signature 
 import           Tog.Deriving.TypeConversions
 import           Tog.Deriving.Types
-import           Tog.Deriving.TUtils  (mkName)
+import           Tog.Deriving.TUtils  (mkName, setType)
 
 processDefs :: [Language] -> Module
 processDefs = processModule . defsToModule
 
 defsToModule :: [Language] -> Module
-defsToModule = createModules . graphNodes . computeGraph
+defsToModule = createModules . view (graph . nodes) . computeGraph
 
 processModule :: Module -> Module
 processModule (Module n p (Decl_ decls)) =
@@ -66,13 +67,12 @@ mathscheme :: Name
 mathscheme = mkName "MathScheme" 
 
 theoryToRecord :: Name_ -> GTheory -> Decl 
-theoryToRecord thryName (GTheory ps fs) =
-  Record (mkName thryName) ps
-         (RecordDeclDef (mkName "Set") (mkName $ thryName++"C") fs)  
+theoryToRecord n (GTheory ps fs) =
+  Record (mkName n) ps (RecordDeclDef setType (mkName $ n++"C") fs)  
 
 recordToModule :: Name_ -> Decl -> Decl
-recordToModule thryName record =
-  Module_ $ Module (mkName thryName) NoParams $ Decl_ [record] 
+recordToModule n record =
+  Module_ $ Module (mkName n) NoParams $ Decl_ [record] 
 
 createModules :: Map.Map Name_ GTheory -> Abs.Module
 createModules theories =

@@ -4,33 +4,26 @@ module Tog.Deriving.ProductTheory
   , productThry
   ) where
 
+import           Control.Lens ((^.), over)
+
 import           Tog.Raw.Abs
 import           Tog.Deriving.TUtils
 import           Tog.Deriving.Types (gmap, Name_)
 import qualified Tog.Deriving.EqTheory as Eq
+import           Tog.Deriving.Lenses   (name)
 
-data ProductTheory = ProductTheory {
-  prodName :: Name_    ,
-  sort     :: Constr   , 
-  funcs    :: [Constr] , 
-  axioms   :: [Constr] , 
-  waist    :: Int   }
-
-productThry :: Eq.EqTheory -> ProductTheory
-productThry thry =
+-- There is no need for a new data-structure!
+productThry :: Eq.EqTheory -> Eq.EqTheory
+productThry t =
   let -- apply renames to avoid the shadowing problem of Tog
-      ren (Name (_,x)) = if (x == "Set") then mkName x else mkName $ x++"P"
-      renThry = gmap ren thry 
-      thrySort = Eq.sort renThry
-  in ProductTheory
-   (prodThryName renThry) 
-   (thrySort)
-   (map (productField $ getConstrName thrySort) (Eq.funcTypes renThry))
-   (map (productField $ getConstrName thrySort) (Eq.axioms renThry))
-   (Eq.waist renThry)
-
-prodThryName :: Eq.EqTheory -> Name_
-prodThryName thry = Eq.thryName thry ++ "Prod"
+      ren x = if (x^.name == "Set") then x else over name (++"P") x
+      t' = gmap ren t
+      srt = Eq.sort t'
+      mkProd = productField $ getConstrName srt
+  in 
+   t' { Eq.thryName = Eq.thryName t' ++ "Prod",
+        Eq.funcTypes = map mkProd (Eq.funcTypes t'),
+        Eq.axioms = map mkProd (Eq.axioms t') }
 
 -- prod type declaration 
 -- data Prod (A : Set) (B : Set) : Set
@@ -38,11 +31,10 @@ prodType :: Decl
 prodType =
   Data (mkName "Prod")
   (ParamDecl [Bind [mkArg "A", mkArg "B"] $ notQualDecl "Set"])
-  (DataDeclDef (mkName "Set") [])  
+  (DataDeclDef setType [])  
 
 prodTyp :: Name_ -> Expr
-prodTyp sortName =
-  let aSort = mkArg sortName in App [mkArg "Prod", aSort, aSort]      
+prodTyp nm = let n = mkArg nm in App [mkArg "Prod", n, n]
 
 productField :: Name_ -> Constr -> Constr
 productField origSort constr =
@@ -51,14 +43,5 @@ productField origSort constr =
       adjustSort x = x  
   in gmap adjustSort constr
 
-params :: ProductTheory -> Params
-params pt = if (waist pt == 0) then NoParams
-  else let pars = take (waist pt) ([sort pt] ++ (funcs pt) ++ (axioms pt))
-       in ParamDecl $ map fldsToBinding pars     
-
-prodTheoryToDecl :: ProductTheory -> Decl
-prodTheoryToDecl pthry@(ProductTheory nm srt fs axs wst) =
-  Record (mkName nm)
-    (params pthry)
-    (RecordDeclDef (mkName "Set") (mkName $ nm ++ "C") 
-      (mkField $ drop wst (srt : fs ++ axs)))
+prodTheoryToDecl :: Eq.EqTheory -> Decl
+prodTheoryToDecl = Eq.toDecl (++ "C")
