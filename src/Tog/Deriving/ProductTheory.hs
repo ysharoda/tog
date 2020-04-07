@@ -12,27 +12,18 @@ import           Tog.Deriving.Types (gmap, Name_)
 import qualified Tog.Deriving.EqTheory as Eq
 import           Tog.Deriving.Lenses   (name)
 
-data ProductTheory = ProductTheory {
-  prodName :: Name     ,
-  sort     :: Constr   , 
-  funcs    :: [Constr] , 
-  axioms   :: [Constr] , 
-  waist    :: Int   }
-
-productThry :: Eq.EqTheory -> ProductTheory
+-- There is no need for a new data-structure!
+productThry :: Eq.EqTheory -> Eq.EqTheory
 productThry t =
   let -- apply renames to avoid the shadowing problem of Tog
       ren x = if (x^.name == "Set") then x else over name (++"P") x
       t' = gmap ren t
       srt = Eq.sort t'
       mkProd = productField $ getConstrName srt
-  in ProductTheory (prodThryName t') srt
-   (map mkProd (Eq.funcTypes t'))
-   (map mkProd (Eq.axioms t'))
-   (Eq.waist t')
-
-prodThryName :: Eq.EqTheory -> Name
-prodThryName thry = mkName $ Eq.thryName thry ++ "Prod"
+  in 
+   t' { Eq.thryName = Eq.thryName t' ++ "Prod",
+        Eq.funcTypes = map mkProd (Eq.funcTypes t'),
+        Eq.axioms = map mkProd (Eq.axioms t') }
 
 -- prod type declaration 
 -- data Prod (A : Set) (B : Set) : Set
@@ -52,12 +43,11 @@ productField origSort constr =
       adjustSort x = x  
   in gmap adjustSort constr
 
-params :: ProductTheory -> Params
-params pt = mkParams $ map fldsToBinding $ 
-  take (waist pt) (sort pt : (funcs pt) ++ (axioms pt))
+params :: Eq.EqTheory -> Params
+params pt = mkParams $ map fldsToBinding $ Eq.args pt
 
-prodTheoryToDecl :: ProductTheory -> Decl
-prodTheoryToDecl pthry@(ProductTheory nm srt fs axs wst) =
-  Record nm (params pthry)
-    (RecordDeclDef setType (over name (++ "C") nm)
+prodTheoryToDecl :: Eq.EqTheory -> Decl
+prodTheoryToDecl pthry@(Eq.EqTheory nm srt fs axs wst) =
+  Record (mkName nm) (params pthry)
+    (RecordDeclDef setType (mkName $ nm ++ "C")
       (mkField $ drop wst (srt : fs ++ axs)))
