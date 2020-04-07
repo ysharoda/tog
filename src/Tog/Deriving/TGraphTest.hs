@@ -1,11 +1,11 @@
 {-# LANGUAGE TemplateHaskell #-}
 module Tog.Deriving.TGraphTest
   ( computeGraph 
-  , graphNodes
+  , graph
   ) where
 
 import qualified Data.Map            as Map
-import           Control.Lens ((^.), makeLenses, view, over)
+import           Control.Lens ((^.), makeLenses, over)
 
 import           Tog.Deriving.Lenses (name)
 import           Tog.Deriving.TUtils (mkName, mkField)
@@ -18,9 +18,6 @@ data Graph = Graph {
   _renames :: Map.Map Name_ Rename }
 
 makeLenses ''Graph
-
-graphNodes :: Graph -> Map.Map Name_ GTheory
-graphNodes = view (graph . nodes)
 
 initGraph :: Graph 
 initGraph = Graph emptyTG (Map.empty) 
@@ -46,9 +43,9 @@ getTheory gs n = lookupName (n^.name) (gs^.graph)
 
 modExpr :: Name -> Abs.ModExpr -> Graph -> Graph
 modExpr nam mexpr gs =
-  let n = nam^.name in
-  let look = getTheory gs in
-  let rens = rensToRename gs
+  let n = nam^.name
+      look = getTheory gs
+      rens = rensToRename gs in
   case mexpr of
     Extend srcName clist ->
       over graph

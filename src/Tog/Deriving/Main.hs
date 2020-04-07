@@ -3,6 +3,7 @@ module Tog.Deriving.Main
   ) where
 
 import qualified Data.Map              as Map
+import           Control.Lens (view)
 
 import           Tog.Raw.Abs           as Abs
 import qualified Tog.Deriving.EqTheory as Eq
@@ -19,7 +20,7 @@ processDefs :: [Language] -> Module
 processDefs = processModule . defsToModule
 
 defsToModule :: [Language] -> Module
-defsToModule = createModules . graphNodes . computeGraph
+defsToModule = createModules . view (graph . nodes) . computeGraph
 
 processModule :: Module -> Module
 processModule (Module n p (Decl_ decls)) =
