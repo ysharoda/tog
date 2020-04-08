@@ -46,7 +46,7 @@ genHomFunc isQualified sortName inst1Name inst2Name =
 genPresAxioms :: Eq.EqTheory -> [Constr]
 genPresAxioms eqthry = 
   let nparms = eqthry ^. Eq.waist - 1
-      decls  = Eq.funcTypes eqthry
+      decls  = eqthry ^. Eq.funcTypes
       (args, flds) = splitAt nparms decls
       n = eqthry ^. Eq.thyName
   in (map (oneAxiom n True) args) ++ 
@@ -105,7 +105,7 @@ homomorphism t =
   let ((i1, n1), (i2, n2)) = createThryInsts t
       a = Eq.args t 
       nm = t ^. Eq.thyName ++ "Hom"
-      fnc = genHomFunc (length a == 0) (getConstrName $ Eq.sort t) n1 n2
+      fnc = genHomFunc (length a == 0) (getConstrName $ t^.Eq.sort) n1 n2
       axioms = genPresAxioms t
   in Record (mkName nm)
    (mkParams $ [i1, i2] ++ map (recordParams Bind) a)

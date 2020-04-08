@@ -18,12 +18,13 @@ productThry t =
   let -- apply renames to avoid the shadowing problem of Tog
       ren x = if (x^.name == "Set") then x else over name (++"P") x
       t' = gmap ren t
-      srt = Eq.sort t'
+      srt = t' ^. Eq.sort
       mkProd = productField $ getConstrName srt
   in 
-   over Eq.thyName (++ "Prod") $
-   t' { Eq.funcTypes = map mkProd (Eq.funcTypes t'),
-        Eq.axioms = map mkProd (Eq.axioms t') }
+  over Eq.thyName (++ "Prod") $
+  over Eq.funcTypes (map mkProd) $
+  over Eq.axioms (map mkProd)
+  t'
 
 -- prod type declaration 
 -- data Prod (A : Set) (B : Set) : Set

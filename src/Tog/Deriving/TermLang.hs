@@ -21,5 +21,5 @@ ren sn newName n = mkName $ if (nam == sn) then newName else nam ++ "L"
 termLang :: Eq.EqTheory -> Decl
 termLang t =
   let nm = lang t
-      cs = gmap (ren (getConstrName $ Eq.sort t) nm) $ Eq.funcTypes t
+      cs = gmap (ren (getConstrName $ t^.Eq.sort) nm) $ t^.Eq.funcTypes
   in Data (mkName nm) NoParams $ DataDeclDef setType cs

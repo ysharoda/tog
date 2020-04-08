@@ -1,8 +1,11 @@
 {-# LANGUAGE TemplateHaskell #-}
 module Tog.Deriving.EqTheory
-  ( EqTheory(sort, funcTypes, axioms)
+  ( EqTheory
   , thyName
   , waist
+  , sort
+  , funcTypes
+  , axioms
   , args
   , params
   , toDecl
@@ -25,16 +28,16 @@ type Waist = Int
 -- has the first n declarations as parameters. 
 data EqTheory = EqTheory {
   _thyName   :: Name_  ,
-  sort       :: Constr , 
-  funcTypes  :: [Constr],
-  axioms     :: [Constr],
+  _sort       :: Constr , 
+  _funcTypes  :: [Constr],
+  _axioms     :: [Constr],
   _waist      :: Waist }
   deriving (Data)
 
 makeLenses ''EqTheory
 
 decls :: EqTheory -> [Constr]
-decls t = sort t : funcTypes t ++ axioms t
+decls t = t^.sort : t^.funcTypes ++ t^.axioms
 
 args :: EqTheory -> [Constr]
 args t = take (t^.waist) $ decls t

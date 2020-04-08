@@ -3,7 +3,7 @@ module Tog.Deriving.Signature
   , sigToDecl
   ) where
 
-import           Control.Lens ((^.), over)
+import           Control.Lens ((^.), over, set)
 
 import Tog.Raw.Abs
 import Tog.Deriving.EqTheory as Eq
@@ -16,8 +16,7 @@ ren n = mkName $ if (nam == "Set") then nam else nam ++ "S"
   where nam = n^.name
 
 signature_ :: Eq.EqTheory -> Eq.EqTheory
-signature_ thry = let t = gmap ren thry in 
-  over Eq.thyName (++ "Sig") $ t { Eq.axioms = [] }
+signature_ = over Eq.thyName (++ "Sig") . set Eq.axioms [] .  gmap ren
 
 sigToDecl :: Eq.EqTheory -> Decl
 sigToDecl = Eq.toDecl (++ "SigC")
