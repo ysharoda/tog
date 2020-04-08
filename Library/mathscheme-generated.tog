@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------
 -- Checking declarations
 ------------------------------------------------------------------------
--- Solved Metas: 63459
+-- Solved Metas: 65082
 -- Unsolved Metas: 0
 ------------------------------------------------------------------------
 -- Unsolved problems: 0
@@ -119,6 +119,15 @@ module MathScheme where
           (zP : Prod AP AP) ->
           *P (+P yP zP) xP ==
             +P (*P yP xP) (*P zP xP)
+    record AbelianAddGroup_RingoidSig
+      : Set where
+      constructor AbelianAddGroup_RingoidSigSigC
+      field
+        AS : Set
+        +S : AS -> AS -> AS
+        0S : AS
+        invS : AS -> AS
+        *S : AS -> AS -> AS
   
   module AbelianAdditiveGroup where
     record AbelianAdditiveGroup
@@ -199,6 +208,14 @@ module MathScheme where
           (xP : Prod AP AP)
           (yP : Prod AP AP) ->
           +P xP yP == +P yP xP
+    record AbelianAdditiveGroupSig
+      : Set where
+      constructor AbelianAdditiveGroupSigSigC
+      field
+        AS : Set
+        +S : AS -> AS -> AS
+        0S : AS
+        invS : AS -> AS
   
   module AbelianGroup where
     record AbelianGroup : Set where
@@ -277,6 +294,14 @@ module MathScheme where
           (xP : Prod AP AP)
           (yP : Prod AP AP) ->
           *P xP yP == *P yP xP
+    record AbelianGroupSig
+      : Set where
+      constructor AbelianGroupSigSigC
+      field
+        AS : Set
+        1S : AS
+        *S : AS -> AS -> AS
+        invS : AS -> AS
   
   module AddGroup_RingoidSig where
     record AddGroup_RingoidSig
@@ -362,6 +387,15 @@ module MathScheme where
         rightInverse_inv_op_0P :
           (xP : Prod AP AP) ->
           +P (invP xP) xP == 0P
+    record AddGroup_RingoidSigSig
+      : Set where
+      constructor AddGroup_RingoidSigSigSigC
+      field
+        AS : Set
+        +S : AS -> AS -> AS
+        0S : AS
+        invS : AS -> AS
+        *S : AS -> AS -> AS
   
   module AdditiveCommutativeMonoid where
     record AdditiveCommutativeMonoid
@@ -424,6 +458,13 @@ module MathScheme where
           (xP : Prod AP AP)
           (yP : Prod AP AP) ->
           +P xP yP == +P yP xP
+    record AdditiveCommutativeMonoidSig
+      : Set where
+      constructor AdditiveCommutativeMonoidSigSigC
+      field
+        AS : Set
+        +S : AS -> AS -> AS
+        0S : AS
   
   module AdditiveCommutativeSemigroup where
     record AdditiveCommutativeSemigroup
@@ -473,6 +514,12 @@ module MathScheme where
           (zP : Prod AP AP) ->
           +P (+P xP yP) zP ==
             +P xP (+P yP zP)
+    record AdditiveCommutativeSemigroupSig
+      : Set where
+      constructor AdditiveCommutativeSemigroupSigSigC
+      field
+        AS : Set
+        +S : AS -> AS -> AS
   
   module AdditiveGroup where
     record AdditiveGroup : Set where
@@ -544,47 +591,14 @@ module MathScheme where
         rightInverse_inv_op_0P :
           (xP : Prod AP AP) ->
           +P (invP xP) xP == 0P
-  
-  module AdditiveLeftUnital where
-    record AdditiveLeftUnital
+    record AdditiveGroupSig
       : Set where
-      constructor AdditiveLeftUnitalC
+      constructor AdditiveGroupSigSigC
       field
-        A : Set
-        0 : A
-        + : A -> A -> A
-        lunit_0 : (x : A) -> + 0 x == x
-    record AdditiveLeftUnitalHom
-      (A1 : AdditiveLeftUnital)
-      (A2 : AdditiveLeftUnital) :
-      Set where
-      constructor AdditiveLeftUnitalHomC
-      field
-        hom : A A1 -> A A2
-        pres-0 : hom (0 A1) == 0 A2
-        pres-+ :
-          (x1 : A A1) (x2 : A A1) ->
-          hom (+ A1 x1 x2) ==
-            + A2 (hom x1) (hom x2)
-    data AdditiveLeftUnitalLang
-      : Set where
-      0L : AdditiveLeftUnitalLang
-      +L :
-        AdditiveLeftUnitalLang ->
-        AdditiveLeftUnitalLang ->
-        AdditiveLeftUnitalLang
-    record AdditiveLeftUnitalProd
-      : Set where
-      constructor AdditiveLeftUnitalProdC
-      field
-        AP : Set
-        0P : Prod AP AP
-        +P :
-          Prod AP AP ->
-          Prod AP AP -> Prod AP AP
-        lunit_0P :
-          (xP : Prod AP AP) ->
-          +P 0P xP == xP
+        AS : Set
+        0S : AS
+        +S : AS -> AS -> AS
+        invS : AS -> AS
   
   module AdditiveMagma where
     record AdditiveMagma : Set where
@@ -616,6 +630,12 @@ module MathScheme where
         +P :
           Prod AP AP ->
           Prod AP AP -> Prod AP AP
+    record AdditiveMagmaSig
+      : Set where
+      constructor AdditiveMagmaSigSigC
+      field
+        AS : Set
+        +S : AS -> AS -> AS
   
   module AdditiveMonoid where
     record AdditiveMonoid
@@ -670,6 +690,13 @@ module MathScheme where
           (zP : Prod AP AP) ->
           +P (+P xP yP) zP ==
             +P xP (+P yP zP)
+    record AdditiveMonoidSig
+      : Set where
+      constructor AdditiveMonoidSigSigC
+      field
+        AS : Set
+        0S : AS
+        +S : AS -> AS -> AS
   
   module AdditivePointedMagma where
     record AdditivePointedMagma
@@ -707,6 +734,13 @@ module MathScheme where
         +P :
           Prod AP AP ->
           Prod AP AP -> Prod AP AP
+    record AdditivePointedMagmaSig
+      : Set where
+      constructor AdditivePointedMagmaSigSigC
+      field
+        AS : Set
+        0S : AS
+        +S : AS -> AS -> AS
   
   module AdditiveSemigroup where
     record AdditiveSemigroup
@@ -749,6 +783,12 @@ module MathScheme where
           (zP : Prod AP AP) ->
           +P (+P xP yP) zP ==
             +P xP (+P yP zP)
+    record AdditiveSemigroupSig
+      : Set where
+      constructor AdditiveSemigroupSigSigC
+      field
+        AS : Set
+        +S : AS -> AS -> AS
   
   module AdditiveUnaryAntiDistribution where
     record AdditiveUnaryAntiDistribution
@@ -801,51 +841,13 @@ module MathScheme where
           (yP : Prod AP AP) ->
           primeP (+P xP yP) ==
             +P (primeP yP) (primeP xP)
-  
-  module AdditiveUnital where
-    record AdditiveUnital
+    record AdditiveUnaryAntiDistributionSig
       : Set where
-      constructor AdditiveUnitalC
+      constructor AdditiveUnaryAntiDistributionSigSigC
       field
-        A : Set
-        0 : A
-        + : A -> A -> A
-        lunit_0 : (x : A) -> + 0 x == x
-        runit_0 : (x : A) -> + x 0 == x
-    record AdditiveUnitalHom
-      (A1 : AdditiveUnital)
-      (A2 : AdditiveUnital) :
-      Set where
-      constructor AdditiveUnitalHomC
-      field
-        hom : A A1 -> A A2
-        pres-0 : hom (0 A1) == 0 A2
-        pres-+ :
-          (x1 : A A1) (x2 : A A1) ->
-          hom (+ A1 x1 x2) ==
-            + A2 (hom x1) (hom x2)
-    data AdditiveUnitalLang
-      : Set where
-      0L : AdditiveUnitalLang
-      +L :
-        AdditiveUnitalLang ->
-        AdditiveUnitalLang ->
-        AdditiveUnitalLang
-    record AdditiveUnitalProd
-      : Set where
-      constructor AdditiveUnitalProdC
-      field
-        AP : Set
-        0P : Prod AP AP
-        +P :
-          Prod AP AP ->
-          Prod AP AP -> Prod AP AP
-        lunit_0P :
-          (xP : Prod AP AP) ->
-          +P 0P xP == xP
-        runit_0P :
-          (xP : Prod AP AP) ->
-          +P xP 0P == xP
+        AS : Set
+        +S : AS -> AS -> AS
+        primeS : AS -> AS
   
   module AndDeMorgan where
     record AndDeMorgan : Set where
@@ -908,6 +910,14 @@ module MathScheme where
           (zP : Prod AP AP) ->
           primeP (*P xP yP) ==
             +P (primeP xP) (primeP yP)
+    record AndDeMorganSig
+      : Set where
+      constructor AndDeMorganSigSigC
+      field
+        AS : Set
+        *S : AS -> AS -> AS
+        +S : AS -> AS -> AS
+        primeS : AS -> AS
   
   module AntiAbsorbent where
     record AntiAbsorbent : Set where
@@ -946,6 +956,12 @@ module MathScheme where
           (xP : Prod AP AP)
           (yP : Prod AP AP) ->
           opP xP (opP xP yP) == yP
+    record AntiAbsorbentSig
+      : Set where
+      constructor AntiAbsorbentSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
   
   module AssocPlusRingoid where
     record AssocPlusRingoid
@@ -1000,6 +1016,13 @@ module MathScheme where
           (zP : Prod AP AP) ->
           +P (+P xP yP) zP ==
             +P xP (+P yP zP)
+    record AssocPlusRingoidSig
+      : Set where
+      constructor AssocPlusRingoidSigSigC
+      field
+        AS : Set
+        +S : AS -> AS -> AS
+        *S : AS -> AS -> AS
   
   module AssocTimesRingoid where
     record AssocTimesRingoid
@@ -1054,6 +1077,13 @@ module MathScheme where
           (zP : Prod AP AP) ->
           *P (*P xP yP) zP ==
             *P xP (*P yP zP)
+    record AssocTimesRingoidSig
+      : Set where
+      constructor AssocTimesRingoidSigSigC
+      field
+        AS : Set
+        *S : AS -> AS -> AS
+        +S : AS -> AS -> AS
   
   module AssociativeLeftRingoid where
     record AssociativeLeftRingoid
@@ -1117,6 +1147,13 @@ module MathScheme where
           (zP : Prod AP AP) ->
           *P xP (+P yP zP) ==
             +P (*P xP yP) (*P xP zP)
+    record AssociativeLeftRingoidSig
+      : Set where
+      constructor AssociativeLeftRingoidSigSigC
+      field
+        AS : Set
+        *S : AS -> AS -> AS
+        +S : AS -> AS -> AS
   
   module AssociativeNonDistributiveRingoid where
     record AssociativeNonDistributiveRingoid
@@ -1180,6 +1217,13 @@ module MathScheme where
           (zP : Prod AP AP) ->
           *P (*P xP yP) zP ==
             *P xP (*P yP zP)
+    record AssociativeNonDistributiveRingoidSig
+      : Set where
+      constructor AssociativeNonDistributiveRingoidSigSigC
+      field
+        AS : Set
+        *S : AS -> AS -> AS
+        +S : AS -> AS -> AS
   
   module AssociativeRightRingoid where
     record AssociativeRightRingoid
@@ -1243,6 +1287,13 @@ module MathScheme where
           (zP : Prod AP AP) ->
           *P (+P yP zP) xP ==
             +P (*P yP xP) (*P zP xP)
+    record AssociativeRightRingoidSig
+      : Set where
+      constructor AssociativeRightRingoidSigSigC
+      field
+        AS : Set
+        *S : AS -> AS -> AS
+        +S : AS -> AS -> AS
   
   module Band where
     record Band : Set where
@@ -1284,6 +1335,11 @@ module MathScheme where
         idempotent_opP :
           (xP : Prod AP AP) ->
           opP xP xP == xP
+    record BandSig : Set where
+      constructor BandSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
   
   module BinaryInverse where
     record BinaryInverse : Set where
@@ -1341,6 +1397,13 @@ module MathScheme where
           (xP : Prod AP AP)
           (yP : Prod AP AP) ->
           |>P xP (<|P yP xP) == yP
+    record BinaryInverseSig
+      : Set where
+      constructor BinaryInverseSigSigC
+      field
+        AS : Set
+        |>S : AS -> AS -> AS
+        <|S : AS -> AS -> AS
   
   module BooleanGroup where
     record BooleanGroup : Set where
@@ -1398,6 +1461,13 @@ module MathScheme where
         unipotenceP :
           (xP : Prod AP AP) ->
           opP xP xP == eP
+    record BooleanGroupSig
+      : Set where
+      constructor BooleanGroupSigSigC
+      field
+        AS : Set
+        eS : AS
+        opS : AS -> AS -> AS
   
   module CancellativeCommutativeMonoid where
     record CancellativeCommutativeMonoid
@@ -1478,6 +1548,13 @@ module MathScheme where
           (xP : Prod AP AP)
           (yP : Prod AP AP) ->
           opP xP yP == opP yP xP
+    record CancellativeCommutativeMonoidSig
+      : Set where
+      constructor CancellativeCommutativeMonoidSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
+        eS : AS
   
   module CancellativeCommutativeSemigroup where
     record CancellativeCommutativeSemigroup
@@ -1545,6 +1622,12 @@ module MathScheme where
           (zP : Prod AP AP) ->
           opP xP zP == opP yP zP ->
           xP == yP
+    record CancellativeCommutativeSemigroupSig
+      : Set where
+      constructor CancellativeCommutativeSemigroupSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
   
   module CancellativeMagma where
     record CancellativeMagma
@@ -1596,6 +1679,12 @@ module MathScheme where
           (zP : Prod AP AP) ->
           opP xP zP == opP yP zP ->
           xP == yP
+    record CancellativeMagmaSig
+      : Set where
+      constructor CancellativeMagmaSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
   
   module CancellativeMonoid where
     record CancellativeMonoid
@@ -1668,6 +1757,13 @@ module MathScheme where
           (zP : Prod AP AP) ->
           opP xP zP == opP yP zP ->
           xP == yP
+    record CancellativeMonoidSig
+      : Set where
+      constructor CancellativeMonoidSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
+        eS : AS
   
   module CancellativeSemigroup where
     record CancellativeSemigroup
@@ -1728,6 +1824,12 @@ module MathScheme where
           (zP : Prod AP AP) ->
           opP xP zP == opP yP zP ->
           xP == yP
+    record CancellativeSemigroupSig
+      : Set where
+      constructor CancellativeSemigroupSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
   
   module Carrier where
     record Carrier : Set where
@@ -1746,6 +1848,10 @@ module MathScheme where
       constructor CarrierProdC
       field
         AP : Set
+    record CarrierSig : Set where
+      constructor CarrierSigSigC
+      field
+        AS : Set
   
   module CommutativeAdditiveMagma where
     record CommutativeAdditiveMagma
@@ -1786,6 +1892,12 @@ module MathScheme where
           (xP : Prod AP AP)
           (yP : Prod AP AP) ->
           +P xP yP == +P yP xP
+    record CommutativeAdditiveMagmaSig
+      : Set where
+      constructor CommutativeAdditiveMagmaSigSigC
+      field
+        AS : Set
+        +S : AS -> AS -> AS
   
   module CommutativeBand where
     record CommutativeBand
@@ -1840,6 +1952,12 @@ module MathScheme where
           (xP : Prod AP AP)
           (yP : Prod AP AP) ->
           opP xP yP == opP yP xP
+    record CommutativeBandSig
+      : Set where
+      constructor CommutativeBandSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
   
   module CommutativeGroup where
     record CommutativeGroup
@@ -1920,6 +2038,14 @@ module MathScheme where
           (xP : Prod AP AP)
           (yP : Prod AP AP) ->
           opP xP yP == opP yP xP
+    record CommutativeGroupSig
+      : Set where
+      constructor CommutativeGroupSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
+        eS : AS
+        invS : AS -> AS
   
   module CommutativeMagma where
     record CommutativeMagma
@@ -1960,6 +2086,12 @@ module MathScheme where
           (xP : Prod AP AP)
           (yP : Prod AP AP) ->
           opP xP yP == opP yP xP
+    record CommutativeMagmaSig
+      : Set where
+      constructor CommutativeMagmaSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
   
   module CommutativeMonoid where
     record CommutativeMonoid
@@ -2021,6 +2153,13 @@ module MathScheme where
           (xP : Prod AP AP)
           (yP : Prod AP AP) ->
           opP xP yP == opP yP xP
+    record CommutativeMonoidSig
+      : Set where
+      constructor CommutativeMonoidSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
+        eS : AS
   
   module CommutativeMonoid1 where
     record CommutativeMonoid1
@@ -2082,6 +2221,13 @@ module MathScheme where
           (xP : Prod AP AP)
           (yP : Prod AP AP) ->
           opP xP yP == opP yP xP
+    record CommutativeMonoid1Sig
+      : Set where
+      constructor CommutativeMonoid1SigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
+        1S : AS
   
   module CommutativePointedMagma where
     record CommutativePointedMagma
@@ -2126,6 +2272,13 @@ module MathScheme where
           (xP : Prod AP AP)
           (yP : Prod AP AP) ->
           opP xP yP == opP yP xP
+    record CommutativePointedMagmaSig
+      : Set where
+      constructor CommutativePointedMagmaSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
+        eS : AS
   
   module CommutativeSemigroup where
     record CommutativeSemigroup
@@ -2175,6 +2328,12 @@ module MathScheme where
           (zP : Prod AP AP) ->
           opP (opP xP yP) zP ==
             opP xP (opP yP zP)
+    record CommutativeSemigroupSig
+      : Set where
+      constructor CommutativeSemigroupSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
   
   module ComplementSig where
     record ComplementSig : Set where
@@ -2204,6 +2363,12 @@ module MathScheme where
         AP : Set
         complP :
           Prod AP AP -> Prod AP AP
+    record ComplementSigSig
+      : Set where
+      constructor ComplementSigSigSigC
+      field
+        AS : Set
+        complS : AS -> AS
   
   module DoubleMonoid where
     record DoubleMonoid : Set where
@@ -2289,6 +2454,15 @@ module MathScheme where
           (zP : Prod AP AP) ->
           *P (*P xP yP) zP ==
             *P xP (*P yP zP)
+    record DoubleMonoidSig
+      : Set where
+      constructor DoubleMonoidSigSigC
+      field
+        AS : Set
+        0S : AS
+        +S : AS -> AS -> AS
+        1S : AS
+        *S : AS -> AS -> AS
   
   module DualDeMorgan where
     record DualDeMorgan : Set where
@@ -2362,6 +2536,14 @@ module MathScheme where
           (zP : Prod AP AP) ->
           primeP (+P xP yP) ==
             *P (primeP xP) (primeP yP)
+    record DualDeMorganSig
+      : Set where
+      constructor DualDeMorganSigSigC
+      field
+        AS : Set
+        *S : AS -> AS -> AS
+        +S : AS -> AS -> AS
+        primeS : AS -> AS
   
   module Empty where
     record Empty : Set where
@@ -2401,6 +2583,12 @@ module MathScheme where
           Prod AP AP -> Prod AP AP
         eP : Prod AP AP
         fixes_prime_eP : primeP eP == eP
+    record FixedPointSig : Set where
+      constructor FixedPointSigSigC
+      field
+        AS : Set
+        primeS : AS -> AS
+        eS : AS
   
   module Group where
     record Group : Set where
@@ -2467,6 +2655,13 @@ module MathScheme where
         rightInverse_inv_op_eP :
           (xP : Prod AP AP) ->
           opP (invP xP) xP == eP
+    record GroupSig : Set where
+      constructor GroupSigSigC
+      field
+        AS : Set
+        eS : AS
+        opS : AS -> AS -> AS
+        invS : AS -> AS
   
   module Group1 where
     record Group1 : Set where
@@ -2533,6 +2728,13 @@ module MathScheme where
         rightInverse_inv_op_1P :
           (xP : Prod AP AP) ->
           opP (invP xP) xP == 1P
+    record Group1Sig : Set where
+      constructor Group1SigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
+        1S : AS
+        invS : AS -> AS
   
   module GroupInv where
     record GroupInv : Set where
@@ -2600,6 +2802,13 @@ module MathScheme where
         rightInverse_inv_op_eP :
           (xP : Prod AP AP) ->
           opP (invP xP) xP == eP
+    record GroupInvSig : Set where
+      constructor GroupInvSigSigC
+      field
+        AS : Set
+        invS : AS -> AS
+        eS : AS
+        opS : AS -> AS -> AS
   
   module GroupPlus where
     record GroupPlus : Set where
@@ -2667,6 +2876,13 @@ module MathScheme where
         rightInverse_inv_op_0P :
           (xP : Prod AP AP) ->
           +P (invP xP) xP == 0P
+    record GroupPlusSig : Set where
+      constructor GroupPlusSigSigC
+      field
+        AS : Set
+        +S : AS -> AS -> AS
+        0S : AS
+        invS : AS -> AS
   
   module IdempotentAdditiveMagma where
     record IdempotentAdditiveMagma
@@ -2705,6 +2921,12 @@ module MathScheme where
         idempotent_+P :
           (xP : Prod AP AP) ->
           +P xP xP == xP
+    record IdempotentAdditiveMagmaSig
+      : Set where
+      constructor IdempotentAdditiveMagmaSigSigC
+      field
+        AS : Set
+        +S : AS -> AS -> AS
   
   module IdempotentMagma where
     record IdempotentMagma
@@ -2743,6 +2965,12 @@ module MathScheme where
         idempotent_opP :
           (xP : Prod AP AP) ->
           opP xP xP == xP
+    record IdempotentMagmaSig
+      : Set where
+      constructor IdempotentMagmaSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
   
   module IdempotentUnary where
     record IdempotentUnary
@@ -2780,6 +3008,12 @@ module MathScheme where
         idempotent_primeP :
           (xP : Prod AP AP) ->
           primeP (primeP xP) == primeP xP
+    record IdempotentUnarySig
+      : Set where
+      constructor IdempotentUnarySigSigC
+      field
+        AS : Set
+        primeS : AS -> AS
   
   module Inverse where
     record Inverse : Set where
@@ -2830,6 +3064,13 @@ module MathScheme where
         rightInverse_inv_op_eP :
           (xP : Prod AP AP) ->
           opP (invP xP) xP == eP
+    record InverseSig : Set where
+      constructor InverseSigSigC
+      field
+        AS : Set
+        invS : AS -> AS
+        eS : AS
+        opS : AS -> AS -> AS
   
   module InverseSemigroup where
     record InverseSemigroup
@@ -2886,6 +3127,13 @@ module MathScheme where
           (xP : Prod AP AP) ->
           opP (opP (invP xP) xP)
             (invP xP) == invP xP
+    record InverseSemigroupSig
+      : Set where
+      constructor InverseSemigroupSigSigC
+      field
+        AS : Set
+        invS : AS -> AS
+        opS : AS -> AS -> AS
   
   module InverseSig where
     record InverseSig : Set where
@@ -2927,6 +3175,13 @@ module MathScheme where
         opP :
           Prod AP AP ->
           Prod AP AP -> Prod AP AP
+    record InverseSigSig : Set where
+      constructor InverseSigSigSigC
+      field
+        AS : Set
+        invS : AS -> AS
+        eS : AS
+        opS : AS -> AS -> AS
   
   module InverseUnaryOperation where
     record InverseUnaryOperation
@@ -2957,6 +3212,12 @@ module MathScheme where
       field
         AP : Set
         invP : Prod AP AP -> Prod AP AP
+    record InverseUnaryOperationSig
+      : Set where
+      constructor InverseUnaryOperationSigSigC
+      field
+        AS : Set
+        invS : AS -> AS
   
   module Involution where
     record Involution : Set where
@@ -2989,6 +3250,11 @@ module MathScheme where
         involutive_primeP :
           (xP : Prod AP AP) ->
           primeP (primeP xP) == xP
+    record InvolutionSig : Set where
+      constructor InvolutionSigSigC
+      field
+        AS : Set
+        primeS : AS -> AS
   
   module InvolutiveMagma where
     record InvolutiveMagma
@@ -3046,6 +3312,13 @@ module MathScheme where
           (yP : Prod AP AP) ->
           primeP (opP xP yP) ==
             opP (primeP yP) (primeP xP)
+    record InvolutiveMagmaSig
+      : Set where
+      constructor InvolutiveMagmaSigSigC
+      field
+        AS : Set
+        primeS : AS -> AS
+        opS : AS -> AS -> AS
   
   module InvolutiveMagmaSig where
     record InvolutiveMagmaSig
@@ -3089,6 +3362,13 @@ module MathScheme where
         opP :
           Prod AP AP ->
           Prod AP AP -> Prod AP AP
+    record InvolutiveMagmaSigSig
+      : Set where
+      constructor InvolutiveMagmaSigSigSigC
+      field
+        AS : Set
+        primeS : AS -> AS
+        opS : AS -> AS -> AS
   
   module InvolutivePointedMagmaSig where
     record InvolutivePointedMagmaSig
@@ -3137,6 +3417,14 @@ module MathScheme where
         opP :
           Prod AP AP ->
           Prod AP AP -> Prod AP AP
+    record InvolutivePointedMagmaSigSig
+      : Set where
+      constructor InvolutivePointedMagmaSigSigSigC
+      field
+        AS : Set
+        primeS : AS -> AS
+        eS : AS
+        opS : AS -> AS -> AS
   
   module InvolutivePointedSemigroup where
     record InvolutivePointedSemigroup
@@ -3208,6 +3496,14 @@ module MathScheme where
           (yP : Prod AP AP) ->
           primeP (opP xP yP) ==
             opP (primeP yP) (primeP xP)
+    record InvolutivePointedSemigroupSig
+      : Set where
+      constructor InvolutivePointedSemigroupSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
+        eS : AS
+        primeS : AS -> AS
   
   module InvolutiveSemigroup where
     record InvolutiveSemigroup
@@ -3274,6 +3570,13 @@ module MathScheme where
           (yP : Prod AP AP) ->
           primeP (opP xP yP) ==
             opP (primeP yP) (primeP xP)
+    record InvolutiveSemigroupSig
+      : Set where
+      constructor InvolutiveSemigroupSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
+        primeS : AS -> AS
   
   module Kei where
     record Kei : Set where
@@ -3323,6 +3626,11 @@ module MathScheme where
           (xP : Prod AP AP)
           (yP : Prod AP AP) ->
           |>P (|>P xP yP) yP == xP
+    record KeiSig : Set where
+      constructor KeiSigSigC
+      field
+        AS : Set
+        |>S : AS -> AS -> AS
   
   module Left0 where
     record Left0 : Set where
@@ -3360,6 +3668,12 @@ module MathScheme where
         leftZero_op_0P :
           (xP : Prod AP AP) ->
           opP 0P xP == 0P
+    record Left0Sig : Set where
+      constructor Left0SigSigC
+      field
+        AS : Set
+        0S : AS
+        opS : AS -> AS -> AS
   
   module LeftBiMagma where
     record LeftBiMagma : Set where
@@ -3402,6 +3716,13 @@ module MathScheme where
         linvP :
           Prod AP AP ->
           Prod AP AP -> Prod AP AP
+    record LeftBiMagmaSig
+      : Set where
+      constructor LeftBiMagmaSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
+        linvS : AS -> AS -> AS
   
   module LeftBinaryInverse where
     record LeftBinaryInverse
@@ -3454,6 +3775,13 @@ module MathScheme where
           (xP : Prod AP AP)
           (yP : Prod AP AP) ->
           <|P (|>P xP yP) xP == yP
+    record LeftBinaryInverseSig
+      : Set where
+      constructor LeftBinaryInverseSigSigC
+      field
+        AS : Set
+        |>S : AS -> AS -> AS
+        <|S : AS -> AS -> AS
   
   module LeftCancellative where
     record LeftCancellative
@@ -3506,6 +3834,13 @@ module MathScheme where
           (xP : Prod AP AP)
           (yP : Prod AP AP) ->
           opP xP (linvP xP yP) == yP
+    record LeftCancellativeSig
+      : Set where
+      constructor LeftCancellativeSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
+        linvS : AS -> AS -> AS
   
   module LeftCancellativeMagma where
     record LeftCancellativeMagma
@@ -3548,6 +3883,12 @@ module MathScheme where
           (zP : Prod AP AP) ->
           opP zP xP == opP zP yP ->
           xP == yP
+    record LeftCancellativeMagmaSig
+      : Set where
+      constructor LeftCancellativeMagmaSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
   
   module LeftCancellativeOp where
     record LeftCancellativeOp
@@ -3600,6 +3941,13 @@ module MathScheme where
           (xP : Prod AP AP)
           (yP : Prod AP AP) ->
           linvP xP (opP xP yP) == yP
+    record LeftCancellativeOpSig
+      : Set where
+      constructor LeftCancellativeOpSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
+        linvS : AS -> AS -> AS
   
   module LeftCancellativeSemigroup where
     record LeftCancellativeSemigroup
@@ -3651,6 +3999,12 @@ module MathScheme where
           (zP : Prod AP AP) ->
           opP zP xP == opP zP yP ->
           xP == yP
+    record LeftCancellativeSemigroupSig
+      : Set where
+      constructor LeftCancellativeSemigroupSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
   
   module LeftDistributiveMagma where
     record LeftDistributiveMagma
@@ -3694,6 +4048,12 @@ module MathScheme where
           (zP : Prod AP AP) ->
           opP xP (opP yP zP) ==
             opP (opP xP yP) (opP xP zP)
+    record LeftDistributiveMagmaSig
+      : Set where
+      constructor LeftDistributiveMagmaSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
   
   module LeftIdempotence where
     record LeftIdempotence
@@ -3732,6 +4092,12 @@ module MathScheme where
         idempotent_|>P :
           (xP : Prod AP AP) ->
           |>P xP xP == xP
+    record LeftIdempotenceSig
+      : Set where
+      constructor LeftIdempotenceSigSigC
+      field
+        AS : Set
+        |>S : AS -> AS -> AS
   
   module LeftInverse where
     record LeftInverse : Set where
@@ -3780,6 +4146,14 @@ module MathScheme where
         leftInverse_inv_op_eP :
           (xP : Prod AP AP) ->
           opP xP (invP xP) == eP
+    record LeftInverseSig
+      : Set where
+      constructor LeftInverseSigSigC
+      field
+        AS : Set
+        invS : AS -> AS
+        eS : AS
+        opS : AS -> AS -> AS
   
   module LeftInverseMagma where
     record LeftInverseMagma
@@ -3813,6 +4187,12 @@ module MathScheme where
         linvP :
           Prod AP AP ->
           Prod AP AP -> Prod AP AP
+    record LeftInverseMagmaSig
+      : Set where
+      constructor LeftInverseMagmaSigSigC
+      field
+        AS : Set
+        linvS : AS -> AS -> AS
   
   module LeftLoop where
     record LeftLoop : Set where
@@ -3874,6 +4254,13 @@ module MathScheme where
           (xP : Prod AP AP)
           (yP : Prod AP AP) ->
           linvP xP (opP xP yP) == yP
+    record LeftLoopSig : Set where
+      constructor LeftLoopSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
+        eS : AS
+        linvS : AS -> AS -> AS
   
   module LeftMonoid where
     record LeftMonoid : Set where
@@ -3920,6 +4307,12 @@ module MathScheme where
           (zP : Prod AP AP) ->
           opP (opP xP yP) zP ==
             opP xP (opP yP zP)
+    record LeftMonoidSig : Set where
+      constructor LeftMonoidSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
+        eS : AS
   
   module LeftPreSemiring where
     record LeftPreSemiring
@@ -3999,6 +4392,13 @@ module MathScheme where
           (zP : Prod AP AP) ->
           +P (+P xP yP) zP ==
             +P xP (+P yP zP)
+    record LeftPreSemiringSig
+      : Set where
+      constructor LeftPreSemiringSigSigC
+      field
+        AS : Set
+        *S : AS -> AS -> AS
+        +S : AS -> AS -> AS
   
   module LeftQuasiGroup where
     record LeftQuasiGroup
@@ -4058,6 +4458,13 @@ module MathScheme where
           (xP : Prod AP AP)
           (yP : Prod AP AP) ->
           linvP xP (opP xP yP) == yP
+    record LeftQuasiGroupSig
+      : Set where
+      constructor LeftQuasiGroupSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
+        linvS : AS -> AS -> AS
   
   module LeftRack where
     record LeftRack : Set where
@@ -4107,6 +4514,12 @@ module MathScheme where
           (zP : Prod AP AP) ->
           |>P xP (|>P yP zP) ==
             |>P (|>P xP yP) (|>P xP zP)
+    record LeftRackSig : Set where
+      constructor LeftRackSigSigC
+      field
+        AS : Set
+        |>S : AS -> AS -> AS
+        <|S : AS -> AS -> AS
   
   module LeftRingoid where
     record LeftRingoid : Set where
@@ -4158,6 +4571,13 @@ module MathScheme where
           (zP : Prod AP AP) ->
           *P xP (+P yP zP) ==
             +P (*P xP yP) (*P xP zP)
+    record LeftRingoidSig
+      : Set where
+      constructor LeftRingoidSigSigC
+      field
+        AS : Set
+        *S : AS -> AS -> AS
+        +S : AS -> AS -> AS
   
   module LeftShelf where
     record LeftShelf : Set where
@@ -4196,6 +4616,11 @@ module MathScheme where
           (zP : Prod AP AP) ->
           |>P xP (|>P yP zP) ==
             |>P (|>P xP yP) (|>P xP zP)
+    record LeftShelfSig : Set where
+      constructor LeftShelfSigSigC
+      field
+        AS : Set
+        |>S : AS -> AS -> AS
   
   module LeftShelfSig where
     record LeftShelfSig : Set where
@@ -4227,6 +4652,12 @@ module MathScheme where
         |>P :
           Prod AP AP ->
           Prod AP AP -> Prod AP AP
+    record LeftShelfSigSig
+      : Set where
+      constructor LeftShelfSigSigSigC
+      field
+        AS : Set
+        |>S : AS -> AS -> AS
   
   module LeftSpindle where
     record LeftSpindle : Set where
@@ -4272,6 +4703,12 @@ module MathScheme where
         idempotent_|>P :
           (xP : Prod AP AP) ->
           |>P xP xP == xP
+    record LeftSpindleSig
+      : Set where
+      constructor LeftSpindleSigSigC
+      field
+        AS : Set
+        |>S : AS -> AS -> AS
   
   module LeftSpindle_Shelf where
     record LeftSpindle_Shelf
@@ -4342,6 +4779,13 @@ module MathScheme where
           (zP : Prod AP AP) ->
           <|P (<|P yP zP) xP ==
             <|P (<|P yP xP) (<|P zP xP)
+    record LeftSpindle_ShelfSig
+      : Set where
+      constructor LeftSpindle_ShelfSigSigC
+      field
+        AS : Set
+        |>S : AS -> AS -> AS
+        <|S : AS -> AS -> AS
   
   module LeftSpindle_ShelfSig where
     record LeftSpindle_ShelfSig
@@ -4402,6 +4846,13 @@ module MathScheme where
         idempotent_|>P :
           (xP : Prod AP AP) ->
           |>P xP xP == xP
+    record LeftSpindle_ShelfSigSig
+      : Set where
+      constructor LeftSpindle_ShelfSigSigSigC
+      field
+        AS : Set
+        |>S : AS -> AS -> AS
+        <|S : AS -> AS -> AS
   
   module LeftUnital where
     record LeftUnital : Set where
@@ -4439,6 +4890,12 @@ module MathScheme where
         lunit_eP :
           (xP : Prod AP AP) ->
           opP eP xP == xP
+    record LeftUnitalSig : Set where
+      constructor LeftUnitalSigSigC
+      field
+        AS : Set
+        eS : AS
+        opS : AS -> AS -> AS
   
   module LeftZero where
     record LeftZero : Set where
@@ -4476,6 +4933,12 @@ module MathScheme where
         leftZero_op_eP :
           (xP : Prod AP AP) ->
           opP eP xP == eP
+    record LeftZeroSig : Set where
+      constructor LeftZeroSigSigC
+      field
+        AS : Set
+        eS : AS
+        opS : AS -> AS -> AS
   
   module Loop where
     record Loop : Set where
@@ -4563,6 +5026,14 @@ module MathScheme where
           (xP : Prod AP AP)
           (yP : Prod AP AP) ->
           rinvP (opP yP xP) xP == yP
+    record LoopSig : Set where
+      constructor LoopSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
+        eS : AS
+        linvS : AS -> AS -> AS
+        rinvS : AS -> AS -> AS
   
   module Magma where
     record Magma : Set where
@@ -4591,6 +5062,11 @@ module MathScheme where
         opP :
           Prod AP AP ->
           Prod AP AP -> Prod AP AP
+    record MagmaSig : Set where
+      constructor MagmaSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
   
   module MedialMagma where
     record MedialMagma : Set where
@@ -4633,6 +5109,12 @@ module MathScheme where
           (zP : Prod AP AP) ->
           opP (opP xP yP) (opP zP wP) ==
             opP (opP xP zP) (opP yP wP)
+    record MedialMagmaSig
+      : Set where
+      constructor MedialMagmaSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
   
   module MedialQuasiGroup where
     record MedialQuasiGroup
@@ -4730,6 +5212,14 @@ module MathScheme where
           (zP : Prod AP AP) ->
           opP (opP xP yP) (opP zP wP) ==
             opP (opP xP zP) (opP yP wP)
+    record MedialQuasiGroupSig
+      : Set where
+      constructor MedialQuasiGroupSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
+        linvS : AS -> AS -> AS
+        rinvS : AS -> AS -> AS
   
   module MiddleAbsorption where
     record MiddleAbsorption
@@ -4771,6 +5261,12 @@ module MathScheme where
           (yP : Prod AP AP)
           (zP : Prod AP AP) ->
           opP (opP xP yP) zP == opP xP zP
+    record MiddleAbsorptionSig
+      : Set where
+      constructor MiddleAbsorptionSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
   
   module MiddleCommute where
     record MiddleCommute : Set where
@@ -4812,6 +5308,12 @@ module MathScheme where
           (zP : Prod AP AP) ->
           opP (opP (opP xP yP) zP) xP ==
             opP (opP (opP xP zP) yP) xP
+    record MiddleCommuteSig
+      : Set where
+      constructor MiddleCommuteSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
   
   module Monoid where
     record Monoid : Set where
@@ -4861,6 +5363,12 @@ module MathScheme where
           (zP : Prod AP AP) ->
           opP (opP xP yP) zP ==
             opP xP (opP yP zP)
+    record MonoidSig : Set where
+      constructor MonoidSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
+        eS : AS
   
   module Monoid1 where
     record Monoid1 : Set where
@@ -4910,6 +5418,12 @@ module MathScheme where
           (zP : Prod AP AP) ->
           opP (opP xP yP) zP ==
             opP xP (opP yP zP)
+    record Monoid1Sig : Set where
+      constructor Monoid1SigSigC
+      field
+        AS : Set
+        1S : AS
+        opS : AS -> AS -> AS
   
   module MoufangIdentity where
     record MoufangIdentity
@@ -4953,6 +5467,12 @@ module MathScheme where
           (zP : Prod AP AP) ->
           opP (opP zP xP) (opP yP zP) ==
             opP (opP zP (opP xP yP)) zP
+    record MoufangIdentitySig
+      : Set where
+      constructor MoufangIdentitySigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
   
   module MoufangLaw where
     record MoufangLaw : Set where
@@ -4997,6 +5517,11 @@ module MathScheme where
           opP (opP (opP xP yP) zP) xP ==
             opP xP
               (opP yP (opP (opP eP zP) xP))
+    record MoufangLawSig : Set where
+      constructor MoufangLawSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
   
   module MoufangLoop where
     record MoufangLoop : Set where
@@ -5101,6 +5626,15 @@ module MathScheme where
           (zP : Prod AP AP) ->
           opP (opP zP xP) (opP yP zP) ==
             opP (opP zP (opP xP yP)) zP
+    record MoufangLoopSig
+      : Set where
+      constructor MoufangLoopSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
+        eS : AS
+        linvS : AS -> AS -> AS
+        rinvS : AS -> AS -> AS
   
   module MoufangQuasiGroup where
     record MoufangQuasiGroup
@@ -5201,6 +5735,14 @@ module MathScheme where
           opP (opP (opP xP yP) zP) xP ==
             opP xP
               (opP yP (opP (opP eP zP) xP))
+    record MoufangQuasiGroupSig
+      : Set where
+      constructor MoufangQuasiGroupSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
+        linvS : AS -> AS -> AS
+        rinvS : AS -> AS -> AS
   
   module MultGroup where
     record MultGroup : Set where
@@ -5268,47 +5810,13 @@ module MathScheme where
         rightInverse_inv_op_1P :
           (xP : Prod AP AP) ->
           *P (invP xP) xP == 1P
-  
-  module MultLeftUnital where
-    record MultLeftUnital
-      : Set where
-      constructor MultLeftUnitalC
+    record MultGroupSig : Set where
+      constructor MultGroupSigSigC
       field
-        A : Set
-        1 : A
-        * : A -> A -> A
-        lunit_1 : (x : A) -> * 1 x == x
-    record MultLeftUnitalHom
-      (M1 : MultLeftUnital)
-      (M2 : MultLeftUnital) :
-      Set where
-      constructor MultLeftUnitalHomC
-      field
-        hom : A M1 -> A M2
-        pres-1 : hom (1 M1) == 1 M2
-        pres-* :
-          (x1 : A M1) (x2 : A M1) ->
-          hom (* M1 x1 x2) ==
-            * M2 (hom x1) (hom x2)
-    data MultLeftUnitalLang
-      : Set where
-      1L : MultLeftUnitalLang
-      *L :
-        MultLeftUnitalLang ->
-        MultLeftUnitalLang ->
-        MultLeftUnitalLang
-    record MultLeftUnitalProd
-      : Set where
-      constructor MultLeftUnitalProdC
-      field
-        AP : Set
-        1P : Prod AP AP
-        *P :
-          Prod AP AP ->
-          Prod AP AP -> Prod AP AP
-        lunit_1P :
-          (xP : Prod AP AP) ->
-          *P 1P xP == xP
+        AS : Set
+        *S : AS -> AS -> AS
+        1S : AS
+        invS : AS -> AS
   
   module MultMagma where
     record MultMagma : Set where
@@ -5337,6 +5845,11 @@ module MathScheme where
         *P :
           Prod AP AP ->
           Prod AP AP -> Prod AP AP
+    record MultMagmaSig : Set where
+      constructor MultMagmaSigSigC
+      field
+        AS : Set
+        *S : AS -> AS -> AS
   
   module MultMonoid where
     record MultMonoid : Set where
@@ -5387,6 +5900,12 @@ module MathScheme where
           (zP : Prod AP AP) ->
           *P (*P xP yP) zP ==
             *P xP (*P yP zP)
+    record MultMonoidSig : Set where
+      constructor MultMonoidSigSigC
+      field
+        AS : Set
+        1S : AS
+        *S : AS -> AS -> AS
   
   module MultPointedMagma where
     record MultPointedMagma
@@ -5424,6 +5943,13 @@ module MathScheme where
         *P :
           Prod AP AP ->
           Prod AP AP -> Prod AP AP
+    record MultPointedMagmaSig
+      : Set where
+      constructor MultPointedMagmaSigSigC
+      field
+        AS : Set
+        1S : AS
+        *S : AS -> AS -> AS
   
   module MultSemigroup where
     record MultSemigroup : Set where
@@ -5464,47 +5990,12 @@ module MathScheme where
           (zP : Prod AP AP) ->
           *P (*P xP yP) zP ==
             *P xP (*P yP zP)
-  
-  module MultUnital where
-    record MultUnital : Set where
-      constructor MultUnitalC
-      field
-        A : Set
-        1 : A
-        * : A -> A -> A
-        lunit_1 : (x : A) -> * 1 x == x
-        runit_1 : (x : A) -> * x 1 == x
-    record MultUnitalHom
-      (M1 : MultUnital)
-      (M2 : MultUnital) : Set where
-      constructor MultUnitalHomC
-      field
-        hom : A M1 -> A M2
-        pres-1 : hom (1 M1) == 1 M2
-        pres-* :
-          (x1 : A M1) (x2 : A M1) ->
-          hom (* M1 x1 x2) ==
-            * M2 (hom x1) (hom x2)
-    data MultUnitalLang : Set where
-      1L : MultUnitalLang
-      *L :
-        MultUnitalLang ->
-        MultUnitalLang -> MultUnitalLang
-    record MultUnitalProd
+    record MultSemigroupSig
       : Set where
-      constructor MultUnitalProdC
+      constructor MultSemigroupSigSigC
       field
-        AP : Set
-        1P : Prod AP AP
-        *P :
-          Prod AP AP ->
-          Prod AP AP -> Prod AP AP
-        lunit_1P :
-          (xP : Prod AP AP) ->
-          *P 1P xP == xP
-        runit_1P :
-          (xP : Prod AP AP) ->
-          *P xP 1P == xP
+        AS : Set
+        *S : AS -> AS -> AS
   
   module NearRing where
     record NearRing : Set where
@@ -5601,6 +6092,14 @@ module MathScheme where
           (zP : Prod AP AP) ->
           *P (+P yP zP) xP ==
             +P (*P yP xP) (*P zP xP)
+    record NearRingSig : Set where
+      constructor NearRingSigSigC
+      field
+        AS : Set
+        *S : AS -> AS -> AS
+        +S : AS -> AS -> AS
+        0S : AS
+        invS : AS -> AS
   
   module NearSemiring where
     record NearSemiring : Set where
@@ -5671,6 +6170,13 @@ module MathScheme where
           (zP : Prod AP AP) ->
           *P (+P yP zP) xP ==
             +P (*P yP xP) (*P zP xP)
+    record NearSemiringSig
+      : Set where
+      constructor NearSemiringSigSigC
+      field
+        AS : Set
+        *S : AS -> AS -> AS
+        +S : AS -> AS -> AS
   
   module NonDistributiveAddPreSemiring where
     record NonDistributiveAddPreSemiring
@@ -5732,6 +6238,13 @@ module MathScheme where
           (zP : Prod AP AP) ->
           +P (+P xP yP) zP ==
             +P xP (+P yP zP)
+    record NonDistributiveAddPreSemiringSig
+      : Set where
+      constructor NonDistributiveAddPreSemiringSigSigC
+      field
+        AS : Set
+        +S : AS -> AS -> AS
+        *S : AS -> AS -> AS
   
   module NonassociativeNondistributiveRing where
     record NonassociativeNondistributiveRing
@@ -5825,6 +6338,15 @@ module MathScheme where
           (xP : Prod AP AP)
           (yP : Prod AP AP) ->
           *P xP yP == *P yP xP
+    record NonassociativeNondistributiveRingSig
+      : Set where
+      constructor NonassociativeNondistributiveRingSigSigC
+      field
+        AS : Set
+        *S : AS -> AS -> AS
+        1S : AS
+        invS : AS -> AS
+        +S : AS -> AS -> AS
   
   module NonassociativeRing where
     record NonassociativeRing
@@ -5935,6 +6457,15 @@ module MathScheme where
           (zP : Prod AP AP) ->
           *P (+P yP zP) xP ==
             +P (*P yP xP) (*P zP xP)
+    record NonassociativeRingSig
+      : Set where
+      constructor NonassociativeRingSigSigC
+      field
+        AS : Set
+        *S : AS -> AS -> AS
+        +S : AS -> AS -> AS
+        1S : AS
+        invS : AS -> AS
   
   module NormalBand where
     record NormalBand : Set where
@@ -5988,6 +6519,11 @@ module MathScheme where
           (zP : Prod AP AP) ->
           opP (opP (opP xP yP) zP) xP ==
             opP (opP (opP xP zP) yP) xP
+    record NormalBandSig : Set where
+      constructor NormalBandSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
   
   module OrDeMorgran where
     record OrDeMorgran : Set where
@@ -6050,6 +6586,14 @@ module MathScheme where
           (zP : Prod AP AP) ->
           primeP (+P xP yP) ==
             *P (primeP xP) (primeP yP)
+    record OrDeMorgranSig
+      : Set where
+      constructor OrDeMorgranSigSigC
+      field
+        AS : Set
+        *S : AS -> AS -> AS
+        +S : AS -> AS -> AS
+        primeS : AS -> AS
   
   module Pointed where
     record Pointed : Set where
@@ -6071,6 +6615,11 @@ module MathScheme where
       field
         AP : Set
         eP : Prod AP AP
+    record PointedSig : Set where
+      constructor PointedSigSigC
+      field
+        AS : Set
+        eS : AS
   
   module Pointed0Magma where
     record Pointed0Magma : Set where
@@ -6106,6 +6655,13 @@ module MathScheme where
         opP :
           Prod AP AP ->
           Prod AP AP -> Prod AP AP
+    record Pointed0MagmaSig
+      : Set where
+      constructor Pointed0MagmaSigSigC
+      field
+        AS : Set
+        0S : AS
+        opS : AS -> AS -> AS
   
   module Pointed1Magma where
     record Pointed1Magma : Set where
@@ -6141,6 +6697,13 @@ module MathScheme where
         opP :
           Prod AP AP ->
           Prod AP AP -> Prod AP AP
+    record Pointed1MagmaSig
+      : Set where
+      constructor Pointed1MagmaSigSigC
+      field
+        AS : Set
+        1S : AS
+        opS : AS -> AS -> AS
   
   module PointedMagma where
     record PointedMagma : Set where
@@ -6176,6 +6739,13 @@ module MathScheme where
         opP :
           Prod AP AP ->
           Prod AP AP -> Prod AP AP
+    record PointedMagmaSig
+      : Set where
+      constructor PointedMagmaSigSigC
+      field
+        AS : Set
+        eS : AS
+        opS : AS -> AS -> AS
   
   module PointedOne where
     record PointedOne : Set where
@@ -6198,6 +6768,11 @@ module MathScheme where
       field
         AP : Set
         1P : Prod AP AP
+    record PointedOneSig : Set where
+      constructor PointedOneSigSigC
+      field
+        AS : Set
+        1S : AS
   
   module PointedPlusMagma where
     record PointedPlusMagma
@@ -6235,6 +6810,13 @@ module MathScheme where
           Prod AP AP ->
           Prod AP AP -> Prod AP AP
         eP : Prod AP AP
+    record PointedPlusMagmaSig
+      : Set where
+      constructor PointedPlusMagmaSigSigC
+      field
+        AS : Set
+        +S : AS -> AS -> AS
+        eS : AS
   
   module PointedSteinerMagma where
     record PointedSteinerMagma
@@ -6286,6 +6868,13 @@ module MathScheme where
           (xP : Prod AP AP)
           (yP : Prod AP AP) ->
           opP xP (opP xP yP) == yP
+    record PointedSteinerMagmaSig
+      : Set where
+      constructor PointedSteinerMagmaSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
+        eS : AS
   
   module PointedTimesMagma where
     record PointedTimesMagma
@@ -6323,6 +6912,13 @@ module MathScheme where
           Prod AP AP ->
           Prod AP AP -> Prod AP AP
         eP : Prod AP AP
+    record PointedTimesMagmaSig
+      : Set where
+      constructor PointedTimesMagmaSigSigC
+      field
+        AS : Set
+        *S : AS -> AS -> AS
+        eS : AS
   
   module PointedUnarySystem where
     record PointedUnarySystem
@@ -6358,6 +6954,13 @@ module MathScheme where
         primeP :
           Prod AP AP -> Prod AP AP
         eP : Prod AP AP
+    record PointedUnarySystemSig
+      : Set where
+      constructor PointedUnarySystemSigSigC
+      field
+        AS : Set
+        primeS : AS -> AS
+        eS : AS
   
   module PointedZero where
     record PointedZero : Set where
@@ -6380,6 +6983,12 @@ module MathScheme where
       field
         AP : Set
         0P : Prod AP AP
+    record PointedZeroSig
+      : Set where
+      constructor PointedZeroSigSigC
+      field
+        AS : Set
+        0S : AS
   
   module PreSemiring where
     record PreSemiring : Set where
@@ -6465,6 +7074,13 @@ module MathScheme where
           (zP : Prod AP AP) ->
           *P (+P yP zP) xP ==
             +P (*P yP xP) (*P zP xP)
+    record PreSemiringSig
+      : Set where
+      constructor PreSemiringSigSigC
+      field
+        AS : Set
+        *S : AS -> AS -> AS
+        +S : AS -> AS -> AS
   
   module PrimeRingoidSig where
     record PrimeRingoidSig
@@ -6520,6 +7136,14 @@ module MathScheme where
           Prod AP AP -> Prod AP AP
         primeP :
           Prod AP AP -> Prod AP AP
+    record PrimeRingoidSigSig
+      : Set where
+      constructor PrimeRingoidSigSigSigC
+      field
+        AS : Set
+        *S : AS -> AS -> AS
+        +S : AS -> AS -> AS
+        primeS : AS -> AS
   
   module PseudoInverse where
     record PseudoInverse : Set where
@@ -6566,6 +7190,13 @@ module MathScheme where
         quasiInverse_inv_op_eP :
           (xP : Prod AP AP) ->
           opP (opP xP (invP xP)) xP == xP
+    record PseudoInverseSig
+      : Set where
+      constructor PseudoInverseSigSigC
+      field
+        AS : Set
+        invS : AS -> AS
+        opS : AS -> AS -> AS
   
   module PseudoInverseSig where
     record PseudoInverseSig
@@ -6608,6 +7239,13 @@ module MathScheme where
         opP :
           Prod AP AP ->
           Prod AP AP -> Prod AP AP
+    record PseudoInverseSigSig
+      : Set where
+      constructor PseudoInverseSigSigSigC
+      field
+        AS : Set
+        invS : AS -> AS
+        opS : AS -> AS -> AS
   
   module PseudoInvolution where
     record PseudoInvolution
@@ -6658,6 +7296,13 @@ module MathScheme where
           (xP : Prod AP AP) ->
           opP (opP (invP xP) xP)
             (invP xP) == invP xP
+    record PseudoInvolutionSig
+      : Set where
+      constructor PseudoInvolutionSigSigC
+      field
+        AS : Set
+        invS : AS -> AS
+        opS : AS -> AS -> AS
   
   module Quandle where
     record Quandle : Set where
@@ -6741,6 +7386,12 @@ module MathScheme where
         idempotent_<|P :
           (xP : Prod AP AP) ->
           <|P xP xP == xP
+    record QuandleSig : Set where
+      constructor QuandleSigSigC
+      field
+        AS : Set
+        |>S : AS -> AS -> AS
+        <|S : AS -> AS -> AS
   
   module QuasiGroup where
     record QuasiGroup : Set where
@@ -6820,6 +7471,13 @@ module MathScheme where
           (xP : Prod AP AP)
           (yP : Prod AP AP) ->
           rinvP (opP yP xP) xP == yP
+    record QuasiGroupSig : Set where
+      constructor QuasiGroupSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
+        linvS : AS -> AS -> AS
+        rinvS : AS -> AS -> AS
   
   module Rack where
     record Rack : Set where
@@ -6891,6 +7549,12 @@ module MathScheme where
           (xP : Prod AP AP)
           (yP : Prod AP AP) ->
           |>P xP (<|P yP xP) == yP
+    record RackSig : Set where
+      constructor RackSigSigC
+      field
+        AS : Set
+        |>S : AS -> AS -> AS
+        <|S : AS -> AS -> AS
   
   module RectangularBand where
     record RectangularBand
@@ -6948,6 +7612,12 @@ module MathScheme where
           (zP : Prod AP AP) ->
           opP (opP (opP xP yP) zP) xP ==
             opP (opP (opP xP zP) yP) xP
+    record RectangularBandSig
+      : Set where
+      constructor RectangularBandSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
   
   module RegularSemigroup where
     record RegularSemigroup
@@ -7005,6 +7675,13 @@ module MathScheme where
         quasiInverse_inv_op_eP :
           (xP : Prod AP AP) ->
           opP (opP xP (invP xP)) xP == xP
+    record RegularSemigroupSig
+      : Set where
+      constructor RegularSemigroupSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
+        invS : AS -> AS
   
   module Right0 where
     record Right0 : Set where
@@ -7042,6 +7719,12 @@ module MathScheme where
         rightZero_op_0P :
           (xP : Prod AP AP) ->
           opP xP 0P == 0P
+    record Right0Sig : Set where
+      constructor Right0SigSigC
+      field
+        AS : Set
+        0S : AS
+        opS : AS -> AS -> AS
   
   module RightBiMagma where
     record RightBiMagma : Set where
@@ -7085,6 +7768,13 @@ module MathScheme where
         rinvP :
           Prod AP AP ->
           Prod AP AP -> Prod AP AP
+    record RightBiMagmaSig
+      : Set where
+      constructor RightBiMagmaSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
+        rinvS : AS -> AS -> AS
   
   module RightBinaryInverse where
     record RightBinaryInverse
@@ -7137,6 +7827,13 @@ module MathScheme where
           (xP : Prod AP AP)
           (yP : Prod AP AP) ->
           |>P xP (<|P yP xP) == yP
+    record RightBinaryInverseSig
+      : Set where
+      constructor RightBinaryInverseSigSigC
+      field
+        AS : Set
+        |>S : AS -> AS -> AS
+        <|S : AS -> AS -> AS
   
   module RightCancellative where
     record RightCancellative
@@ -7189,6 +7886,13 @@ module MathScheme where
           (xP : Prod AP AP)
           (yP : Prod AP AP) ->
           opP (rinvP yP xP) xP == yP
+    record RightCancellativeSig
+      : Set where
+      constructor RightCancellativeSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
+        rinvS : AS -> AS -> AS
   
   module RightCancellativeMagma where
     record RightCancellativeMagma
@@ -7231,6 +7935,12 @@ module MathScheme where
           (zP : Prod AP AP) ->
           opP xP zP == opP yP zP ->
           xP == yP
+    record RightCancellativeMagmaSig
+      : Set where
+      constructor RightCancellativeMagmaSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
   
   module RightCancellativeOp where
     record RightCancellativeOp
@@ -7283,6 +7993,13 @@ module MathScheme where
           (xP : Prod AP AP)
           (yP : Prod AP AP) ->
           rinvP (opP yP xP) xP == yP
+    record RightCancellativeOpSig
+      : Set where
+      constructor RightCancellativeOpSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
+        rinvS : AS -> AS -> AS
   
   module RightCancellativeSemigroup where
     record RightCancellativeSemigroup
@@ -7334,6 +8051,12 @@ module MathScheme where
           (zP : Prod AP AP) ->
           opP xP zP == opP yP zP ->
           xP == yP
+    record RightCancellativeSemigroupSig
+      : Set where
+      constructor RightCancellativeSemigroupSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
   
   module RightDistributiveMagma where
     record RightDistributiveMagma
@@ -7377,6 +8100,12 @@ module MathScheme where
           (zP : Prod AP AP) ->
           opP (opP yP zP) xP ==
             opP (opP yP xP) (opP zP xP)
+    record RightDistributiveMagmaSig
+      : Set where
+      constructor RightDistributiveMagmaSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
   
   module RightIdempotence where
     record RightIdempotence
@@ -7415,6 +8144,12 @@ module MathScheme where
         idempotent_<|P :
           (xP : Prod AP AP) ->
           <|P xP xP == xP
+    record RightIdempotenceSig
+      : Set where
+      constructor RightIdempotenceSigSigC
+      field
+        AS : Set
+        <|S : AS -> AS -> AS
   
   module RightInverse where
     record RightInverse : Set where
@@ -7464,6 +8199,14 @@ module MathScheme where
         rightInverse_inv_op_eP :
           (xP : Prod AP AP) ->
           opP (invP xP) xP == eP
+    record RightInverseSig
+      : Set where
+      constructor RightInverseSigSigC
+      field
+        AS : Set
+        invS : AS -> AS
+        eS : AS
+        opS : AS -> AS -> AS
   
   module RightInverseMagma where
     record RightInverseMagma
@@ -7497,6 +8240,12 @@ module MathScheme where
         rinvP :
           Prod AP AP ->
           Prod AP AP -> Prod AP AP
+    record RightInverseMagmaSig
+      : Set where
+      constructor RightInverseMagmaSigSigC
+      field
+        AS : Set
+        rinvS : AS -> AS -> AS
   
   module RightMonoid where
     record RightMonoid : Set where
@@ -7544,6 +8293,13 @@ module MathScheme where
           (zP : Prod AP AP) ->
           opP (opP xP yP) zP ==
             opP xP (opP yP zP)
+    record RightMonoidSig
+      : Set where
+      constructor RightMonoidSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
+        eS : AS
   
   module RightPreSemiring where
     record RightPreSemiring
@@ -7623,6 +8379,13 @@ module MathScheme where
           (zP : Prod AP AP) ->
           +P (+P xP yP) zP ==
             +P xP (+P yP zP)
+    record RightPreSemiringSig
+      : Set where
+      constructor RightPreSemiringSigSigC
+      field
+        AS : Set
+        *S : AS -> AS -> AS
+        +S : AS -> AS -> AS
   
   module RightQuasiGroup where
     record RightQuasiGroup
@@ -7682,6 +8445,13 @@ module MathScheme where
           (xP : Prod AP AP)
           (yP : Prod AP AP) ->
           rinvP (opP yP xP) xP == yP
+    record RightQuasiGroupSig
+      : Set where
+      constructor RightQuasiGroupSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
+        rinvS : AS -> AS -> AS
   
   module RightRack where
     record RightRack : Set where
@@ -7731,6 +8501,12 @@ module MathScheme where
           (zP : Prod AP AP) ->
           <|P (<|P yP zP) xP ==
             <|P (<|P yP xP) (<|P zP xP)
+    record RightRackSig : Set where
+      constructor RightRackSigSigC
+      field
+        AS : Set
+        <|S : AS -> AS -> AS
+        |>S : AS -> AS -> AS
   
   module RightRingoid where
     record RightRingoid : Set where
@@ -7783,6 +8559,13 @@ module MathScheme where
           (zP : Prod AP AP) ->
           *P (+P yP zP) xP ==
             +P (*P yP xP) (*P zP xP)
+    record RightRingoidSig
+      : Set where
+      constructor RightRingoidSigSigC
+      field
+        AS : Set
+        *S : AS -> AS -> AS
+        +S : AS -> AS -> AS
   
   module RightSelfInverse where
     record RightSelfInverse
@@ -7823,6 +8606,12 @@ module MathScheme where
           (xP : Prod AP AP)
           (yP : Prod AP AP) ->
           |>P (|>P xP yP) yP == xP
+    record RightSelfInverseSig
+      : Set where
+      constructor RightSelfInverseSigSigC
+      field
+        AS : Set
+        |>S : AS -> AS -> AS
   
   module RightShelf where
     record RightShelf : Set where
@@ -7862,6 +8651,11 @@ module MathScheme where
           (zP : Prod AP AP) ->
           <|P (<|P yP zP) xP ==
             <|P (<|P yP xP) (<|P zP xP)
+    record RightShelfSig : Set where
+      constructor RightShelfSigSigC
+      field
+        AS : Set
+        <|S : AS -> AS -> AS
   
   module RightShelfSig where
     record RightShelfSig : Set where
@@ -7893,6 +8687,12 @@ module MathScheme where
         <|P :
           Prod AP AP ->
           Prod AP AP -> Prod AP AP
+    record RightShelfSigSig
+      : Set where
+      constructor RightShelfSigSigSigC
+      field
+        AS : Set
+        <|S : AS -> AS -> AS
   
   module RightSpindle where
     record RightSpindle : Set where
@@ -7939,6 +8739,12 @@ module MathScheme where
         idempotent_<|P :
           (xP : Prod AP AP) ->
           <|P xP xP == xP
+    record RightSpindleSig
+      : Set where
+      constructor RightSpindleSigSigC
+      field
+        AS : Set
+        <|S : AS -> AS -> AS
   
   module RightSpindle_Shelf where
     record RightSpindle_Shelf
@@ -8009,6 +8815,13 @@ module MathScheme where
           (zP : Prod AP AP) ->
           |>P xP (|>P yP zP) ==
             |>P (|>P xP yP) (|>P xP zP)
+    record RightSpindle_ShelfSig
+      : Set where
+      constructor RightSpindle_ShelfSigSigC
+      field
+        AS : Set
+        <|S : AS -> AS -> AS
+        |>S : AS -> AS -> AS
   
   module RightSpindle_ShelfSig where
     record RightSpindle_ShelfSig
@@ -8069,6 +8882,13 @@ module MathScheme where
         idempotent_<|P :
           (xP : Prod AP AP) ->
           <|P xP xP == xP
+    record RightSpindle_ShelfSigSig
+      : Set where
+      constructor RightSpindle_ShelfSigSigSigC
+      field
+        AS : Set
+        <|S : AS -> AS -> AS
+        |>S : AS -> AS -> AS
   
   module RightUnital where
     record RightUnital : Set where
@@ -8107,6 +8927,13 @@ module MathScheme where
         runit_eP :
           (xP : Prod AP AP) ->
           opP xP eP == xP
+    record RightUnitalSig
+      : Set where
+      constructor RightUnitalSigSigC
+      field
+        AS : Set
+        eS : AS
+        opS : AS -> AS -> AS
   
   module RightZero where
     record RightZero : Set where
@@ -8144,6 +8971,12 @@ module MathScheme where
         rightZero_op_eP :
           (xP : Prod AP AP) ->
           opP xP eP == eP
+    record RightZeroSig : Set where
+      constructor RightZeroSigSigC
+      field
+        AS : Set
+        eS : AS
+        opS : AS -> AS -> AS
   
   module Ringoid where
     record Ringoid : Set where
@@ -8201,6 +9034,180 @@ module MathScheme where
           (zP : Prod AP AP) ->
           *P (+P yP zP) xP ==
             +P (*P yP xP) (*P zP xP)
+    record RingoidSig : Set where
+      constructor RingoidSigSigC
+      field
+        AS : Set
+        *S : AS -> AS -> AS
+        +S : AS -> AS -> AS
+  
+  module Ringoid01Sig where
+    record Ringoid01Sig : Set where
+      constructor Ringoid01SigC
+      field
+        A : Set
+        * : A -> A -> A
+        + : A -> A -> A
+        0 : A
+        1 : A
+    record Ringoid01SigHom
+      (R1 : Ringoid01Sig)
+      (R2 : Ringoid01Sig) : Set where
+      constructor Ringoid01SigHomC
+      field
+        hom : A R1 -> A R2
+        pres-* :
+          (x1 : A R1) (x2 : A R1) ->
+          hom (* R1 x1 x2) ==
+            * R2 (hom x1) (hom x2)
+        pres-+ :
+          (x1 : A R1) (x2 : A R1) ->
+          hom (+ R1 x1 x2) ==
+            + R2 (hom x1) (hom x2)
+        pres-0 : hom (0 R1) == 0 R2
+        pres-1 : hom (1 R1) == 1 R2
+    data Ringoid01SigLang
+      : Set where
+      *L :
+        Ringoid01SigLang ->
+        Ringoid01SigLang ->
+        Ringoid01SigLang
+      +L :
+        Ringoid01SigLang ->
+        Ringoid01SigLang ->
+        Ringoid01SigLang
+      0L : Ringoid01SigLang
+      1L : Ringoid01SigLang
+    record Ringoid01SigProd
+      : Set where
+      constructor Ringoid01SigProdC
+      field
+        AP : Set
+        *P :
+          Prod AP AP ->
+          Prod AP AP -> Prod AP AP
+        +P :
+          Prod AP AP ->
+          Prod AP AP -> Prod AP AP
+        0P : Prod AP AP
+        1P : Prod AP AP
+    record Ringoid01SigSig
+      : Set where
+      constructor Ringoid01SigSigSigC
+      field
+        AS : Set
+        *S : AS -> AS -> AS
+        +S : AS -> AS -> AS
+        0S : AS
+        1S : AS
+  
+  module Ringoid0Sig where
+    record Ringoid0Sig : Set where
+      constructor Ringoid0SigC
+      field
+        A : Set
+        * : A -> A -> A
+        + : A -> A -> A
+        0 : A
+    record Ringoid0SigHom
+      (R1 : Ringoid0Sig)
+      (R2 : Ringoid0Sig) : Set where
+      constructor Ringoid0SigHomC
+      field
+        hom : A R1 -> A R2
+        pres-* :
+          (x1 : A R1) (x2 : A R1) ->
+          hom (* R1 x1 x2) ==
+            * R2 (hom x1) (hom x2)
+        pres-+ :
+          (x1 : A R1) (x2 : A R1) ->
+          hom (+ R1 x1 x2) ==
+            + R2 (hom x1) (hom x2)
+        pres-0 : hom (0 R1) == 0 R2
+    data Ringoid0SigLang : Set where
+      *L :
+        Ringoid0SigLang ->
+        Ringoid0SigLang ->
+        Ringoid0SigLang
+      +L :
+        Ringoid0SigLang ->
+        Ringoid0SigLang ->
+        Ringoid0SigLang
+      0L : Ringoid0SigLang
+    record Ringoid0SigProd
+      : Set where
+      constructor Ringoid0SigProdC
+      field
+        AP : Set
+        *P :
+          Prod AP AP ->
+          Prod AP AP -> Prod AP AP
+        +P :
+          Prod AP AP ->
+          Prod AP AP -> Prod AP AP
+        0P : Prod AP AP
+    record Ringoid0SigSig
+      : Set where
+      constructor Ringoid0SigSigSigC
+      field
+        AS : Set
+        *S : AS -> AS -> AS
+        +S : AS -> AS -> AS
+        0S : AS
+  
+  module Ringoid1Sig where
+    record Ringoid1Sig : Set where
+      constructor Ringoid1SigC
+      field
+        A : Set
+        * : A -> A -> A
+        + : A -> A -> A
+        1 : A
+    record Ringoid1SigHom
+      (R1 : Ringoid1Sig)
+      (R2 : Ringoid1Sig) : Set where
+      constructor Ringoid1SigHomC
+      field
+        hom : A R1 -> A R2
+        pres-* :
+          (x1 : A R1) (x2 : A R1) ->
+          hom (* R1 x1 x2) ==
+            * R2 (hom x1) (hom x2)
+        pres-+ :
+          (x1 : A R1) (x2 : A R1) ->
+          hom (+ R1 x1 x2) ==
+            + R2 (hom x1) (hom x2)
+        pres-1 : hom (1 R1) == 1 R2
+    data Ringoid1SigLang : Set where
+      *L :
+        Ringoid1SigLang ->
+        Ringoid1SigLang ->
+        Ringoid1SigLang
+      +L :
+        Ringoid1SigLang ->
+        Ringoid1SigLang ->
+        Ringoid1SigLang
+      1L : Ringoid1SigLang
+    record Ringoid1SigProd
+      : Set where
+      constructor Ringoid1SigProdC
+      field
+        AP : Set
+        *P :
+          Prod AP AP ->
+          Prod AP AP -> Prod AP AP
+        +P :
+          Prod AP AP ->
+          Prod AP AP -> Prod AP AP
+        1P : Prod AP AP
+    record Ringoid1SigSig
+      : Set where
+      constructor Ringoid1SigSigSigC
+      field
+        AS : Set
+        *S : AS -> AS -> AS
+        +S : AS -> AS -> AS
+        1S : AS
   
   module RingoidSig where
     record RingoidSig : Set where
@@ -8241,6 +9248,12 @@ module MathScheme where
         +P :
           Prod AP AP ->
           Prod AP AP -> Prod AP AP
+    record RingoidSigSig : Set where
+      constructor RingoidSigSigSigC
+      field
+        AS : Set
+        *S : AS -> AS -> AS
+        +S : AS -> AS -> AS
   
   module Rng where
     record Rng : Set where
@@ -8350,6 +9363,14 @@ module MathScheme where
           (zP : Prod AP AP) ->
           *P (*P xP yP) zP ==
             *P xP (*P yP zP)
+    record RngSig : Set where
+      constructor RngSigSigC
+      field
+        AS : Set
+        *S : AS -> AS -> AS
+        +S : AS -> AS -> AS
+        0S : AS
+        invS : AS -> AS
   
   module Semigroup where
     record Semigroup : Set where
@@ -8387,6 +9408,11 @@ module MathScheme where
           (zP : Prod AP AP) ->
           opP (opP xP yP) zP ==
             opP xP (opP yP zP)
+    record SemigroupSig : Set where
+      constructor SemigroupSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
   
   module Shelf where
     record Shelf : Set where
@@ -8446,6 +9472,12 @@ module MathScheme where
           (zP : Prod AP AP) ->
           <|P (<|P yP zP) xP ==
             <|P (<|P yP xP) (<|P zP xP)
+    record ShelfSig : Set where
+      constructor ShelfSigSigC
+      field
+        AS : Set
+        |>S : AS -> AS -> AS
+        <|S : AS -> AS -> AS
   
   module ShelfSig where
     record ShelfSig : Set where
@@ -8485,6 +9517,12 @@ module MathScheme where
         <|P :
           Prod AP AP ->
           Prod AP AP -> Prod AP AP
+    record ShelfSigSig : Set where
+      constructor ShelfSigSigSigC
+      field
+        AS : Set
+        |>S : AS -> AS -> AS
+        <|S : AS -> AS -> AS
   
   module Sloop where
     record Sloop : Set where
@@ -8536,6 +9574,12 @@ module MathScheme where
         unipotenceP :
           (xP : Prod AP AP) ->
           opP xP xP == eP
+    record SloopSig : Set where
+      constructor SloopSigSigC
+      field
+        AS : Set
+        eS : AS
+        opS : AS -> AS -> AS
   
   module Spindle where
     record Spindle : Set where
@@ -8605,6 +9649,12 @@ module MathScheme where
         idempotent_<|P :
           (xP : Prod AP AP) ->
           <|P xP xP == xP
+    record SpindleSig : Set where
+      constructor SpindleSigSigC
+      field
+        AS : Set
+        |>S : AS -> AS -> AS
+        <|S : AS -> AS -> AS
   
   module Squag where
     record Squag : Set where
@@ -8652,6 +9702,11 @@ module MathScheme where
         idempotent_opP :
           (xP : Prod AP AP) ->
           opP xP xP == xP
+    record SquagSig : Set where
+      constructor SquagSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
   
   module SteinerMagma where
     record SteinerMagma : Set where
@@ -8697,6 +9752,12 @@ module MathScheme where
           (xP : Prod AP AP)
           (yP : Prod AP AP) ->
           opP xP (opP xP yP) == yP
+    record SteinerMagmaSig
+      : Set where
+      constructor SteinerMagmaSigSigC
+      field
+        AS : Set
+        opS : AS -> AS -> AS
   
   module TwoPointed where
     record TwoPointed : Set where
@@ -8723,6 +9784,12 @@ module MathScheme where
         AP : Set
         e1P : Prod AP AP
         e2P : Prod AP AP
+    record TwoPointedSig : Set where
+      constructor TwoPointedSigSigC
+      field
+        AS : Set
+        e1S : AS
+        e2S : AS
   
   module TwoPointed01 where
     record TwoPointed01 : Set where
@@ -8750,6 +9817,13 @@ module MathScheme where
         AP : Set
         e1P : Prod AP AP
         e2P : Prod AP AP
+    record TwoPointed01Sig
+      : Set where
+      constructor TwoPointed01SigSigC
+      field
+        AS : Set
+        e1S : AS
+        e2S : AS
   
   module UnaryAntiDistribution where
     record UnaryAntiDistribution
@@ -8802,6 +9876,13 @@ module MathScheme where
           (yP : Prod AP AP) ->
           primeP (opP xP yP) ==
             opP (primeP yP) (primeP xP)
+    record UnaryAntiDistributionSig
+      : Set where
+      constructor UnaryAntiDistributionSigSigC
+      field
+        AS : Set
+        primeS : AS -> AS
+        opS : AS -> AS -> AS
   
   module UnaryDistributes where
     record UnaryDistributes
@@ -8854,6 +9935,13 @@ module MathScheme where
           (yP : Prod AP AP) ->
           primeP (opP xP yP) ==
             opP (primeP xP) (primeP yP)
+    record UnaryDistributesSig
+      : Set where
+      constructor UnaryDistributesSigSigC
+      field
+        AS : Set
+        primeS : AS -> AS
+        opS : AS -> AS -> AS
   
   module UnaryOperation where
     record UnaryOperation
@@ -8885,6 +9973,12 @@ module MathScheme where
         AP : Set
         primeP :
           Prod AP AP -> Prod AP AP
+    record UnaryOperationSig
+      : Set where
+      constructor UnaryOperationSigSigC
+      field
+        AS : Set
+        primeS : AS -> AS
   
   module UnipotentPointedMagma where
     record UnipotentPointedMagma
@@ -8927,6 +10021,13 @@ module MathScheme where
         unipotenceP :
           (xP : Prod AP AP) ->
           opP xP xP == eP
+    record UnipotentPointedMagmaSig
+      : Set where
+      constructor UnipotentPointedMagmaSigSigC
+      field
+        AS : Set
+        eS : AS
+        opS : AS -> AS -> AS
   
   module Unital where
     record Unital : Set where
@@ -8967,6 +10068,12 @@ module MathScheme where
         runit_eP :
           (xP : Prod AP AP) ->
           opP xP eP == xP
+    record UnitalSig : Set where
+      constructor UnitalSigSigC
+      field
+        AS : Set
+        eS : AS
+        opS : AS -> AS -> AS
   
   module Zero where
     record Zero : Set where
@@ -9008,4 +10115,10 @@ module MathScheme where
         rightZero_op_eP :
           (xP : Prod AP AP) ->
           opP xP eP == eP
+    record ZeroSig : Set where
+      constructor ZeroSigSigC
+      field
+        AS : Set
+        eS : AS
+        opS : AS -> AS -> AS
   
