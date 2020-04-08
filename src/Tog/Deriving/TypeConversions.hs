@@ -15,7 +15,7 @@ data TRecord = TRecord Name Params RecordBody
 
 recordToEqTheory :: TRecord -> Eq.EqTheory
 recordToEqTheory record@(TRecord nm params _) =
-  Eq.EqTheory (nm^.name) 
+  Eq.build (nm^.name) 
    (getRecordSort record)
    (getRecordComps isFunc record)
    (getRecordComps isAxiom record)

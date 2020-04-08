@@ -1,11 +1,12 @@
 {-# LANGUAGE TemplateHaskell #-}
 module Tog.Deriving.EqTheory
-  ( EqTheory(EqTheory, sort, funcTypes, axioms)
+  ( EqTheory(sort, funcTypes, axioms)
   , thyName
   , waist
   , args
   , params
   , toDecl
+  , build
   ) where 
 
 import Data.Generics as Generics(Data)
@@ -47,3 +48,6 @@ toDecl ren t =
   Record (mkName nm) (params t)
     (RecordDeclDef setType (mkName $ ren nm)
       (mkField $ drop (t^.waist) (decls t)))
+
+build :: Name_ -> Constr -> [Constr] -> [Constr] -> Waist -> EqTheory
+build = EqTheory
