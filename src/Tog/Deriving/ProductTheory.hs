@@ -21,8 +21,8 @@ productThry t =
       srt = Eq.sort t'
       mkProd = productField $ getConstrName srt
   in 
-   t' { Eq.thryName = Eq.thryName t' ++ "Prod",
-        Eq.funcTypes = map mkProd (Eq.funcTypes t'),
+   over Eq.thyName (++ "Prod") $
+   t' { Eq.funcTypes = map mkProd (Eq.funcTypes t'),
         Eq.axioms = map mkProd (Eq.axioms t') }
 
 -- prod type declaration 

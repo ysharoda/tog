@@ -1,11 +1,15 @@
+{-# LANGUAGE TemplateHaskell #-}
 module Tog.Deriving.EqTheory
-  ( EqTheory(EqTheory, thryName, sort, funcTypes, waist, axioms)
+  ( EqTheory(EqTheory, sort, funcTypes, axioms)
+  , thyName
+  , waist
   , args
   , params
   , toDecl
   ) where 
 
 import Data.Generics as Generics(Data)
+import Control.Lens
 
 import Tog.Raw.Abs   
 import Tog.Deriving.Types  (Name_)
@@ -19,25 +23,27 @@ type Waist = Int
 -- Because the declarations are telescopes, a theory with waist n, 
 -- has the first n declarations as parameters. 
 data EqTheory = EqTheory {
-  thryName   :: Name_  ,
+  _thyName   :: Name_  ,
   sort       :: Constr , 
   funcTypes  :: [Constr],
   axioms     :: [Constr],
-  waist      :: Waist }
+  _waist      :: Waist }
   deriving (Data)
+
+makeLenses ''EqTheory
 
 decls :: EqTheory -> [Constr]
 decls t = sort t : funcTypes t ++ axioms t
 
 args :: EqTheory -> [Constr]
-args thry = take (waist thry) $ decls thry
+args t = take (t^.waist) $ decls t
 
 params :: EqTheory -> Params
 params = mkParams . map fldsToBinding . args
 
 toDecl :: (Name_ -> Name_) -> EqTheory -> Decl
 toDecl ren t =
-  let nm = thryName t in
+  let nm = t^.thyName in
   Record (mkName nm) (params t)
     (RecordDeclDef setType (mkName $ ren nm)
-      (mkField $ drop (waist t) (decls t)))
+      (mkField $ drop (t^.waist) (decls t)))

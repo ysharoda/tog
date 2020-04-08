@@ -27,7 +27,7 @@ recordParams bind (Constr nm typ) =
 
 createThryInsts :: Eq.EqTheory -> ((Binding, Name_), (Binding, Name_))
 createThryInsts t =
-  let nam = Eq.thryName t
+  let nam = t ^. Eq.thyName
       (n1, n2) = (shortName nam 1, shortName nam 2) in
   ((Bind [mkArg n1] (declTheory nam (Eq.args t) 1), n1) ,
    (Bind [mkArg n2] (declTheory nam (Eq.args t) 2), n2) )
@@ -45,17 +45,18 @@ genHomFunc isQualified sortName inst1Name inst2Name =
 
 genPresAxioms :: Eq.EqTheory -> [Constr]
 genPresAxioms eqthry = 
-  let nparms = Eq.waist eqthry - 1
+  let nparms = eqthry ^. Eq.waist - 1
       decls  = Eq.funcTypes eqthry
       (args, flds) = splitAt nparms decls
-  in (map (oneAxiom (Eq.thryName eqthry) True) args) ++ 
-     (map (oneAxiom (Eq.thryName eqthry) False) flds)
+      n = eqthry ^. Eq.thyName
+  in (map (oneAxiom n True) args) ++ 
+     (map (oneAxiom n False) flds)
   
 -- e : A 
 oneAxiom :: Name_ -> Bool -> FuncType -> Axiom 
-oneAxiom thryName isParam c@(Constr nm typ) =
+oneAxiom n isParam c@(Constr nm typ) =
   Constr (mkName $ "pres-" ++ nm^.name)
-   (Pi (Tel $ genBinding thryName isParam typ) (genEq thryName c))       
+   (Pi (Tel $ genBinding n isParam typ) (genEq n c))       
 
 genBinding :: Name_ -> Bool -> Expr -> [Binding]
 genBinding n isParam expr =
@@ -103,25 +104,9 @@ homomorphism :: Eq.EqTheory -> Decl
 homomorphism t =
   let ((i1, n1), (i2, n2)) = createThryInsts t
       a = Eq.args t 
-      nm = Eq.thryName t ++ "Hom"
+      nm = t ^. Eq.thyName ++ "Hom"
       fnc = genHomFunc (length a == 0) (getConstrName $ Eq.sort t) n1 n2
       axioms = genPresAxioms t
   in Record (mkName nm)
    (mkParams $ [i1, i2] ++ map (recordParams Bind) a)
    (RecordDeclDef setType (mkName $ nm ++ "C") (mkField $ fnc : axioms))
-{-
-  in HomThry
-      (Eq.thryName t ++ "Hom")
-      (map (recordParams Bind) a)
-      [i1, i2]
-      (genHomFunc (length a == 0) (getConstrName $ Eq.sort t) n1 n2) 
-      (genPresAxioms t) 
--}
-
-{-
-homThryToDecl :: HomThry -> Decl
-homThryToDecl (HomThry nm hargs eargs fnc axioms) =
-  Record (mkName nm)
-   (mkParams $ hargs ++ eargs)
-   (RecordDeclDef setType (mkName $ nm ++ "C") (mkField $ fnc : axioms))
--}

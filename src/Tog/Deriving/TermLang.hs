@@ -9,10 +9,10 @@ import           Tog.Raw.Abs (Name, Decl(Data), Params(NoParams),
 import           Tog.Deriving.TUtils (mkName, getConstrName, setType)
 import           Tog.Deriving.Types (Name_, gmap)
 import           Tog.Deriving.Lenses (name)
-import qualified Tog.Deriving.EqTheory as Eq
+import           Tog.Deriving.EqTheory as Eq
 
 lang :: Eq.EqTheory -> Name_
-lang t = Eq.thryName t ++ "Lang"
+lang t = t^.thyName ++ "Lang"
 
 ren :: String -> String -> Name -> Name
 ren sn newName n = mkName $ if (nam == sn) then newName else nam ++ "L"
