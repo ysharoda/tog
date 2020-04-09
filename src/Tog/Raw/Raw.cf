@@ -39,7 +39,7 @@ Rename.      ModExpr ::= "rename" Name Rens;
 RenameUsing. ModExpr ::= "rename" Name "using" Name; 
 CombineOver. ModExpr ::= "combine" Name Rens Name Rens "over" Name;
 Combine.     ModExpr ::= Name "||" Name;
-Transport.   ModExpr ::= Rens "@" Name;
+Transport.   ModExpr ::= Name "@" Name;
 
 NoRens.   Rens ::= "{" "}";
 Rens.     Rens ::= "{" [RenPair] "}";

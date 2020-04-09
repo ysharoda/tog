@@ -45,8 +45,16 @@ modExpr :: Name -> Abs.ModExpr -> Graph -> Graph
 modExpr nam mexpr gs =
   let n = nam^.name
       look = getTheory gs
-      rens = rensToRename gs in
-  case mexpr of
+      rens = rensToRename gs
+      combineOver t1 r1 t2 r2 s =
+        let gr = gs^.graph
+            p1 = getPath gr s t1
+            p2 = getPath gr s t2
+            qpath1 = QPath p1 $ rens r1
+            qpath2 = QPath p2 $ rens r2
+        in over graph
+           (updateGraph n $ Right $ computeCombine qpath1 qpath2) gs    
+  in case mexpr of
     Extend srcName clist ->
       over graph
         (updateGraph n $ Left $ computeExtend clist (look srcName)) gs
@@ -58,23 +66,15 @@ modExpr nam mexpr gs =
      in over graph
         (updateGraph n $ Left $ computeRename mapin (look srcName))
         gs
-    CombineOver trgt1 ren1 trgt2 ren2 srcName ->
+    CombineOver t1 r1 t2 r2 srcName ->
      let s = look srcName
-         gr = gs^.graph
-         p1 = getPath gr s $ look trgt1
-         p2 = getPath gr s $ look trgt2
-         qpath1 = QPath p1 $ rens ren1
-         qpath2 = QPath p2 $ rens ren2
-     in over graph
-        (updateGraph n $ Right $ computeCombine qpath1 qpath2) gs
-    Combine trgt1 trgt2 ->
-      modExpr nam
-        (Abs.CombineOver trgt1 NoRens trgt2 NoRens (mkName "Carrier")) gs
-          -- TODO: (computeCommonSource name1 name2)
-    Transport nn srcName -> -- Transport amounts to renaming
-     over graph
-      (updateGraph n $ Left $ computeRename (rens nn) $ look srcName)
-      gs
+     in combineOver (look t1) r1 (look t2) r2 s 
+    Combine t1 t2 ->
+     let s = findApex (gs^.graph) (look t1) (look t2)
+     in combineOver (look t1) NoRens (look t2) NoRens s
+    Transport t1 t2 -> 
+     let s = findApex (gs^.graph) (look t1) (look t2)
+     in combineOver (look t1) NoRens (look t2) NoRens s
 
 rensToRename :: Graph -> Rens -> Rename
 rensToRename gs (NameRens n) = (gs^.renames) Map.! (n^.name)

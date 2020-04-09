@@ -5,6 +5,7 @@ module Tog.Deriving.TGraph
   , computeRename
   , getPath
   , computeCombine
+  , findApex 
   ) where
 
 import qualified Data.Generics      as Generics
@@ -57,7 +58,8 @@ extThry newConstrs thry =
         newFields NoFields = Fields newConstrs
         newFields (Fields fs) = Fields (fs ++ newConstrs)
 
--- ----------- COMBINE ----------- 
+-- ----------- COMBINE -----------
+
 computeCombine :: QPath -> QPath -> PushOut
 computeCombine qpath1 qpath2 =
   let isTriangle = (qpathSource qpath1) == (qpathSource qpath2)
@@ -65,8 +67,20 @@ computeCombine qpath1 qpath2 =
       then error "The two theories do not meet at the source"
       else if (not $ checkGuards qpath1 qpath2)
       then error "Name Clash!"         
-      else createDiamond qpath1 qpath2 
-   
+      else createDiamond qpath1 qpath2
+
+findApex :: TGraph -> GTheory -> GTheory -> GTheory
+findApex grph thry1 thry2 =
+  let empty = lookupName "Empty" grph
+      [p1,p2] = map (NE.toList . theoriesOntheWay . getPath grph empty) [thry1,thry2]
+      common = List.intersect p1 p2
+  in if (common == []) then error "No common source found"
+     else error $ "common source" ++ show p1 ++ " .. " ++ show p2 -- last common
+          
+theoriesOntheWay :: Path -> NE.NonEmpty GTheory
+theoriesOntheWay p =
+  NE.cons (source $ NE.head p) (NE.map target p) 
+
 -- Precondition: Called after checkGuards
 createDiamond :: QPath -> QPath -> PushOut
 createDiamond left right =
