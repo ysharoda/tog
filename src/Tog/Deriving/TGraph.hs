@@ -75,7 +75,7 @@ findApex grph thry1 thry2 =
       [p1,p2] = map (NE.toList . theoriesOntheWay . getPath grph empty) [thry1,thry2]
       common = List.intersect p1 p2
   in if (common == []) then error "No common source found"
-     else error $ "common source" ++ show p1 ++ " .. " ++ show p2 -- last common
+     else last common
           
 theoriesOntheWay :: Path -> NE.NonEmpty GTheory
 theoriesOntheWay p =
