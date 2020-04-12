@@ -5,6 +5,7 @@ module Tog.Deriving.TGraph
   , computeRename
   , getPath
   , computeCombine
+  , addArrow
   , findApex 
   ) where
 
@@ -58,6 +59,11 @@ extThry newConstrs thry =
         newFields NoFields = Fields newConstrs
         newFields (Fields fs) = Fields (fs ++ newConstrs)
 
+-- ----------- Arrow -------------
+addArrow :: Name_ -> GView -> TGraph -> TGraph
+addArrow nm arrow =
+  over edges (\g -> (Map.insert nm arrow g))  
+
 -- ----------- COMBINE -----------
 
 computeCombine :: QPath -> QPath -> PushOut
@@ -106,7 +112,7 @@ createDiamond left right =
 getPath :: TGraph -> GTheory -> GTheory -> Path 
 getPath graph src trgt =
   let p =  getPath' (Map.elems $ graph^.edges) src trgt
-  in case p of { [] -> error "no path found" ; _ -> NE.fromList p}
+  in case p of { [] -> error $ "no path found from " ++ lookupTheory src graph ++ " to " ++ lookupTheory trgt graph ; _ -> NE.fromList p}
 
 getPath' :: [GView] -> GTheory -> GTheory -> [GView] 
 getPath' edgesList src dest =
@@ -125,6 +131,13 @@ lookupName name graph =
   case (Map.lookup name $ graph^.nodes) of
     Nothing -> error $ name ++ "is not a valid theory name"
     Just t  -> t
+
+lookupTheory :: GTheory -> TGraph -> Name_
+lookupTheory thry grph =
+  case Map.toList $ Map.filter (== thry) (grph^.nodes) of
+    [] -> "theory not found"
+    [(k,_)] -> k
+    _ -> error "A theory has more than one name" 
 
 qpathSource :: QPath -> GTheory
 qpathSource = source . NE.head . path

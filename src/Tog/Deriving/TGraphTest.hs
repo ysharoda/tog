@@ -8,7 +8,7 @@ import qualified Data.Map            as Map
 import           Control.Lens ((^.), makeLenses, over)
 
 import           Tog.Deriving.Lenses (name)
-import           Tog.Deriving.TUtils (mkName, mkField)
+import           Tog.Deriving.TUtils (mkField)
 import           Tog.Deriving.Types
 import           Tog.Deriving.TGraph
 import           Tog.Raw.Abs         as Abs
@@ -75,6 +75,8 @@ modExpr nam mexpr gs =
     Transport t1 t2 -> 
      let s = findApex (gs^.graph) (look t1) (look t2)
      in combineOver (look t1) NoRens (look t2) NoRens s
+    Arrow src dest maps ->
+     over graph (addArrow n $ GView (look src) (look dest) (rens maps)) gs 
 
 rensToRename :: Graph -> Rens -> Rename
 rensToRename gs (NameRens n) = (gs^.renames) Map.! (n^.name)
