@@ -1,0 +1,102 @@
+module TestSemiring where 
+
+Map plus = {op to +}
+Map zero = {e to 0}
+Map times = {op to *} 
+Map one = {e to 1}
+Map plus-zero = {op to + ; e to 0}
+Map additive = { e to 0 ; op to + }
+Map times-one = {op to * ; e to 1}
+Map times-zero = {op to * ; e to 0}
+
+Theory Empty = {} 
+Carrier = extend Empty {A : Set}
+
+Pointed = extend Carrier {e : A}
+PointedZero = rename Pointed zero
+PointedOne  = rename Pointed one
+
+Magma = extend Carrier {op : A -> A -> A}
+MultMagma = rename Magma times
+AdditiveMagma = rename Magma plus
+
+RingoidSig = combine MultMagma {} AdditiveMagma {} over Carrier
+
+{- -------- PointedMagmas ---------- -} 
+
+PointedMagma = combine Pointed {} Magma {} over Carrier
+
+Pointed0Magma = combine PointedZero {} PointedMagma zero over Pointed
+PointedPlusMagma = combine AdditiveMagma {} PointedMagma plus over Magma
+AdditivePointedMagma = combine Pointed0Magma plus PointedPlusMagma zero over PointedMagma
+
+Pointed1Magma = combine PointedOne {} PointedMagma one over Pointed
+PointedTimesMagma = combine MultMagma {} PointedMagma times over Magma 
+MultPointedMagma = combine PointedTimesMagma one Pointed1Magma times over PointedMagma 
+
+PointedTimesZeroMagma = combine PointedTimesMagma zero Pointed0Magma times over PointedMagma 
+
+{- --------- Zero Axioms ---------- -} 
+
+LeftZero  = extend PointedMagma {leftZero_op_e  : {x : A} -> op e x == e}
+RightZero = extend PointedMagma {rightZero_op_e : {x : A} -> op x e == e}
+Zero = combine LeftZero times RightZero times over PointedMagma
+
+Left0 = combine LeftZero times-zero Pointed0Magma times over PointedMagma
+Right0 = combine RightZero times-zero Pointed0Magma times over PointedMagma
+
+Zero0 = combine Zero times-zero PointedTimesZeroMagma {} over PointedMagma 
+
+{- ---------- Monoid ---------- -}
+Semigroup = extend Magma { associative_op : {x y z : A} -> op (op x y) z == op x (op y z) }
+LeftUnital = extend PointedMagma { lunit_e : {x : A} -> op e x == x }
+RightUnital = extend PointedMagma { runit_e : {x : A} -> op x e == x }
+Unital = combine LeftUnital {} RightUnital {} over PointedMagma
+Monoid = combine Unital {} Semigroup {} over Magma
+
+{- ---------- MultMonoid --------- -}
+MultSemigroup = combine MultMagma {} Semigroup times over Magma 
+LeftUnital1 = combine LeftUnital one Pointed1Magma {} over PointedMagma
+LeftUnital* = combine LeftUnital times PointedTimesMagma {} over PointedMagma
+MultLeftUnital = combine LeftUnital1 times LeftUnital* one over LeftUnital 
+RightUnital1 = combine RightUnital one Pointed1Magma {} over PointedMagma
+RightUnital* = combine RightUnital times PointedTimesMagma {} over PointedMagma
+MultRightUnital = combine RightUnital1 times RightUnital* one over RightUnital
+MultUnital = combine MultLeftUnital {} MultRightUnital {} over PointedMagma
+MultMonoid = combine Monoid times-one MultPointedMagma {} over PointedMagma  
+
+{- -------- AdditiveCommutativeMonoid ---------- -}
+AdditiveSemigroup = combine AdditiveMagma {} Semigroup plus over Magma 
+LeftUnital0 = combine LeftUnital zero Pointed0Magma {} over PointedMagma
+LeftUnital+ = combine LeftUnital plus PointedPlusMagma {} over PointedMagma
+AdditiveLeftUnital = combine LeftUnital0 plus LeftUnital+ zero over LeftUnital 
+RightUnital0 = combine RightUnital zero Pointed0Magma {} over PointedMagma
+RightUnital+ = combine RightUnital plus PointedPlusMagma {} over PointedMagma
+AdditiveRightUnital = combine RightUnital0 plus RightUnital+ zero over RightUnital
+AdditiveUnital = combine AdditiveLeftUnital {} AdditiveRightUnital {} over PointedMagma
+AdditiveMonoid = combine Monoid plus-zero AdditivePointedMagma {} over PointedMagma
+
+CommutativeMagma = extend Magma {commutative_op : {x y : A} -> op x y == op y x}
+AdditiveCommutativeMagma = combine CommutativeMagma plus AdditiveMagma {} over Magma
+AdditiveCommutativeSemigroup = combine AdditiveCommutativeMagma {} AdditiveSemigroup {} over AdditiveMagma 
+AdditiveCommutativeMonoid = combine AdditiveCommutativeMagma {} AdditiveMonoid {} over Magma 
+
+RingoidSig = combine MultMagma {} AdditiveMagma {} over Carrier
+LeftRingoid  = extend RingoidSig { leftDistributive_*_+  : {x y z : A} -> * x (+ y z) == + (* x y) (* x z) }
+RightRingoid = extend RingoidSig { rightDistributive_*_+ : {x y z : A} -> * (+ y z) x == + (* y x) (* z x) }
+Ringoid = combine LeftRingoid {} RightRingoid {} over RingoidSig
+
+Ringoid0Sig = combine AdditivePointedMagma {} PointedTimesZeroMagma {} over PointedZero
+id = from RingoidSig to Ringoid0Sig using {+ to + ; * to *} 
+Ringoid1Sig = combine MultPointedMagma {} RingoidSig {} over MultMagma
+Ringoid01Sig = combine Ringoid0Sig {} Ringoid1Sig {} over RingoidSig
+
+ZeroRingoid01Sig = combine Zero0 {} Ringoid01Sig {} over PointedTimesZeroMagma
+DistribZero = combine ZeroRingoid01Sig {} Ringoid {} over RingoidSig 
+
+AddCommMonWithMultMagma = combine AdditiveCommutativeMonoid {} Ringoid0Sig {} over AdditivePointedMagma
+AddCommMonWithMultPointedMagma = combine AddCommMonWithMultMagma {} Ringoid01Sig {} over Ringoid0Sig
+DistZeroAddCommMonoid = combine DistribZero {} AddCommMonWithMultPointedMagma {} over Ringoid01Sig
+
+MultMonoidWAddPointedMagma = combine MultMonoid {} Ringoid01Sig {} over MultPointedMagma 
+Semiring = combine DistZeroACM {} MM_R01Sig {} over Ringoid01Sig 
