@@ -99,4 +99,4 @@ AddCommMonWithMultPointedMagma = combine AddCommMonWithMultMagma {} Ringoid01Sig
 DistZeroAddCommMonoid = combine DistribZero {} AddCommMonWithMultPointedMagma {} over Ringoid01Sig
 
 MultMonoidWAddPointedMagma = combine MultMonoid {} Ringoid01Sig {} over MultPointedMagma 
-Semiring = combine DistZeroACM {} MM_R01Sig {} over Ringoid01Sig 
+Semiring = combine DistZeroAddCommMonoid {} MultMonoidWAddPointedMagma {} over Ringoid01Sig 
