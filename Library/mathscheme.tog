@@ -5,7 +5,8 @@ Map times = {op to *}
 Map zero = {e to 0}
 Map one = {e to 1}
 Map plus-zero = {op to + ; e to 0}
-Map times-one = {op to * ; e to 1} 
+Map times-one = {op to * ; e to 1}
+Map times-zero = {op to * ; e to 0} 
 Map nat  = {A to Nat}
 Map linv = {op to linv}
 Map rinv = {op to rinv}
@@ -137,9 +138,17 @@ RectangularBand = combine Band {} MiddleCommute {} over Magma
 NormalBand = combine Band {} MiddleCommute {} over Magma
 RightMonoid = combine RightUnital {} Semigroup {} over Magma
 LeftMonoid  = combine LeftUnital {} Semigroup {} over Magma
-Monoid = combine Unital {} Semigroup {} over Magma
-AdditiveMonoid = combine AdditivePointedMagma {} Monoid plus-zero over PointedMagma
-MultMonoid = combine MultPointedMagma {} Monoid times-one over PointedMagma
+
+PointedSemigroup = combine Semigroup {} PointedMagma {} over Magma 
+AdditivePointedSemigroup = combine PointedSemigroup plus-zero AdditivePointedMagma {} over PointedMagma 
+AdditiveUnital = combine AdditivePointedMagma {} Unital plus-zero over PointedMagma 
+MultPointedSemigroup = combine PointedSemigroup times-one MultPointedMagma {} over PointedMagma
+MultUnital = combine MultPointedMagma {} Unital times-one over PointedMagma 
+
+Monoid = combine Unital {} PointedSemigroup {} over PointedMagma
+AdditiveMonoid = combine AdditivePointedSemigroup {} Monoid plus-zero over PointedSemigroup
+MultMonoid = combine MultSemigroup {} Monoid times-one over Semigroup  
+
 DoubleMonoid = combine AdditiveMonoid {} MultMonoid {} over Carrier 
 Monoid1 = combine PointedOne {} Monoid one over Pointed
 CommutativeMonoid = combine Monoid {} CommutativeSemigroup {} over Semigroup
@@ -152,9 +161,12 @@ Left0 = combine LeftZero zero PointedZero {} over Pointed
 Right0 = combine RightZero zero PointedZero {} over Pointed
 ComplementSig = rename UnaryOperation {prime to compl}
 CommutativeMonoid1 = combine CommutativeMonoid one Monoid1 {} over Monoid
-AdditiveCommutativeMonoid = combine AdditiveMonoid {} CommutativeMonoid plus-zero over Monoid 
+AdditiveCommutativeMonoid = combine AdditiveMonoid {} CommutativeMonoid plus-zero over Monoid
+MultCommutativeMonoid = combine MultMonoid {} CommutativeMonoid times-one over Monoid
 BooleanGroup = combine Monoid {} UnipotentPointedMagma {} over PointedMagma
-Map inv = {prime to inv} 
+Map inv = {prime to inv}
+
+-- Inverse 
 InverseUnaryOperation = rename UnaryOperation inv  
 InverseSig = combine InverseUnaryOperation {} InvolutivePointedMagmaSig inv over UnaryOperation
 LeftInverse  = extend InverseSig {leftInverse_inv_op_e  : {x : A} -> op x (inv x) == e}
@@ -165,18 +177,19 @@ PseudoInverse = extend PseudoInverseSig {quasiInverse_inv_op_e : {x : A} -> op (
 PseudoInvolution = extend PseudoInverseSig
    {quasiRightInverse_inv_op_e : {x : A} -> op (op (inv x) x) (inv x) == inv x}
 RegularSemigroup = combine Semigroup {} PseudoInverse {} over Magma
-InverseSemigroup = combine PseudoInverse {} PseudoInvolution {} over PseudoInverseSig
+-- QuasiInverse, in the original file names InverseSemigroup
+QuasiInverse = combine PseudoInverse {} PseudoInvolution {} over PseudoInverseSig
 
-Group  = combine Monoid {} Inverse {} over PointedMagma 
+-- Group 
+Group  = combine Monoid {} Inverse {} over PointedMagma    
 Group1 = combine Group one Monoid1 {} over Monoid
-GroupInv = combine Group inv InverseUnaryOperation {} over UnaryOperation 
-GroupPlus = combine AdditiveMonoid {} Group plus-zero over Monoid 
-AdditiveGroup = combine GroupPlus inv GroupInv  plus-zero over Group 
+AdditiveGroup = combine AdditiveMonoid {} Group plus-zero over Monoid 
 CommutativeGroup = combine Group {} CommutativeMonoid {} over Monoid
-MultGroup = combine MultMonoid {} GroupInv times-one over Monoid
-CommutativeGroup = combine Group {} CommutativeMonoid {} over Monoid
+MultGroup = combine MultMonoid {} Group times-one over Monoid
 AbelianGroup = combine CommutativeGroup times-one MultGroup {} over Group
-AbelianAdditiveGroup = combine AdditiveGroup {} CommutativeAdditiveMagma {} over AdditiveMagma 
+AbelianAdditiveGroup = combine CommutativeGroup plus-zero AdditiveCommutativeMonoid {} over CommutativeMonoid 
+
+
 RingoidSig = combine MultMagma {} AdditiveMagma {} over Carrier 
 Ringoid0Sig = combine RingoidSig {} PointedZero {} over Carrier 
 Ringoid1Sig = combine RingoidSig {} PointedOne  {} over Carrier
@@ -185,6 +198,7 @@ NonassociativeNondistributiveRing = combine AbelianGroup {} RingoidSig {} over M
 LeftRingoid  = extend RingoidSig { leftDistributive_*_+  : {x y z : A} -> * x (+ y z) == + (* x y) (* x z) }
 RightRingoid = extend RingoidSig { rightDistributive_*_+ : {x y z : A} -> * (+ y z) x == + (* y x) (* z x) }
 Ringoid = combine LeftRingoid {} RightRingoid {} over RingoidSig 
+
 NonassociativeRing = combine NonassociativeNondistributiveRing {} Ringoid {} over RingoidSig
 PrimeRingoidSig = combine RingoidSig {} UnaryOperation {} over Carrier
 AndDeMorgan = extend PrimeRingoidSig {andDeMorgan_*_+_prime : {x y z : A} -> prime (* x y) == + (prime x) (prime y) }
@@ -204,44 +218,29 @@ NearSemiring  = combine AssociativeNonDistributiveRingoid {} RightRingoid {} ove
 -- NearSemifield = combine NearSemiring {} Group times-one over
 AddGroup_RingoidSig = combine AdditiveGroup {} RingoidSig {} over AdditiveMagma 
 NearRing = combine AddGroup_RingoidSig {} AssociativeRightRingoid plus-zero over RingoidSig
-AbelianAddGroup_Ringoid = combine AbelianAdditiveGroup {} Ringoid {} over AdditiveMagma 
-Rng = combine AbelianAddGroup_Ringoid {} AssocTimesRingoid {} over RingoidSig
-
-{-
-PointedMagmaMult0 = combine Pointed0Magma times PointedTimesMagma zero over PointedMagma 
-ZeroMult0 = combine Zero {op to * ; e to 0} PointedMagmaMult0 {} over PointedMagma 
-ZeroMult0_Ringoid = combine ZeroMult0 {} Ringoid {} over MultMagma
-PointedMagmaMult0_Ringoid = combine PointedMagmaMult0 {} Ringoid {} over MultMagma
-MultMonoid_Ringoid = combine MultMonoid {} PointedMagmaMult0_Ringoid {} over MultMagma
-AddPointedMagma_Ringoid = combine AdditivePointedMagma {} Ringoid {} over AdditiveMagma
-AddCommMonoid_Ringoid = combine AdditiveCommutativeMonoid {} Ringoid {} over AdditiveMagma
-ZZ = combine AddCommMonoid_Ringoid {} PointedMagmaMult0_Ringoid {} over Ringoid
-
---ZZZZ = combine AddCommMonoid_Ringoid {} ZeroMult0_Ringoid {} over PointedMagmaMult0_Ringoid
-
---ZZZZZ = combine AddCommMonoid_Ringoid {} ZeroMult0_Ringoid {} over Ringoid 
--- TwoMonoid_Ringoid = combine AddCommMonoid_Ringoid {} MultMonoid_Ringoid {} over Ringoid
 
 
---TwoMonoids_Ringoid = combine AddCommMonoid_Ringoid {} MultMonoid_Ringoid {} over Ringoid 
---ZZZZ = combine ZeroMult0_Ringoid {} AddCommMonoid_Ringoid {} over PointedMagmaMult0 
+--AbelianAddGroup_Ringoid = combine AbelianAdditiveGroup {} Ringoid {} over AdditiveMagma 
+--Rng = combine AbelianAddGroup_Ringoid {} AssocTimesRingoid {} over RingoidSig
 
-RingoidSig0 = combine RingoidSig {} Zero {op to * ; e to 0} over Magma
-AddPointedMagma_RingoidSig = combine AdditivePointedMagma {} RingoidSig {} over AdditiveMagma
---AddPointedMagma_RingoidSig0 = combine AddPointedMagma_RingoidSig {} RingoidSig0 {} over RingoidSig 
---Ringoid0 = combine RingoidSig0 {} Ringoid {} over RingoidSig  
---MultMonoid_Ringoid = combine MultMonoid {} Ringoid {} over MultMagma
---MultMonoid_RingoidSig  = combine MultMonoid {} RingoidSig {} over MultMagma
---MultMonoid_RingoidSig0 = combine MultMonoid_RingoidSig {} RingoidSig0 {} over RingoidSig 
---AddCommMonoid_RingoidSig = combine AdditiveCommutativeMonoid {} RingoidSig {} over AdditiveMagma
--- AddCommMonoid_RingoidSig0 = combine AddCommutativeMonoid_RingoidSig {} RingoidSig0 {} over AddPointedMagma_RingoidSig0 
 
--- AddCommMonoid_RingoidSig0 = combine AddCommMonoid_RingoidSig {} RingoidSig0 {} over RingoidSig
---ZZZ = combine MultMonoid_RingoidSig0 {} AddCommMonoid_RingoidSig0 {} over RingoidSig0
+PointedTimesZeroMagma = combine PointedTimesMagma zero Pointed0Magma times over PointedMagma 
+Zero0 = combine Zero times-zero PointedTimesZeroMagma {} over PointedMagma 
 
---TwoMonoids_RingoidSig0 = combine TwoMonoids {} RingoidSig0 {} over MultMagma 
---Ring = combine TwoMonoids {} Ringoid0 {} over RingoidSig0  
---MultZero = combine Zero {op to * ; e to 0} MultPointedMagma zero over PointedMagma 
---MultZero_Ringoid = combine MultZero {} Ringoid {} over PointedMagma
---combine TwoMonoids {} Zero0 times over
--}
+Ringoid0Sig = combine AdditivePointedMagma {} PointedTimesZeroMagma {} over PointedZero
+id = from RingoidSig to Ringoid0Sig using {+ to + ; * to *} 
+Ringoid1Sig = combine MultPointedMagma {} RingoidSig {} over MultMagma
+Ringoid01Sig = combine Ringoid0Sig {} Ringoid1Sig {} over RingoidSig
+
+AddCommMonWithMultMagma = combine AdditiveCommutativeMonoid {} Ringoid0Sig {} over AdditivePointedMagma
+AddCommMonWithMultSemigroup = combine AddCommMonWithMultMagma {} MultSemigroup {} over MultMagma
+SemiRng = combine AddCommMonWithMultSemigroup {} Ringoid {} over RingoidSig
+
+Rng = combine AbelianAdditiveGroup {} SemiRng {} over AdditiveCommutativeMonoid 
+
+
+SemiRngWithUnit = combine MultMonoid {} SemiRng {} over MultSemigroup 
+Zero_Ringoid0Sig = combine Zero0 {} Ringoid0Sig {} over PointedTimesZeroMagma
+Semiring = combine SemiRngWithUnit {} Zero_Ringoid0Sig {} over Ringoid0Sig 
+Ring = combine Rng {} Semiring {} over SemiRng 
+CommutativeRing = combine MultCommutativeMonoid {} Ring {} over MultMonoid
