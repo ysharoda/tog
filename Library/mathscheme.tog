@@ -22,32 +22,40 @@ PointedZero = rename Pointed zero
 PointedOne  = rename Pointed one 
 TwoPointed = combine Pointed {e to e1} Pointed {e to e2} over Carrier 
 TwoPointed01 = rename TwoPointed {e to zero ; e to one} -- Graph here
-UnaryOperation = extend Carrier {prime : A -> A}
+UnaryOperation = extend Carrier {prim : A -> A}
 PointedUnarySystem = combine UnaryOperation {} Pointed {} over Carrier
-FixedPoint = extend PointedUnarySystem {fixes_prime_e : prime e == e} 
+FixedPoint = extend PointedUnarySystem {fixes_prim_e : prim e == e} 
 Magma = extend Carrier {op : A -> A -> A}
+AdditiveMagma = rename Magma plus
+MultMagma = rename Magma times 
 PointedMagma = combine Pointed {} Magma {} over Carrier
-InvolutiveMagmaSig = combine UnaryOperation {} Magma {} over Carrier 
+
+InvolutiveMagmaSig = combine UnaryOperation {} Magma {} over Carrier
+InvolutiveAddMagmaSig = combine InvolutiveMagmaSig plus AdditiveMagma {} over Magma
+InvolutiveMultMagmaSig = combine InvolutiveMagmaSig times MultMagma {} over Magma 
+
 InvolutivePointedMagmaSig = combine UnaryOperation {} PointedMagma {} over Carrier 
 -- ------ alternative definition --------- 
 -- InvolutivePointedMagmaSig2 = combine PointedUnarySystem {} Magma {} over Carrier 
-Involution = extend UnaryOperation {involutive_prime : {x : A} -> prime (prime x) == x} 
+Involution = extend UnaryOperation {involutive_prim : {x : A} -> prim (prim x) == x} 
 UnaryDistributes =
-  extend InvolutiveMagmaSig {distribute_prime_op : {x y : A} -> prime (op x y) == op (prime x) (prime y) }
+  extend InvolutiveMagmaSig {distribute_prim_op : {x y : A} -> prim (op x y) == op (prim x) (prim y) }
 UnaryAntiDistribution =
-  extend InvolutiveMagmaSig {antidis_prime_op : {x y : A} -> prime (op x y) == op (prime y) (prime x) }
-AdditiveMagma = rename Magma plus
-MultMagma = rename Magma times 
+  extend InvolutiveMagmaSig {antidis_prim_op : {x y : A} -> prim (op x y) == op (prim y) (prim x) }
 AdditiveUnaryAntiDistribution =
-  combine AdditiveMagma {} UnaryAntiDistribution plus over Magma 
+  combine InvolutiveAddMagmaSig {} UnaryAntiDistribution plus over InvolutiveMagmaSig
+MultUnaryAntiDistribution =
+  combine InvolutiveMultMagmaSig {} UnaryAntiDistribution times over InvolutiveMagmaSig   
 IdempotentUnary =
-  extend UnaryOperation {idempotent_prime : {x : A} -> prime (prime x) == prime x}
+  extend UnaryOperation {idempotent_prim : {x : A} -> prim (prim x) == prim x}
 InvolutiveMagma = combine Involution {} UnaryAntiDistribution {} over UnaryOperation
 LeftInverseMagma = rename Magma linv
 RightInverseMagma = rename Magma rinv 
 IdempotentMagma = extend Magma {idempotent_op : {x : A} -> op x x == x } 
 IdempotentAdditiveMagma =
   combine AdditiveMagma {} IdempotentMagma plus over Magma 
+IdempotentMultMagma =
+  combine MultMagma {} IdempotentMagma times over Magma 
 -- SelectiveMagma = extend Magma {selective_op : {x y : A} -> Sigma (op x y == x)  (op x y == y)} 
 -- SelectiveAdditiveMagma := SelectiveMagma [ * |-> +]
 Pointed0Magma = combine PointedZero {} PointedMagma zero over Pointed
@@ -148,6 +156,7 @@ MultUnital = combine MultPointedMagma {} Unital times-one over PointedMagma
 Monoid = combine Unital {} PointedSemigroup {} over PointedMagma
 AdditiveMonoid = combine AdditivePointedSemigroup {} Monoid plus-zero over PointedSemigroup
 MultMonoid = combine MultSemigroup {} Monoid times-one over Semigroup  
+id3 = from MultUnital to MultMonoid using {* to * ; 1 to 1 ; lunit_1 to lunit_1 ; runit_1 to runit_1 } 
 
 DoubleMonoid = combine AdditiveMonoid {} MultMonoid {} over Carrier 
 Monoid1 = combine PointedOne {} Monoid one over Pointed
@@ -159,12 +168,12 @@ RightZero = extend PointedMagma {rightZero_op_e : {x : A} -> op x e == e}
 Zero = combine LeftZero {} RightZero {} over PointedMagma
 Left0 = combine LeftZero zero PointedZero {} over Pointed
 Right0 = combine RightZero zero PointedZero {} over Pointed
-ComplementSig = rename UnaryOperation {prime to compl}
+ComplementSig = rename UnaryOperation {prim to compl}
 CommutativeMonoid1 = combine CommutativeMonoid one Monoid1 {} over Monoid
 AdditiveCommutativeMonoid = combine AdditiveMonoid {} CommutativeMonoid plus-zero over Monoid
 MultCommutativeMonoid = combine MultMonoid {} CommutativeMonoid times-one over Monoid
 BooleanGroup = combine Monoid {} UnipotentPointedMagma {} over PointedMagma
-Map inv = {prime to inv}
+Map inv = {prim to inv}
 
 -- Inverse 
 InverseUnaryOperation = rename UnaryOperation inv  
@@ -191,19 +200,16 @@ AbelianAdditiveGroup = combine CommutativeGroup plus-zero AdditiveCommutativeMon
 
 
 RingoidSig = combine MultMagma {} AdditiveMagma {} over Carrier 
-Ringoid0Sig = combine RingoidSig {} PointedZero {} over Carrier 
-Ringoid1Sig = combine RingoidSig {} PointedOne  {} over Carrier
-Ringoid01Sig = combine Ringoid0Sig {} Ringoid1Sig {} over RingoidSig
 NonassociativeNondistributiveRing = combine AbelianGroup {} RingoidSig {} over MultMagma 
 LeftRingoid  = extend RingoidSig { leftDistributive_*_+  : {x y z : A} -> * x (+ y z) == + (* x y) (* x z) }
 RightRingoid = extend RingoidSig { rightDistributive_*_+ : {x y z : A} -> * (+ y z) x == + (* y x) (* z x) }
 Ringoid = combine LeftRingoid {} RightRingoid {} over RingoidSig 
 
 NonassociativeRing = combine NonassociativeNondistributiveRing {} Ringoid {} over RingoidSig
-PrimeRingoidSig = combine RingoidSig {} UnaryOperation {} over Carrier
-AndDeMorgan = extend PrimeRingoidSig {andDeMorgan_*_+_prime : {x y z : A} -> prime (* x y) == + (prime x) (prime y) }
-OrDeMorgran = extend PrimeRingoidSig {orDeMorgan_+_*_prime  : {x y z : A} -> prime (+ x y) == * (prime x) (prime y) }
-DualDeMorgan = combine AndDeMorgan {} OrDeMorgran {} over PrimeRingoidSig
+PrimRingoidSig = combine RingoidSig {} UnaryOperation {} over Carrier
+AndDeMorgan = extend PrimRingoidSig {andDeMorgan_*_+_prim : {x y z : A} -> prim (* x y) == + (prim x) (prim y) }
+OrDeMorgran = extend PrimRingoidSig {orDeMorgan_+_*_prim  : {x y z : A} -> prim (+ x y) == * (prim x) (prim y) }
+DualDeMorgan = combine AndDeMorgan {} OrDeMorgran {} over PrimRingoidSig
 NonDistributiveAddPreSemiring  = combine AdditiveCommutativeSemigroup {} RingoidSig {} over AdditiveMagma
 -- NonDistributiveRightPreSemiring = combine AdditiveCommutativeSemigroup {} RingoidSig {} over AdditiveMagma
 AssociativeLeftRingoid = combine MultSemigroup {} LeftRingoid {} over MultMagma 
@@ -241,6 +247,37 @@ Rng = combine AbelianAdditiveGroup {} SemiRng {} over AdditiveCommutativeMonoid
 
 SemiRngWithUnit = combine MultMonoid {} SemiRng {} over MultSemigroup 
 Zero_Ringoid0Sig = combine Zero0 {} Ringoid0Sig {} over PointedTimesZeroMagma
+
 Semiring = combine SemiRngWithUnit {} Zero_Ringoid0Sig {} over Ringoid0Sig 
 Ring = combine Rng {} Semiring {} over SemiRng 
 CommutativeRing = combine MultCommutativeMonoid {} Ring {} over MultMonoid
+PrimAdditiveGroup = rename AbelianGroup {U to S ; * to *_ ; inv to neg_ ; 1 to 0_}
+BooleanRing = combine CommutativeRing {} IdempotentMultMagma {} over MultMagma 
+IdempotentSemiRng = combine SemiRng {} IdempotentAdditiveMagma {} over AdditiveMagma
+IdempotentSemiring = combine Semiring {} IdempotentAdditiveMagma {} over AdditiveMagma
+-- ---------------------------------------------------------------------- 
+-- use FixedPoint instead of InvolutiveFixes -- 
+InvolutiveFixes = combine FixedPoint one PointedOne {} over Pointed
+-- ---------------------------------------------------------------------- 
+
+InvolutiveRingoidSig = combine InvolutiveMultMagmaSig {} InvolutiveAddMagmaSig {} over UnaryOperation
+id2 = from RingoidSig to InvolutiveRingoidSig using {+ to + ; * to *}
+RingoidWithInvolution = combine Ringoid {} InvolutiveRingoidSig {} over RingoidSig 
+InvolutiveFixedPoint = combine InvolutiveFixes {} Involution {} over UnaryOperation 
+
+
+RingoidWithMultAntiDistrib = combine MultUnaryAntiDistribution {} RingoidWithInvolution {} over InvolutiveMultMagmaSig 
+RingoidWithAddAntiDistrib = combine AdditiveUnaryAntiDistribution {} RingoidWithInvolution {} over InvolutiveAddMagmaSig  
+InvolutiveRingoidWithAntiDistrib = combine RingoidWithAddAntiDistrib {} RingoidWithMultAntiDistrib {} over RingoidWithInvolution
+InvolutiveRingoid = combine InvolutiveFixedPoint {} InvolutiveRingoidWithAntiDistrib {} over UnaryOperation 
+
+{- ----- using user defined arrows ----- -}
+
+Ringoid1 = combine Ringoid1Sig {} Ringoid {} over RingoidSig
+
+Ringoid1ToSemiring = from Ringoid1 to Semiring using {* to * ; + to + ; 1 to 1 ; leftDistributive_*_+ to leftDistributive_*_+ ; rightDistributive_*_+ to rightDistributive_*_+}
+Ringoid1ToInvolutiveRingoid = from Ringoid1 to InvolutiveRingoid using {* to * ; + to + ; 1 to 1 ; leftDistributive_*_+ to leftDistributive_*_+ ; rightDistributive_*_+ to rightDistributive_*_+}
+InvolutiveRing = combine InvolutiveRingoid {} Ring {} over Ringoid1 
+
+{- ---------------------------------------- -}
+
