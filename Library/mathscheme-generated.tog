@@ -23,11 +23,11 @@ module MathScheme where
         commutative_+ :
           (x : A) (y : A) ->
           + x y == + y x
-        inv : A -> A
+        neg : A -> A
         leftInverse_inv_op_0 :
-          (x : A) -> + x (inv x) == 0
+          (x : A) -> + x (neg x) == 0
         rightInverse_inv_op_0 :
-          (x : A) -> + (inv x) x == 0
+          (x : A) -> + (neg x) x == 0
   
   module AbelianGroup where
     record AbelianGroup : Set where
@@ -102,11 +102,11 @@ module MathScheme where
         associative_+ :
           (x : A) (y : A) (z : A) ->
           + (+ x y) z == + x (+ y z)
-        inv : A -> A
+        neg : A -> A
         leftInverse_inv_op_0 :
-          (x : A) -> + x (inv x) == 0
+          (x : A) -> + x (neg x) == 0
         rightInverse_inv_op_0 :
-          (x : A) -> + (inv x) x == 0
+          (x : A) -> + (neg x) x == 0
         * : A -> A -> A
   
   module AdditiveCommutativeMonoid where
@@ -152,11 +152,11 @@ module MathScheme where
         associative_+ :
           (x : A) (y : A) (z : A) ->
           + (+ x y) z == + x (+ y z)
-        inv : A -> A
+        neg : A -> A
         leftInverse_inv_op_0 :
-          (x : A) -> + x (inv x) == 0
+          (x : A) -> + x (neg x) == 0
         rightInverse_inv_op_0 :
-          (x : A) -> + (inv x) x == 0
+          (x : A) -> + (neg x) x == 0
   
   module AdditiveMagma where
     record AdditiveMagma : Set where
@@ -399,11 +399,11 @@ module MathScheme where
         rightDistributive_*_+ :
           (x : A) (y : A) (z : A) ->
           * (+ y z) x == + (* y x) (* z x)
-        inv : A -> A
+        neg : A -> A
         leftInverse_inv_op_0 :
-          (x : A) -> + x (inv x) == 0
+          (x : A) -> + x (neg x) == 0
         rightInverse_inv_op_0 :
-          (x : A) -> + (inv x) x == 0
+          (x : A) -> + (neg x) x == 0
         leftZero_op_0 :
           (x : A) -> * 0 x == 0
         rightZero_op_0 :
@@ -649,11 +649,11 @@ module MathScheme where
         rightDistributive_*_+ :
           (x : A) (y : A) (z : A) ->
           * (+ y z) x == + (* y x) (* z x)
-        inv : A -> A
+        neg : A -> A
         leftInverse_inv_op_0 :
-          (x : A) -> + x (inv x) == 0
+          (x : A) -> + x (neg x) == 0
         rightInverse_inv_op_0 :
-          (x : A) -> + (inv x) x == 0
+          (x : A) -> + (neg x) x == 0
         leftZero_op_0 :
           (x : A) -> * 0 x == 0
         rightZero_op_0 :
@@ -1045,11 +1045,11 @@ module MathScheme where
         associative_* :
           (x : A) (y : A) (z : A) ->
           * (* x y) z == * x (* y z)
-        inv : A -> A
+        neg : A -> A
         leftInverse_inv_op_0 :
-          (x : A) -> + x (inv x) == 0
+          (x : A) -> + x (neg x) == 0
         rightInverse_inv_op_0 :
-          (x : A) -> + (inv x) x == 0
+          (x : A) -> + (neg x) x == 0
         lunit_1 : (x : A) -> * 1 x == x
         runit_1 : (x : A) -> * x 1 == x
         leftZero_op_0 :
@@ -1765,11 +1765,11 @@ module MathScheme where
         associative_+ :
           (x : A) (y : A) (z : A) ->
           + (+ x y) z == + x (+ y z)
-        inv : A -> A
+        neg : A -> A
         leftInverse_inv_op_0 :
-          (x : A) -> + x (inv x) == 0
+          (x : A) -> + x (neg x) == 0
         rightInverse_inv_op_0 :
-          (x : A) -> + (inv x) x == 0
+          (x : A) -> + (neg x) x == 0
         associative_* :
           (x : A) (y : A) (z : A) ->
           * (* x y) z == * x (* y z)
@@ -2036,11 +2036,11 @@ module MathScheme where
         associative_*_ :
           (x : A) (y : A) (z : A) ->
           *_ (*_ x y) z == *_ x (*_ y z)
-        neg_ : A -> A
+        inv_ : A -> A
         leftInverse_inv_op_0_ :
-          (x : A) -> *_ x (neg_ x) == 0_
+          (x : A) -> *_ x (inv_ x) == 0_
         rightInverse_inv_op_0_ :
-          (x : A) -> *_ (neg_ x) x == 0_
+          (x : A) -> *_ (inv_ x) x == 0_
         commutative_*_ :
           (x : A) (y : A) ->
           *_ x y == *_ y x
@@ -2515,11 +2515,11 @@ module MathScheme where
         rightDistributive_*_+ :
           (x : A) (y : A) (z : A) ->
           * (+ y z) x == + (* y x) (* z x)
-        inv : A -> A
+        neg : A -> A
         leftInverse_inv_op_0 :
-          (x : A) -> + x (inv x) == 0
+          (x : A) -> + x (neg x) == 0
         rightInverse_inv_op_0 :
-          (x : A) -> + (inv x) x == 0
+          (x : A) -> + (neg x) x == 0
         1 : A
         lunit_1 : (x : A) -> * 1 x == x
         runit_1 : (x : A) -> * x 1 == x
@@ -2664,11 +2664,11 @@ module MathScheme where
         commutative_+ :
           (x : A) (y : A) ->
           + x y == + y x
-        inv : A -> A
+        neg : A -> A
         leftInverse_inv_op_0 :
-          (x : A) -> + x (inv x) == 0
+          (x : A) -> + x (neg x) == 0
         rightInverse_inv_op_0 :
-          (x : A) -> + (inv x) x == 0
+          (x : A) -> + (neg x) x == 0
         * : A -> A -> A
         associative_* :
           (x : A) (y : A) (z : A) ->

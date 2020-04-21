@@ -5,6 +5,7 @@ Map times = {op to *}
 Map zero = {e to 0}
 Map one = {e to 1}
 Map plus-zero = {op to + ; e to 0}
+Map plus-zero-neg = {op to + ; e to 0 ; inv to neg}
 Map times-one = {op to * ; e to 1}
 Map times-zero = {op to * ; e to 0} 
 Map nat  = {A to Nat}
@@ -192,11 +193,11 @@ QuasiInverse = combine PseudoInverse {} PseudoInvolution {} over PseudoInverseSi
 -- Group 
 Group  = combine Monoid {} Inverse {} over PointedMagma    
 Group1 = combine Group one Monoid1 {} over Monoid
-AdditiveGroup = combine AdditiveMonoid {} Group plus-zero over Monoid 
+AdditiveGroup = combine AdditiveMonoid {} Group plus-zero-neg over Monoid 
 CommutativeGroup = combine Group {} CommutativeMonoid {} over Monoid
 MultGroup = combine MultMonoid {} Group times-one over Monoid
 AbelianGroup = combine CommutativeGroup times-one MultGroup {} over Group
-AbelianAdditiveGroup = combine CommutativeGroup plus-zero AdditiveCommutativeMonoid {} over CommutativeMonoid 
+AbelianAdditiveGroup = combine CommutativeGroup plus-zero-neg AdditiveCommutativeMonoid {} over CommutativeMonoid 
 
 
 RingoidSig = combine MultMagma {} AdditiveMagma {} over Carrier 
@@ -251,7 +252,7 @@ Zero_Ringoid0Sig = combine Zero0 {} Ringoid0Sig {} over PointedTimesZeroMagma
 Semiring = combine SemiRngWithUnit {} Zero_Ringoid0Sig {} over Ringoid0Sig 
 Ring = combine Rng {} Semiring {} over SemiRng 
 CommutativeRing = combine MultCommutativeMonoid {} Ring {} over MultMonoid
-PrimAdditiveGroup = rename AbelianGroup {U to S ; * to *_ ; inv to neg_ ; 1 to 0_}
+PrimAdditiveGroup = rename AbelianGroup {U to S ; * to *_ ; inv to inv_ ; 1 to 0_}
 BooleanRing = combine CommutativeRing {} IdempotentMultMagma {} over MultMagma 
 IdempotentSemiRng = combine SemiRng {} IdempotentAdditiveMagma {} over AdditiveMagma
 IdempotentSemiring = combine Semiring {} IdempotentAdditiveMagma {} over AdditiveMagma
@@ -278,6 +279,4 @@ Ringoid1 = combine Ringoid1Sig {} Ringoid {} over RingoidSig
 Ringoid1ToSemiring = from Ringoid1 to Semiring using {* to * ; + to + ; 1 to 1 ; leftDistributive_*_+ to leftDistributive_*_+ ; rightDistributive_*_+ to rightDistributive_*_+}
 Ringoid1ToInvolutiveRingoid = from Ringoid1 to InvolutiveRingoid using {* to * ; + to + ; 1 to 1 ; leftDistributive_*_+ to leftDistributive_*_+ ; rightDistributive_*_+ to rightDistributive_*_+}
 InvolutiveRing = combine InvolutiveRingoid {} Ring {} over Ringoid1 
-
-{- ---------------------------------------- -}
 
