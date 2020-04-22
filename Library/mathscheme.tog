@@ -6,6 +6,7 @@ Map zero = {e to 0}
 Map one = {e to 1}
 Map plus-zero = {op to + ; e to 0}
 Map plus-zero-neg = {op to + ; e to 0 ; inv to neg}
+Map plus-neg = {op to + ; inv to neg} 
 Map times-one = {op to * ; e to 1}
 Map times-zero = {op to * ; e to 0} 
 Map nat  = {A to Nat}
@@ -132,7 +133,8 @@ Semigroup = extend Magma {associative_op : {x y z : A} -> op (op x y) z == op x 
 AdditiveSemigroup = combine AdditiveMagma {} Semigroup plus over Magma
 MultSemigroup = combine MultMagma {} Semigroup times over Magma 
 CommutativeSemigroup = combine CommutativeMagma {} Semigroup {} over Magma 
-AdditiveCommutativeSemigroup = combine AdditiveMagma {} CommutativeSemigroup plus over Magma 
+AdditiveCommutativeSemigroup = combine AdditiveMagma {} CommutativeSemigroup plus over Magma
+MultCommutativeSemigroup = combine MultMagma {} CommutativeSemigroup times over Magma
 LeftCancellativeSemigroup = combine Semigroup {} LeftCancellativeMagma {} over Magma
 RightCancellativeSemigroup = combine Semigroup {} RightCancellativeMagma {} over Magma
 CancellativeSemigroup = combine Semigroup {} CancellativeMagma {} over Magma 
@@ -140,7 +142,6 @@ CancellativeCommutativeSemigroup = combine CommutativeSemigroup {} CancellativeS
 InvolutiveSemigroup = combine Semigroup {} InvolutiveMagma {} over Magma
 InvolutivePointedSemigroup = combine PointedMagma{} InvolutiveSemigroup {} over Magma
 Band = combine Semigroup {} IdempotentMagma {} over Magma
-CommutativeBand = combine Band {} CommutativeMagma {} over Magma
 MiddleAbsorption = extend Magma {middleAbsorb_* : {x y z : A} -> op (op x y) z == op x z}
 MiddleCommute = extend Magma {middleCommute_* : {x y z : A} -> op (op (op x y) z) x == op (op (op x z) y) x}
 RectangularBand = combine Band {} MiddleCommute {} over Magma
@@ -280,3 +281,34 @@ Ringoid1ToSemiring = from Ringoid1 to Semiring using {* to * ; + to + ; 1 to 1 ;
 Ringoid1ToInvolutiveRingoid = from Ringoid1 to InvolutiveRingoid using {* to * ; + to + ; 1 to 1 ; leftDistributive_*_+ to leftDistributive_*_+ ; rightDistributive_*_+ to rightDistributive_*_+}
 InvolutiveRing = combine InvolutiveRingoid {} Ring {} over Ringoid1 
 
+{- ---------------------------------------- -}
+
+JacobianIdentity = extend Ringoid0Sig {jacobian_*_+ : {x y z : A} -> (+ (+ (* x (* y z)) (* y (* z x))) (* z (* x y))) == 0}
+AntiCommutativeRing = extend Ring {antiCommutative : {x y : A} -> (* x y) == neg (* y x) } 
+LieRing = combine JacobianIdentity {} AntiCommutativeRing {} over Ringoid0Sig 
+
+-- MeetSemilattice can be defined two ways, but defining it the first way would not make it possible to define BoundedMeetSemilattice 
+-- MeetSemilattice = combine Band {} CommutativeMagma {} over Magma
+MeetSemilattice = combine Band {} CommutativeSemigroup {} over Semigroup
+MultMeetSemilattice = combine MeetSemilattice times MultCommutativeSemigroup {} over CommutativeSemigroup
+BoundedMeetSemilattice = combine MultCommutativeMonoid {} MultMeetSemilattice {} over CommutativeSemigroup
+
+JoinSemilattice = combine MeetSemilattice plus AdditiveCommutativeSemigroup {} over CommutativeSemigroup
+BoundedJoinSemilattice = combine AdditiveCommutativeMonoid {} JoinSemilattice {} over CommutativeSemigroup
+
+MultSemilattice_RingoidSig = combine MultMeetSemilattice {} RingoidSig {} over MultMagma
+JoinSemilattice_RingoidSig = combine JoinSemilattice {} RingoidSig {} over AdditiveMagma
+DualSemilattices = combine MultSemilattice_RingoidSig {} JoinSemilattice_RingoidSig {} over RingoidSig
+LeftAbsorption = extend RingoidSig { leftAbsorp_*_+ : {x y : A} -> * x (+ x y) == x }
+LeftAbsorptionOp = extend RingoidSig { leftAbsorp_+_* : {x y : A} -> + x (* x y) == x }
+Absorption = combine LeftAbsorption {} LeftAbsorptionOp {} over RingoidSig
+Lattice = combine DualSemilattices {} Absorption {} over RingoidSig
+Modularity = extend RingoidSig { leftModular_*_+ : {x y z : A} -> (+ (* x y) (* x z)) == (* x (+ y (* x z))) }
+ModularLattice = combine Lattice {} Modularity {} over RingoidSig
+DistributiveLattice = combine ModularLattice {} LeftRingoid {} over RingoidSig
+BoundedJoinLattice = combine BoundedJoinSemilattice {} Lattice {} over JoinSemilattice
+BoundedMeetLattice = combine BoundedMeetSemilattice {} Lattice {} over MeetSemilattice
+BoundedLattice = combine BoundedJoinLattice {} BoundedMeetLattice {} over Lattice
+BoundedModularLattice = combine BoundedLattice {} ModularLattice {} over Lattice
+BoundedDistributiveLattice = combine BoundedModularLattice {} DistributiveLattice {} over ModularLattice
+PointedInvolutiveMagma0Sig = combine InvolutiveMultMagmaSig {} PointedZero {} over Carrier
