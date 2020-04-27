@@ -1,0 +1,25 @@
+module Category where 
+
+-- The following theories are also present in the Algebra library 
+Theory Empty = {} 
+Carrier = extend Empty {A : Set}
+UnaryOperation = extend Carrier {prim : A -> A}
+-- ---------------------------------------------------------------
+
+CategoricalCarrier = rename Carrier { A to Obj }
+DirectedMultigraph = extend CategoricalCarrier { hom : Obj -> Obj -> Set } 
+LoopDirectedMultigraph = extend DirectedMultigraph { id : {a : Obj} -> hom a a } 
+TypedMagma = extend DirectedMultigraph { seq : {a b c : Obj} -> hom a b -> hom b c -> hom a c }
+TypedLoopedMagma = combine TypedMagma {} LoopDirectedMultigraph {} over DirectedMultigraph
+
+TypedLeftUnital = extend TypedLoopedMagma {
+  left_identity_seq_id : {a b : Obj} -> {x : hom a b} -> (seq a a b (id a) x) == x }
+TypedRightUnital = extend TypedLoopedMagma {
+  right_identity_seq_id : {a b : Obj} -> {x : hom a b} -> (seq a b b x (id b)) == x }
+TypedUnital = combine TypedLeftUnital {} TypedRightUnital {} over TypedLoopedMagma
+
+Semigroupoid = extend TypedMagma { associative_seq : {a b c d : Obj} -> {x : hom a b} -> {y : hom b c} -> {z : hom c d} -> seq a c d (seq a b c x y) z == seq a b d x (seq b c d y z) }
+
+Category = combine TypedUnital {} Semigroupoid {} over TypedMagma
+
+
