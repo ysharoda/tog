@@ -26,44 +26,47 @@ ImplicationAndLogicSig = combine ImplicationLogicSig {} AndLogicSig {} over Dedu
 ImplicationOrLogicSig = combine ImplicationLogicSig {} OrLogicSig {} over Deductive
 
 -- PC axioms 
-AxiomPC1 = extend ImplicationNotLogicSig { pc1 : {p q : Prop} -> ded (impl (impl (not p) (not q)) (impl p q)) }
-AxiomPC2 = extend ImplicationNotLogicSig { pc2 : {p : Prop} -> ded (impl (not (not p)) p) }
-AxiomPC3 = extend ImplicationNotLogicSig
-{ pc3 : {p q : Prop} -> ded (impl p (impl (impl q (not p)) (not q))) }
+Contraposition = extend ImplicationNotLogicSig {
+  contrap : {p q : Prop} -> ded (impl (not p) (not q)) -> ded (impl q p) }
+DoubleNegation = extend NotLogicSig { dneg : {p : Prop} -> ded (not (not p)) -> ded p }
+
 -- PL axioms
-AxiomPL1 = extend ImplicationLogicSig { pl1 : {p q : Prop} -> ded (impl p (impl q p)) }
-AxiomPL2 = extend ImplicationLogicSig { pl2 : {p q r: Prop} -> ded (impl (impl p (impl q r)) (impl (impl p q) (impl p r))) }
-AxiomPL3 = extend ImplicationAndLogicSig { pl3 : {p q : Prop} -> ded (impl (and p q) p)  } 
-AxiomPL4 = extend ImplicationAndLogicSig { pl4 : {p q : Prop} -> ded (impl (and p q) q)  } 
-AxiomPL5 = extend ImplicationAndLogicSig { pl5 : {p q : Prop} -> ded (impl p (impl q (and p q))) }
-AxiomPL6 = extend ImplicationOrLogicSig { pl6 : {p q : Prop} -> ded (impl p (or p q)) }
-AxiomPL7 = extend ImplicationOrLogicSig { pl7 : {p q : Prop} -> ded (impl q (or p q)) }
-AxiomPL8 = extend ImplicationOrLogicSig { pl8 : {p q : Prop} -> ded (impl q (or p q)) }
+ImplicationIntro = extend ImplicationLogicSig { implI : {p q : Prop} -> ded p -> ded (impl q p) }
+ImplicationDistrib = extend ImplicationLogicSig { implDistrib : {p q r: Prop} -> ded (impl p (impl q r)) -> ded (impl (impl p q) (impl p r)) }
+AndElim1 = extend AndLogicSig { andElim1 : {p q : Prop} -> ded (and p q) -> ded p  } 
+AndElim2 = extend AndLogicSig { andElim2 : {p q : Prop} -> ded (and p q) -> ded q  } 
+AndIntro = extend AndLogicSig { andIntro : {p q : Prop} -> ded p -> ded q -> ded (and p q) }
+OrIntro1 = extend OrLogicSig { orIntro1 : {p q : Prop} -> ded p -> ded (or p q) }
+OrIntro2 = extend OrLogicSig { orIntro2 : {p q : Prop} -> ded q -> ded (or p q) }
+OrImpl = extend ImplicationOrLogicSig { orImpl : {p q r : Prop} -> ded (impl p r) -> ded (impl q r) -> ded (impl (or p q) r) }
 
-AxiomsPL12 = combine AxiomPL1 {} AxiomPL2 {} over ImplicationLogicSig
-AxiomsPL1-3 = combine AxiomsPL12 {} AxiomPL3 {} over ImplicationLogicSig
-AxiomsPL1-4 = combine AxiomsPL1-3 {} AxiomPL4 {} over ImplicationAndLogicSig
-AxiomsPL1-5 = combine AxiomsPL1-4 {} AxiomPL5 {} over ImplicationAndLogicSig
-AxiomsPL1-6 = combine AxiomsPL1-5 {} AxiomPL6 {} over ImplicationLogicSig
-AxiomsPL1-7 = combine AxiomsPL1-6 {} AxiomPL7 {} over ImplicationOrLogicSig
-AxiomsPL1-8 = combine AxiomsPL1-7 {} AxiomPL8 {} over ImplicationOrLogicSig
+ImplicationLogic = combine ImplicationIntro {} ImplicationDistrib {} over ImplicationLogicSig
 
-ModusPonens = extend ImplicationLogicSig { modusPonens : {p q : Prop} -> ded (impl p (impl (impl p q) q)) }
-ModusPonensWPC1 = combine ModusPonens {} AxiomPC1 {} over ImplicationLogicSig 
-PropositionalLogic = combine ModusPonensWPC1 {} AxiomsPL1-8 {} over ImplicationLogicSig 
+AndElimLogic = combine AndElim1 {} AndElim2 {} over AndLogicSig
+AndLogic = combine AndElimLogic {} AndIntro {} over AndLogicSig 
 
-NecessitySig = combine PropCarrier {} NecessityUnaryOp {A to Prop} over Carrier
-ImplicationNecessitySig = combine ImplicationLogicSig {} NecessitySig {} over Carrier
+OrIntroLogic = combine OrIntro1 {} OrIntro2 {} over OrLogicSig
+OrLogic = combine OrIntroLogic {} OrImpl {} over OrLogicSig
+
+AndOrLogic = combine AndLogic {} OrLogic {} over Deductive
+AndOrImplLogic = combine AndOrLogic {} ImplicationLogic {} over ImplicationLogicSig
+
+ModusPonens = extend ImplicationLogicSig { modusPonens : {p q : Prop} -> ded p -> ded (impl p q) -> ded q }
+ModusPonensWContrap = combine ModusPonens {} Contraposition {} over ImplicationLogicSig 
+PropositionalLogic = combine ModusPonensWContrap {} AndOrImplLogic {} over ImplicationLogicSig 
+
+NecessitySig = combine Deductive {} NecessityUnaryOp {A to Prop} over Carrier
+ImplicationNecessitySig = combine ImplicationLogicSig {} NecessitySig {} over Deductive
 
 AxiomK = extend ImplicationNecessitySig {
- axiomK : {p q : Prop} -> ded (impl (box (impl p q)) (impl (box p) (box q))) }
-Axiom4 = extend ImplicationNecessitySig {
- axiom4 : {p : Prop} -> ded (impl (box p) (box (box p))) }
+ axiomK : {p q : Prop} -> ded (box (impl p q)) -> ded (impl (box p) (box q)) }
+Axiom4 = extend NecessitySig {
+ axiom4 : {p : Prop} -> ded (box p) -> ded (box (box p)) }
 -- stated in the original lib as axiom T, but on the stanford definition of Modal Logic, it is axiom M. 
-AxiomM = extend ImplicationNecessitySig {
- axiomM : {p : Prop} -> ded (impl (box p) p) } 
+AxiomM = extend NecessitySig {
+ axiomM : {p : Prop} -> ded (box p) -> ded p } 
 
-AxiomsK4 = combine AxiomK {} Axiom4 {} over ImplicationNecessitySig
-ModLogicAxioms = combine AxiomM {} AxiomsK4 {} over ImplicationNecessitySig
+AxiomsM4 = combine AxiomM {} Axiom4 {} over NecessitySig
+ModLogicAxioms = combine AxiomK {} AxiomsM4 {} over NecessitySig
 
 ModalLogic = combine ModLogicAxioms {} PropositionalLogic {} over ImplicationLogicSig
