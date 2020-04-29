@@ -33,19 +33,19 @@ DoubleNegation = extend NotLogicSig { dneg : {p : Prop} -> ded (not (not p)) -> 
 -- PL axioms
 ImplicationIntro = extend ImplicationLogicSig { implI : {p q : Prop} -> ded p -> ded (impl q p) }
 ImplicationDistrib = extend ImplicationLogicSig { implDistrib : {p q r: Prop} -> ded (impl p (impl q r)) -> ded (impl (impl p q) (impl p r)) }
-AndElim1 = extend AndLogicSig { andElim1 : {p q : Prop} -> ded (and p q) -> ded p  } 
-AndElim2 = extend AndLogicSig { andElim2 : {p q : Prop} -> ded (and p q) -> ded q  } 
+AndElimL = extend AndLogicSig { andElimL : {p q : Prop} -> ded (and p q) -> ded p  } 
+AndElimR = extend AndLogicSig { andElimR : {p q : Prop} -> ded (and p q) -> ded q  } 
 AndIntro = extend AndLogicSig { andIntro : {p q : Prop} -> ded p -> ded q -> ded (and p q) }
-OrIntro1 = extend OrLogicSig { orIntro1 : {p q : Prop} -> ded p -> ded (or p q) }
-OrIntro2 = extend OrLogicSig { orIntro2 : {p q : Prop} -> ded q -> ded (or p q) }
+OrIntroL = extend OrLogicSig { orIntroL : {p q : Prop} -> ded p -> ded (or p q) }
+OrIntroR = extend OrLogicSig { orIntroR : {p q : Prop} -> ded q -> ded (or p q) }
 OrImpl = extend ImplicationOrLogicSig { orImpl : {p q r : Prop} -> ded (impl p r) -> ded (impl q r) -> ded (impl (or p q) r) }
 
 ImplicationLogic = combine ImplicationIntro {} ImplicationDistrib {} over ImplicationLogicSig
 
-AndElimLogic = combine AndElim1 {} AndElim2 {} over AndLogicSig
+AndElimLogic = combine AndElimL {} AndElimR {} over AndLogicSig
 AndLogic = combine AndElimLogic {} AndIntro {} over AndLogicSig 
 
-OrIntroLogic = combine OrIntro1 {} OrIntro2 {} over OrLogicSig
+OrIntroLogic = combine OrIntroL {} OrIntroR {} over OrLogicSig
 OrLogic = combine OrIntroLogic {} OrImpl {} over OrLogicSig
 
 AndOrLogic = combine AndLogic {} OrLogic {} over Deductive
