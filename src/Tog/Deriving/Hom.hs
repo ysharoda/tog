@@ -28,7 +28,7 @@ recordParams bind (Constr nm typ) =
 createThryInsts :: Eq.EqTheory -> ((Binding, Name_), (Binding, Name_))
 createThryInsts t =
   let nam = t ^. Eq.thyName
-      (n1, n2) = (shortName nam 1, shortName nam 2) in
+      (n1, n2) = (twoCharName nam 1, twoCharName nam 2) in
   ((Bind [mkArg n1] (declTheory nam (Eq.args t) 1), n1) ,
    (Bind [mkArg n2] (declTheory nam (Eq.args t) 2), n2) )
 
@@ -43,29 +43,24 @@ genHomFunc isQualified sortName inst1Name inst2Name =
              
 {- ------------ Preservation Axioms ----------------- -}
 
-genPresAxioms :: Eq.EqTheory -> [Constr]
-genPresAxioms eqthry = 
-  let nparms = eqthry ^. Eq.waist - 1
+genPresAxioms :: Eq.EqTheory -> Name_ -> Name_ -> [Constr]
+genPresAxioms eqthry inst1Name inst2Name = 
+  let waist = eqthry ^. Eq.waist
       decls  = eqthry ^. Eq.funcTypes
-      (args, flds) = splitAt nparms decls
-      n = eqthry ^. Eq.thyName
-  in (map (oneAxiom n True) args) ++ 
-     (map (oneAxiom n False) flds)
+  in map (oneAxiom inst1Name inst2Name waist) decls 
   
--- e : A 
-oneAxiom :: Name_ -> Bool -> FuncType -> Axiom 
-oneAxiom n isParam c@(Constr nm typ) =
+oneAxiom :: Name_ -> Name_ -> Int -> FuncType -> Axiom 
+oneAxiom inst1Name inst2Name waist c@(Constr nm typ) =
   Constr (mkName $ "pres-" ++ nm^.name)
-   (Pi (Tel $ genBinding n isParam typ) (genEq n c))       
+   (Pi (Tel $ genBinding inst1Name (waist == 0) typ) (genEq inst1Name inst2Name c))       
 
 genBinding :: Name_ -> Bool -> Expr -> [Binding]
-genBinding n isParam expr =
+genBinding instName isParam expr =
  let vars =  map mkArg $ genVars $ exprArity expr
-     instName = shortName n 1
      argQualName arg =
        if isParam 
-       then notQualDecl (getArgName arg ++ "1")
-       else qualDecl (getArgName arg) instName
+       then qualDecl (getArgName arg) instName
+       else notQualDecl (getArgName arg ++ "1")
      -- A list of types in the expression 
      exprTypes (App arg) = map argQualName arg
      exprTypes (Fun e1 e2) = (exprTypes e1) ++ (exprTypes e2)
@@ -93,10 +88,10 @@ genRHS build constr@(Constr _ expr) =
 mkDecl :: Name_ -> Constr -> Expr
 mkDecl n c = qualDecl (getConstrName c) n
 
-genEq :: Name_ -> Constr -> Expr
-genEq n constr =
-  Eq (genLHS (mkDecl $ shortName n 1) constr)
-     (genRHS (mkDecl $ shortName n 2) constr) 
+genEq :: Name_ -> Name_ -> Constr -> Expr
+genEq inst1Name inst2Name constr =
+  Eq (genLHS (mkDecl inst1Name) constr)
+     (genRHS (mkDecl inst2Name) constr) 
 
 {- ------------ The Hom Record -------------------- -}
 
@@ -106,7 +101,7 @@ homomorphism t =
       a = Eq.args t 
       nm = t ^. Eq.thyName ++ "Hom"
       fnc = genHomFunc (length a == 0) (getConstrName $ t^.Eq.sort) n1 n2
-      axioms = genPresAxioms t
+      axioms = genPresAxioms t n1 n2 
   in Record (mkName nm)
-   (mkParams $ [i1, i2] ++ map (recordParams Bind) a)
+   (mkParams $ (map (recordParams Bind) a) ++ [i1,i2])
    (RecordDeclDef setType (mkName $ nm ++ "C") (mkField $ fnc : axioms))

@@ -19,6 +19,7 @@ Map additive = { A to Nat ; e to 0 ; op to + }
 
 Theory Empty = {} 
 Carrier = extend Empty {A : Set}
+
 Pointed = extend Carrier {e : A}
 PointedZero = rename Pointed zero
 PointedOne  = rename Pointed one 
@@ -312,3 +313,4 @@ BoundedLattice = combine BoundedJoinLattice {} BoundedMeetLattice {} over Lattic
 BoundedModularLattice = combine BoundedLattice {} ModularLattice {} over Lattice
 BoundedDistributiveLattice = combine BoundedModularLattice {} DistributiveLattice {} over ModularLattice
 PointedInvolutiveMagma0Sig = combine InvolutiveMultMagmaSig {} PointedZero {} over Carrier
+

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------
 -- Checking declarations
 ------------------------------------------------------------------------
--- Solved Metas: 4485
+-- Solved Metas: 5240
 -- Unsolved Metas: 0
 ------------------------------------------------------------------------
 -- Unsolved problems: 0
@@ -12,10 +12,9 @@ module MathScheme where
     
   module AdditiveCommutativeSemigroup where
     record AdditiveCommutativeSemigroup
-      : Set where
+      (A : Set) : Set where
       constructor AdditiveCommutativeSemigroupC
       field
-        A : Set
         + : A -> A -> A
         commutative_+ :
           (x : A) (y : A) ->
@@ -24,16 +23,18 @@ module MathScheme where
           (x : A) (y : A) (z : A) ->
           + (+ x y) z == + x (+ y z)
     record AdditiveCommutativeSemigroupHom
-      (A1 : AdditiveCommutativeSemigroup)
-      (A2 : AdditiveCommutativeSemigroup) :
-      Set where
+      (A1 : Set) (A2 : Set)
+      (Ad1 : AdditiveCommutativeSemigroup
+         A1)
+      (Ad2 : AdditiveCommutativeSemigroup
+         A2) : Set where
       constructor AdditiveCommutativeSemigroupHomC
       field
-        hom : A A1 -> A A2
+        hom : A1 -> A2
         pres-+ :
-          (x1 : A A1) (x2 : A A1) ->
-          hom (+ A1 x1 x2) ==
-            + A2 (hom x1) (hom x2)
+          (x1 : A1) (x2 : A1) ->
+          hom (+ Ad1 x1 x2) ==
+            + Ad2 (hom x1) (hom x2)
     data AdditiveCommutativeSemigroupLang
       : Set where
       +L :
@@ -41,10 +42,9 @@ module MathScheme where
         AdditiveCommutativeSemigroupLang ->
         AdditiveCommutativeSemigroupLang
     record AdditiveCommutativeSemigroupProd
-      : Set where
+      (AP : Set) : Set where
       constructor AdditiveCommutativeSemigroupProdC
       field
-        AP : Set
         +P :
           Prod AP AP ->
           Prod AP AP -> Prod AP AP
@@ -59,28 +59,29 @@ module MathScheme where
           +P (+P xP yP) zP ==
             +P xP (+P yP zP)
     record AdditiveCommutativeSemigroupSig
-      : Set where
+      (AS : Set) : Set where
       constructor AdditiveCommutativeSemigroupSigSigC
       field
-        AS : Set
         +S : AS -> AS -> AS
   
   module AdditiveMagma where
-    record AdditiveMagma : Set where
+    record AdditiveMagma
+      (A : Set) : Set where
       constructor AdditiveMagmaC
       field
-        A : Set
         + : A -> A -> A
     record AdditiveMagmaHom
-      (A1 : AdditiveMagma)
-      (A2 : AdditiveMagma) : Set where
+      (A1 : Set) (A2 : Set)
+      (Ad1 : AdditiveMagma A1)
+      (Ad2 : AdditiveMagma A2) :
+      Set where
       constructor AdditiveMagmaHomC
       field
-        hom : A A1 -> A A2
+        hom : A1 -> A2
         pres-+ :
-          (x1 : A A1) (x2 : A A1) ->
-          hom (+ A1 x1 x2) ==
-            + A2 (hom x1) (hom x2)
+          (x1 : A1) (x2 : A1) ->
+          hom (+ Ad1 x1 x2) ==
+            + Ad2 (hom x1) (hom x2)
     data AdditiveMagmaLang
       : Set where
       +L :
@@ -88,26 +89,23 @@ module MathScheme where
         AdditiveMagmaLang ->
         AdditiveMagmaLang
     record AdditiveMagmaProd
-      : Set where
+      (AP : Set) : Set where
       constructor AdditiveMagmaProdC
       field
-        AP : Set
         +P :
           Prod AP AP ->
           Prod AP AP -> Prod AP AP
     record AdditiveMagmaSig
-      : Set where
+      (AS : Set) : Set where
       constructor AdditiveMagmaSigSigC
       field
-        AS : Set
         +S : AS -> AS -> AS
   
   module AdditiveMonoid where
     record AdditiveMonoid
-      : Set where
+      (A : Set) : Set where
       constructor AdditiveMonoidC
       field
-        A : Set
         0 : A
         + : A -> A -> A
         lunit_0 : (x : A) -> + 0 x == x
@@ -116,17 +114,18 @@ module MathScheme where
           (x : A) (y : A) (z : A) ->
           + (+ x y) z == + x (+ y z)
     record AdditiveMonoidHom
-      (A1 : AdditiveMonoid)
-      (A2 : AdditiveMonoid) :
+      (A1 : Set) (A2 : Set)
+      (Ad1 : AdditiveMonoid A1)
+      (Ad2 : AdditiveMonoid A2) :
       Set where
       constructor AdditiveMonoidHomC
       field
-        hom : A A1 -> A A2
-        pres-0 : hom (0 A1) == 0 A2
+        hom : A1 -> A2
+        pres-0 : hom (0 Ad1) == 0 Ad2
         pres-+ :
-          (x1 : A A1) (x2 : A A1) ->
-          hom (+ A1 x1 x2) ==
-            + A2 (hom x1) (hom x2)
+          (x1 : A1) (x2 : A1) ->
+          hom (+ Ad1 x1 x2) ==
+            + Ad2 (hom x1) (hom x2)
     data AdditiveMonoidLang
       : Set where
       0L : AdditiveMonoidLang
@@ -135,10 +134,9 @@ module MathScheme where
         AdditiveMonoidLang ->
         AdditiveMonoidLang
     record AdditiveMonoidProd
-      : Set where
+      (AP : Set) : Set where
       constructor AdditiveMonoidProdC
       field
-        AP : Set
         0P : Prod AP AP
         +P :
           Prod AP AP ->
@@ -156,33 +154,32 @@ module MathScheme where
           +P (+P xP yP) zP ==
             +P xP (+P yP zP)
     record AdditiveMonoidSig
-      : Set where
+      (AS : Set) : Set where
       constructor AdditiveMonoidSigSigC
       field
-        AS : Set
         0S : AS
         +S : AS -> AS -> AS
   
   module AdditivePointedMagma where
     record AdditivePointedMagma
-      : Set where
+      (A : Set) : Set where
       constructor AdditivePointedMagmaC
       field
-        A : Set
         0 : A
         + : A -> A -> A
     record AdditivePointedMagmaHom
-      (A1 : AdditivePointedMagma)
-      (A2 : AdditivePointedMagma) :
-      Set where
+      (A1 : Set) (A2 : Set)
+      (Ad1 : AdditivePointedMagma A1)
+      (Ad2 : AdditivePointedMagma
+         A2) : Set where
       constructor AdditivePointedMagmaHomC
       field
-        hom : A A1 -> A A2
-        pres-0 : hom (0 A1) == 0 A2
+        hom : A1 -> A2
+        pres-0 : hom (0 Ad1) == 0 Ad2
         pres-+ :
-          (x1 : A A1) (x2 : A A1) ->
-          hom (+ A1 x1 x2) ==
-            + A2 (hom x1) (hom x2)
+          (x1 : A1) (x2 : A1) ->
+          hom (+ Ad1 x1 x2) ==
+            + Ad2 (hom x1) (hom x2)
     data AdditivePointedMagmaLang
       : Set where
       0L : AdditivePointedMagmaLang
@@ -191,43 +188,94 @@ module MathScheme where
         AdditivePointedMagmaLang ->
         AdditivePointedMagmaLang
     record AdditivePointedMagmaProd
-      : Set where
+      (AP : Set) : Set where
       constructor AdditivePointedMagmaProdC
       field
-        AP : Set
         0P : Prod AP AP
         +P :
           Prod AP AP ->
           Prod AP AP -> Prod AP AP
     record AdditivePointedMagmaSig
-      : Set where
+      (AS : Set) : Set where
       constructor AdditivePointedMagmaSigSigC
       field
-        AS : Set
+        0S : AS
+        +S : AS -> AS -> AS
+  
+  module AdditivePointedSemigroup where
+    record AdditivePointedSemigroup
+      (A : Set) : Set where
+      constructor AdditivePointedSemigroupC
+      field
+        0 : A
+        + : A -> A -> A
+        associative_+ :
+          (x : A) (y : A) (z : A) ->
+          + (+ x y) z == + x (+ y z)
+    record AdditivePointedSemigroupHom
+      (A1 : Set) (A2 : Set)
+      (Ad1 : AdditivePointedSemigroup
+         A1)
+      (Ad2 : AdditivePointedSemigroup
+         A2) : Set where
+      constructor AdditivePointedSemigroupHomC
+      field
+        hom : A1 -> A2
+        pres-0 : hom (0 Ad1) == 0 Ad2
+        pres-+ :
+          (x1 : A1) (x2 : A1) ->
+          hom (+ Ad1 x1 x2) ==
+            + Ad2 (hom x1) (hom x2)
+    data AdditivePointedSemigroupLang
+      : Set where
+      0L :
+        AdditivePointedSemigroupLang
+      +L :
+        AdditivePointedSemigroupLang ->
+        AdditivePointedSemigroupLang ->
+        AdditivePointedSemigroupLang
+    record AdditivePointedSemigroupProd
+      (AP : Set) : Set where
+      constructor AdditivePointedSemigroupProdC
+      field
+        0P : Prod AP AP
+        +P :
+          Prod AP AP ->
+          Prod AP AP -> Prod AP AP
+        associative_+P :
+          (xP : Prod AP AP)
+          (yP : Prod AP AP)
+          (zP : Prod AP AP) ->
+          +P (+P xP yP) zP ==
+            +P xP (+P yP zP)
+    record AdditivePointedSemigroupSig
+      (AS : Set) : Set where
+      constructor AdditivePointedSemigroupSigSigC
+      field
         0S : AS
         +S : AS -> AS -> AS
   
   module AdditiveSemigroup where
     record AdditiveSemigroup
-      : Set where
+      (A : Set) : Set where
       constructor AdditiveSemigroupC
       field
-        A : Set
         + : A -> A -> A
         associative_+ :
           (x : A) (y : A) (z : A) ->
           + (+ x y) z == + x (+ y z)
     record AdditiveSemigroupHom
-      (A1 : AdditiveSemigroup)
-      (A2 : AdditiveSemigroup) :
+      (A1 : Set) (A2 : Set)
+      (Ad1 : AdditiveSemigroup A1)
+      (Ad2 : AdditiveSemigroup A2) :
       Set where
       constructor AdditiveSemigroupHomC
       field
-        hom : A A1 -> A A2
+        hom : A1 -> A2
         pres-+ :
-          (x1 : A A1) (x2 : A A1) ->
-          hom (+ A1 x1 x2) ==
-            + A2 (hom x1) (hom x2)
+          (x1 : A1) (x2 : A1) ->
+          hom (+ Ad1 x1 x2) ==
+            + Ad2 (hom x1) (hom x2)
     data AdditiveSemigroupLang
       : Set where
       +L :
@@ -235,10 +283,9 @@ module MathScheme where
         AdditiveSemigroupLang ->
         AdditiveSemigroupLang
     record AdditiveSemigroupProd
-      : Set where
+      (AP : Set) : Set where
       constructor AdditiveSemigroupProdC
       field
-        AP : Set
         +P :
           Prod AP AP ->
           Prod AP AP -> Prod AP AP
@@ -249,55 +296,108 @@ module MathScheme where
           +P (+P xP yP) zP ==
             +P xP (+P yP zP)
     record AdditiveSemigroupSig
-      : Set where
+      (AS : Set) : Set where
       constructor AdditiveSemigroupSigSigC
       field
-        AS : Set
+        +S : AS -> AS -> AS
+  
+  module AdditiveUnital where
+    record AdditiveUnital
+      (A : Set) : Set where
+      constructor AdditiveUnitalC
+      field
+        0 : A
+        + : A -> A -> A
+        lunit_0 : (x : A) -> + 0 x == x
+        runit_0 : (x : A) -> + x 0 == x
+    record AdditiveUnitalHom
+      (A1 : Set) (A2 : Set)
+      (Ad1 : AdditiveUnital A1)
+      (Ad2 : AdditiveUnital A2) :
+      Set where
+      constructor AdditiveUnitalHomC
+      field
+        hom : A1 -> A2
+        pres-0 : hom (0 Ad1) == 0 Ad2
+        pres-+ :
+          (x1 : A1) (x2 : A1) ->
+          hom (+ Ad1 x1 x2) ==
+            + Ad2 (hom x1) (hom x2)
+    data AdditiveUnitalLang
+      : Set where
+      0L : AdditiveUnitalLang
+      +L :
+        AdditiveUnitalLang ->
+        AdditiveUnitalLang ->
+        AdditiveUnitalLang
+    record AdditiveUnitalProd
+      (AP : Set) : Set where
+      constructor AdditiveUnitalProdC
+      field
+        0P : Prod AP AP
+        +P :
+          Prod AP AP ->
+          Prod AP AP -> Prod AP AP
+        lunit_0P :
+          (xP : Prod AP AP) ->
+          +P 0P xP == xP
+        runit_0P :
+          (xP : Prod AP AP) ->
+          +P xP 0P == xP
+    record AdditiveUnitalSig
+      (AS : Set) : Set where
+      constructor AdditiveUnitalSigSigC
+      field
+        0S : AS
         +S : AS -> AS -> AS
   
   module Carrier where
-    record Carrier : Set where
+    record Carrier
+      (A : Set) : Set where
       constructor CarrierC
       field
-        A : Set
+        
     record CarrierHom
-      (C1 : Carrier) (C2 : Carrier) :
-      Set where
+      (A1 : Set) (A2 : Set)
+      (Ca1 : Carrier A1)
+      (Ca2 : Carrier A2) : Set where
       constructor CarrierHomC
       field
-        hom : A C1 -> A C2
+        hom : A1 -> A2
     data CarrierLang : Set where
       
-    record CarrierProd : Set where
+    record CarrierProd
+      (AP : Set) : Set where
       constructor CarrierProdC
       field
-        AP : Set
-    record CarrierSig : Set where
+        
+    record CarrierSig
+      (AS : Set) : Set where
       constructor CarrierSigSigC
       field
-        AS : Set
+        
   
   module CommutativeMagma where
     record CommutativeMagma
-      : Set where
+      (A : Set) : Set where
       constructor CommutativeMagmaC
       field
-        A : Set
         op : A -> A -> A
         commutative_op :
           (x : A) (y : A) ->
           op x y == op y x
     record CommutativeMagmaHom
-      (C1 : CommutativeMagma)
-      (C2 : CommutativeMagma) :
+      (A1 : Set) (A2 : Set)
+      (Co1 : CommutativeMagma A1)
+      (Co2 : CommutativeMagma A2) :
       Set where
       constructor CommutativeMagmaHomC
       field
-        hom : A C1 -> A C2
+        hom : A1 -> A2
         pres-op :
-          (x1 : A C1) (x2 : A C1) ->
-          hom (op C1 x1 x2) ==
-            op C2 (hom x1) (hom x2)
+          (x1 : A1) (x2 : A1) ->
+          hom (op Co1 x1 x2) ==
+            op Co2 (hom x1) (hom x2)
     data CommutativeMagmaLang
       : Set where
       opL :
@@ -305,10 +405,9 @@ module MathScheme where
         CommutativeMagmaLang ->
         CommutativeMagmaLang
     record CommutativeMagmaProd
-      : Set where
+      (AP : Set) : Set where
       constructor CommutativeMagmaProdC
       field
-        AP : Set
         opP :
           Prod AP AP ->
           Prod AP AP -> Prod AP AP
@@ -317,18 +416,16 @@ module MathScheme where
           (yP : Prod AP AP) ->
           opP xP yP == opP yP xP
     record CommutativeMagmaSig
-      : Set where
+      (AS : Set) : Set where
       constructor CommutativeMagmaSigSigC
       field
-        AS : Set
         opS : AS -> AS -> AS
   
   module CommutativeMonoid where
     record CommutativeMonoid
-      : Set where
+      (A : Set) : Set where
       constructor CommutativeMonoidC
       field
-        A : Set
         op : A -> A -> A
         associative_op :
           (x : A) (y : A) (z : A) ->
@@ -340,17 +437,18 @@ module MathScheme where
           (x : A) (y : A) ->
           op x y == op y x
     record CommutativeMonoidHom
-      (C1 : CommutativeMonoid)
-      (C2 : CommutativeMonoid) :
+      (A1 : Set) (A2 : Set)
+      (Co1 : CommutativeMonoid A1)
+      (Co2 : CommutativeMonoid A2) :
       Set where
       constructor CommutativeMonoidHomC
       field
-        hom : A C1 -> A C2
+        hom : A1 -> A2
         pres-op :
-          (x1 : A C1) (x2 : A C1) ->
-          hom (op C1 x1 x2) ==
-            op C2 (hom x1) (hom x2)
-        pres-e : hom (e C1) == e C2
+          (x1 : A1) (x2 : A1) ->
+          hom (op Co1 x1 x2) ==
+            op Co2 (hom x1) (hom x2)
+        pres-e : hom (e Co1) == e Co2
     data CommutativeMonoidLang
       : Set where
       opL :
@@ -359,10 +457,9 @@ module MathScheme where
         CommutativeMonoidLang
       eL : CommutativeMonoidLang
     record CommutativeMonoidProd
-      : Set where
+      (AP : Set) : Set where
       constructor CommutativeMonoidProdC
       field
-        AP : Set
         opP :
           Prod AP AP ->
           Prod AP AP -> Prod AP AP
@@ -384,19 +481,17 @@ module MathScheme where
           (yP : Prod AP AP) ->
           opP xP yP == opP yP xP
     record CommutativeMonoidSig
-      : Set where
+      (AS : Set) : Set where
       constructor CommutativeMonoidSigSigC
       field
-        AS : Set
         opS : AS -> AS -> AS
         eS : AS
   
   module CommutativeSemigroup where
     record CommutativeSemigroup
-      : Set where
+      (A : Set) : Set where
       constructor CommutativeSemigroupC
       field
-        A : Set
         op : A -> A -> A
         commutative_op :
           (x : A) (y : A) ->
@@ -405,16 +500,17 @@ module MathScheme where
           (x : A) (y : A) (z : A) ->
           op (op x y) z == op x (op y z)
     record CommutativeSemigroupHom
-      (C1 : CommutativeSemigroup)
-      (C2 : CommutativeSemigroup) :
-      Set where
+      (A1 : Set) (A2 : Set)
+      (Co1 : CommutativeSemigroup A1)
+      (Co2 : CommutativeSemigroup
+         A2) : Set where
       constructor CommutativeSemigroupHomC
       field
-        hom : A C1 -> A C2
+        hom : A1 -> A2
         pres-op :
-          (x1 : A C1) (x2 : A C1) ->
-          hom (op C1 x1 x2) ==
-            op C2 (hom x1) (hom x2)
+          (x1 : A1) (x2 : A1) ->
+          hom (op Co1 x1 x2) ==
+            op Co2 (hom x1) (hom x2)
     data CommutativeSemigroupLang
       : Set where
       opL :
@@ -422,10 +518,9 @@ module MathScheme where
         CommutativeSemigroupLang ->
         CommutativeSemigroupLang
     record CommutativeSemigroupProd
-      : Set where
+      (AP : Set) : Set where
       constructor CommutativeSemigroupProdC
       field
-        AP : Set
         opP :
           Prod AP AP ->
           Prod AP AP -> Prod AP AP
@@ -440,10 +535,9 @@ module MathScheme where
           opP (opP xP yP) zP ==
             opP xP (opP yP zP)
     record CommutativeSemigroupSig
-      : Set where
+      (AS : Set) : Set where
       constructor CommutativeSemigroupSigSigC
       field
-        AS : Set
         opS : AS -> AS -> AS
   
   module Empty where
@@ -453,34 +547,35 @@ module MathScheme where
         
   
   module LeftUnital where
-    record LeftUnital : Set where
+    record LeftUnital
+      (A : Set) : Set where
       constructor LeftUnitalC
       field
-        A : Set
         e : A
         op : A -> A -> A
         lunit_e : (x : A) -> op e x == x
     record LeftUnitalHom
-      (L1 : LeftUnital)
-      (L2 : LeftUnital) : Set where
+      (A1 : Set) (A2 : Set)
+      (Le1 : LeftUnital A1)
+      (Le2 : LeftUnital A2) :
+      Set where
       constructor LeftUnitalHomC
       field
-        hom : A L1 -> A L2
-        pres-e : hom (e L1) == e L2
+        hom : A1 -> A2
+        pres-e : hom (e Le1) == e Le2
         pres-op :
-          (x1 : A L1) (x2 : A L1) ->
-          hom (op L1 x1 x2) ==
-            op L2 (hom x1) (hom x2)
+          (x1 : A1) (x2 : A1) ->
+          hom (op Le1 x1 x2) ==
+            op Le2 (hom x1) (hom x2)
     data LeftUnitalLang : Set where
       eL : LeftUnitalLang
       opL :
         LeftUnitalLang ->
         LeftUnitalLang -> LeftUnitalLang
     record LeftUnitalProd
-      : Set where
+      (AP : Set) : Set where
       constructor LeftUnitalProdC
       field
-        AP : Set
         eP : Prod AP AP
         opP :
           Prod AP AP ->
@@ -488,82 +583,84 @@ module MathScheme where
         lunit_eP :
           (xP : Prod AP AP) ->
           opP eP xP == xP
-    record LeftUnitalSig : Set where
+    record LeftUnitalSig
+      (AS : Set) : Set where
       constructor LeftUnitalSigSigC
       field
-        AS : Set
         eS : AS
         opS : AS -> AS -> AS
   
   module Magma where
-    record Magma : Set where
+    record Magma
+      (A : Set) : Set where
       constructor MagmaC
       field
-        A : Set
         op : A -> A -> A
     record MagmaHom
-      (M1 : Magma) (M2 : Magma) :
-      Set where
+      (A1 : Set) (A2 : Set)
+      (Ma1 : Magma A1)
+      (Ma2 : Magma A2) : Set where
       constructor MagmaHomC
       field
-        hom : A M1 -> A M2
+        hom : A1 -> A2
         pres-op :
-          (x1 : A M1) (x2 : A M1) ->
-          hom (op M1 x1 x2) ==
-            op M2 (hom x1) (hom x2)
+          (x1 : A1) (x2 : A1) ->
+          hom (op Ma1 x1 x2) ==
+            op Ma2 (hom x1) (hom x2)
     data MagmaLang : Set where
       opL :
         MagmaLang ->
         MagmaLang -> MagmaLang
-    record MagmaProd : Set where
+    record MagmaProd
+      (AP : Set) : Set where
       constructor MagmaProdC
       field
-        AP : Set
         opP :
           Prod AP AP ->
           Prod AP AP -> Prod AP AP
-    record MagmaSig : Set where
+    record MagmaSig
+      (AS : Set) : Set where
       constructor MagmaSigSigC
       field
-        AS : Set
         opS : AS -> AS -> AS
   
   module Monoid where
-    record Monoid : Set where
+    record Monoid
+      (A : Set) : Set where
       constructor MonoidC
       field
-        A : Set
-        op : A -> A -> A
         e : A
+        op : A -> A -> A
         lunit_e : (x : A) -> op e x == x
         runit_e : (x : A) -> op x e == x
         associative_op :
           (x : A) (y : A) (z : A) ->
           op (op x y) z == op x (op y z)
     record MonoidHom
-      (M1 : Monoid) (M2 : Monoid) :
-      Set where
+      (A1 : Set) (A2 : Set)
+      (Mo1 : Monoid A1)
+      (Mo2 : Monoid A2) : Set where
       constructor MonoidHomC
       field
-        hom : A M1 -> A M2
+        hom : A1 -> A2
+        pres-e : hom (e Mo1) == e Mo2
         pres-op :
-          (x1 : A M1) (x2 : A M1) ->
-          hom (op M1 x1 x2) ==
-            op M2 (hom x1) (hom x2)
-        pres-e : hom (e M1) == e M2
+          (x1 : A1) (x2 : A1) ->
+          hom (op Mo1 x1 x2) ==
+            op Mo2 (hom x1) (hom x2)
     data MonoidLang : Set where
+      eL : MonoidLang
       opL :
         MonoidLang ->
         MonoidLang -> MonoidLang
-      eL : MonoidLang
-    record MonoidProd : Set where
+    record MonoidProd
+      (AP : Set) : Set where
       constructor MonoidProdC
       field
-        AP : Set
+        eP : Prod AP AP
         opP :
           Prod AP AP ->
           Prod AP AP -> Prod AP AP
-        eP : Prod AP AP
         lunit_eP :
           (xP : Prod AP AP) ->
           opP eP xP == xP
@@ -576,57 +673,60 @@ module MathScheme where
           (zP : Prod AP AP) ->
           opP (opP xP yP) zP ==
             opP xP (opP yP zP)
-    record MonoidSig : Set where
+    record MonoidSig
+      (AS : Set) : Set where
       constructor MonoidSigSigC
       field
-        AS : Set
-        opS : AS -> AS -> AS
         eS : AS
+        opS : AS -> AS -> AS
   
   module Pointed where
-    record Pointed : Set where
+    record Pointed
+      (A : Set) : Set where
       constructor PointedC
       field
-        A : Set
         e : A
     record PointedHom
-      (P1 : Pointed) (P2 : Pointed) :
-      Set where
+      (A1 : Set) (A2 : Set)
+      (Po1 : Pointed A1)
+      (Po2 : Pointed A2) : Set where
       constructor PointedHomC
       field
-        hom : A P1 -> A P2
-        pres-e : hom (e P1) == e P2
+        hom : A1 -> A2
+        pres-e : hom (e Po1) == e Po2
     data PointedLang : Set where
       eL : PointedLang
-    record PointedProd : Set where
+    record PointedProd
+      (AP : Set) : Set where
       constructor PointedProdC
       field
-        AP : Set
         eP : Prod AP AP
-    record PointedSig : Set where
+    record PointedSig
+      (AS : Set) : Set where
       constructor PointedSigSigC
       field
-        AS : Set
         eS : AS
   
   module Pointed0Magma where
-    record Pointed0Magma : Set where
+    record Pointed0Magma
+      (A : Set) : Set where
       constructor Pointed0MagmaC
       field
-        A : Set
         0 : A
         op : A -> A -> A
     record Pointed0MagmaHom
-      (P1 : Pointed0Magma)
-      (P2 : Pointed0Magma) : Set where
+      (A1 : Set) (A2 : Set)
+      (Po1 : Pointed0Magma A1)
+      (Po2 : Pointed0Magma A2) :
+      Set where
       constructor Pointed0MagmaHomC
       field
-        hom : A P1 -> A P2
-        pres-0 : hom (0 P1) == 0 P2
+        hom : A1 -> A2
+        pres-0 : hom (0 Po1) == 0 Po2
         pres-op :
-          (x1 : A P1) (x2 : A P1) ->
-          hom (op P1 x1 x2) ==
-            op P2 (hom x1) (hom x2)
+          (x1 : A1) (x2 : A1) ->
+          hom (op Po1 x1 x2) ==
+            op Po2 (hom x1) (hom x2)
     data Pointed0MagmaLang
       : Set where
       0L : Pointed0MagmaLang
@@ -635,40 +735,40 @@ module MathScheme where
         Pointed0MagmaLang ->
         Pointed0MagmaLang
     record Pointed0MagmaProd
-      : Set where
+      (AP : Set) : Set where
       constructor Pointed0MagmaProdC
       field
-        AP : Set
         0P : Prod AP AP
         opP :
           Prod AP AP ->
           Prod AP AP -> Prod AP AP
     record Pointed0MagmaSig
-      : Set where
+      (AS : Set) : Set where
       constructor Pointed0MagmaSigSigC
       field
-        AS : Set
         0S : AS
         opS : AS -> AS -> AS
   
   module PointedMagma where
-    record PointedMagma : Set where
+    record PointedMagma
+      (A : Set) : Set where
       constructor PointedMagmaC
       field
-        A : Set
         e : A
         op : A -> A -> A
     record PointedMagmaHom
-      (P1 : PointedMagma)
-      (P2 : PointedMagma) : Set where
+      (A1 : Set) (A2 : Set)
+      (Po1 : PointedMagma A1)
+      (Po2 : PointedMagma A2) :
+      Set where
       constructor PointedMagmaHomC
       field
-        hom : A P1 -> A P2
-        pres-e : hom (e P1) == e P2
+        hom : A1 -> A2
+        pres-e : hom (e Po1) == e Po2
         pres-op :
-          (x1 : A P1) (x2 : A P1) ->
-          hom (op P1 x1 x2) ==
-            op P2 (hom x1) (hom x2)
+          (x1 : A1) (x2 : A1) ->
+          hom (op Po1 x1 x2) ==
+            op Po2 (hom x1) (hom x2)
     data PointedMagmaLang
       : Set where
       eL : PointedMagmaLang
@@ -677,69 +777,68 @@ module MathScheme where
         PointedMagmaLang ->
         PointedMagmaLang
     record PointedMagmaProd
-      : Set where
+      (AP : Set) : Set where
       constructor PointedMagmaProdC
       field
-        AP : Set
         eP : Prod AP AP
         opP :
           Prod AP AP ->
           Prod AP AP -> Prod AP AP
     record PointedMagmaSig
-      : Set where
+      (AS : Set) : Set where
       constructor PointedMagmaSigSigC
       field
-        AS : Set
         eS : AS
         opS : AS -> AS -> AS
   
   module PointedOne where
-    record PointedOne : Set where
+    record PointedOne
+      (A : Set) : Set where
       constructor PointedOneC
       field
-        A : Set
         1 : A
     record PointedOneHom
-      (P1 : PointedOne)
-      (P2 : PointedOne) : Set where
+      (A1 : Set) (A2 : Set)
+      (Po1 : PointedOne A1)
+      (Po2 : PointedOne A2) :
+      Set where
       constructor PointedOneHomC
       field
-        hom : A P1 -> A P2
-        pres-1 : hom (1 P1) == 1 P2
+        hom : A1 -> A2
+        pres-1 : hom (1 Po1) == 1 Po2
     data PointedOneLang : Set where
       1L : PointedOneLang
     record PointedOneProd
-      : Set where
+      (AP : Set) : Set where
       constructor PointedOneProdC
       field
-        AP : Set
         1P : Prod AP AP
-    record PointedOneSig : Set where
+    record PointedOneSig
+      (AS : Set) : Set where
       constructor PointedOneSigSigC
       field
-        AS : Set
         1S : AS
   
   module PointedPlusMagma where
     record PointedPlusMagma
-      : Set where
+      (A : Set) : Set where
       constructor PointedPlusMagmaC
       field
-        A : Set
         + : A -> A -> A
         e : A
     record PointedPlusMagmaHom
-      (P1 : PointedPlusMagma)
-      (P2 : PointedPlusMagma) :
+      (A1 : Set) (A2 : Set)
+      (Po1 : PointedPlusMagma A1)
+      (Po2 : PointedPlusMagma A2) :
       Set where
       constructor PointedPlusMagmaHomC
       field
-        hom : A P1 -> A P2
+        hom : A1 -> A2
         pres-+ :
-          (x1 : A P1) (x2 : A P1) ->
-          hom (+ P1 x1 x2) ==
-            + P2 (hom x1) (hom x2)
-        pres-e : hom (e P1) == e P2
+          (x1 : A1) (x2 : A1) ->
+          hom (+ Po1 x1 x2) ==
+            + Po2 (hom x1) (hom x2)
+        pres-e : hom (e Po1) == e Po2
     data PointedPlusMagmaLang
       : Set where
       +L :
@@ -748,69 +847,120 @@ module MathScheme where
         PointedPlusMagmaLang
       eL : PointedPlusMagmaLang
     record PointedPlusMagmaProd
-      : Set where
+      (AP : Set) : Set where
       constructor PointedPlusMagmaProdC
       field
-        AP : Set
         +P :
           Prod AP AP ->
           Prod AP AP -> Prod AP AP
         eP : Prod AP AP
     record PointedPlusMagmaSig
-      : Set where
+      (AS : Set) : Set where
       constructor PointedPlusMagmaSigSigC
       field
-        AS : Set
         +S : AS -> AS -> AS
         eS : AS
   
+  module PointedSemigroup where
+    record PointedSemigroup
+      (A : Set) : Set where
+      constructor PointedSemigroupC
+      field
+        op : A -> A -> A
+        associative_op :
+          (x : A) (y : A) (z : A) ->
+          op (op x y) z == op x (op y z)
+        e : A
+    record PointedSemigroupHom
+      (A1 : Set) (A2 : Set)
+      (Po1 : PointedSemigroup A1)
+      (Po2 : PointedSemigroup A2) :
+      Set where
+      constructor PointedSemigroupHomC
+      field
+        hom : A1 -> A2
+        pres-op :
+          (x1 : A1) (x2 : A1) ->
+          hom (op Po1 x1 x2) ==
+            op Po2 (hom x1) (hom x2)
+        pres-e : hom (e Po1) == e Po2
+    data PointedSemigroupLang
+      : Set where
+      opL :
+        PointedSemigroupLang ->
+        PointedSemigroupLang ->
+        PointedSemigroupLang
+      eL : PointedSemigroupLang
+    record PointedSemigroupProd
+      (AP : Set) : Set where
+      constructor PointedSemigroupProdC
+      field
+        opP :
+          Prod AP AP ->
+          Prod AP AP -> Prod AP AP
+        eP : Prod AP AP
+        associative_opP :
+          (xP : Prod AP AP)
+          (yP : Prod AP AP)
+          (zP : Prod AP AP) ->
+          opP (opP xP yP) zP ==
+            opP xP (opP yP zP)
+    record PointedSemigroupSig
+      (AS : Set) : Set where
+      constructor PointedSemigroupSigSigC
+      field
+        opS : AS -> AS -> AS
+        eS : AS
+  
   module PointedZero where
-    record PointedZero : Set where
+    record PointedZero
+      (A : Set) : Set where
       constructor PointedZeroC
       field
-        A : Set
         0 : A
     record PointedZeroHom
-      (P1 : PointedZero)
-      (P2 : PointedZero) : Set where
+      (A1 : Set) (A2 : Set)
+      (Po1 : PointedZero A1)
+      (Po2 : PointedZero A2) :
+      Set where
       constructor PointedZeroHomC
       field
-        hom : A P1 -> A P2
-        pres-0 : hom (0 P1) == 0 P2
+        hom : A1 -> A2
+        pres-0 : hom (0 Po1) == 0 Po2
     data PointedZeroLang : Set where
       0L : PointedZeroLang
     record PointedZeroProd
-      : Set where
+      (AP : Set) : Set where
       constructor PointedZeroProdC
       field
-        AP : Set
         0P : Prod AP AP
     record PointedZeroSig
-      : Set where
+      (AS : Set) : Set where
       constructor PointedZeroSigSigC
       field
-        AS : Set
         0S : AS
   
   module RightUnital where
-    record RightUnital : Set where
+    record RightUnital
+      (A : Set) : Set where
       constructor RightUnitalC
       field
-        A : Set
         e : A
         op : A -> A -> A
         runit_e : (x : A) -> op x e == x
     record RightUnitalHom
-      (R1 : RightUnital)
-      (R2 : RightUnital) : Set where
+      (A1 : Set) (A2 : Set)
+      (Ri1 : RightUnital A1)
+      (Ri2 : RightUnital A2) :
+      Set where
       constructor RightUnitalHomC
       field
-        hom : A R1 -> A R2
-        pres-e : hom (e R1) == e R2
+        hom : A1 -> A2
+        pres-e : hom (e Ri1) == e Ri2
         pres-op :
-          (x1 : A R1) (x2 : A R1) ->
-          hom (op R1 x1 x2) ==
-            op R2 (hom x1) (hom x2)
+          (x1 : A1) (x2 : A1) ->
+          hom (op Ri1 x1 x2) ==
+            op Ri2 (hom x1) (hom x2)
     data RightUnitalLang : Set where
       eL : RightUnitalLang
       opL :
@@ -818,10 +968,9 @@ module MathScheme where
         RightUnitalLang ->
         RightUnitalLang
     record RightUnitalProd
-      : Set where
+      (AP : Set) : Set where
       constructor RightUnitalProdC
       field
-        AP : Set
         eP : Prod AP AP
         opP :
           Prod AP AP ->
@@ -830,40 +979,40 @@ module MathScheme where
           (xP : Prod AP AP) ->
           opP xP eP == xP
     record RightUnitalSig
-      : Set where
+      (AS : Set) : Set where
       constructor RightUnitalSigSigC
       field
-        AS : Set
         eS : AS
         opS : AS -> AS -> AS
   
   module Semigroup where
-    record Semigroup : Set where
+    record Semigroup
+      (A : Set) : Set where
       constructor SemigroupC
       field
-        A : Set
         op : A -> A -> A
         associative_op :
           (x : A) (y : A) (z : A) ->
           op (op x y) z == op x (op y z)
     record SemigroupHom
-      (S1 : Semigroup)
-      (S2 : Semigroup) : Set where
+      (A1 : Set) (A2 : Set)
+      (Se1 : Semigroup A1)
+      (Se2 : Semigroup A2) : Set where
       constructor SemigroupHomC
       field
-        hom : A S1 -> A S2
+        hom : A1 -> A2
         pres-op :
-          (x1 : A S1) (x2 : A S1) ->
-          hom (op S1 x1 x2) ==
-            op S2 (hom x1) (hom x2)
+          (x1 : A1) (x2 : A1) ->
+          hom (op Se1 x1 x2) ==
+            op Se2 (hom x1) (hom x2)
     data SemigroupLang : Set where
       opL :
         SemigroupLang ->
         SemigroupLang -> SemigroupLang
-    record SemigroupProd : Set where
+    record SemigroupProd
+      (AP : Set) : Set where
       constructor SemigroupProdC
       field
-        AP : Set
         opP :
           Prod AP AP ->
           Prod AP AP -> Prod AP AP
@@ -873,41 +1022,42 @@ module MathScheme where
           (zP : Prod AP AP) ->
           opP (opP xP yP) zP ==
             opP xP (opP yP zP)
-    record SemigroupSig : Set where
+    record SemigroupSig
+      (AS : Set) : Set where
       constructor SemigroupSigSigC
       field
-        AS : Set
         opS : AS -> AS -> AS
   
   module Unital where
-    record Unital : Set where
+    record Unital
+      (A : Set) : Set where
       constructor UnitalC
       field
-        A : Set
         e : A
         op : A -> A -> A
         lunit_e : (x : A) -> op e x == x
         runit_e : (x : A) -> op x e == x
     record UnitalHom
-      (U1 : Unital) (U2 : Unital) :
-      Set where
+      (A1 : Set) (A2 : Set)
+      (Un1 : Unital A1)
+      (Un2 : Unital A2) : Set where
       constructor UnitalHomC
       field
-        hom : A U1 -> A U2
-        pres-e : hom (e U1) == e U2
+        hom : A1 -> A2
+        pres-e : hom (e Un1) == e Un2
         pres-op :
-          (x1 : A U1) (x2 : A U1) ->
-          hom (op U1 x1 x2) ==
-            op U2 (hom x1) (hom x2)
+          (x1 : A1) (x2 : A1) ->
+          hom (op Un1 x1 x2) ==
+            op Un2 (hom x1) (hom x2)
     data UnitalLang : Set where
       eL : UnitalLang
       opL :
         UnitalLang ->
         UnitalLang -> UnitalLang
-    record UnitalProd : Set where
+    record UnitalProd
+      (AP : Set) : Set where
       constructor UnitalProdC
       field
-        AP : Set
         eP : Prod AP AP
         opP :
           Prod AP AP ->
@@ -918,10 +1068,10 @@ module MathScheme where
         runit_eP :
           (xP : Prod AP AP) ->
           opP xP eP == xP
-    record UnitalSig : Set where
+    record UnitalSig
+      (AS : Set) : Set where
       constructor UnitalSigSigC
       field
-        AS : Set
         eS : AS
         opS : AS -> AS -> AS
   

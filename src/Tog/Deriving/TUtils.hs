@@ -4,6 +4,7 @@ module Tog.Deriving.TUtils
   , setType
   , mkField
   , shortName
+  , twoCharName 
   , declTheory
   , qualDecl, notQualDecl
   , genVars
@@ -49,6 +50,10 @@ mkArg = Arg . createId
 -- For Name Monoid and number 1, the output is M1 
 shortName :: Name_ -> Int -> Name_
 shortName declName num = take 1 declName ++ show num
+
+-- using two characters for theory instance name to avoid name clashes with carriers.
+twoCharName :: Name_ -> Int -> Name_
+twoCharName declName num = take 2 declName ++ show num 
 
 exprArity :: Expr -> Int
 exprArity expr =

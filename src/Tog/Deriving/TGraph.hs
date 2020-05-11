@@ -53,11 +53,16 @@ computeExtend newDecls srcThry =
 extThry :: [Constr] -> GTheory -> GTheory 
 extThry newConstrs thry =
   if List.intersect newConstrNames (symbols thry) == []
-  then GTheory (params thry) $ newFields (fields thry) -- TODO: Decl added to param?
+  then GTheory (newParams (params thry)) $ newFields (fields thry) -- TODO: Decl added to param?
   else error $ "Cannot create theory "
   where newConstrNames = map getConstrName newConstrs
-        newFields NoFields = Fields newConstrs
-        newFields (Fields fs) = Fields (fs ++ newConstrs)
+        sorts = filter (\(Constr _ e) -> isSort e) newConstrs
+        notSorts = newConstrs List.\\ sorts
+        newParams NoParams = if sorts == [] then NoParams else ParamDecl $ map fldsToBinding sorts
+        newParams (ParamDecl ps) = ParamDecl (ps ++ map fldsToBinding sorts)
+        newParams _ = NoParams 
+        newFields NoFields = if (notSorts == []) then NoFields else Fields newConstrs
+        newFields (Fields fs) = Fields (fs ++ notSorts)
 
 -- ----------- Arrow -------------
 addArrow :: Name_ -> GView -> TGraph -> TGraph

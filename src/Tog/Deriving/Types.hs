@@ -30,7 +30,7 @@ gmap r x = Generics.everywhere (Generics.mkT r) x
 data GTheory = GTheory {
     params :: Params,
     fields :: Fields }
-  deriving (Eq, Generics.Typeable, Generics.Data)
+  deriving (Show, Eq, Generics.Typeable, Generics.Data)
 
 data GView   = GView {
     source  :: GTheory,
