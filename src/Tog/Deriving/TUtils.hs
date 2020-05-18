@@ -2,17 +2,21 @@ module Tog.Deriving.TUtils
   ( getConstrName
   , mkName
   , setType
+  , setTypeAsId
   , mkField
   , shortName
   , twoCharName 
   , declTheory
   , qualDecl, notQualDecl
   , genVars
+  , genVarsWSymb
   , getArgName
   , exprArity
   , mkArg
+  , mkFunc
   , fldsToBinding
   , mkParams
+  , createId 
   ) where
 
 import           Control.Lens ((^.))
@@ -31,6 +35,9 @@ mkName str = Name ((0,0),str)
 setType :: Name
 setType = mkName "Set"
 
+setTypeAsId :: Expr 
+setTypeAsId = createId "Set" 
+
 getConstrName :: Constr -> Name_
 getConstrName (Constr n _) = n ^. name
 
@@ -46,6 +53,11 @@ notQualDecl declName = App [mkArg declName]
 
 mkArg :: Name_ -> Arg
 mkArg = Arg . createId
+
+mkFunc :: [Expr] -> Expr
+mkFunc [] = error "cannot create function" 
+mkFunc [x] = x 
+mkFunc (x:xs) = Fun x (mkFunc xs) 
 
 -- For Name Monoid and number 1, the output is M1 
 shortName :: Name_ -> Int -> Name_
@@ -68,7 +80,10 @@ exprArity expr =
    in count expr -1
 
 genVars :: Int -> [String] 
-genVars i = map (\z -> 'x' : show z)  [1..i]
+genVars i = genVarsWSymb 'x' i 
+
+genVarsWSymb :: Char -> Int -> [String]
+genVarsWSymb ch i = map (\z -> ch : show z)  [1..i]
 
 -- creates something like (M1 : Monoid A1)  
 declTheory :: Name_ -> [Constr] -> Int -> Expr 

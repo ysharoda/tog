@@ -38,6 +38,9 @@ library
                      , Tog.Deriving.Types 
                      , Tog.Deriving.Lenses 
                      , Tog.Deriving.Debug
+                     , Tog.Deriving.PEqTheory
+                     , Tog.Deriving.RelationalInterp
+		     , Tog.Deriving.Utils.Bindings
                      
   other-modules:       Data.Collect
                      , Tog.Instrumentation.Conf

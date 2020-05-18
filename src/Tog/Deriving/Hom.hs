@@ -1,17 +1,19 @@
 module Tog.Deriving.Hom
  ( homomorphism
+ , createThryInsts
+ , recordParams 
  ) where
 
 import           Control.Lens ((^.))
 
 import           Tog.Raw.Abs 
-import           Tog.Deriving.TUtils 
+import           Tog.Deriving.TUtils
+import           Tog.Deriving.Utils (getBindingArgs) 
 import           Tog.Deriving.Types (Name_)
 import qualified Tog.Deriving.EqTheory as Eq
 import           Tog.Deriving.Lenses   (name)
-
-type FuncType = Constr
-type Axiom = Constr 
+import           Tog.Deriving.Utils.Bindings 
+import qualified Tog.Deriving.PEqTheory as PEq
 
 homFuncName :: String 
 homFuncName = "hom"
@@ -34,74 +36,51 @@ createThryInsts t =
 
 {- ---------------- The  Hom Function ------------------ -}
 
-genHomFunc :: Bool -> Name_ -> Name_ -> Name_  -> Constr 
-genHomFunc isQualified sortName inst1Name inst2Name =
-  Constr (mkName homFuncName)
-   $ if isQualified
-     then Fun (qualDecl sortName inst1Name)   (qualDecl sortName inst2Name)
-     else Fun (notQualDecl $ sortName ++ "1") (notQualDecl $ sortName ++ "2") 
-             
-{- ------------ Preservation Axioms ----------------- -}
+genHomFunc :: PEq.PConstr -> Name_ -> Name_ -> Constr 
+genHomFunc srt inst1Name inst2Name =
+  Constr (mkName homFuncName) $ 
+   Fun (PEq.mkPExpr srt (inst1Name,1)) (PEq.mkPExpr srt (inst2Name,2))            
 
-genPresAxioms :: Eq.EqTheory -> Name_ -> Name_ -> [Constr]
-genPresAxioms eqthry inst1Name inst2Name = 
-  let waist = eqthry ^. Eq.waist
-      decls  = eqthry ^. Eq.funcTypes
-  in map (oneAxiom inst1Name inst2Name waist) decls 
-  
-oneAxiom :: Name_ -> Name_ -> Int -> FuncType -> Axiom 
-oneAxiom inst1Name inst2Name waist c@(Constr nm typ) =
-  Constr (mkName $ "pres-" ++ nm^.name)
-   (Pi (Tel $ genBinding inst1Name (waist == 0) typ) (genEq inst1Name inst2Name c))       
+{- ------------ Preservation Axioms -------------------- -}
 
-genBinding :: Name_ -> Bool -> Expr -> [Binding]
-genBinding instName isParam expr =
- let vars =  map mkArg $ genVars $ exprArity expr
-     argQualName arg =
-       if isParam 
-       then qualDecl (getArgName arg) instName
-       else notQualDecl (getArgName arg ++ "1")
-     -- A list of types in the expression 
-     exprTypes (App arg) = map argQualName arg
-     exprTypes (Fun e1 e2) = (exprTypes e1) ++ (exprTypes e2)
-     exprTypes _ = error "invalid expression"
- in zipWith (\v ty -> HBind [v] ty) vars (exprTypes expr)
+oneAxiom :: Constr -> PEq.PConstr -> Name_ -> Name_ ->  PEq.PConstr -> Constr
+oneAxiom homFunc carrier inst1 inst2 fsym@(PEq.PConstr nm _ _) =
+  let binds = mkBinding carrier fsym (inst1,1) 'x'
+      args = concatMap getBindingArgs binds 
+  in Constr (mkName $ "pres-" ++ nm) $
+      Pi (Tel $ binds) (genEq homFunc args inst1 inst2 fsym)
+      
+genLHS :: Constr -> [Arg] -> Name_ -> PEq.PConstr -> Expr
+genLHS (Constr fnm _) vars inst1 func =
+  let hom = mkArg $ fnm ^. name
+      fnm1 = PEq.mkPExpr func (inst1,1)
+      farg1 = App $ [Arg fnm1] ++ vars
+  in App [hom,Arg farg1] 
 
-genLHS :: (Constr -> Expr) -> Constr -> Expr
-genLHS build constr@(Constr _ expr) =
- let (App homFuc)   = notQualDecl homFuncName 
-     (App funcName) = build constr
-     vars  = map mkArg $ genVars $ exprArity expr
-     funcApp = case expr of
-       Id qname -> [Arg $ Id qname] 
-       App _    -> (Arg $ App funcName):vars
-       Fun _ _  -> [Arg $ App $ (Arg $ App funcName):vars]
-       x -> error $ "Invalid expr " ++ show x
- in App $ homFuc ++ funcApp 
+genRHS :: Constr -> [Arg] -> Name_ -> PEq.PConstr -> Expr
+genRHS (Constr fnm _) vars inst2 fsym =
+  let hom = mkArg $ fnm ^. name
+      func = PEq.mkPExpr fsym (inst2,2)
+      fargs = map (\x -> App [hom,x]) vars
+  in App $ (Arg func) : (map Arg fargs)
 
-genRHS ::  (Constr -> Expr) -> Constr -> Expr
-genRHS build constr@(Constr _ expr) =
-  let vars = map mkArg $ genVars $ exprArity expr
-      args = map (\x -> Arg $ App [mkArg homFuncName, x]) vars
-  in App $ [Arg $ build constr] ++ args 
-
-mkDecl :: Name_ -> Constr -> Expr
-mkDecl n c = qualDecl (getConstrName c) n
-
-genEq :: Name_ -> Name_ -> Constr -> Expr
-genEq inst1Name inst2Name constr =
-  Eq (genLHS (mkDecl inst1Name) constr)
-     (genRHS (mkDecl inst2Name) constr) 
+genEq :: Constr -> [Arg] -> Name_ -> Name_ -> PEq.PConstr -> Expr
+genEq homFunc args inst1 inst2 pconstr =
+  Eq (genLHS homFunc args inst1 pconstr)
+     (genRHS homFunc args inst2 pconstr) -- (mkDecl inst2) pconstr) 
 
 {- ------------ The Hom Record -------------------- -}
 
 homomorphism :: Eq.EqTheory -> Decl
 homomorphism t =
-  let ((i1, n1), (i2, n2)) = createThryInsts t
+  let nm = t ^. Eq.thyName ++ "Hom"
+      peqThry = PEq.eqToPEqTheory t
+      psort = peqThry ^. PEq.sort 
+      pfuncs = peqThry ^. PEq.funcTypes
+      ((i1, n1), (i2, n2)) = createThryInsts t
       a = Eq.args t 
-      nm = t ^. Eq.thyName ++ "Hom"
-      fnc = genHomFunc (length a == 0) (getConstrName $ t^.Eq.sort) n1 n2
-      axioms = genPresAxioms t n1 n2 
+      fnc = genHomFunc psort n1 n2
+      axioms = map (oneAxiom fnc psort n1 n2) pfuncs 
   in Record (mkName nm)
    (mkParams $ (map (recordParams Bind) a) ++ [i1,i2])
    (RecordDeclDef setType (mkName $ nm ++ "C") (mkField $ fnc : axioms))

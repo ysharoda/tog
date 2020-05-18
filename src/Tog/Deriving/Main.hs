@@ -15,6 +15,7 @@ import           Tog.Deriving.Signature
 import           Tog.Deriving.TypeConversions
 import           Tog.Deriving.Types
 import           Tog.Deriving.TUtils  (mkName, setType)
+import           Tog.Deriving.RelationalInterp
 
 processDefs :: [Language] -> Module
 processDefs = processModule . defsToModule
@@ -32,8 +33,9 @@ leverageThry thry =
  let hom = homomorphism thry
      trmlang = termLang thry
      prodthry = (prodTheoryToDecl . productThry) thry
-     sigs = (sigToDecl . signature_) thry  
- in [hom,trmlang,prodthry,sigs]    
+     sigs = (sigToDecl . signature_) thry
+     relInterp = relationalInterp thry
+ in [hom,trmlang,prodthry,sigs,relInterp]    
 
 genEverything :: InnerModule -> InnerModule
 genEverything m@(Module_ (Module n p (Decl_ decls))) =
