@@ -33,7 +33,7 @@ AdditiveUnital = combine AdditivePointedMagma {} Unital plus-zero over PointedMa
 Monoid = combine Unital {} PointedSemigroup {} over PointedMagma
 AdditiveMonoid = combine AdditivePointedSemigroup {} Monoid plus-zero over PointedSemigroup
 
-AdditiveMonoid = combine AdditivePointedMagma {} Monoid plus-zero over PointedMagma
+--AdditiveMonoid = combine AdditivePointedMagma {} Monoid plus-zero over PointedMagma
 
 CommutativeMagma = extend Magma {commutative_op : {x y : A} -> op x y == op y x}
 CommutativeSemigroup = combine CommutativeMagma {} Semigroup {} over Magma

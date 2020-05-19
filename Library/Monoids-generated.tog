@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------
 -- Checking declarations
 ------------------------------------------------------------------------
--- Solved Metas: 5240
+-- Solved Metas: 8046
 -- Unsolved Metas: 0
 ------------------------------------------------------------------------
 -- Unsolved problems: 0
@@ -63,6 +63,22 @@ module MathScheme where
       constructor AdditiveCommutativeSemigroupSigSigC
       field
         +S : AS -> AS -> AS
+    record AdditiveCommutativeSemigroupRelInterp
+      (A1 : Set) (A2 : Set)
+      (Ad1 : AdditiveCommutativeSemigroup
+         A1)
+      (Ad2 : AdditiveCommutativeSemigroup
+         A2) : Set where
+      constructor AdditiveCommutativeSemigroupRelInterpC
+      field
+        interp : A1 -> A2 -> Set
+        interp-+ :
+          (x1 : A1) (x2 : A1) (y1 : A2)
+          (y2 : A2) ->
+          interp x1 y1 ->
+          interp x2 y2 ->
+          interp (+ Ad1 x1 x2)
+            (+ Ad2 y1 y2)
   
   module AdditiveMagma where
     record AdditiveMagma
@@ -100,19 +116,34 @@ module MathScheme where
       constructor AdditiveMagmaSigSigC
       field
         +S : AS -> AS -> AS
+    record AdditiveMagmaRelInterp
+      (A1 : Set) (A2 : Set)
+      (Ad1 : AdditiveMagma A1)
+      (Ad2 : AdditiveMagma A2) :
+      Set where
+      constructor AdditiveMagmaRelInterpC
+      field
+        interp : A1 -> A2 -> Set
+        interp-+ :
+          (x1 : A1) (x2 : A1) (y1 : A2)
+          (y2 : A2) ->
+          interp x1 y1 ->
+          interp x2 y2 ->
+          interp (+ Ad1 x1 x2)
+            (+ Ad2 y1 y2)
   
   module AdditiveMonoid where
     record AdditiveMonoid
       (A : Set) : Set where
       constructor AdditiveMonoidC
       field
-        0 : A
         + : A -> A -> A
-        lunit_0 : (x : A) -> + 0 x == x
-        runit_0 : (x : A) -> + x 0 == x
         associative_+ :
           (x : A) (y : A) (z : A) ->
           + (+ x y) z == + x (+ y z)
+        0 : A
+        lunit_0 : (x : A) -> + 0 x == x
+        runit_0 : (x : A) -> + x 0 == x
     record AdditiveMonoidHom
       (A1 : Set) (A2 : Set)
       (Ad1 : AdditiveMonoid A1)
@@ -121,44 +152,61 @@ module MathScheme where
       constructor AdditiveMonoidHomC
       field
         hom : A1 -> A2
-        pres-0 : hom (0 Ad1) == 0 Ad2
         pres-+ :
           (x1 : A1) (x2 : A1) ->
           hom (+ Ad1 x1 x2) ==
             + Ad2 (hom x1) (hom x2)
+        pres-0 : hom (0 Ad1) == 0 Ad2
     data AdditiveMonoidLang
       : Set where
-      0L : AdditiveMonoidLang
       +L :
         AdditiveMonoidLang ->
         AdditiveMonoidLang ->
         AdditiveMonoidLang
+      0L : AdditiveMonoidLang
     record AdditiveMonoidProd
       (AP : Set) : Set where
       constructor AdditiveMonoidProdC
       field
-        0P : Prod AP AP
         +P :
           Prod AP AP ->
           Prod AP AP -> Prod AP AP
-        lunit_0P :
-          (xP : Prod AP AP) ->
-          +P 0P xP == xP
-        runit_0P :
-          (xP : Prod AP AP) ->
-          +P xP 0P == xP
+        0P : Prod AP AP
         associative_+P :
           (xP : Prod AP AP)
           (yP : Prod AP AP)
           (zP : Prod AP AP) ->
           +P (+P xP yP) zP ==
             +P xP (+P yP zP)
+        lunit_0P :
+          (xP : Prod AP AP) ->
+          +P 0P xP == xP
+        runit_0P :
+          (xP : Prod AP AP) ->
+          +P xP 0P == xP
     record AdditiveMonoidSig
       (AS : Set) : Set where
       constructor AdditiveMonoidSigSigC
       field
-        0S : AS
         +S : AS -> AS -> AS
+        0S : AS
+    record AdditiveMonoidRelInterp
+      (A1 : Set) (A2 : Set)
+      (Ad1 : AdditiveMonoid A1)
+      (Ad2 : AdditiveMonoid A2) :
+      Set where
+      constructor AdditiveMonoidRelInterpC
+      field
+        interp : A1 -> A2 -> Set
+        interp-+ :
+          (x1 : A1) (x2 : A1) (y1 : A2)
+          (y2 : A2) ->
+          interp x1 y1 ->
+          interp x2 y2 ->
+          interp (+ Ad1 x1 x2)
+            (+ Ad2 y1 y2)
+        interp-0 :
+          interp (0 Ad1) (0 Ad2)
   
   module AdditivePointedMagma where
     record AdditivePointedMagma
@@ -201,6 +249,23 @@ module MathScheme where
       field
         0S : AS
         +S : AS -> AS -> AS
+    record AdditivePointedMagmaRelInterp
+      (A1 : Set) (A2 : Set)
+      (Ad1 : AdditivePointedMagma A1)
+      (Ad2 : AdditivePointedMagma
+         A2) : Set where
+      constructor AdditivePointedMagmaRelInterpC
+      field
+        interp : A1 -> A2 -> Set
+        interp-0 :
+          interp (0 Ad1) (0 Ad2)
+        interp-+ :
+          (x1 : A1) (x2 : A1) (y1 : A2)
+          (y2 : A2) ->
+          interp x1 y1 ->
+          interp x2 y2 ->
+          interp (+ Ad1 x1 x2)
+            (+ Ad2 y1 y2)
   
   module AdditivePointedSemigroup where
     record AdditivePointedSemigroup
@@ -254,6 +319,24 @@ module MathScheme where
       field
         0S : AS
         +S : AS -> AS -> AS
+    record AdditivePointedSemigroupRelInterp
+      (A1 : Set) (A2 : Set)
+      (Ad1 : AdditivePointedSemigroup
+         A1)
+      (Ad2 : AdditivePointedSemigroup
+         A2) : Set where
+      constructor AdditivePointedSemigroupRelInterpC
+      field
+        interp : A1 -> A2 -> Set
+        interp-0 :
+          interp (0 Ad1) (0 Ad2)
+        interp-+ :
+          (x1 : A1) (x2 : A1) (y1 : A2)
+          (y2 : A2) ->
+          interp x1 y1 ->
+          interp x2 y2 ->
+          interp (+ Ad1 x1 x2)
+            (+ Ad2 y1 y2)
   
   module AdditiveSemigroup where
     record AdditiveSemigroup
@@ -300,6 +383,21 @@ module MathScheme where
       constructor AdditiveSemigroupSigSigC
       field
         +S : AS -> AS -> AS
+    record AdditiveSemigroupRelInterp
+      (A1 : Set) (A2 : Set)
+      (Ad1 : AdditiveSemigroup A1)
+      (Ad2 : AdditiveSemigroup A2) :
+      Set where
+      constructor AdditiveSemigroupRelInterpC
+      field
+        interp : A1 -> A2 -> Set
+        interp-+ :
+          (x1 : A1) (x2 : A1) (y1 : A2)
+          (y2 : A2) ->
+          interp x1 y1 ->
+          interp x2 y2 ->
+          interp (+ Ad1 x1 x2)
+            (+ Ad2 y1 y2)
   
   module AdditiveUnital where
     record AdditiveUnital
@@ -350,6 +448,23 @@ module MathScheme where
       field
         0S : AS
         +S : AS -> AS -> AS
+    record AdditiveUnitalRelInterp
+      (A1 : Set) (A2 : Set)
+      (Ad1 : AdditiveUnital A1)
+      (Ad2 : AdditiveUnital A2) :
+      Set where
+      constructor AdditiveUnitalRelInterpC
+      field
+        interp : A1 -> A2 -> Set
+        interp-0 :
+          interp (0 Ad1) (0 Ad2)
+        interp-+ :
+          (x1 : A1) (x2 : A1) (y1 : A2)
+          (y2 : A2) ->
+          interp x1 y1 ->
+          interp x2 y2 ->
+          interp (+ Ad1 x1 x2)
+            (+ Ad2 y1 y2)
   
   module Carrier where
     record Carrier
@@ -376,6 +491,13 @@ module MathScheme where
       constructor CarrierSigSigC
       field
         
+    record CarrierRelInterp
+      (A1 : Set) (A2 : Set)
+      (Ca1 : Carrier A1)
+      (Ca2 : Carrier A2) : Set where
+      constructor CarrierRelInterpC
+      field
+        interp : A1 -> A2 -> Set
   
   module CommutativeMagma where
     record CommutativeMagma
@@ -420,6 +542,21 @@ module MathScheme where
       constructor CommutativeMagmaSigSigC
       field
         opS : AS -> AS -> AS
+    record CommutativeMagmaRelInterp
+      (A1 : Set) (A2 : Set)
+      (Co1 : CommutativeMagma A1)
+      (Co2 : CommutativeMagma A2) :
+      Set where
+      constructor CommutativeMagmaRelInterpC
+      field
+        interp : A1 -> A2 -> Set
+        interp-op :
+          (x1 : A1) (x2 : A1) (y1 : A2)
+          (y2 : A2) ->
+          interp x1 y1 ->
+          interp x2 y2 ->
+          interp (op Co1 x1 x2)
+            (op Co2 y1 y2)
   
   module CommutativeMonoid where
     record CommutativeMonoid
@@ -486,6 +623,23 @@ module MathScheme where
       field
         opS : AS -> AS -> AS
         eS : AS
+    record CommutativeMonoidRelInterp
+      (A1 : Set) (A2 : Set)
+      (Co1 : CommutativeMonoid A1)
+      (Co2 : CommutativeMonoid A2) :
+      Set where
+      constructor CommutativeMonoidRelInterpC
+      field
+        interp : A1 -> A2 -> Set
+        interp-op :
+          (x1 : A1) (x2 : A1) (y1 : A2)
+          (y2 : A2) ->
+          interp x1 y1 ->
+          interp x2 y2 ->
+          interp (op Co1 x1 x2)
+            (op Co2 y1 y2)
+        interp-e :
+          interp (e Co1) (e Co2)
   
   module CommutativeSemigroup where
     record CommutativeSemigroup
@@ -539,6 +693,21 @@ module MathScheme where
       constructor CommutativeSemigroupSigSigC
       field
         opS : AS -> AS -> AS
+    record CommutativeSemigroupRelInterp
+      (A1 : Set) (A2 : Set)
+      (Co1 : CommutativeSemigroup A1)
+      (Co2 : CommutativeSemigroup
+         A2) : Set where
+      constructor CommutativeSemigroupRelInterpC
+      field
+        interp : A1 -> A2 -> Set
+        interp-op :
+          (x1 : A1) (x2 : A1) (y1 : A2)
+          (y2 : A2) ->
+          interp x1 y1 ->
+          interp x2 y2 ->
+          interp (op Co1 x1 x2)
+            (op Co2 y1 y2)
   
   module Empty where
     record Empty : Set where
@@ -589,6 +758,23 @@ module MathScheme where
       field
         eS : AS
         opS : AS -> AS -> AS
+    record LeftUnitalRelInterp
+      (A1 : Set) (A2 : Set)
+      (Le1 : LeftUnital A1)
+      (Le2 : LeftUnital A2) :
+      Set where
+      constructor LeftUnitalRelInterpC
+      field
+        interp : A1 -> A2 -> Set
+        interp-e :
+          interp (e Le1) (e Le2)
+        interp-op :
+          (x1 : A1) (x2 : A1) (y1 : A2)
+          (y2 : A2) ->
+          interp x1 y1 ->
+          interp x2 y2 ->
+          interp (op Le1 x1 x2)
+            (op Le2 y1 y2)
   
   module Magma where
     record Magma
@@ -623,6 +809,20 @@ module MathScheme where
       constructor MagmaSigSigC
       field
         opS : AS -> AS -> AS
+    record MagmaRelInterp
+      (A1 : Set) (A2 : Set)
+      (Ma1 : Magma A1)
+      (Ma2 : Magma A2) : Set where
+      constructor MagmaRelInterpC
+      field
+        interp : A1 -> A2 -> Set
+        interp-op :
+          (x1 : A1) (x2 : A1) (y1 : A2)
+          (y2 : A2) ->
+          interp x1 y1 ->
+          interp x2 y2 ->
+          interp (op Ma1 x1 x2)
+            (op Ma2 y1 y2)
   
   module Monoid where
     record Monoid
@@ -679,6 +879,22 @@ module MathScheme where
       field
         eS : AS
         opS : AS -> AS -> AS
+    record MonoidRelInterp
+      (A1 : Set) (A2 : Set)
+      (Mo1 : Monoid A1)
+      (Mo2 : Monoid A2) : Set where
+      constructor MonoidRelInterpC
+      field
+        interp : A1 -> A2 -> Set
+        interp-e :
+          interp (e Mo1) (e Mo2)
+        interp-op :
+          (x1 : A1) (x2 : A1) (y1 : A2)
+          (y2 : A2) ->
+          interp x1 y1 ->
+          interp x2 y2 ->
+          interp (op Mo1 x1 x2)
+            (op Mo2 y1 y2)
   
   module Pointed where
     record Pointed
@@ -706,6 +922,15 @@ module MathScheme where
       constructor PointedSigSigC
       field
         eS : AS
+    record PointedRelInterp
+      (A1 : Set) (A2 : Set)
+      (Po1 : Pointed A1)
+      (Po2 : Pointed A2) : Set where
+      constructor PointedRelInterpC
+      field
+        interp : A1 -> A2 -> Set
+        interp-e :
+          interp (e Po1) (e Po2)
   
   module Pointed0Magma where
     record Pointed0Magma
@@ -748,6 +973,23 @@ module MathScheme where
       field
         0S : AS
         opS : AS -> AS -> AS
+    record Pointed0MagmaRelInterp
+      (A1 : Set) (A2 : Set)
+      (Po1 : Pointed0Magma A1)
+      (Po2 : Pointed0Magma A2) :
+      Set where
+      constructor Pointed0MagmaRelInterpC
+      field
+        interp : A1 -> A2 -> Set
+        interp-0 :
+          interp (0 Po1) (0 Po2)
+        interp-op :
+          (x1 : A1) (x2 : A1) (y1 : A2)
+          (y2 : A2) ->
+          interp x1 y1 ->
+          interp x2 y2 ->
+          interp (op Po1 x1 x2)
+            (op Po2 y1 y2)
   
   module PointedMagma where
     record PointedMagma
@@ -790,6 +1032,23 @@ module MathScheme where
       field
         eS : AS
         opS : AS -> AS -> AS
+    record PointedMagmaRelInterp
+      (A1 : Set) (A2 : Set)
+      (Po1 : PointedMagma A1)
+      (Po2 : PointedMagma A2) :
+      Set where
+      constructor PointedMagmaRelInterpC
+      field
+        interp : A1 -> A2 -> Set
+        interp-e :
+          interp (e Po1) (e Po2)
+        interp-op :
+          (x1 : A1) (x2 : A1) (y1 : A2)
+          (y2 : A2) ->
+          interp x1 y1 ->
+          interp x2 y2 ->
+          interp (op Po1 x1 x2)
+            (op Po2 y1 y2)
   
   module PointedOne where
     record PointedOne
@@ -818,6 +1077,16 @@ module MathScheme where
       constructor PointedOneSigSigC
       field
         1S : AS
+    record PointedOneRelInterp
+      (A1 : Set) (A2 : Set)
+      (Po1 : PointedOne A1)
+      (Po2 : PointedOne A2) :
+      Set where
+      constructor PointedOneRelInterpC
+      field
+        interp : A1 -> A2 -> Set
+        interp-1 :
+          interp (1 Po1) (1 Po2)
   
   module PointedPlusMagma where
     record PointedPlusMagma
@@ -860,6 +1129,23 @@ module MathScheme where
       field
         +S : AS -> AS -> AS
         eS : AS
+    record PointedPlusMagmaRelInterp
+      (A1 : Set) (A2 : Set)
+      (Po1 : PointedPlusMagma A1)
+      (Po2 : PointedPlusMagma A2) :
+      Set where
+      constructor PointedPlusMagmaRelInterpC
+      field
+        interp : A1 -> A2 -> Set
+        interp-+ :
+          (x1 : A1) (x2 : A1) (y1 : A2)
+          (y2 : A2) ->
+          interp x1 y1 ->
+          interp x2 y2 ->
+          interp (+ Po1 x1 x2)
+            (+ Po2 y1 y2)
+        interp-e :
+          interp (e Po1) (e Po2)
   
   module PointedSemigroup where
     record PointedSemigroup
@@ -911,6 +1197,23 @@ module MathScheme where
       field
         opS : AS -> AS -> AS
         eS : AS
+    record PointedSemigroupRelInterp
+      (A1 : Set) (A2 : Set)
+      (Po1 : PointedSemigroup A1)
+      (Po2 : PointedSemigroup A2) :
+      Set where
+      constructor PointedSemigroupRelInterpC
+      field
+        interp : A1 -> A2 -> Set
+        interp-op :
+          (x1 : A1) (x2 : A1) (y1 : A2)
+          (y2 : A2) ->
+          interp x1 y1 ->
+          interp x2 y2 ->
+          interp (op Po1 x1 x2)
+            (op Po2 y1 y2)
+        interp-e :
+          interp (e Po1) (e Po2)
   
   module PointedZero where
     record PointedZero
@@ -939,6 +1242,16 @@ module MathScheme where
       constructor PointedZeroSigSigC
       field
         0S : AS
+    record PointedZeroRelInterp
+      (A1 : Set) (A2 : Set)
+      (Po1 : PointedZero A1)
+      (Po2 : PointedZero A2) :
+      Set where
+      constructor PointedZeroRelInterpC
+      field
+        interp : A1 -> A2 -> Set
+        interp-0 :
+          interp (0 Po1) (0 Po2)
   
   module RightUnital where
     record RightUnital
@@ -984,6 +1297,23 @@ module MathScheme where
       field
         eS : AS
         opS : AS -> AS -> AS
+    record RightUnitalRelInterp
+      (A1 : Set) (A2 : Set)
+      (Ri1 : RightUnital A1)
+      (Ri2 : RightUnital A2) :
+      Set where
+      constructor RightUnitalRelInterpC
+      field
+        interp : A1 -> A2 -> Set
+        interp-e :
+          interp (e Ri1) (e Ri2)
+        interp-op :
+          (x1 : A1) (x2 : A1) (y1 : A2)
+          (y2 : A2) ->
+          interp x1 y1 ->
+          interp x2 y2 ->
+          interp (op Ri1 x1 x2)
+            (op Ri2 y1 y2)
   
   module Semigroup where
     record Semigroup
@@ -1027,6 +1357,20 @@ module MathScheme where
       constructor SemigroupSigSigC
       field
         opS : AS -> AS -> AS
+    record SemigroupRelInterp
+      (A1 : Set) (A2 : Set)
+      (Se1 : Semigroup A1)
+      (Se2 : Semigroup A2) : Set where
+      constructor SemigroupRelInterpC
+      field
+        interp : A1 -> A2 -> Set
+        interp-op :
+          (x1 : A1) (x2 : A1) (y1 : A2)
+          (y2 : A2) ->
+          interp x1 y1 ->
+          interp x2 y2 ->
+          interp (op Se1 x1 x2)
+            (op Se2 y1 y2)
   
   module Unital where
     record Unital
@@ -1074,4 +1418,20 @@ module MathScheme where
       field
         eS : AS
         opS : AS -> AS -> AS
+    record UnitalRelInterp
+      (A1 : Set) (A2 : Set)
+      (Un1 : Unital A1)
+      (Un2 : Unital A2) : Set where
+      constructor UnitalRelInterpC
+      field
+        interp : A1 -> A2 -> Set
+        interp-e :
+          interp (e Un1) (e Un2)
+        interp-op :
+          (x1 : A1) (x2 : A1) (y1 : A2)
+          (y2 : A2) ->
+          interp x1 y1 ->
+          interp x2 y2 ->
+          interp (op Un1 x1 x2)
+            (op Un2 y1 y2)
   
