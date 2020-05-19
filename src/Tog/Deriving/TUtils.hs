@@ -13,6 +13,7 @@ module Tog.Deriving.TUtils
   , getArgName
   , exprArity
   , mkArg
+  , mkArg' 
   , mkFunc
   , fldsToBinding
   , mkParams
@@ -53,6 +54,9 @@ notQualDecl declName = App [mkArg declName]
 
 mkArg :: Name_ -> Arg
 mkArg = Arg . createId
+
+mkArg' :: Name_ -> Int -> Arg
+mkArg' nam n = mkArg $ shortName nam n
 
 mkFunc :: [Expr] -> Expr
 mkFunc [] = error "cannot create function" 
