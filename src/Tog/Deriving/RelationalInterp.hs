@@ -10,11 +10,10 @@ import           Tog.Deriving.TUtils
 import           Tog.Deriving.Utils (getBindingArgs) 
 import           Tog.Deriving.Types (Name_)
 import qualified Tog.Deriving.EqTheory  as Eq
-import qualified Tog.Deriving.PEqTheory as PEq
 import           Tog.Deriving.Lenses   (name)
 import           Tog.Deriving.Utils.Bindings 
-import           Tog.Deriving.Hom (createThryInsts,recordParams) 
-
+import           Tog.Deriving.Utils.Parameters
+import           Tog.Deriving.Utils.QualDecls
 
 interpTypeName :: Name_
 interpTypeName = "interp"
@@ -22,10 +21,10 @@ interpTypeName = "interp"
 {- --------- The interpretation definitions ------------------- -} 
 
 -- create the interpretation type 
-mkTwoParamsType :: PEq.PConstr -> Name_ -> Name_ -> Constr
+mkTwoParamsType :: PConstr -> Name_ -> Name_ -> Constr
 mkTwoParamsType srt param1 param2 =
   Constr (mkName interpTypeName) $
-    Fun (PEq.mkPExpr srt (param1,1)) $ Fun (PEq.mkPExpr srt (param2,2)) setTypeAsId 
+    Fun (mkPExpr srt (param1,1)) $ Fun (mkPExpr srt (param2,2)) setTypeAsId 
 
 -- Generate the type instance for individual args, based on the arity of the operation
 -- for example, for a binary operation with bindings [x1,x2] and [y1,y2],
@@ -40,19 +39,19 @@ mkParam1 (Constr nm _) vars1 vars2 =
 -- Generate the type instance for the interpretation function applied to the result of the operation symbol
 -- for example, for a binary operation with binding [x1,x2] and [y1,y2],
 -- the function generates: Interp (op x1 x2) (op y1 y2) 
-mkParam2 :: Constr -> [Arg] -> [Arg] -> Name_ -> Name_ -> PEq.PConstr -> Expr
+mkParam2 :: Constr -> [Arg] -> [Arg] -> Name_ -> Name_ -> PConstr -> Expr
 mkParam2 (Constr inm _) vars1 vars2 inst1 inst2 func =
   let iTyp = mkArg $ inm ^. name
-      fnm1 = PEq.mkPExpr func (inst1,1)
-      fnm2 = PEq.mkPExpr func (inst2,2)
+      fnm1 = mkPExpr func (inst1,1)
+      fnm2 = mkPExpr func (inst2,2)
       farg1 = App $ [Arg fnm1] ++ vars1
       farg2 = App $ [Arg fnm2] ++ vars2
    in App [iTyp,Arg farg1,Arg farg2]     
 
 {- ------------- generate the interpretation declaration ---------- -}
 -- the new one 
-oneInterp :: Constr -> PEq.PConstr -> Name_ -> Name_ ->  PEq.PConstr -> Constr
-oneInterp interpFunc carrier inst1 inst2 fsym@(PEq.PConstr nm _ _) =
+oneInterp :: Constr -> PConstr -> Name_ -> Name_ ->  PConstr -> Constr
+oneInterp interpFunc carrier inst1 inst2 fsym@(PConstr nm _ _) =
   let [binds1,binds2] = map (\(x,y) -> mkBinding carrier fsym x y) [((inst1,1),'x'),((inst2,2),'y')]  
       [args1,args2] = map (concatMap getBindingArgs) [binds1,binds2] 
   in Constr (mkName $ "interp-" ++ nm) $ 
@@ -64,9 +63,7 @@ oneInterp interpFunc carrier inst1 inst2 fsym@(PEq.PConstr nm _ _) =
 relationalInterp :: Eq.EqTheory -> Decl
 relationalInterp t =
   let nm = t ^. Eq.thyName ++ "RelInterp"
-      peqThry = PEq.eqToPEqTheory t
-      psort = peqThry ^. PEq.sort 
-      pfuncs = peqThry ^. PEq.funcTypes
+      (psort,pfuncs,_) = mkPConstrs t
       ((i1, n1), (i2, n2)) = createThryInsts t
       interpTyp = mkTwoParamsType psort n1 n2 
       newDecls = map (oneInterp interpTyp psort n1 n2) pfuncs
