@@ -1,0 +1,55 @@
+module MonoidTerms where 
+
+record Monoid (A : Set) : Set where
+  constructor monoid
+  field
+    e  : A
+    op : A -> A -> A
+    lunit : {x : A} -> (op e x) == x
+    runit : {x : A} -> (op x e) == x
+    assoc : {x y z : A} -> (op x (op y z)) == (op (op x y) z)
+
+data Nat : Set
+data Nat where
+  zero : Nat
+  succ  : Nat -> Nat
+
+data Fin (n : Nat) : Set
+data Fin n where
+  fzero : {m : Nat} (p : n == succ m) -> Fin n
+  fsuc  : {m : Nat} (p : n == succ m) (i : Fin m) -> Fin n
+
+data Choice : Set where
+  Expression : Choice -- this is Comp in the code 
+  Constant : Choice
+
+data Code (A : Set) : Set where
+  Q : A -> Code A
+
+data Comp (A : Set) : Set where
+  Computation : Choice -> Code A -> Comp A
+
+data Staged (A : Set) : Set where
+  Now : A -> Staged A 
+  Later : Comp A -> Staged A 
+
+data MonTerm : Set where
+  ee  : MonTerm
+  opp : MonTerm -> MonTerm -> MonTerm 
+
+data MonTermVar : Set where
+   v   : {n : Nat} -> Fin n -> MonTermVar 
+   e'  : MonTermVar
+   op' : MonTermVar -> MonTermVar -> MonTermVar
+  
+data MonoidPE : Set where
+  eSt : Staged MonTerm -> MonoidPE
+  opSt : Staged MonTerm -> Staged MonTerm -> Staged MonTerm -> MonoidPE  
+
+--uLift :: (a -> b) -> ((Code a) -> (Code b))
+--uLift f = 
+
+--liftUnary :: (a -> b) -> Staged MonTerm -> Staged MonTerm 
+--liftUnary f (Now x) = Now (f x)
+--liftUnary f (Later x) = Later $ Computation Expression ??
+  
