@@ -9,7 +9,7 @@ import Tog.Deriving.Types (Name_)
 import Tog.Deriving.Lenses   (name)
 import Tog.Deriving.EqTheory 
 
--- the hidden params 
+-- the hidden params for Hom and RelationalInterp 
 recordParams :: ([Arg] -> Expr -> Binding) -> Constr -> Binding
 recordParams bind (Constr nm typ) =
   let n = nm^.name in bind [mkArg' n 1, mkArg' n 2] typ

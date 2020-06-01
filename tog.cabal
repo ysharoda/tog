@@ -42,6 +42,8 @@ library
 		     , Tog.Deriving.Utils.Bindings
 		     , Tog.Deriving.Utils.Parameters
 		     , Tog.Deriving.Utils.QualDecls
+                     , Tog.Deriving.OpenTermLang
+                     , Tog.Deriving.Utils.Names
                      
   other-modules:       Data.Collect
                      , Tog.Instrumentation.Conf

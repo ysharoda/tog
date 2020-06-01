@@ -16,6 +16,7 @@ import           Tog.Deriving.TypeConversions
 import           Tog.Deriving.Types
 import           Tog.Deriving.TUtils  (mkName, setType)
 import           Tog.Deriving.RelationalInterp
+import           Tog.Deriving.OpenTermLang 
 
 processDefs :: [Language] -> Module
 processDefs = processModule . defsToModule
@@ -25,17 +26,18 @@ defsToModule = createModules . view (graph . nodes) . computeGraph
 
 processModule :: Module -> Module
 processModule (Module n p (Decl_ decls)) =
-   Module n p $ Decl_ $ prodType : map genEverything decls   
+   Module n p $ Decl_ $ [prodType,strToDecl nat,strToDecl fin] ++ map genEverything decls   
 processModule _ = error $ "Unparsed theory expressions exists" 
 
 leverageThry :: Eq.EqTheory -> [Decl]
 leverageThry thry =
- let hom = homomorphism thry
-     trmlang = termLang thry
+ let sigs = (sigToDecl . signature_) thry
      prodthry = (prodTheoryToDecl . productThry) thry
-     sigs = (sigToDecl . signature_) thry
+     hom = homomorphism thry
      relInterp = relationalInterp thry
- in [hom,trmlang,prodthry,sigs,relInterp]    
+     trmlang = termLang thry
+     openTrmLang = openTermLang thry
+ in [sigs,prodthry,hom,relInterp,trmlang,openTrmLang] 
 
 genEverything :: InnerModule -> InnerModule
 genEverything m@(Module_ (Module n p (Decl_ decls))) =
