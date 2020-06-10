@@ -14,6 +14,7 @@ mkBindExpr carrier (PConstr _ typ _) (instName,index) =
 mkBindVars :: PConstr -> Char -> [Arg]
 mkBindVars (PConstr _ typ _) sym = map mkArg $ genVarsWSymb sym $ exprArity typ
 
+-- function bindings 
 mkBinding :: PConstr -> PConstr -> (Name_,Int) -> Char -> [Binding]
 mkBinding carrier fdecl (instName, index) sym  =
   let vars = mkBindVars fdecl sym

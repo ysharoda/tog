@@ -34,6 +34,8 @@ mkPConstrs t =
 -- If the constr is a param, qualify it with an index, (like A1 and A2) 
 -- If not, qualify with the instance name  (like (op M1)) 
 mkPExpr :: PConstr -> (Name_,Int) -> Expr 
-mkPExpr (PConstr nm _ True) (_,indx) = createId (nm ++ show indx)
+mkPExpr (PConstr nm _ True) (_,indx) =
+  if indx /= 0 then createId (nm ++ show indx)
+  else createId nm 
 mkPExpr (PConstr nm _ False) (instNm,_) = App [mkArg nm, mkArg instNm] 
 

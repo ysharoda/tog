@@ -1,21 +1,29 @@
 module Tog.Deriving.TermLang
-  ( termLang
+  ( termlangSuffix
+  , termLang
+  , termLangNm 
   ) where
 
 import           Control.Lens ((^.))
 
 import           Tog.Raw.Abs (Decl(Data), Params(NoParams),DataBody(DataDeclDef))
-import           Tog.Deriving.TUtils (mkName, getConstrName, setType)
-import           Tog.Deriving.Types (Name_, gmap)
+import           Tog.Deriving.TUtils (mkName, setType)
 import           Tog.Deriving.EqTheory as Eq
-import           Tog.Deriving.Utils.Names (ren) 
+import           Tog.Deriving.Utils.Renames (applyRenames)
+import           Tog.Deriving.Types (Name_)
 
-lang :: Eq.EqTheory -> Name_
-lang t = t^.thyName ++ "Lang"
+termlangSuffix :: String 
+termlangSuffix = "L"
+
+termLangNm :: Eq.EqTheory -> Name_
+termLangNm eq =  eq^.thyName ++ "Lang"
 
 termLang :: Eq.EqTheory -> Decl
-termLang t =
-  let nm = lang t
-      constructors = gmap (ren (getConstrName $ t^.Eq.sort) (nm,"L")) $ t^.Eq.funcTypes
-  in Data (mkName $ lang t) NoParams $
-      DataDeclDef setType constructors
+termLang eq =
+  let nm = termLangNm eq
+      -- constructors = gmap (ren (getConstrName $ t^.Eq.sort) (nm,"L")) $ t^.Eq.funcTypes
+  in Data (mkName nm) NoParams $
+      DataDeclDef setType $ applyRenames eq (nm,termlangSuffix)
+
+--getConstructors :: Decl -> [Constr]       
+--getConstructors (Data n _ (DataDeclDef _ constructors)) = constructors 
