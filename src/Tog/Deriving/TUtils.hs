@@ -17,15 +17,17 @@ module Tog.Deriving.TUtils
   , mkFunc
   , fldsToBinding
   , mkParams
-  , createId 
+  , createId
+  , strToDecl 
   ) where
 
-import           Control.Lens ((^.))
+import Control.Lens ((^.))
 
-import           Tog.Raw.Abs
-import           Tog.DerivingInsts()
-import           Tog.Deriving.Types (Name_)
-import           Tog.Deriving.Lenses (name)
+import Tog.Raw.Abs
+import Tog.DerivingInsts()
+import Tog.Deriving.Types (Name_)
+import Tog.Deriving.Lenses (name)
+import Tog.Parse (parseDecl)
 
 createId :: String -> Expr
 createId = Id . NotQual . mkName
@@ -69,7 +71,9 @@ shortName declName num = take 1 declName ++ show num
 
 -- using two characters for theory instance name to avoid name clashes with carriers.
 twoCharName :: Name_ -> Int -> Name_
-twoCharName declName num = take 2 declName ++ show num 
+twoCharName declName num =
+ let twocharNm = take 2 declName
+ in if num == 0 then twocharNm else twocharNm ++ show num 
 
 exprArity :: Expr -> Int
 exprArity expr =
@@ -92,7 +96,10 @@ genVarsWSymb ch i = map (\z -> ch : show z)  [1..i]
 -- creates something like (M1 : Monoid A1)  
 declTheory :: Name_ -> [Constr] -> Int -> Expr 
 declTheory n params index =
-  App $ mkArg n : map (\p -> mkArg $ getConstrName p ++ show index) params
+  if index == 0 then
+    App $ mkArg n : map (\p -> mkArg $ getConstrName p) params
+  else 
+    App $ mkArg n : map (\p -> mkArg $ getConstrName p ++ show index) params
 
 mkField :: [Constr] -> Fields
 mkField [] = NoFields 
@@ -104,4 +111,10 @@ fldsToBinding (Constr nm typ) = Bind [mkArg $ nm^.name] typ
 mkParams :: [Binding] -> Params
 mkParams [] = NoParams
 mkParams ls = ParamDecl ls    
+
+strToDecl :: String -> Decl
+strToDecl str =
+  case parseDecl str of 
+    Left _  -> error $ "invalide declaration " ++ str 
+    Right r -> r 
 

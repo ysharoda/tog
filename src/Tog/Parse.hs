@@ -23,3 +23,4 @@ parseDecl decl =
   case pDecl (resolveLayout False (myLexer decl)) of
     Bad err -> Left $ PP.text err
     Ok p    -> Right p 
+

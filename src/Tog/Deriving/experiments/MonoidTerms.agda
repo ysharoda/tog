@@ -1,6 +1,8 @@
 module MonoidTerms where
 
 open import Relation.Binary.PropositionalEquality
+open import Data.Vec.Base using (Vec; lookup)
+open import Data.Nat.Base
 
 record Monoid (A : Set) : Set where
  field
@@ -10,13 +12,9 @@ record Monoid (A : Set) : Set where
    runit : {x : A} → op x e ≡ x
    assoc : {x y z : A} → op x (op y z) ≡ op (op x y) z 
                                                       
-data Nat : Set where
-  zero : Nat
-  succ : Nat → Nat
-
-data Fin : Nat → Set where
-  fzero : {n : Nat} → Fin (succ n)
-  fsucc : {n : Nat} → Fin n → Fin (succ n) 
+data Fin : ℕ → Set where
+  fzero : {n : ℕ} → Fin (suc n)
+  fsucc : {n : ℕ} → Fin n → Fin (suc n) 
 
 data Choice : Set where
   Expression : Choice
@@ -36,16 +34,47 @@ data MonTerm : Set where
   e  : MonTerm
   op : MonTerm → MonTerm → MonTerm
 
-data MonOpenTerm : Set where
-  v  : {n : Nat} → Fin n → MonOpenTerm
-  e  : MonOpenTerm
-  op : MonOpenTerm → MonOpenTerm → MonOpenTerm 
-
-data MonoidPE : Set where
-  e  : Staged MonTerm → MonoidPE
-  op : Staged MonTerm → Staged MonTerm → Staged MonTerm → MonoidPE
+data MonOpenTerm (n : ℕ) : Set where
+  v  : Fin n → MonOpenTerm n 
+  e  : MonOpenTerm n
+  op : MonOpenTerm n → MonOpenTerm n → MonOpenTerm n
 
 -- lifting unary function
-liftUnary : {A B : Set} → (A → B) → Staged A → Staged B
-liftUnary f (Now x) = Now (f x)
-liftUnary f (Later x) = Later (Computation Expression {!!})
+liftUnary : {A B : Set} → (A → B) → (Code A → Code B) → Staged A → Staged B
+liftUnary f _ (Now x) = Now (f x)
+liftUnary f g (Later (Computation _ x)) = Later (Computation Expression (g x))
+
+
+liftBinary : {A B C : Set} -> (A -> B -> C) ->
+                              (Code A -> Code B -> Code C) ->
+                               Staged A -> Staged B -> Staged C
+liftBinary f g (Now x) (Now y) = Now (f x y)
+liftBinary f g (Now x) (Later (Computation _ y)) =
+  Later (Computation Expression (g (Q x) y))
+liftBinary f g (Later (Computation _ x)) (Now y) =
+  Later (Computation Expression (g x (Q y)))
+liftBinary f g (Later (Computation _ x)) (Later (Computation _ y)) =
+  Later (Computation Expression (g x y))
+
+-- Evaluator (interpreter) 
+eval : {A : Set} {n : ℕ} → MonOpenTerm n → Vec A n → A
+eval = {!!}
+
+-- Simplification rules
+
+-- Partial evaluator
+peval : {!!}
+peval = {!!}
+
+{- 
+liftMonTerm : MonTerm → Code MonTerm → Staged MonTerm
+liftMonTerm e code = Now e
+liftMonTerm (op x y) code = liftBinary op code (Now x) (Now y)
+-} 
+
+record MonTermStaged {A : Set} : Set where
+ field
+  eStaged  : Staged A 
+  opStaged : Staged A → Staged A → Staged A
+
+-- Finally Tagless 
