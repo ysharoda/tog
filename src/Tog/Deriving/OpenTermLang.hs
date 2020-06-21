@@ -1,4 +1,8 @@
-module Tog.Deriving.OpenTermLang (nat,fin,openTermLang) where
+module Tog.Deriving.OpenTermLang
+  ( openLangNm,
+    olangSuffix,
+    varsConstrName, 
+    openTermLang) where
 
 import Tog.Deriving.EqTheory as Eq 
 import Tog.Deriving.TUtils
@@ -15,17 +19,8 @@ varsConstrName = "v"
 openLangNm :: Eq.EqTheory -> Name_ 
 openLangNm thy = thy ^. thyName ++ "OpenLang"
 
-nat :: String 
-nat =
-  "data Nat : Set where { " ++ 
-    "zero : Nat ; " ++ 
-    "succ  : Nat -> Nat }"
-
-fin :: String 
-fin =
-  "data Fin (n : Nat) : Set where { " ++
-    "fzero : {m : Nat} (p : n == succ m) -> Fin n ; " ++
-    "fsuc  : {m : Nat} (p : n == succ m) (i : Fin m) -> Fin n }"    
+olangSuffix :: String
+olangSuffix = "OL"
 
 liftConstr :: Expr -> Expr 
 liftConstr (App [arg]) = (App [arg,mkArg "n"])
@@ -40,8 +35,7 @@ vars langNm =
 openTermLang :: Eq.EqTheory -> Decl
 openTermLang eq =
  let nm = openLangNm eq
-     -- constructors = gmap (ren (getConstrName $ eq^.Eq.sort) (nm,"OL")) $ eq^.Eq.funcTypes
  in Data (mkName nm) (ParamDecl [Bind [mkArg "n"] (App [mkArg "Nat"])]) $ 
      DataDeclDef setType $ 
-      (vars nm) : (gmap liftConstr $ applyRenames eq (nm,"OL"))
+      (vars nm) : (gmap liftConstr $ applyRenames eq (nm,olangSuffix))
 

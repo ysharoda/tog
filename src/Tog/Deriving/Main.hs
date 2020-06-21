@@ -1,5 +1,6 @@
 module Tog.Deriving.Main
   ( processDefs
+  , declRecords 
   ) where
 
 import qualified Data.Map              as Map
@@ -14,9 +15,13 @@ import           Tog.Deriving.ProductTheory
 import           Tog.Deriving.Signature 
 import           Tog.Deriving.TypeConversions
 import           Tog.Deriving.Types
-import           Tog.Deriving.TUtils  (mkName, setType)
+import           Tog.Deriving.TUtils  (mkName, setType,strToDecl)
 import           Tog.Deriving.RelationalInterp
-import           Tog.Deriving.OpenTermLang 
+import           Tog.Deriving.OpenTermLang
+import           Tog.Deriving.Evaluator
+import           Tog.Deriving.OpenTermEvaluator
+import           Tog.Deriving.TogPrelude (prelude)
+--import           Tog.Deriving.PartialEvaluator 
 
 processDefs :: [Language] -> Module
 processDefs = processModule . defsToModule
@@ -26,7 +31,9 @@ defsToModule = createModules . view (graph . nodes) . computeGraph
 
 processModule :: Module -> Module
 processModule (Module n p (Decl_ decls)) =
-   Module n p $ Decl_ $ [prodType,strToDecl nat,strToDecl fin] ++ map genEverything decls   
+   Module n p $ Decl_ $
+     (prodType : map strToDecl prelude) -- choice, code, comp, staged]) 
+      ++ map genEverything decls   
 processModule _ = error $ "Unparsed theory expressions exists" 
 
 leverageThry :: Eq.EqTheory -> [Decl]
@@ -37,7 +44,11 @@ leverageThry thry =
      relInterp = relationalInterp thry
      trmlang = termLang thry
      openTrmLang = openTermLang thry
- in [sigs,prodthry,hom,relInterp,trmlang,openTrmLang] 
+     evalTrmLang = evalFunc thry
+     evalOpenTrmLang = openEvalFunc thry 
+     -- peval = partialEval thry 
+ in [sigs, prodthry, hom, relInterp] ++ 
+    [trmlang, openTrmLang] ++ evalTrmLang ++ evalOpenTrmLang
 
 genEverything :: InnerModule -> InnerModule
 genEverything m@(Module_ (Module n p (Decl_ decls))) =

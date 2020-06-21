@@ -1,6 +1,7 @@
 module Tog.Deriving.TUtils
   ( getConstrName
   , mkName
+  , mkQName 
   , setType
   , setTypeAsId
   , mkField
@@ -18,7 +19,8 @@ module Tog.Deriving.TUtils
   , fldsToBinding
   , mkParams
   , createId
-  , strToDecl 
+  , strToDecl
+  , eqFunArgs
   ) where
 
 import Control.Lens ((^.))
@@ -34,6 +36,9 @@ createId = Id . NotQual . mkName
 
 mkName :: Name_ -> Name
 mkName str = Name ((0,0),str) 
+
+mkQName :: Name_ -> QName
+mkQName str = NotQual $ mkName str 
 
 setType :: Name
 setType = mkName "Set"
@@ -118,3 +123,24 @@ strToDecl str =
     Left _  -> error $ "invalide declaration " ++ str 
     Right r -> r 
 
+{-
+data Expr
+    = Lam [Name] Expr
+    | Pi Telescope Expr
+    | Fun Expr Expr
+    | Eq Expr Expr
+    | App [Arg]
+    | Id QName
+  deriving (Eq, Ord, Show, Read)
+-} 
+
+-- The input expression is the function type
+-- The output expression is the function applied to variables 
+eqFunArgs :: Expr -> [Arg]
+eqFunArgs (Fun (App [a]) e2) = a : eqFunArgs e2
+eqFunArgs (App args) = args
+eqFunArgs _ = error "Something wrong" 
+
+eqFunApp :: Constr -> Expr
+eqFunApp (Constr nm (Fun e1 e2)) =
+  App $ [mkArg (nm ^. name)] ++ eqFunArgs e1 ++ eqFunArgs e2
