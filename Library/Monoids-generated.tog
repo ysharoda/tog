@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------
 -- Checking declarations
 ------------------------------------------------------------------------
--- Solved Metas: 8442
+-- Solved Metas: 13907
 -- Unsolved Metas: 0
 ------------------------------------------------------------------------
 -- Unsolved problems: 0
@@ -12,14 +12,97 @@ module MathScheme where
     
   data Nat : Set where
     zero : Nat
-    succ : Nat -> Nat
+    suc : Nat -> Nat
   data Fin (n : Nat) : Set where
     fzero :
-      (m : Nat) (p : n == succ m) ->
+      (m : Nat) (p : n == suc m) ->
       Fin n
     fsuc :
-      (m : Nat) (p : n == succ m)
+      (m : Nat) (p : n == suc m)
       (i : Fin m) -> Fin n
+  pred : Nat -> Nat
+  pred (zero) = zero
+  pred (suc n) = n
+  data Vec
+    (A : Set) (n : Nat) : Set where
+    nil : n == zero -> Vec A n
+    cons :
+      (m : Nat) (p : n == suc m)
+      (x : A)
+      (xs : Vec A m) -> Vec A n
+  data Unit : Set where
+    unit : Unit
+  EmptyT : Set
+  EmptyT = (A : Set) -> A
+  subst :
+    (A : Set) (x : A) (y : A)
+    (P : A -> Set) ->
+    x == y -> P x -> P y
+  subst _ _ _ P =
+    J _ _ _ (\x y _ -> P x -> P y)
+      (\x p -> p)
+  sym :
+    (A : Set) (x : A) (y : A) ->
+    x == y -> y == x
+  sym A x y p =
+    subst _ _ _ (\y -> y == x) p
+      refl
+  cong :
+    (A : Set) (B : Set) (x : A)
+    (y : A)
+    (f : A -> B) ->
+    x == y -> f x == f y
+  cong _ _ _ _ f p =
+    subst _ _ _ (\y -> f _ == f y) p
+      refl
+  IsZero : Nat -> Set
+  IsZero (zero) = Unit
+  IsZero (suc n) = EmptyT
+  zeroNOTsuc :
+    (n : Nat) ->
+    zero == suc n -> EmptyT
+  zeroNOTsuc _ p =
+    subst _ _ _ IsZero p unit
+  trans :
+    (A : Set) (x : A) (y : A)
+    (z : A) ->
+    x == y -> y == z -> x == z
+  trans A x _ _ p q =
+    subst _ _ _ (\y -> x == y) q p
+  lemma :
+    (n : Nat) (m : Nat) ->
+    n == suc m ->
+    n == zero -> EmptyT
+  lemma _ _ p q =
+    zeroNOTsuc _
+      (trans _ _ _ _ (sym _ _ _ q) p)
+  sucInj :
+    (n : Nat) (m : Nat) ->
+    suc n == suc m -> n == m
+  sucInj _ _ p =
+    cong _ _ _ _ pred p
+  lookup :
+    (A : Set) (n : Nat) (i : Fin n)
+    (v : Vec A n) -> A
+  lookup A n (fzero m p) (nil q) =
+    lemma _ _ p q A
+  lookup A n (fzero m p) (cons
+                          l
+                          q
+                          x
+                          xs) = x
+  lookup A n (fsuc m p i) (nil
+                           q) = lemma _ _ p q A
+  lookup A n (fsuc m p i) (cons
+                           l
+                           q
+                           x
+                           xs) =
+    lookup _ m i
+      (subst _ _ _ (Vec A)
+         (sucInj _ _
+            (trans _ _ _ _ (sym _ _ _ q) p))
+         xs)
   module AdditiveCommutativeSemigroup where
     record AdditiveCommutativeSemigroup
       (A : Set) : Set where
@@ -90,15 +173,41 @@ module MathScheme where
         AdditiveCommutativeSemigroupLang ->
         AdditiveCommutativeSemigroupLang
     data AdditiveCommutativeSemigroupOpenLang
-      : Set where
+      (n : Nat) : Set where
       v :
-        (n : Nat) ->
         Fin n ->
         AdditiveCommutativeSemigroupOpenLang
+          n
       +OL :
-        AdditiveCommutativeSemigroupOpenLang ->
-        AdditiveCommutativeSemigroupOpenLang ->
         AdditiveCommutativeSemigroupOpenLang
+          n ->
+        AdditiveCommutativeSemigroupOpenLang
+          n ->
+        AdditiveCommutativeSemigroupOpenLang
+          n
+    evalTerm :
+      (A : Set) ->
+      AdditiveCommutativeSemigroup
+        A ->
+      AdditiveCommutativeSemigroupLang ->
+      A
+    evalTerm _ Ad (+L x1 x2) =
+      + Ad (evalTerm _ Ad x1)
+        (evalTerm _ Ad x2)
+    evalOpenTerm :
+      (A : Set) (n : Nat) ->
+      AdditiveCommutativeSemigroup
+        A ->
+      AdditiveCommutativeSemigroupOpenLang
+        n -> Vec A n -> A
+    evalOpenTerm _ n ad (v
+                         fin) vars = lookup _ n fin vars
+    evalOpenTerm _ n ad (+OL
+                         x1
+                         x2) vars =
+      + ad
+        (evalOpenTerm _ n ad x1 vars)
+        (evalOpenTerm _ n ad x2 vars)
   
   module AdditiveMagma where
     record AdditiveMagma
@@ -152,14 +261,33 @@ module MathScheme where
         AdditiveMagmaLang ->
         AdditiveMagmaLang
     data AdditiveMagmaOpenLang
-      : Set where
+      (n : Nat) : Set where
       v :
-        (n : Nat) ->
-        Fin n -> AdditiveMagmaOpenLang
+        Fin n -> AdditiveMagmaOpenLang n
       +OL :
-        AdditiveMagmaOpenLang ->
-        AdditiveMagmaOpenLang ->
-        AdditiveMagmaOpenLang
+        AdditiveMagmaOpenLang n ->
+        AdditiveMagmaOpenLang n ->
+        AdditiveMagmaOpenLang n
+    evalTerm :
+      (A : Set) ->
+      AdditiveMagma A ->
+      AdditiveMagmaLang -> A
+    evalTerm _ Ad (+L x1 x2) =
+      + Ad (evalTerm _ Ad x1)
+        (evalTerm _ Ad x2)
+    evalOpenTerm :
+      (A : Set) (n : Nat) ->
+      AdditiveMagma A ->
+      AdditiveMagmaOpenLang n ->
+      Vec A n -> A
+    evalOpenTerm _ n ad (v
+                         fin) vars = lookup _ n fin vars
+    evalOpenTerm _ n ad (+OL
+                         x1
+                         x2) vars =
+      + ad
+        (evalOpenTerm _ n ad x1 vars)
+        (evalOpenTerm _ n ad x2 vars)
   
   module AdditiveMonoid where
     record AdditiveMonoid
@@ -237,15 +365,38 @@ module MathScheme where
         AdditiveMonoidLang
       0L : AdditiveMonoidLang
     data AdditiveMonoidOpenLang
-      : Set where
+      (n : Nat) : Set where
       v :
-        (n : Nat) ->
-        Fin n -> AdditiveMonoidOpenLang
+        Fin n ->
+        AdditiveMonoidOpenLang n
       +OL :
-        AdditiveMonoidOpenLang ->
-        AdditiveMonoidOpenLang ->
-        AdditiveMonoidOpenLang
-      0OL : AdditiveMonoidOpenLang
+        AdditiveMonoidOpenLang n ->
+        AdditiveMonoidOpenLang n ->
+        AdditiveMonoidOpenLang n
+      0OL : AdditiveMonoidOpenLang n
+    evalTerm :
+      (A : Set) ->
+      AdditiveMonoid A ->
+      AdditiveMonoidLang -> A
+    evalTerm _ Ad (+L x1 x2) =
+      + Ad (evalTerm _ Ad x1)
+        (evalTerm _ Ad x2)
+    evalTerm _ Ad (0L) = 0 Ad
+    evalOpenTerm :
+      (A : Set) (n : Nat) ->
+      AdditiveMonoid A ->
+      AdditiveMonoidOpenLang n ->
+      Vec A n -> A
+    evalOpenTerm _ n ad (v
+                         fin) vars = lookup _ n fin vars
+    evalOpenTerm _ n ad (+OL
+                         x1
+                         x2) vars =
+      + ad
+        (evalOpenTerm _ n ad x1 vars)
+        (evalOpenTerm _ n ad x2 vars)
+    evalOpenTerm _ n ad (0OL) vars =
+      0 ad
   
   module AdditivePointedMagma where
     record AdditivePointedMagma
@@ -306,17 +457,41 @@ module MathScheme where
         AdditivePointedMagmaLang ->
         AdditivePointedMagmaLang
     data AdditivePointedMagmaOpenLang
-      : Set where
+      (n : Nat) : Set where
       v :
-        (n : Nat) ->
         Fin n ->
-        AdditivePointedMagmaOpenLang
+        AdditivePointedMagmaOpenLang n
       0OL :
-        AdditivePointedMagmaOpenLang
+        AdditivePointedMagmaOpenLang n
       +OL :
-        AdditivePointedMagmaOpenLang ->
-        AdditivePointedMagmaOpenLang ->
         AdditivePointedMagmaOpenLang
+          n ->
+        AdditivePointedMagmaOpenLang
+          n ->
+        AdditivePointedMagmaOpenLang n
+    evalTerm :
+      (A : Set) ->
+      AdditivePointedMagma A ->
+      AdditivePointedMagmaLang -> A
+    evalTerm _ Ad (0L) = 0 Ad
+    evalTerm _ Ad (+L x1 x2) =
+      + Ad (evalTerm _ Ad x1)
+        (evalTerm _ Ad x2)
+    evalOpenTerm :
+      (A : Set) (n : Nat) ->
+      AdditivePointedMagma A ->
+      AdditivePointedMagmaOpenLang
+        n -> Vec A n -> A
+    evalOpenTerm _ n ad (v
+                         fin) vars = lookup _ n fin vars
+    evalOpenTerm _ n ad (0OL) vars =
+      0 ad
+    evalOpenTerm _ n ad (+OL
+                         x1
+                         x2) vars =
+      + ad
+        (evalOpenTerm _ n ad x1 vars)
+        (evalOpenTerm _ n ad x2 vars)
   
   module AdditivePointedSemigroup where
     record AdditivePointedSemigroup
@@ -389,17 +564,45 @@ module MathScheme where
         AdditivePointedSemigroupLang ->
         AdditivePointedSemigroupLang
     data AdditivePointedSemigroupOpenLang
-      : Set where
+      (n : Nat) : Set where
       v :
-        (n : Nat) ->
         Fin n ->
         AdditivePointedSemigroupOpenLang
+          n
       0OL :
         AdditivePointedSemigroupOpenLang
+          n
       +OL :
-        AdditivePointedSemigroupOpenLang ->
-        AdditivePointedSemigroupOpenLang ->
         AdditivePointedSemigroupOpenLang
+          n ->
+        AdditivePointedSemigroupOpenLang
+          n ->
+        AdditivePointedSemigroupOpenLang
+          n
+    evalTerm :
+      (A : Set) ->
+      AdditivePointedSemigroup A ->
+      AdditivePointedSemigroupLang ->
+      A
+    evalTerm _ Ad (0L) = 0 Ad
+    evalTerm _ Ad (+L x1 x2) =
+      + Ad (evalTerm _ Ad x1)
+        (evalTerm _ Ad x2)
+    evalOpenTerm :
+      (A : Set) (n : Nat) ->
+      AdditivePointedSemigroup A ->
+      AdditivePointedSemigroupOpenLang
+        n -> Vec A n -> A
+    evalOpenTerm _ n ad (v
+                         fin) vars = lookup _ n fin vars
+    evalOpenTerm _ n ad (0OL) vars =
+      0 ad
+    evalOpenTerm _ n ad (+OL
+                         x1
+                         x2) vars =
+      + ad
+        (evalOpenTerm _ n ad x1 vars)
+        (evalOpenTerm _ n ad x2 vars)
   
   module AdditiveSemigroup where
     record AdditiveSemigroup
@@ -462,15 +665,34 @@ module MathScheme where
         AdditiveSemigroupLang ->
         AdditiveSemigroupLang
     data AdditiveSemigroupOpenLang
-      : Set where
+      (n : Nat) : Set where
       v :
-        (n : Nat) ->
         Fin n ->
-        AdditiveSemigroupOpenLang
+        AdditiveSemigroupOpenLang n
       +OL :
-        AdditiveSemigroupOpenLang ->
-        AdditiveSemigroupOpenLang ->
-        AdditiveSemigroupOpenLang
+        AdditiveSemigroupOpenLang n ->
+        AdditiveSemigroupOpenLang n ->
+        AdditiveSemigroupOpenLang n
+    evalTerm :
+      (A : Set) ->
+      AdditiveSemigroup A ->
+      AdditiveSemigroupLang -> A
+    evalTerm _ Ad (+L x1 x2) =
+      + Ad (evalTerm _ Ad x1)
+        (evalTerm _ Ad x2)
+    evalOpenTerm :
+      (A : Set) (n : Nat) ->
+      AdditiveSemigroup A ->
+      AdditiveSemigroupOpenLang n ->
+      Vec A n -> A
+    evalOpenTerm _ n ad (v
+                         fin) vars = lookup _ n fin vars
+    evalOpenTerm _ n ad (+OL
+                         x1
+                         x2) vars =
+      + ad
+        (evalOpenTerm _ n ad x1 vars)
+        (evalOpenTerm _ n ad x2 vars)
   
   module AdditiveUnital where
     record AdditiveUnital
@@ -539,15 +761,38 @@ module MathScheme where
         AdditiveUnitalLang ->
         AdditiveUnitalLang
     data AdditiveUnitalOpenLang
-      : Set where
+      (n : Nat) : Set where
       v :
-        (n : Nat) ->
-        Fin n -> AdditiveUnitalOpenLang
-      0OL : AdditiveUnitalOpenLang
+        Fin n ->
+        AdditiveUnitalOpenLang n
+      0OL : AdditiveUnitalOpenLang n
       +OL :
-        AdditiveUnitalOpenLang ->
-        AdditiveUnitalOpenLang ->
-        AdditiveUnitalOpenLang
+        AdditiveUnitalOpenLang n ->
+        AdditiveUnitalOpenLang n ->
+        AdditiveUnitalOpenLang n
+    evalTerm :
+      (A : Set) ->
+      AdditiveUnital A ->
+      AdditiveUnitalLang -> A
+    evalTerm _ Ad (0L) = 0 Ad
+    evalTerm _ Ad (+L x1 x2) =
+      + Ad (evalTerm _ Ad x1)
+        (evalTerm _ Ad x2)
+    evalOpenTerm :
+      (A : Set) (n : Nat) ->
+      AdditiveUnital A ->
+      AdditiveUnitalOpenLang n ->
+      Vec A n -> A
+    evalOpenTerm _ n ad (v
+                         fin) vars = lookup _ n fin vars
+    evalOpenTerm _ n ad (0OL) vars =
+      0 ad
+    evalOpenTerm _ n ad (+OL
+                         x1
+                         x2) vars =
+      + ad
+        (evalOpenTerm _ n ad x1 vars)
+        (evalOpenTerm _ n ad x2 vars)
   
   module Carrier where
     record Carrier
@@ -581,10 +826,19 @@ module MathScheme where
         interp : A1 -> A2 -> Set
     data CarrierLang : Set where
       
-    data CarrierOpenLang : Set where
-      v :
-        (n : Nat) ->
-        Fin n -> CarrierOpenLang
+    data CarrierOpenLang
+      (n : Nat) : Set where
+      v : Fin n -> CarrierOpenLang n
+    evalTerm :
+      (A : Set) ->
+      Carrier A -> CarrierLang -> A
+    evalOpenTerm :
+      (A : Set) (n : Nat) ->
+      Carrier A ->
+      CarrierOpenLang n ->
+      Vec A n -> A
+    evalOpenTerm _ n ca (v
+                         fin) vars = lookup _ n fin vars
   
   module CommutativeMagma where
     record CommutativeMagma
@@ -645,15 +899,34 @@ module MathScheme where
         CommutativeMagmaLang ->
         CommutativeMagmaLang
     data CommutativeMagmaOpenLang
-      : Set where
+      (n : Nat) : Set where
       v :
-        (n : Nat) ->
         Fin n ->
-        CommutativeMagmaOpenLang
+        CommutativeMagmaOpenLang n
       opOL :
-        CommutativeMagmaOpenLang ->
-        CommutativeMagmaOpenLang ->
-        CommutativeMagmaOpenLang
+        CommutativeMagmaOpenLang n ->
+        CommutativeMagmaOpenLang n ->
+        CommutativeMagmaOpenLang n
+    evalTerm :
+      (A : Set) ->
+      CommutativeMagma A ->
+      CommutativeMagmaLang -> A
+    evalTerm _ Co (opL x1 x2) =
+      op Co (evalTerm _ Co x1)
+        (evalTerm _ Co x2)
+    evalOpenTerm :
+      (A : Set) (n : Nat) ->
+      CommutativeMagma A ->
+      CommutativeMagmaOpenLang n ->
+      Vec A n -> A
+    evalOpenTerm _ n co (v
+                         fin) vars = lookup _ n fin vars
+    evalOpenTerm _ n co (opOL
+                         x1
+                         x2) vars =
+      op co
+        (evalOpenTerm _ n co x1 vars)
+        (evalOpenTerm _ n co x2 vars)
   
   module CommutativeMonoid where
     record CommutativeMonoid
@@ -738,16 +1011,39 @@ module MathScheme where
         CommutativeMonoidLang
       eL : CommutativeMonoidLang
     data CommutativeMonoidOpenLang
-      : Set where
+      (n : Nat) : Set where
       v :
-        (n : Nat) ->
         Fin n ->
-        CommutativeMonoidOpenLang
+        CommutativeMonoidOpenLang n
       opOL :
-        CommutativeMonoidOpenLang ->
-        CommutativeMonoidOpenLang ->
-        CommutativeMonoidOpenLang
-      eOL : CommutativeMonoidOpenLang
+        CommutativeMonoidOpenLang n ->
+        CommutativeMonoidOpenLang n ->
+        CommutativeMonoidOpenLang n
+      eOL :
+        CommutativeMonoidOpenLang n
+    evalTerm :
+      (A : Set) ->
+      CommutativeMonoid A ->
+      CommutativeMonoidLang -> A
+    evalTerm _ Co (opL x1 x2) =
+      op Co (evalTerm _ Co x1)
+        (evalTerm _ Co x2)
+    evalTerm _ Co (eL) = e Co
+    evalOpenTerm :
+      (A : Set) (n : Nat) ->
+      CommutativeMonoid A ->
+      CommutativeMonoidOpenLang n ->
+      Vec A n -> A
+    evalOpenTerm _ n co (v
+                         fin) vars = lookup _ n fin vars
+    evalOpenTerm _ n co (opOL
+                         x1
+                         x2) vars =
+      op co
+        (evalOpenTerm _ n co x1 vars)
+        (evalOpenTerm _ n co x2 vars)
+    evalOpenTerm _ n co (eOL) vars =
+      e co
   
   module CommutativeSemigroup where
     record CommutativeSemigroup
@@ -817,15 +1113,36 @@ module MathScheme where
         CommutativeSemigroupLang ->
         CommutativeSemigroupLang
     data CommutativeSemigroupOpenLang
-      : Set where
+      (n : Nat) : Set where
       v :
-        (n : Nat) ->
         Fin n ->
-        CommutativeSemigroupOpenLang
+        CommutativeSemigroupOpenLang n
       opOL :
-        CommutativeSemigroupOpenLang ->
-        CommutativeSemigroupOpenLang ->
         CommutativeSemigroupOpenLang
+          n ->
+        CommutativeSemigroupOpenLang
+          n ->
+        CommutativeSemigroupOpenLang n
+    evalTerm :
+      (A : Set) ->
+      CommutativeSemigroup A ->
+      CommutativeSemigroupLang -> A
+    evalTerm _ Co (opL x1 x2) =
+      op Co (evalTerm _ Co x1)
+        (evalTerm _ Co x2)
+    evalOpenTerm :
+      (A : Set) (n : Nat) ->
+      CommutativeSemigroup A ->
+      CommutativeSemigroupOpenLang
+        n -> Vec A n -> A
+    evalOpenTerm _ n co (v
+                         fin) vars = lookup _ n fin vars
+    evalOpenTerm _ n co (opOL
+                         x1
+                         x2) vars =
+      op co
+        (evalOpenTerm _ n co x1 vars)
+        (evalOpenTerm _ n co x2 vars)
   
   module Empty where
     record Empty : Set where
@@ -894,15 +1211,37 @@ module MathScheme where
         LeftUnitalLang ->
         LeftUnitalLang -> LeftUnitalLang
     data LeftUnitalOpenLang
-      : Set where
+      (n : Nat) : Set where
       v :
-        (n : Nat) ->
-        Fin n -> LeftUnitalOpenLang
-      eOL : LeftUnitalOpenLang
+        Fin n -> LeftUnitalOpenLang n
+      eOL : LeftUnitalOpenLang n
       opOL :
-        LeftUnitalOpenLang ->
-        LeftUnitalOpenLang ->
-        LeftUnitalOpenLang
+        LeftUnitalOpenLang n ->
+        LeftUnitalOpenLang n ->
+        LeftUnitalOpenLang n
+    evalTerm :
+      (A : Set) ->
+      LeftUnital A ->
+      LeftUnitalLang -> A
+    evalTerm _ Le (eL) = e Le
+    evalTerm _ Le (opL x1 x2) =
+      op Le (evalTerm _ Le x1)
+        (evalTerm _ Le x2)
+    evalOpenTerm :
+      (A : Set) (n : Nat) ->
+      LeftUnital A ->
+      LeftUnitalOpenLang n ->
+      Vec A n -> A
+    evalOpenTerm _ n le (v
+                         fin) vars = lookup _ n fin vars
+    evalOpenTerm _ n le (eOL) vars =
+      e le
+    evalOpenTerm _ n le (opOL
+                         x1
+                         x2) vars =
+      op le
+        (evalOpenTerm _ n le x1 vars)
+        (evalOpenTerm _ n le x2 vars)
   
   module Magma where
     record Magma
@@ -951,13 +1290,31 @@ module MathScheme where
       opL :
         MagmaLang ->
         MagmaLang -> MagmaLang
-    data MagmaOpenLang : Set where
-      v :
-        (n : Nat) ->
-        Fin n -> MagmaOpenLang
+    data MagmaOpenLang
+      (n : Nat) : Set where
+      v : Fin n -> MagmaOpenLang n
       opOL :
-        MagmaOpenLang ->
-        MagmaOpenLang -> MagmaOpenLang
+        MagmaOpenLang n ->
+        MagmaOpenLang n ->
+        MagmaOpenLang n
+    evalTerm :
+      (A : Set) ->
+      Magma A -> MagmaLang -> A
+    evalTerm _ Ma (opL x1 x2) =
+      op Ma (evalTerm _ Ma x1)
+        (evalTerm _ Ma x2)
+    evalOpenTerm :
+      (A : Set) (n : Nat) ->
+      Magma A ->
+      MagmaOpenLang n -> Vec A n -> A
+    evalOpenTerm _ n ma (v
+                         fin) vars = lookup _ n fin vars
+    evalOpenTerm _ n ma (opOL
+                         x1
+                         x2) vars =
+      op ma
+        (evalOpenTerm _ n ma x1 vars)
+        (evalOpenTerm _ n ma x2 vars)
   
   module Monoid where
     record Monoid
@@ -1030,14 +1387,35 @@ module MathScheme where
       opL :
         MonoidLang ->
         MonoidLang -> MonoidLang
-    data MonoidOpenLang : Set where
-      v :
-        (n : Nat) ->
-        Fin n -> MonoidOpenLang
-      eOL : MonoidOpenLang
+    data MonoidOpenLang
+      (n : Nat) : Set where
+      v : Fin n -> MonoidOpenLang n
+      eOL : MonoidOpenLang n
       opOL :
-        MonoidOpenLang ->
-        MonoidOpenLang -> MonoidOpenLang
+        MonoidOpenLang n ->
+        MonoidOpenLang n ->
+        MonoidOpenLang n
+    evalTerm :
+      (A : Set) ->
+      Monoid A -> MonoidLang -> A
+    evalTerm _ Mo (eL) = e Mo
+    evalTerm _ Mo (opL x1 x2) =
+      op Mo (evalTerm _ Mo x1)
+        (evalTerm _ Mo x2)
+    evalOpenTerm :
+      (A : Set) (n : Nat) ->
+      Monoid A ->
+      MonoidOpenLang n -> Vec A n -> A
+    evalOpenTerm _ n mo (v
+                         fin) vars = lookup _ n fin vars
+    evalOpenTerm _ n mo (eOL) vars =
+      e mo
+    evalOpenTerm _ n mo (opOL
+                         x1
+                         x2) vars =
+      op mo
+        (evalOpenTerm _ n mo x1 vars)
+        (evalOpenTerm _ n mo x2 vars)
   
   module Pointed where
     record Pointed
@@ -1074,11 +1452,23 @@ module MathScheme where
           interp (e Po1) (e Po2)
     data PointedLang : Set where
       eL : PointedLang
-    data PointedOpenLang : Set where
-      v :
-        (n : Nat) ->
-        Fin n -> PointedOpenLang
-      eOL : PointedOpenLang
+    data PointedOpenLang
+      (n : Nat) : Set where
+      v : Fin n -> PointedOpenLang n
+      eOL : PointedOpenLang n
+    evalTerm :
+      (A : Set) ->
+      Pointed A -> PointedLang -> A
+    evalTerm _ Po (eL) = e Po
+    evalOpenTerm :
+      (A : Set) (n : Nat) ->
+      Pointed A ->
+      PointedOpenLang n ->
+      Vec A n -> A
+    evalOpenTerm _ n po (v
+                         fin) vars = lookup _ n fin vars
+    evalOpenTerm _ n po (eOL) vars =
+      e po
   
   module Pointed0Magma where
     record Pointed0Magma
@@ -1139,15 +1529,37 @@ module MathScheme where
         Pointed0MagmaLang ->
         Pointed0MagmaLang
     data Pointed0MagmaOpenLang
-      : Set where
+      (n : Nat) : Set where
       v :
-        (n : Nat) ->
-        Fin n -> Pointed0MagmaOpenLang
-      0OL : Pointed0MagmaOpenLang
+        Fin n -> Pointed0MagmaOpenLang n
+      0OL : Pointed0MagmaOpenLang n
       opOL :
-        Pointed0MagmaOpenLang ->
-        Pointed0MagmaOpenLang ->
-        Pointed0MagmaOpenLang
+        Pointed0MagmaOpenLang n ->
+        Pointed0MagmaOpenLang n ->
+        Pointed0MagmaOpenLang n
+    evalTerm :
+      (A : Set) ->
+      Pointed0Magma A ->
+      Pointed0MagmaLang -> A
+    evalTerm _ Po (0L) = 0 Po
+    evalTerm _ Po (opL x1 x2) =
+      op Po (evalTerm _ Po x1)
+        (evalTerm _ Po x2)
+    evalOpenTerm :
+      (A : Set) (n : Nat) ->
+      Pointed0Magma A ->
+      Pointed0MagmaOpenLang n ->
+      Vec A n -> A
+    evalOpenTerm _ n po (v
+                         fin) vars = lookup _ n fin vars
+    evalOpenTerm _ n po (0OL) vars =
+      0 po
+    evalOpenTerm _ n po (opOL
+                         x1
+                         x2) vars =
+      op po
+        (evalOpenTerm _ n po x1 vars)
+        (evalOpenTerm _ n po x2 vars)
   
   module PointedMagma where
     record PointedMagma
@@ -1208,15 +1620,37 @@ module MathScheme where
         PointedMagmaLang ->
         PointedMagmaLang
     data PointedMagmaOpenLang
-      : Set where
+      (n : Nat) : Set where
       v :
-        (n : Nat) ->
-        Fin n -> PointedMagmaOpenLang
-      eOL : PointedMagmaOpenLang
+        Fin n -> PointedMagmaOpenLang n
+      eOL : PointedMagmaOpenLang n
       opOL :
-        PointedMagmaOpenLang ->
-        PointedMagmaOpenLang ->
-        PointedMagmaOpenLang
+        PointedMagmaOpenLang n ->
+        PointedMagmaOpenLang n ->
+        PointedMagmaOpenLang n
+    evalTerm :
+      (A : Set) ->
+      PointedMagma A ->
+      PointedMagmaLang -> A
+    evalTerm _ Po (eL) = e Po
+    evalTerm _ Po (opL x1 x2) =
+      op Po (evalTerm _ Po x1)
+        (evalTerm _ Po x2)
+    evalOpenTerm :
+      (A : Set) (n : Nat) ->
+      PointedMagma A ->
+      PointedMagmaOpenLang n ->
+      Vec A n -> A
+    evalOpenTerm _ n po (v
+                         fin) vars = lookup _ n fin vars
+    evalOpenTerm _ n po (eOL) vars =
+      e po
+    evalOpenTerm _ n po (opOL
+                         x1
+                         x2) vars =
+      op po
+        (evalOpenTerm _ n po x1 vars)
+        (evalOpenTerm _ n po x2 vars)
   
   module PointedOne where
     record PointedOne
@@ -1256,11 +1690,24 @@ module MathScheme where
     data PointedOneLang : Set where
       1L : PointedOneLang
     data PointedOneOpenLang
-      : Set where
+      (n : Nat) : Set where
       v :
-        (n : Nat) ->
-        Fin n -> PointedOneOpenLang
-      1OL : PointedOneOpenLang
+        Fin n -> PointedOneOpenLang n
+      1OL : PointedOneOpenLang n
+    evalTerm :
+      (A : Set) ->
+      PointedOne A ->
+      PointedOneLang -> A
+    evalTerm _ Po (1L) = 1 Po
+    evalOpenTerm :
+      (A : Set) (n : Nat) ->
+      PointedOne A ->
+      PointedOneOpenLang n ->
+      Vec A n -> A
+    evalOpenTerm _ n po (v
+                         fin) vars = lookup _ n fin vars
+    evalOpenTerm _ n po (1OL) vars =
+      1 po
   
   module PointedPlusMagma where
     record PointedPlusMagma
@@ -1321,16 +1768,38 @@ module MathScheme where
         PointedPlusMagmaLang
       eL : PointedPlusMagmaLang
     data PointedPlusMagmaOpenLang
-      : Set where
+      (n : Nat) : Set where
       v :
-        (n : Nat) ->
         Fin n ->
-        PointedPlusMagmaOpenLang
+        PointedPlusMagmaOpenLang n
       +OL :
-        PointedPlusMagmaOpenLang ->
-        PointedPlusMagmaOpenLang ->
-        PointedPlusMagmaOpenLang
-      eOL : PointedPlusMagmaOpenLang
+        PointedPlusMagmaOpenLang n ->
+        PointedPlusMagmaOpenLang n ->
+        PointedPlusMagmaOpenLang n
+      eOL : PointedPlusMagmaOpenLang n
+    evalTerm :
+      (A : Set) ->
+      PointedPlusMagma A ->
+      PointedPlusMagmaLang -> A
+    evalTerm _ Po (+L x1 x2) =
+      + Po (evalTerm _ Po x1)
+        (evalTerm _ Po x2)
+    evalTerm _ Po (eL) = e Po
+    evalOpenTerm :
+      (A : Set) (n : Nat) ->
+      PointedPlusMagma A ->
+      PointedPlusMagmaOpenLang n ->
+      Vec A n -> A
+    evalOpenTerm _ n po (v
+                         fin) vars = lookup _ n fin vars
+    evalOpenTerm _ n po (+OL
+                         x1
+                         x2) vars =
+      + po
+        (evalOpenTerm _ n po x1 vars)
+        (evalOpenTerm _ n po x2 vars)
+    evalOpenTerm _ n po (eOL) vars =
+      e po
   
   module PointedSemigroup where
     record PointedSemigroup
@@ -1400,16 +1869,38 @@ module MathScheme where
         PointedSemigroupLang
       eL : PointedSemigroupLang
     data PointedSemigroupOpenLang
-      : Set where
+      (n : Nat) : Set where
       v :
-        (n : Nat) ->
         Fin n ->
-        PointedSemigroupOpenLang
+        PointedSemigroupOpenLang n
       opOL :
-        PointedSemigroupOpenLang ->
-        PointedSemigroupOpenLang ->
-        PointedSemigroupOpenLang
-      eOL : PointedSemigroupOpenLang
+        PointedSemigroupOpenLang n ->
+        PointedSemigroupOpenLang n ->
+        PointedSemigroupOpenLang n
+      eOL : PointedSemigroupOpenLang n
+    evalTerm :
+      (A : Set) ->
+      PointedSemigroup A ->
+      PointedSemigroupLang -> A
+    evalTerm _ Po (opL x1 x2) =
+      op Po (evalTerm _ Po x1)
+        (evalTerm _ Po x2)
+    evalTerm _ Po (eL) = e Po
+    evalOpenTerm :
+      (A : Set) (n : Nat) ->
+      PointedSemigroup A ->
+      PointedSemigroupOpenLang n ->
+      Vec A n -> A
+    evalOpenTerm _ n po (v
+                         fin) vars = lookup _ n fin vars
+    evalOpenTerm _ n po (opOL
+                         x1
+                         x2) vars =
+      op po
+        (evalOpenTerm _ n po x1 vars)
+        (evalOpenTerm _ n po x2 vars)
+    evalOpenTerm _ n po (eOL) vars =
+      e po
   
   module PointedZero where
     record PointedZero
@@ -1449,11 +1940,24 @@ module MathScheme where
     data PointedZeroLang : Set where
       0L : PointedZeroLang
     data PointedZeroOpenLang
-      : Set where
+      (n : Nat) : Set where
       v :
-        (n : Nat) ->
-        Fin n -> PointedZeroOpenLang
-      0OL : PointedZeroOpenLang
+        Fin n -> PointedZeroOpenLang n
+      0OL : PointedZeroOpenLang n
+    evalTerm :
+      (A : Set) ->
+      PointedZero A ->
+      PointedZeroLang -> A
+    evalTerm _ Po (0L) = 0 Po
+    evalOpenTerm :
+      (A : Set) (n : Nat) ->
+      PointedZero A ->
+      PointedZeroOpenLang n ->
+      Vec A n -> A
+    evalOpenTerm _ n po (v
+                         fin) vars = lookup _ n fin vars
+    evalOpenTerm _ n po (0OL) vars =
+      0 po
   
   module RightUnital where
     record RightUnital
@@ -1517,15 +2021,37 @@ module MathScheme where
         RightUnitalLang ->
         RightUnitalLang
     data RightUnitalOpenLang
-      : Set where
+      (n : Nat) : Set where
       v :
-        (n : Nat) ->
-        Fin n -> RightUnitalOpenLang
-      eOL : RightUnitalOpenLang
+        Fin n -> RightUnitalOpenLang n
+      eOL : RightUnitalOpenLang n
       opOL :
-        RightUnitalOpenLang ->
-        RightUnitalOpenLang ->
-        RightUnitalOpenLang
+        RightUnitalOpenLang n ->
+        RightUnitalOpenLang n ->
+        RightUnitalOpenLang n
+    evalTerm :
+      (A : Set) ->
+      RightUnital A ->
+      RightUnitalLang -> A
+    evalTerm _ Ri (eL) = e Ri
+    evalTerm _ Ri (opL x1 x2) =
+      op Ri (evalTerm _ Ri x1)
+        (evalTerm _ Ri x2)
+    evalOpenTerm :
+      (A : Set) (n : Nat) ->
+      RightUnital A ->
+      RightUnitalOpenLang n ->
+      Vec A n -> A
+    evalOpenTerm _ n ri (v
+                         fin) vars = lookup _ n fin vars
+    evalOpenTerm _ n ri (eOL) vars =
+      e ri
+    evalOpenTerm _ n ri (opOL
+                         x1
+                         x2) vars =
+      op ri
+        (evalOpenTerm _ n ri x1 vars)
+        (evalOpenTerm _ n ri x2 vars)
   
   module Semigroup where
     record Semigroup
@@ -1584,14 +2110,33 @@ module MathScheme where
         SemigroupLang ->
         SemigroupLang -> SemigroupLang
     data SemigroupOpenLang
-      : Set where
+      (n : Nat) : Set where
       v :
-        (n : Nat) ->
-        Fin n -> SemigroupOpenLang
+        Fin n -> SemigroupOpenLang n
       opOL :
-        SemigroupOpenLang ->
-        SemigroupOpenLang ->
-        SemigroupOpenLang
+        SemigroupOpenLang n ->
+        SemigroupOpenLang n ->
+        SemigroupOpenLang n
+    evalTerm :
+      (A : Set) ->
+      Semigroup A ->
+      SemigroupLang -> A
+    evalTerm _ Se (opL x1 x2) =
+      op Se (evalTerm _ Se x1)
+        (evalTerm _ Se x2)
+    evalOpenTerm :
+      (A : Set) (n : Nat) ->
+      Semigroup A ->
+      SemigroupOpenLang n ->
+      Vec A n -> A
+    evalOpenTerm _ n se (v
+                         fin) vars = lookup _ n fin vars
+    evalOpenTerm _ n se (opOL
+                         x1
+                         x2) vars =
+      op se
+        (evalOpenTerm _ n se x1 vars)
+        (evalOpenTerm _ n se x2 vars)
   
   module Unital where
     record Unital
@@ -1655,12 +2200,33 @@ module MathScheme where
       opL :
         UnitalLang ->
         UnitalLang -> UnitalLang
-    data UnitalOpenLang : Set where
-      v :
-        (n : Nat) ->
-        Fin n -> UnitalOpenLang
-      eOL : UnitalOpenLang
+    data UnitalOpenLang
+      (n : Nat) : Set where
+      v : Fin n -> UnitalOpenLang n
+      eOL : UnitalOpenLang n
       opOL :
-        UnitalOpenLang ->
-        UnitalOpenLang -> UnitalOpenLang
+        UnitalOpenLang n ->
+        UnitalOpenLang n ->
+        UnitalOpenLang n
+    evalTerm :
+      (A : Set) ->
+      Unital A -> UnitalLang -> A
+    evalTerm _ Un (eL) = e Un
+    evalTerm _ Un (opL x1 x2) =
+      op Un (evalTerm _ Un x1)
+        (evalTerm _ Un x2)
+    evalOpenTerm :
+      (A : Set) (n : Nat) ->
+      Unital A ->
+      UnitalOpenLang n -> Vec A n -> A
+    evalOpenTerm _ n un (v
+                         fin) vars = lookup _ n fin vars
+    evalOpenTerm _ n un (eOL) vars =
+      e un
+    evalOpenTerm _ n un (opOL
+                         x1
+                         x2) vars =
+      op un
+        (evalOpenTerm _ n un x1 vars)
+        (evalOpenTerm _ n un x2 vars)
   
