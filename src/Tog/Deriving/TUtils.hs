@@ -123,17 +123,6 @@ strToDecl str =
     Left _  -> error $ "invalide declaration " ++ str 
     Right r -> r 
 
-{-
-data Expr
-    = Lam [Name] Expr
-    | Pi Telescope Expr
-    | Fun Expr Expr
-    | Eq Expr Expr
-    | App [Arg]
-    | Id QName
-  deriving (Eq, Ord, Show, Read)
--} 
-
 -- The input expression is the function type
 -- The output expression is the function applied to variables 
 eqFunArgs :: Expr -> [Arg]

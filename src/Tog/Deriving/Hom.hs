@@ -17,6 +17,8 @@ homFuncName = "hom"
 
 {- ---------------- The  Hom Function ------------------ -}
 
+-- srt: The sort PConstr
+-- the two names of the two instances 
 genHomFunc :: PConstr -> Name_ -> Name_ -> Constr 
 genHomFunc srt inst1Name inst2Name =
   Constr (mkName homFuncName) $ 
@@ -63,3 +65,18 @@ homomorphism t =
   in Record (mkName nm)
    (mkParams $ (map (recordParams Bind) a) ++ [i1,i2])
    (RecordDeclDef setType (mkName $ nm ++ "C") (mkField $ fnc : axioms))
+
+{- sketch of what I am trying to do here 
+
+homomorphism :: Eq.EqTheory -> Decl
+homormorphism eq =
+  let (inst1,inst2) = (instantiate eq (Just 1),instantiate eq (Just 2))
+      homfunc = createFunc (project (sort inst1)) (project (sort inst2))
+      pres-axiom = createAxiom
+       (f : fsym inst1) . (apply homfunc (apply f args)) == (apply f (map homfunc args))
+
+       interpRel = createRel (project (sort inst1)) 
+    
+     
+
+-} 

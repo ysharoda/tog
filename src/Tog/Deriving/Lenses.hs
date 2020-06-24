@@ -6,11 +6,12 @@ module Tog.Deriving.Lenses
   ) where
 
 import Control.Lens
+import Tog.Deriving.PConstr 
 
 import Tog.Raw.Abs 
 
 name :: Lens' Name String
 name = lens (\(Name (_,s)) -> s) (\(Name x) s -> Name (fst x, s))
 
-cExpr :: Lens' Constr Expr
-cExpr = lens (\(Constr _ e) -> e) (\(Constr x _) e' -> Constr x e')
+cExpr :: Lens' PConstr Expr
+cExpr = lens (\(PConstr _ e _) -> e) (\(PConstr x _ b) e' -> PConstr x e' b)

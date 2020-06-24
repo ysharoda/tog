@@ -6,7 +6,8 @@ module Tog.Deriving.TGraph
   , getPath
   , computeCombine
   , addArrow
-  , findApex 
+  , findApex
+  , mapAsFunc 
   ) where
 
 import qualified Data.Generics      as Generics
