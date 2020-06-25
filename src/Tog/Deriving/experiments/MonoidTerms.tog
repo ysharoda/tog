@@ -2,81 +2,137 @@ module MonoidTerms where
 
 -- Prelude 
 
-data Nat : Set where
+module NatNums where
+ data Nat : Set where
   zero : Nat
   suc  : Nat -> Nat
 
-pred : Nat -> Nat
-pred zero    = zero
-pred (suc n) = n
+module Prelude where 
 
-data Fin (n : Nat) : Set where
+ open NatNums 
+
+ pred : Nat -> Nat
+ pred zero    = zero
+ pred (suc n) = n
+
+ data Fin (n : Nat) : Set where
   fzero : {m : Nat} (p : n == suc m) -> Fin n
   fsuc  : {m : Nat} (p : n == suc m) (i : Fin m) -> Fin n
 
-data Vec (A : Set) (n : Nat) : Set
-data Vec A n where
+ data Vec (A : Set) (n : Nat) : Set
+ data Vec A n where
   nil  : n == zero -> Vec A n
   cons : {m : Nat} (p : n == suc m) (x : A) (xs : Vec A m) -> Vec A n
 
-data Unit : Set
-data Unit where
+ data Unit : Set
+ data Unit where
   unit : Unit
 
-Empty : Set
-Empty = (A : Set) -> A
+ Empty : Set
+ Empty = (A : Set) -> A
 
-subst : {A : Set} {x y : A} (P : A -> Set) ->
+ subst : {A : Set} {x y : A} (P : A -> Set) ->
         x == y -> P x -> P y
-subst P = J (\ x y _ -> P x -> P y) (\ x p -> p)
+ subst P = J (\ x y _ -> P x -> P y) (\ x p -> p)
 
-sym : {A : Set} {x : A} {y : A} -> x == y -> y == x
-sym {A} {x} {y} p = subst (\ y -> y == x) p refl
+ sym : {A : Set} {x : A} {y : A} -> x == y -> y == x
+ sym {A} {x} {y} p = subst (\ y -> y == x) p refl
 
-cong : {A B : Set} {x : A} {y : A} (f : A -> B) -> x == y -> f x == f y
-cong f p = subst (\ y -> f _ == f y) p refl
+ cong : {A B : Set} {x : A} {y : A} (f : A -> B) -> x == y -> f x == f y
+ cong f p = subst (\ y -> f _ == f y) p refl
 
-IsZero : Nat -> Set
-IsZero zero    = Unit
-IsZero (suc n) = Empty
+ IsZero : Nat -> Set
+ IsZero zero    = Unit
+ IsZero (suc n) = Empty
 
-zeroNOTsuc : {n : Nat} -> zero == suc n -> Empty
-zeroNOTsuc p = subst IsZero p unit
+ zeroNOTsuc : {n : Nat} -> zero == suc n -> Empty
+ zeroNOTsuc p = subst IsZero p unit
 
+ trans : {A : Set} {x : A} {y : A} {z : A} -> x == y -> y == z -> x == z
+ trans {A} {x} p q = subst (\ y -> x == y) q p
 
-trans : {A : Set} {x : A} {y : A} {z : A} -> x == y -> y == z -> x == z
-trans {A} {x} p q = subst (\ y -> x == y) q p
+ lemma : {n m : Nat} -> n == suc m -> n == zero -> Empty
+ lemma p q = zeroNOTsuc (trans (sym q) p)
 
-lemma : {n m : Nat} -> n == suc m -> n == zero -> Empty
-lemma p q = zeroNOTsuc (trans (sym q) p)
+ sucInj : {n m : Nat} -> suc n == suc m -> n == m
+ sucInj p = cong pred p
 
-sucInj : {n m : Nat} -> suc n == suc m -> n == m
-sucInj p = cong pred p
+ lookup : {A : Set} (n : Nat) (i : Fin n) (v : Vec A n) -> A
+ lookup {A} n (fzero {m} p) (nil q)            = lemma p q A
+ lookup {A} n (fzero {m} p) (cons {l} q x xs)  = x
+ lookup {A} n (fsuc {m} p i) (nil q)           = lemma p q A
+ lookup {A} n (fsuc {m} p i) (cons {l} q x xs) =
+   lookup m i (subst (Vec A) (sucInj (trans (sym q) p)) xs)
 
-lookup : {A : Set} (n : Nat) (i : Fin n) (v : Vec A n) -> A
-lookup {A} n (fzero {m} p) (nil q)            = lemma p q A
-lookup {A} n (fzero {m} p) (cons {l} q x xs)  = x
-lookup {A} n (fsuc {m} p i) (nil q)           = lemma p q A
-lookup {A} n (fsuc {m} p i) (cons {l} q x xs) =
-  lookup m i (subst (Vec A) (sucInj (trans (sym q) p)) xs)
+module Code where
 
-data Choice : Set where
-  Expression : Choice -- this is Comp in the code 
-  Constant : Choice
+ open NatNums  
+ 
+ data CodeRep (A : Set) : Set where
+  Q : Nat -> A -> CodeRep A
 
-data Code (A : Set) : Set where
-  Q : A -> Code A
+ uncode : {A : Set} -> CodeRep A -> CodeRep A
+ uncode (Q (suc s) x) = Q s x
+ -- uncode (Q zero x) = ?
 
-data Comp (A : Set) : Set where
-  Computation : Choice -> Code A -> Comp A
+ run : {A : Set} -> CodeRep A -> A
+ run (Q zero x) = x
+ -- run x = ?
 
-data Staged (A : Set) : Set where
+ code : {A : Set} -> A -> CodeRep A
+ code x = Q (suc zero) x
+
+ push-code : {A : Set} -> CodeRep A -> CodeRep A
+ push-code (Q n x) = Q (suc n) x
+
+ codeUnary : {A B : Set} -> (A -> B) -> (CodeRep A -> CodeRep B)
+ codeUnary f x = code (f (run x))
+
+ codeBinary : {A B C : Set} -> (A -> B -> C) -> (CodeRep A -> CodeRep B -> CodeRep C)
+ codeBinary f x y = code (f (run x) (run y)) 
+
+module Staging where
+
+ open Code 
+
+ data Choice : Set where
+  Expr  : Choice -- this is Comp in the code 
+  Const : Choice
+
+ data Comp (A : Set) : Set where
+  Computation : Choice -> CodeRep A -> Comp A
+  
+ data Staged (A : Set) : Set where
   Now : A -> Staged A 
-  Later : Comp A -> Staged A 
+  Later : Comp A -> Staged A
 
--- Monoid Record 
+ liftVar : {A : Set} -> A -> Staged A
+ liftVar x = Later (Computation Const (code x))
 
-record Monoid (A : Set) : Set where
+ liftConstant : {A : Set} -> A -> Staged A
+ liftConstant x = Now x 
+
+ liftUnary : {A B : Set} -> (A -> B) -> (Staged A -> Staged B)
+ liftUnary f (Now x) = Now (f x)
+ liftUnary f (Later (Computation _ x)) =
+      Later (Computation Expr (code (f (run x)))) 
+
+ liftBinary : {A B C : Set} -> (A -> B -> C) -> Staged A -> Staged B -> Staged C
+ liftBinary f (Now x) (Now y) = Now (f x y)
+ liftBinary f (Now x) (Later (Computation _ y)) =
+  Later (Computation Expr (codeBinary f (code x) y))
+ liftBinary f (Later (Computation _ x)) (Now y) =
+  Later (Computation Expr (codeBinary f x (code y)))
+ liftBinary f (Later (Computation _ x)) (Later (Computation _ y)) =
+  Later (Computation Expr (codeBinary f x y))
+
+module Monoid where
+
+ open NatNums
+ open Prelude
+ open Staging
+
+ record Monoid (A : Set) : Set where
   constructor monoid
   field
     e  : A
@@ -85,102 +141,57 @@ record Monoid (A : Set) : Set where
     runit : {x : A} -> (op x e) == x
     assoc : {x y z : A} -> (op x (op y z)) == (op (op x y) z)
 
--- to-be-generated
-
-data MonTerm : Set where
+ data MonTerm : Set where
   ee  : MonTerm
   opp : MonTerm -> MonTerm -> MonTerm
 
+ eval : {A : Set} -> Monoid A -> MonTerm -> A
+ eval M ee = (e M)
+ eval M (opp x y) = (op M) (eval M x) (eval M y)
 
-eval : {A : Set} -> Monoid A -> MonTerm -> A
-eval M ee = (e M)
-eval M (opp x y) = (op M) (eval M x) (eval M y)
+ liftMonExpr : MonTerm -> Staged MonTerm
+ liftMonExpr ee = liftConstant ee
+-- liftMonExpr (opp x y) =
+--  liftBinary (opp) (liftMonExpr x) (liftMonExpr y)
 
-data OpenMonTerm (n : Nat) : Set where
+ simplify : MonTerm -> MonTerm
+ simplify (opp ee x) = x
+ simplify (opp x ee) = x
+ simplify (opp x y) = opp (simplify x) (simplify y)
+
+ induction : (P : MonTerm -> Set) -> P ee -> ((x y : MonTerm) -> P x -> P y -> P (opp x y)) -> ((x : MonTerm) -> P x)
+ induction p pe _ ee = pe
+ induction p pe f (opp e1 e2) = f _ _ (induction p pe f e1) (induction p pe f e2)
+
+ data OpenMonTerm (n : Nat) : Set where
    v   : Fin n -> OpenMonTerm n 
    e'  : OpenMonTerm n 
    op' : OpenMonTerm n -> OpenMonTerm n -> OpenMonTerm n
 
-evalOpenTerm : {A : Set} -> (n : Nat) -> Monoid A -> OpenMonTerm n -> Vec A n -> A
-evalOpenTerm n mon (v fin) vars = lookup n fin vars
-evalOpenTerm _ mon (e') _ = (e mon) 
-evalOpenTerm n mon (op' x y) vars = (op mon) (evalOpenTerm n mon x vars) (evalOpenTerm n mon y vars) 
+ evalOpenTerm : {A : Set} -> (n : Nat) -> Monoid A -> OpenMonTerm n -> Vec A n -> A
+ evalOpenTerm n mon (v fin) vars = lookup n fin vars
+ evalOpenTerm _ mon (e') _ = (e mon) 
+ evalOpenTerm n mon (op' x y) vars = (op mon) (evalOpenTerm n mon x vars) (evalOpenTerm n mon y vars) 
 
-simplify : MonTerm -> MonTerm
-simplify (opp ee x) = x
-simplify (opp x ee) = x
-simplify (opp x y) = opp (simplify x) (simplify y)
+ liftOpenMonExpr : {n : Nat} -> OpenMonTerm n -> Staged (OpenMonTerm n)
+ liftOpenMonExpr (v fin) = liftVar (v fin) 
+ liftOpenMonExpr e' = liftConstant e'
+-- liftOpenMonExpr (op' x y) =
+  --liftBinary (op') (liftOpenMonExpr x) (liftOpenMonExpr y)
 
-induction : (P : MonTerm -> Set) -> P ee -> ((x y : MonTerm) -> P x -> P y -> P (opp x y)) -> ((x : MonTerm) -> P x)
-induction p pe _ ee = pe
-induction p pe f (opp e1 e2) = f _ _ (induction p pe f e1) (induction p pe f e2)
+ plus : Nat -> Nat -> Nat
+ plus zero x = x
+ plus x zero = x
+ plus (suc x) (suc y) = suc (plus x (suc y))
 
+ lunit-proof : (n : Nat) -> (plus zero n) == n
+ lunit-proof n = refl
 
-{-
-ff0 : {n : Nat} -> Fin (suc n)
-ff0 = fzero refl 
+ runit-proof : (n : Nat) -> (plus n zero) == n
+ runit-proof n = refl 
 
-vv0 : {A : Set} -> Vec A zero
-vv0 = nil refl
-
-vv1 : Vec MonTerm (suc zero) 
-vv1 = cons (refl) ee vv0
-
-ee1 : MonTerm 
-ee1 = lookup (suc zero) (fzero refl) vv1 
--}
-
-liftConstant : {A : Set} -> A -> Staged A
-liftConstant x = Now x
-
-liftVar : {A : Set} -> A -> Staged A
-liftVar x = Later (Computation Expression (Q x))
-
-liftUnary : {A B : Set} -> (A -> B) -> (Code A -> Code B) -> Staged A -> Staged B
-liftUnary f g (Now x) = Now (f x)
-liftUnary f g (Later (Computation _ x)) =
-  Later (Computation Expression (g x))
-
--- Code or Comp 
-liftBinary : {A B C : Set} -> (A -> B -> C) -> (Code A -> Code B -> Code C) -> Staged A -> Staged B -> Staged C
-liftBinary f g (Now x) (Now y) = Now (f x y)
-liftBinary f g (Now x) (Later (Computation _ y)) =
-  Later (Computation Expression (g (Q x) y))
-liftBinary f g (Later (Computation _ x)) (Now y) =
-  Later (Computation Expression (g x (Q y)))
-liftBinary f g (Later (Computation _ x)) (Later (Computation _ y)) =
-  Later (Computation Expression (g x y))
-
-{-
-liftMonExpr : MonTerm -> Staged MonTerm
-liftMonExpr ee = liftConstant ee
-liftMonExpr (opp x y) = liftBinary (tofunc opp) (code opp) (liftMonExpr x) (liftMonExpr y) 
-
-liftOpenMonExpr :: {n : Nat} -> OpenMonTerm n -> Staged (OpenMonTerm n)
-liftOpenMonExpr (v fin) = liftVar (v fin)
-liftOpenMonExpr e' = liftConstant e'
-liftOpenMonExpr (op' x y) =
-  liftBinary (op') (code op') (liftOpenMonExpr x) (liftOpenMonExpr y)
--}
-
-plus : Nat -> Nat -> Nat
-plus zero x = x
-plus x zero = x
-plus (suc x) (suc y) = suc (plus x (suc y))
-
-lunit-proof : (n : Nat) -> (plus zero n) == n
-lunit-proof n = refl
-
-runit-proof : (n : Nat) -> (plus n zero) == n
-runit-proof n = refl 
-
-postulate 
+ postulate 
   assoc-proof : (x y z : Nat) -> (plus x (plus y z)) == (plus (plus x y) z)
 
-natIsMon : Monoid Nat
-natIsMon = monoid zero plus lunit-proof runit-proof assoc-proof
-     
-
-
---monStr : Monoid String
---monStr = monoid epsilon concat refl refl
+ natIsMon : Monoid Nat
+ natIsMon = monoid zero plus lunit-proof runit-proof assoc-proof
