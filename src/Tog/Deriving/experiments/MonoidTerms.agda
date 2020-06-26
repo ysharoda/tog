@@ -35,42 +35,47 @@ module Code where
    push-code : {n : ℕ} {A : Set} → CodeRep A n -> CodeRep A (suc n)
    push-code (Q x) = Q x
 
-open Code
+module Staged where
+  open Code 
 
-data Choice : Set where
-  Expr  : Choice
-  Const : Choice
+  data Choice : Set where
+    Expr  : Choice
+    Const : Choice
 
-data Comp (A : Set) (n : ℕ) : Set where
-  Computation : Choice → CodeRep A n → Comp A n
+  data Comp (A : Set) (n : ℕ) : Set where
+    Computation : Choice → CodeRep A n → Comp A n
 
+  codeUnary : {A B : Set} → (A → B) → (CodeRep A zero → CodeRep B zero)
+  codeUnary f x = code (f (run x)) 
 
-codeUnary : {A B : Set} → (A → B) → (CodeRep A zero → CodeRep B zero)
-codeUnary f x = code (f (run x)) 
+  codeBinary : {A B C : Set} → (A → B → C) → (CodeRep A zero → CodeRep B zero → CodeRep C zero)
+  codeBinary f x y = code (f (run x) (run y))
 
-codeBinary : {A B C : Set} → (A → B → C) → (CodeRep A zero → CodeRep B zero → CodeRep C zero)
-codeBinary f x y = code (f (run x) (run y))
+  data Staged (A : Set) (n : ℕ) : Set where
+    Now : A → Staged A n -- why can't we set n to zero 
+    Later : Comp A n → Staged A n
 
--- T from a term to its code 
-data Staged (A : Set) (n : ℕ) : Set where
-  Now : A → Staged A n -- why can't we set n to zero 
-  Later : Comp A n → Staged A n
+  laterExp : {A : Set} {n : ℕ} → CodeRep A n → Staged A n
+  laterExp x = Later (Computation Expr x)
 
-liftConstant : {A : Set} -> A -> Staged A zero 
-liftConstant x = Now x
+  laterConst : {A : Set} {n : ℕ} → CodeRep A n → Staged A n
+  laterConst x = Later (Computation Const x)
 
-liftUnary : {A B : Set} → (A → B) → Staged A zero → Staged B zero
-liftUnary f (Now x) = Now (f x)
-liftUnary f (Later (Computation _ x)) = Later (Computation Expr (codeUnary f x))
+  liftConstant : {A : Set} -> A -> Staged A zero 
+  liftConstant x = Now x
 
-liftBinary : {A B C : Set} -> (A -> B -> C) -> Staged A zero -> Staged B zero -> Staged C zero
-liftBinary f (Now x) (Now y) = Now (f x y)
-liftBinary f (Now x) (Later (Computation _ y)) =
-  Later (Computation Expr (codeBinary f (code x) y))
-liftBinary f (Later (Computation _ x)) (Now y) =
-  Later (Computation Expr (codeBinary f x (code y)))
-liftBinary f (Later (Computation _ x)) (Later (Computation _ y)) =
-  Later (Computation Expr (codeBinary f x y))
+  liftUnary : {A B : Set} → (A → B) → Staged A zero → Staged B zero
+  liftUnary f (Now x) = Now (f x)
+  liftUnary f (Later (Computation _ x)) = Later (Computation Expr (codeUnary f x))
+
+  liftBinary : {A B C : Set} -> (A -> B -> C) -> Staged A zero -> Staged B zero -> Staged C zero
+  liftBinary f (Now x) (Now y) = Now (f x y)
+  liftBinary f (Now x) (Later (Computation _ y)) = laterExp (codeBinary f (code x) y)
+  liftBinary f (Later (Computation _ x)) (Now y) = laterExp (codeBinary f x (code y))
+  liftBinary f (Later (Computation _ x)) (Later (Computation _ y)) = laterExp (codeBinary f x y)
+
+open Code 
+open Staged 
 
 data MonTerm : Set where
   e' : MonTerm
@@ -87,7 +92,7 @@ liftMonExpr (op' x y) =
   liftBinary (op') (liftMonExpr x) (liftMonExpr y)
 
 liftOpenMonExpr : {n : ℕ} → OpenMonTerm n -> Staged (OpenMonTerm n) zero
-liftOpenMonExpr (v fin) = Later (Computation Const (code (v fin))) 
+liftOpenMonExpr (v fin) = laterConst (code (v fin)) 
 liftOpenMonExpr e' = liftConstant e'
 liftOpenMonExpr (op' x y) =
   liftBinary (op') (liftOpenMonExpr x) (liftOpenMonExpr y)
