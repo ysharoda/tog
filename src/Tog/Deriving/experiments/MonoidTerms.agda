@@ -18,24 +18,22 @@ data Fin : ℕ → Set where
 
 module Code where
   abstract
-   data CodeRep (A : Set) : Set where
-     Q : ℕ → A → CodeRep A
+   data CodeRep (A : Set) (n : ℕ) : Set where
+     Q : A → CodeRep A n 
 
-   uncode : {A : Set} → CodeRep A → CodeRep A
-   uncode (Q (suc s) x) = Q s x
-   uncode (Q zero x) = {!!}
+   uncode : {n : ℕ} {A : Set} → CodeRep A (suc n) → CodeRep A n
+   uncode (Q x) = Q x 
 
-   run : {A : Set} → CodeRep A → A 
-   run (Q zero x) = x
-   run x = {!!}
+   run : {A : Set} → CodeRep A (suc zero) → A 
+   run (Q x) = x
 
    splice = uncode
 
-   code :  {A : Set} → A → CodeRep A
-   code x = Q (suc zero) x
+   code :  {A : Set} → A → CodeRep A (suc zero) 
+   code x = Q x
 
-   push-code :  {A : Set} → CodeRep A -> CodeRep A
-   push-code (Q n x) = Q (suc n) x
+   push-code : {n : ℕ} {A : Set} → CodeRep A n -> CodeRep A (suc n)
+   push-code (Q x) = Q x
 
 open Code
 
@@ -43,28 +41,29 @@ data Choice : Set where
   Expr  : Choice
   Const : Choice
 
-data Comp (A : Set) : Set where
-  Computation : Choice → CodeRep A → Comp A
+data Comp (A : Set) (n : ℕ) : Set where
+  Computation : Choice → CodeRep A n → Comp A n
 
-codeUnary : {A B : Set} → (A → B) → (CodeRep A → CodeRep B)
+
+codeUnary : {A B : Set} → (A → B) → (CodeRep A (suc zero) → CodeRep B (suc zero))
 codeUnary f x = code (f (run x)) 
 
-codeBinary : {A B C : Set} → (A → B → C) → (CodeRep A → CodeRep B → CodeRep C)
+codeBinary : {A B C : Set} → (A → B → C) → (CodeRep A (suc zero) → CodeRep B (suc zero) → CodeRep C (suc zero))
 codeBinary f x y = code (f (run x) (run y))
 
 -- T from a term to its code 
-data Staged (A : Set) : Set where
-  Now : A → Staged A 
-  Later : Comp A → Staged A
+data Staged (A : Set) (n : ℕ) : Set where
+  Now : A → Staged A n -- why can't this be zero 
+  Later : Comp A n → Staged A n
 
-liftConstant : {A : Set} -> A -> Staged A
+liftConstant : {A : Set} -> A -> Staged A (suc zero) 
 liftConstant x = Now x
 
-liftUnary : {A B : Set} → (A → B) → Staged A → Staged B
+liftUnary : {A B : Set} → (A → B) → Staged A (suc zero) → Staged B (suc zero)
 liftUnary f (Now x) = Now (f x)
-liftUnary f (Later (Computation _ x)) = Later (Computation Expr (code (f (run x))))
+liftUnary f (Later (Computation _ x)) = Later (Computation Expr (codeUnary f x))
 
-liftBinary : {A B C : Set} -> (A -> B -> C) -> Staged A -> Staged B -> Staged C
+liftBinary : {A B C : Set} -> (A -> B -> C) -> Staged A (suc zero) -> Staged B (suc zero) -> Staged C (suc zero)
 liftBinary f (Now x) (Now y) = Now (f x y)
 liftBinary f (Now x) (Later (Computation _ y)) =
   Later (Computation Expr (codeBinary f (code x) y))
@@ -82,12 +81,12 @@ data OpenMonTerm (n : ℕ) : Set where
   e' : OpenMonTerm n
   op' : OpenMonTerm n → OpenMonTerm n → OpenMonTerm n 
 
-liftMonExpr : MonTerm -> Staged MonTerm
+liftMonExpr : MonTerm -> Staged MonTerm (suc zero)
 liftMonExpr e' = liftConstant e'
 liftMonExpr (op' x y) =
   liftBinary (op') (liftMonExpr x) (liftMonExpr y)
 
-liftOpenMonExpr : {n : ℕ} → OpenMonTerm n -> Staged (OpenMonTerm n)
+liftOpenMonExpr : {n : ℕ} → OpenMonTerm n -> Staged (OpenMonTerm n) (suc zero)
 liftOpenMonExpr (v fin) = Later (Computation Const (code (v fin))) 
 liftOpenMonExpr e' = liftConstant e'
 liftOpenMonExpr (op' x y) =
@@ -107,3 +106,5 @@ record MonoidTagless2 (Repr : Set -> Set) : Set₁ where
 induction : (P : MonTerm → Set) → P e' → ((x y : MonTerm) → P x → P y → P (op' x y)) → ((x : MonTerm) → P x)
 induction p pe _ e' = pe
 induction p pe f (op' e1 e2) = f _ _ (induction p pe f e1) (induction p pe f e2)
+
+
