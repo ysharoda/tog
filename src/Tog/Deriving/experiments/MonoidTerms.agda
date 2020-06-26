@@ -24,12 +24,12 @@ module Code where
    uncode : {n : ℕ} {A : Set} → CodeRep A (suc n) → CodeRep A n
    uncode (Q x) = Q x 
 
-   run : {A : Set} → CodeRep A (suc zero) → A 
+   run : {A : Set} → CodeRep A zero → A 
    run (Q x) = x
 
    splice = uncode
 
-   code :  {A : Set} → A → CodeRep A (suc zero) 
+   code :  {A : Set} → A → CodeRep A zero 
    code x = Q x
 
    push-code : {n : ℕ} {A : Set} → CodeRep A n -> CodeRep A (suc n)
@@ -45,25 +45,25 @@ data Comp (A : Set) (n : ℕ) : Set where
   Computation : Choice → CodeRep A n → Comp A n
 
 
-codeUnary : {A B : Set} → (A → B) → (CodeRep A (suc zero) → CodeRep B (suc zero))
+codeUnary : {A B : Set} → (A → B) → (CodeRep A zero → CodeRep B zero)
 codeUnary f x = code (f (run x)) 
 
-codeBinary : {A B C : Set} → (A → B → C) → (CodeRep A (suc zero) → CodeRep B (suc zero) → CodeRep C (suc zero))
+codeBinary : {A B C : Set} → (A → B → C) → (CodeRep A zero → CodeRep B zero → CodeRep C zero)
 codeBinary f x y = code (f (run x) (run y))
 
 -- T from a term to its code 
 data Staged (A : Set) (n : ℕ) : Set where
-  Now : A → Staged A n -- why can't this be zero 
+  Now : A → Staged A n -- why can't we set n to zero 
   Later : Comp A n → Staged A n
 
-liftConstant : {A : Set} -> A -> Staged A (suc zero) 
+liftConstant : {A : Set} -> A -> Staged A zero 
 liftConstant x = Now x
 
-liftUnary : {A B : Set} → (A → B) → Staged A (suc zero) → Staged B (suc zero)
+liftUnary : {A B : Set} → (A → B) → Staged A zero → Staged B zero
 liftUnary f (Now x) = Now (f x)
 liftUnary f (Later (Computation _ x)) = Later (Computation Expr (codeUnary f x))
 
-liftBinary : {A B C : Set} -> (A -> B -> C) -> Staged A (suc zero) -> Staged B (suc zero) -> Staged C (suc zero)
+liftBinary : {A B C : Set} -> (A -> B -> C) -> Staged A zero -> Staged B zero -> Staged C zero
 liftBinary f (Now x) (Now y) = Now (f x y)
 liftBinary f (Now x) (Later (Computation _ y)) =
   Later (Computation Expr (codeBinary f (code x) y))
@@ -81,12 +81,12 @@ data OpenMonTerm (n : ℕ) : Set where
   e' : OpenMonTerm n
   op' : OpenMonTerm n → OpenMonTerm n → OpenMonTerm n 
 
-liftMonExpr : MonTerm -> Staged MonTerm (suc zero)
+liftMonExpr : MonTerm -> Staged MonTerm zero
 liftMonExpr e' = liftConstant e'
 liftMonExpr (op' x y) =
   liftBinary (op') (liftMonExpr x) (liftMonExpr y)
 
-liftOpenMonExpr : {n : ℕ} → OpenMonTerm n -> Staged (OpenMonTerm n) (suc zero)
+liftOpenMonExpr : {n : ℕ} → OpenMonTerm n -> Staged (OpenMonTerm n) zero
 liftOpenMonExpr (v fin) = Later (Computation Const (code (v fin))) 
 liftOpenMonExpr e' = liftConstant e'
 liftOpenMonExpr (op' x y) =
