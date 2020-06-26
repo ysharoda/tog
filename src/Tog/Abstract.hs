@@ -258,7 +258,7 @@ instance Pretty Expr where
         piView a          = ([], a)
     Lam{} ->
       condParens (p > 0) $
-      text "\\" <> hsep (map pretty xs) <+> text "->" <+> pretty b
+      text "\\ " <> hsep (map pretty xs) <+> text "->" <+> pretty b
       where
         (xs, b) = lamView e
         lamView (Lam x b) = (x :) *** id $ lamView b
@@ -283,6 +283,7 @@ prettyTel = group . prs . reverse
     prs [b]      = pr b
     prs (b : bs) = group (prs bs) $$ pr b
 
+--    pr (x, e@(Pi )) = braces (pretty x <+> text ":" <+> pretty e)
     pr (x, e) = parens (pretty x <+> text ":" <+> pretty e)
 
 -- Printing declarations as it would be written by the user 
