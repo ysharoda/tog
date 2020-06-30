@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------
 -- Checking declarations
 ------------------------------------------------------------------------
--- Solved Metas: 13907
+-- Solved Metas: 14227
 -- Unsolved Metas: 0
 ------------------------------------------------------------------------
 -- Unsolved problems: 0
@@ -10,9 +10,15 @@ module MathScheme where
   data Prod
     (A : Set) (B : Set) : Set where
     
+  module NatNums where
+    
+  
   data Nat : Set where
     zero : Nat
     suc : Nat -> Nat
+  module Prelude where
+    
+  
   data Fin (n : Nat) : Set where
     fzero :
       (m : Nat) (p : n == suc m) ->
@@ -39,13 +45,13 @@ module MathScheme where
     (P : A -> Set) ->
     x == y -> P x -> P y
   subst _ _ _ P =
-    J _ _ _ (\x y _ -> P x -> P y)
-      (\x p -> p)
+    J _ _ _ (\ x y _ -> P x -> P y)
+      (\ x p -> p)
   sym :
     (A : Set) (x : A) (y : A) ->
     x == y -> y == x
   sym A x y p =
-    subst _ _ _ (\y -> y == x) p
+    subst _ _ _ (\ y -> y == x) p
       refl
   cong :
     (A : Set) (B : Set) (x : A)
@@ -53,7 +59,8 @@ module MathScheme where
     (f : A -> B) ->
     x == y -> f x == f y
   cong _ _ _ _ f p =
-    subst _ _ _ (\y -> f _ == f y) p
+    subst _ _ _ (\ y -> f _ == f y)
+      p
       refl
   IsZero : Nat -> Set
   IsZero (zero) = Unit
@@ -68,7 +75,7 @@ module MathScheme where
     (z : A) ->
     x == y -> y == z -> x == z
   trans A x _ _ p q =
-    subst _ _ _ (\y -> x == y) q p
+    subst _ _ _ (\ y -> x == y) q p
   lemma :
     (n : Nat) (m : Nat) ->
     n == suc m ->
@@ -208,6 +215,11 @@ module MathScheme where
       + ad
         (evalOpenTerm _ n ad x1 vars)
         (evalOpenTerm _ n ad x2 vars)
+    simplify :
+      AdditiveCommutativeSemigroupLang ->
+      AdditiveCommutativeSemigroupLang
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module AdditiveMagma where
     record AdditiveMagma
@@ -288,6 +300,11 @@ module MathScheme where
       + ad
         (evalOpenTerm _ n ad x1 vars)
         (evalOpenTerm _ n ad x2 vars)
+    simplify :
+      AdditiveMagmaLang ->
+      AdditiveMagmaLang
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module AdditiveMonoid where
     record AdditiveMonoid
@@ -397,6 +414,14 @@ module MathScheme where
         (evalOpenTerm _ n ad x2 vars)
     evalOpenTerm _ n ad (0OL) vars =
       0 ad
+    simplify :
+      AdditiveMonoidLang ->
+      AdditiveMonoidLang
+    simplify (+L (0L) x) = x
+    simplify (+L x (0L)) = x
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
+    simplify (0L) = 0L
   
   module AdditivePointedMagma where
     record AdditivePointedMagma
@@ -492,6 +517,12 @@ module MathScheme where
       + ad
         (evalOpenTerm _ n ad x1 vars)
         (evalOpenTerm _ n ad x2 vars)
+    simplify :
+      AdditivePointedMagmaLang ->
+      AdditivePointedMagmaLang
+    simplify (0L) = 0L
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module AdditivePointedSemigroup where
     record AdditivePointedSemigroup
@@ -603,6 +634,12 @@ module MathScheme where
       + ad
         (evalOpenTerm _ n ad x1 vars)
         (evalOpenTerm _ n ad x2 vars)
+    simplify :
+      AdditivePointedSemigroupLang ->
+      AdditivePointedSemigroupLang
+    simplify (0L) = 0L
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module AdditiveSemigroup where
     record AdditiveSemigroup
@@ -693,6 +730,11 @@ module MathScheme where
       + ad
         (evalOpenTerm _ n ad x1 vars)
         (evalOpenTerm _ n ad x2 vars)
+    simplify :
+      AdditiveSemigroupLang ->
+      AdditiveSemigroupLang
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module AdditiveUnital where
     record AdditiveUnital
@@ -793,6 +835,14 @@ module MathScheme where
       + ad
         (evalOpenTerm _ n ad x1 vars)
         (evalOpenTerm _ n ad x2 vars)
+    simplify :
+      AdditiveUnitalLang ->
+      AdditiveUnitalLang
+    simplify (+L (0L) x) = x
+    simplify (+L x (0L)) = x
+    simplify (0L) = 0L
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module Carrier where
     record Carrier
@@ -839,6 +889,8 @@ module MathScheme where
       Vec A n -> A
     evalOpenTerm _ n ca (v
                          fin) vars = lookup _ n fin vars
+    simplify :
+      CarrierLang -> CarrierLang
   
   module CommutativeMagma where
     record CommutativeMagma
@@ -927,6 +979,11 @@ module MathScheme where
       op co
         (evalOpenTerm _ n co x1 vars)
         (evalOpenTerm _ n co x2 vars)
+    simplify :
+      CommutativeMagmaLang ->
+      CommutativeMagmaLang
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module CommutativeMonoid where
     record CommutativeMonoid
@@ -1044,6 +1101,14 @@ module MathScheme where
         (evalOpenTerm _ n co x2 vars)
     evalOpenTerm _ n co (eOL) vars =
       e co
+    simplify :
+      CommutativeMonoidLang ->
+      CommutativeMonoidLang
+    simplify (opL (eL) x) = x
+    simplify (opL x (eL)) = x
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
+    simplify (eL) = eL
   
   module CommutativeSemigroup where
     record CommutativeSemigroup
@@ -1143,6 +1208,11 @@ module MathScheme where
       op co
         (evalOpenTerm _ n co x1 vars)
         (evalOpenTerm _ n co x2 vars)
+    simplify :
+      CommutativeSemigroupLang ->
+      CommutativeSemigroupLang
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module Empty where
     record Empty : Set where
@@ -1242,6 +1312,12 @@ module MathScheme where
       op le
         (evalOpenTerm _ n le x1 vars)
         (evalOpenTerm _ n le x2 vars)
+    simplify :
+      LeftUnitalLang -> LeftUnitalLang
+    simplify (opL (eL) x) = x
+    simplify (eL) = eL
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module Magma where
     record Magma
@@ -1315,6 +1391,10 @@ module MathScheme where
       op ma
         (evalOpenTerm _ n ma x1 vars)
         (evalOpenTerm _ n ma x2 vars)
+    simplify :
+      MagmaLang -> MagmaLang
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module Monoid where
     record Monoid
@@ -1416,6 +1496,13 @@ module MathScheme where
       op mo
         (evalOpenTerm _ n mo x1 vars)
         (evalOpenTerm _ n mo x2 vars)
+    simplify :
+      MonoidLang -> MonoidLang
+    simplify (opL (eL) x) = x
+    simplify (opL x (eL)) = x
+    simplify (eL) = eL
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module Pointed where
     record Pointed
@@ -1469,6 +1556,9 @@ module MathScheme where
                          fin) vars = lookup _ n fin vars
     evalOpenTerm _ n po (eOL) vars =
       e po
+    simplify :
+      PointedLang -> PointedLang
+    simplify (eL) = eL
   
   module Pointed0Magma where
     record Pointed0Magma
@@ -1560,6 +1650,12 @@ module MathScheme where
       op po
         (evalOpenTerm _ n po x1 vars)
         (evalOpenTerm _ n po x2 vars)
+    simplify :
+      Pointed0MagmaLang ->
+      Pointed0MagmaLang
+    simplify (0L) = 0L
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module PointedMagma where
     record PointedMagma
@@ -1651,6 +1747,12 @@ module MathScheme where
       op po
         (evalOpenTerm _ n po x1 vars)
         (evalOpenTerm _ n po x2 vars)
+    simplify :
+      PointedMagmaLang ->
+      PointedMagmaLang
+    simplify (eL) = eL
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module PointedOne where
     record PointedOne
@@ -1708,6 +1810,9 @@ module MathScheme where
                          fin) vars = lookup _ n fin vars
     evalOpenTerm _ n po (1OL) vars =
       1 po
+    simplify :
+      PointedOneLang -> PointedOneLang
+    simplify (1L) = 1L
   
   module PointedPlusMagma where
     record PointedPlusMagma
@@ -1800,6 +1905,12 @@ module MathScheme where
         (evalOpenTerm _ n po x2 vars)
     evalOpenTerm _ n po (eOL) vars =
       e po
+    simplify :
+      PointedPlusMagmaLang ->
+      PointedPlusMagmaLang
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
+    simplify (eL) = eL
   
   module PointedSemigroup where
     record PointedSemigroup
@@ -1901,6 +2012,12 @@ module MathScheme where
         (evalOpenTerm _ n po x2 vars)
     evalOpenTerm _ n po (eOL) vars =
       e po
+    simplify :
+      PointedSemigroupLang ->
+      PointedSemigroupLang
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
+    simplify (eL) = eL
   
   module PointedZero where
     record PointedZero
@@ -1958,6 +2075,10 @@ module MathScheme where
                          fin) vars = lookup _ n fin vars
     evalOpenTerm _ n po (0OL) vars =
       0 po
+    simplify :
+      PointedZeroLang ->
+      PointedZeroLang
+    simplify (0L) = 0L
   
   module RightUnital where
     record RightUnital
@@ -2052,6 +2173,13 @@ module MathScheme where
       op ri
         (evalOpenTerm _ n ri x1 vars)
         (evalOpenTerm _ n ri x2 vars)
+    simplify :
+      RightUnitalLang ->
+      RightUnitalLang
+    simplify (opL x (eL)) = x
+    simplify (eL) = eL
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module Semigroup where
     record Semigroup
@@ -2137,6 +2265,10 @@ module MathScheme where
       op se
         (evalOpenTerm _ n se x1 vars)
         (evalOpenTerm _ n se x2 vars)
+    simplify :
+      SemigroupLang -> SemigroupLang
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module Unital where
     record Unital
@@ -2229,4 +2361,11 @@ module MathScheme where
       op un
         (evalOpenTerm _ n un x1 vars)
         (evalOpenTerm _ n un x2 vars)
+    simplify :
+      UnitalLang -> UnitalLang
+    simplify (opL (eL) x) = x
+    simplify (opL x (eL)) = x
+    simplify (eL) = eL
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   

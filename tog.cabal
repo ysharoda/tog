@@ -43,7 +43,12 @@ library
 		     , Tog.Deriving.Utils.Parameters
 		     , Tog.Deriving.Utils.QualDecls
                      , Tog.Deriving.OpenTermLang
-                     , Tog.Deriving.Utils.Names
+                     , Tog.Deriving.Utils.Renames
+		     , Tog.Deriving.Evaluator
+		     , Tog.Deriving.OpenTermEvaluator
+		     , Tog.Deriving.TogPrelude
+                     , Tog.Deriving.Utils.Functions
+                     , Tog.Deriving.Simplifier   
                      
   other-modules:       Data.Collect
                      , Tog.Instrumentation.Conf

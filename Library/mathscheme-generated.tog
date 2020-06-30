@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------
 -- Checking declarations
 ------------------------------------------------------------------------
--- Solved Metas: 222414
+-- Solved Metas: 227753
 -- Unsolved Metas: 0
 ------------------------------------------------------------------------
 -- Unsolved problems: 0
@@ -10,9 +10,15 @@ module MathScheme where
   data Prod
     (A : Set) (B : Set) : Set where
     
+  module NatNums where
+    
+  
   data Nat : Set where
     zero : Nat
     suc : Nat -> Nat
+  module Prelude where
+    
+  
   data Fin (n : Nat) : Set where
     fzero :
       (m : Nat) (p : n == suc m) ->
@@ -39,13 +45,13 @@ module MathScheme where
     (P : A -> Set) ->
     x == y -> P x -> P y
   subst _ _ _ P =
-    J _ _ _ (\x y _ -> P x -> P y)
-      (\x p -> p)
+    J _ _ _ (\ x y _ -> P x -> P y)
+      (\ x p -> p)
   sym :
     (A : Set) (x : A) (y : A) ->
     x == y -> y == x
   sym A x y p =
-    subst _ _ _ (\y -> y == x) p
+    subst _ _ _ (\ y -> y == x) p
       refl
   cong :
     (A : Set) (B : Set) (x : A)
@@ -53,7 +59,8 @@ module MathScheme where
     (f : A -> B) ->
     x == y -> f x == f y
   cong _ _ _ _ f p =
-    subst _ _ _ (\y -> f _ == f y) p
+    subst _ _ _ (\ y -> f _ == f y)
+      p
       refl
   IsZero : Nat -> Set
   IsZero (zero) = Unit
@@ -68,7 +75,7 @@ module MathScheme where
     (z : A) ->
     x == y -> y == z -> x == z
   trans A x _ _ p q =
-    subst _ _ _ (\y -> x == y) q p
+    subst _ _ _ (\ y -> x == y) q p
   lemma :
     (n : Nat) (m : Nat) ->
     n == suc m ->
@@ -255,6 +262,18 @@ module MathScheme where
                          x1) vars =
       neg ab
         (evalOpenTerm _ n ab x1 vars)
+    simplify :
+      AbelianAdditiveGroupLang ->
+      AbelianAdditiveGroupLang
+    simplify (+L (0L) x) = x
+    simplify (+L x (0L)) = x
+    simplify (+L x (negL x)) = 0L
+    simplify (+L (negL x) x) = 0L
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
+    simplify (0L) = 0L
+    simplify (negL x1) =
+      negL (simplify x1)
   
   module AbelianGroup where
     record AbelianGroup
@@ -403,6 +422,18 @@ module MathScheme where
                          x1) vars =
       inv ab
         (evalOpenTerm _ n ab x1 vars)
+    simplify :
+      AbelianGroupLang ->
+      AbelianGroupLang
+    simplify (*L (1L) x) = x
+    simplify (*L x (1L)) = x
+    simplify (*L x (invL x)) = 1L
+    simplify (*L (invL x) x) = 1L
+    simplify (1L) = 1L
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (invL x1) =
+      invL (simplify x1)
   
   module Absorption where
     record Absorption
@@ -527,6 +558,14 @@ module MathScheme where
       + ab
         (evalOpenTerm _ n ab x1 vars)
         (evalOpenTerm _ n ab x2 vars)
+    simplify :
+      AbsorptionLang -> AbsorptionLang
+    simplify (*L x (+L x y)) = x
+    simplify (+L x (*L x y)) = x
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module AddCommMonWithMultMagma where
     record AddCommMonWithMultMagma
@@ -688,6 +727,16 @@ module MathScheme where
       * ad
         (evalOpenTerm _ n ad x1 vars)
         (evalOpenTerm _ n ad x2 vars)
+    simplify :
+      AddCommMonWithMultMagmaLang ->
+      AddCommMonWithMultMagmaLang
+    simplify (+L (0L) x) = x
+    simplify (+L x (0L)) = x
+    simplify (0L) = 0L
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
   
   module AddCommMonWithMultSemigroup where
     record AddCommMonWithMultSemigroup
@@ -859,6 +908,16 @@ module MathScheme where
       + ad
         (evalOpenTerm _ n ad x1 vars)
         (evalOpenTerm _ n ad x2 vars)
+    simplify :
+      AddCommMonWithMultSemigroupLang ->
+      AddCommMonWithMultSemigroupLang
+    simplify (+L (0L) x) = x
+    simplify (+L x (0L)) = x
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (0L) = 0L
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module AddGroup_RingoidSig where
     record AddGroup_RingoidSig
@@ -1035,6 +1094,20 @@ module MathScheme where
       * ad
         (evalOpenTerm _ n ad x1 vars)
         (evalOpenTerm _ n ad x2 vars)
+    simplify :
+      AddGroup_RingoidSigLang ->
+      AddGroup_RingoidSigLang
+    simplify (+L (0L) x) = x
+    simplify (+L x (0L)) = x
+    simplify (+L x (negL x)) = 0L
+    simplify (+L (negL x) x) = 0L
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
+    simplify (0L) = 0L
+    simplify (negL x1) =
+      negL (simplify x1)
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
   
   module AdditiveCommutativeMonoid where
     record AdditiveCommutativeMonoid
@@ -1161,6 +1234,14 @@ module MathScheme where
       + ad
         (evalOpenTerm _ n ad x1 vars)
         (evalOpenTerm _ n ad x2 vars)
+    simplify :
+      AdditiveCommutativeMonoidLang ->
+      AdditiveCommutativeMonoidLang
+    simplify (+L (0L) x) = x
+    simplify (+L x (0L)) = x
+    simplify (0L) = 0L
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module AdditiveCommutativeSemigroup where
     record AdditiveCommutativeSemigroup
@@ -1267,6 +1348,11 @@ module MathScheme where
       + ad
         (evalOpenTerm _ n ad x1 vars)
         (evalOpenTerm _ n ad x2 vars)
+    simplify :
+      AdditiveCommutativeSemigroupLang ->
+      AdditiveCommutativeSemigroupLang
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module AdditiveGroup where
     record AdditiveGroup
@@ -1408,6 +1494,18 @@ module MathScheme where
                          x1) vars =
       neg ad
         (evalOpenTerm _ n ad x1 vars)
+    simplify :
+      AdditiveGroupLang ->
+      AdditiveGroupLang
+    simplify (+L (0L) x) = x
+    simplify (+L x (0L)) = x
+    simplify (+L x (negL x)) = 0L
+    simplify (+L (negL x) x) = 0L
+    simplify (0L) = 0L
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
+    simplify (negL x1) =
+      negL (simplify x1)
   
   module AdditiveMagma where
     record AdditiveMagma
@@ -1488,6 +1586,11 @@ module MathScheme where
       + ad
         (evalOpenTerm _ n ad x1 vars)
         (evalOpenTerm _ n ad x2 vars)
+    simplify :
+      AdditiveMagmaLang ->
+      AdditiveMagmaLang
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module AdditiveMonoid where
     record AdditiveMonoid
@@ -1597,6 +1700,14 @@ module MathScheme where
         (evalOpenTerm _ n ad x2 vars)
     evalOpenTerm _ n ad (0OL) vars =
       0 ad
+    simplify :
+      AdditiveMonoidLang ->
+      AdditiveMonoidLang
+    simplify (+L (0L) x) = x
+    simplify (+L x (0L)) = x
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
+    simplify (0L) = 0L
   
   module AdditivePointedMagma where
     record AdditivePointedMagma
@@ -1692,6 +1803,12 @@ module MathScheme where
       + ad
         (evalOpenTerm _ n ad x1 vars)
         (evalOpenTerm _ n ad x2 vars)
+    simplify :
+      AdditivePointedMagmaLang ->
+      AdditivePointedMagmaLang
+    simplify (0L) = 0L
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module AdditivePointedSemigroup where
     record AdditivePointedSemigroup
@@ -1803,6 +1920,12 @@ module MathScheme where
       + ad
         (evalOpenTerm _ n ad x1 vars)
         (evalOpenTerm _ n ad x2 vars)
+    simplify :
+      AdditivePointedSemigroupLang ->
+      AdditivePointedSemigroupLang
+    simplify (0L) = 0L
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module AdditiveSemigroup where
     record AdditiveSemigroup
@@ -1893,6 +2016,11 @@ module MathScheme where
       + ad
         (evalOpenTerm _ n ad x1 vars)
         (evalOpenTerm _ n ad x2 vars)
+    simplify :
+      AdditiveSemigroupLang ->
+      AdditiveSemigroupLang
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module AdditiveUnaryAntiDistribution where
     record AdditiveUnaryAntiDistribution
@@ -2018,6 +2146,16 @@ module MathScheme where
       + ad
         (evalOpenTerm _ n ad x1 vars)
         (evalOpenTerm _ n ad x2 vars)
+    simplify :
+      AdditiveUnaryAntiDistributionLang ->
+      AdditiveUnaryAntiDistributionLang
+    simplify (+L
+              (primL y)
+              (primL x)) = primL (+L x y)
+    simplify (primL x1) =
+      primL (simplify x1)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module AdditiveUnital where
     record AdditiveUnital
@@ -2118,6 +2256,14 @@ module MathScheme where
       + ad
         (evalOpenTerm _ n ad x1 vars)
         (evalOpenTerm _ n ad x2 vars)
+    simplify :
+      AdditiveUnitalLang ->
+      AdditiveUnitalLang
+    simplify (+L (0L) x) = x
+    simplify (+L x (0L)) = x
+    simplify (0L) = 0L
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module AndDeMorgan where
     record AndDeMorgan
@@ -2264,6 +2410,18 @@ module MathScheme where
                          x1) vars =
       prim an
         (evalOpenTerm _ n an x1 vars)
+    simplify :
+      AndDeMorganLang ->
+      AndDeMorganLang
+    simplify (+L
+              (primL x)
+              (primL y)) = primL (*L x y)
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
+    simplify (primL x1) =
+      primL (simplify x1)
   
   module AntiAbsorbent where
     record AntiAbsorbent
@@ -2351,6 +2509,12 @@ module MathScheme where
       op an
         (evalOpenTerm _ n an x1 vars)
         (evalOpenTerm _ n an x2 vars)
+    simplify :
+      AntiAbsorbentLang ->
+      AntiAbsorbentLang
+    simplify (opL x (opL x y)) = y
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module AntiCommutativeRing where
     record AntiCommutativeRing
@@ -2598,6 +2762,33 @@ module MathScheme where
         (evalOpenTerm _ n an x1 vars)
     evalOpenTerm _ n an (1OL) vars =
       1 an
+    simplify :
+      AntiCommutativeRingLang ->
+      AntiCommutativeRingLang
+    simplify (+L (0L) x) = x
+    simplify (+L x (0L)) = x
+    simplify (+L
+              (*L x y)
+              (*L x z)) = *L x (+L y z)
+    simplify (+L
+              (*L y x)
+              (*L z x)) = *L (+L y z) x
+    simplify (+L x (negL x)) = 0L
+    simplify (+L (negL x) x) = 0L
+    simplify (*L (1L) x) = x
+    simplify (*L x (1L)) = x
+    simplify (*L (0L) x) = 0L
+    simplify (*L x (0L)) = 0L
+    simplify (negL (*L y x)) =
+      *L x y
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
+    simplify (0L) = 0L
+    simplify (negL x1) =
+      negL (simplify x1)
+    simplify (1L) = 1L
   
   module AssocPlusRingoid where
     record AssocPlusRingoid
@@ -2721,6 +2912,13 @@ module MathScheme where
       * as
         (evalOpenTerm _ n as x1 vars)
         (evalOpenTerm _ n as x2 vars)
+    simplify :
+      AssocPlusRingoidLang ->
+      AssocPlusRingoidLang
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
   
   module AssocTimesRingoid where
     record AssocTimesRingoid
@@ -2844,6 +3042,13 @@ module MathScheme where
       + as
         (evalOpenTerm _ n as x1 vars)
         (evalOpenTerm _ n as x2 vars)
+    simplify :
+      AssocTimesRingoidLang ->
+      AssocTimesRingoidLang
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module AssociativeLeftRingoid where
     record AssociativeLeftRingoid
@@ -2982,6 +3187,16 @@ module MathScheme where
       + as
         (evalOpenTerm _ n as x1 vars)
         (evalOpenTerm _ n as x2 vars)
+    simplify :
+      AssociativeLeftRingoidLang ->
+      AssociativeLeftRingoidLang
+    simplify (+L
+              (*L x y)
+              (*L x z)) = *L x (+L y z)
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module AssociativeNonDistributiveRingoid where
     record AssociativeNonDistributiveRingoid
@@ -3126,6 +3341,13 @@ module MathScheme where
       + as
         (evalOpenTerm _ n as x1 vars)
         (evalOpenTerm _ n as x2 vars)
+    simplify :
+      AssociativeNonDistributiveRingoidLang ->
+      AssociativeNonDistributiveRingoidLang
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module AssociativeRightRingoid where
     record AssociativeRightRingoid
@@ -3267,6 +3489,16 @@ module MathScheme where
       + as
         (evalOpenTerm _ n as x1 vars)
         (evalOpenTerm _ n as x2 vars)
+    simplify :
+      AssociativeRightRingoidLang ->
+      AssociativeRightRingoidLang
+    simplify (+L
+              (*L y x)
+              (*L z x)) = *L (+L y z) x
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module Band where
     record Band
@@ -3352,6 +3584,10 @@ module MathScheme where
       op ba
         (evalOpenTerm _ n ba x1 vars)
         (evalOpenTerm _ n ba x2 vars)
+    simplify : BandLang -> BandLang
+    simplify (opL x x) = x
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module BinaryInverse where
     record BinaryInverse
@@ -3479,6 +3715,15 @@ module MathScheme where
       <| bi
         (evalOpenTerm _ n bi x1 vars)
         (evalOpenTerm _ n bi x2 vars)
+    simplify :
+      BinaryInverseLang ->
+      BinaryInverseLang
+    simplify (<|L (|>L x y) x) = y
+    simplify (|>L x (<|L y x)) = y
+    simplify (|>L x1 x2) =
+      |>L (simplify x1) (simplify x2)
+    simplify (<|L x1 x2) =
+      <|L (simplify x1) (simplify x2)
   
   module BooleanGroup where
     record BooleanGroup
@@ -3592,6 +3837,15 @@ module MathScheme where
       op bo
         (evalOpenTerm _ n bo x1 vars)
         (evalOpenTerm _ n bo x2 vars)
+    simplify :
+      BooleanGroupLang ->
+      BooleanGroupLang
+    simplify (opL (eL) x) = x
+    simplify (opL x (eL)) = x
+    simplify (opL x x) = eL
+    simplify (eL) = eL
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module BooleanRing where
     record BooleanRing
@@ -3840,6 +4094,32 @@ module MathScheme where
                          x1) vars =
       neg bo
         (evalOpenTerm _ n bo x1 vars)
+    simplify :
+      BooleanRingLang ->
+      BooleanRingLang
+    simplify (*L (1L) x) = x
+    simplify (*L x (1L)) = x
+    simplify (+L (0L) x) = x
+    simplify (+L x (0L)) = x
+    simplify (+L
+              (*L x y)
+              (*L x z)) = *L x (+L y z)
+    simplify (+L
+              (*L y x)
+              (*L z x)) = *L (+L y z) x
+    simplify (+L x (negL x)) = 0L
+    simplify (+L (negL x) x) = 0L
+    simplify (*L (0L) x) = 0L
+    simplify (*L x (0L)) = 0L
+    simplify (*L x x) = x
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (1L) = 1L
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
+    simplify (0L) = 0L
+    simplify (negL x1) =
+      negL (simplify x1)
   
   module BoundedDistributiveLattice where
     record BoundedDistributiveLattice
@@ -4083,6 +4363,26 @@ module MathScheme where
       0 bo
     evalOpenTerm _ n bo (1OL) vars =
       1 bo
+    simplify :
+      BoundedDistributiveLatticeLang ->
+      BoundedDistributiveLatticeLang
+    simplify (*L x x) = x
+    simplify (+L x x) = x
+    simplify (*L x (+L x y)) = x
+    simplify (+L x (*L x y)) = x
+    simplify (+L (0L) x) = x
+    simplify (+L x (0L)) = x
+    simplify (*L (1L) x) = x
+    simplify (*L x (1L)) = x
+    simplify (+L
+              (*L x y)
+              (*L x z)) = *L x (+L y z)
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
+    simplify (0L) = 0L
+    simplify (1L) = 1L
   
   module BoundedJoinLattice where
     record BoundedJoinLattice
@@ -4273,6 +4573,20 @@ module MathScheme where
       * bo
         (evalOpenTerm _ n bo x1 vars)
         (evalOpenTerm _ n bo x2 vars)
+    simplify :
+      BoundedJoinLatticeLang ->
+      BoundedJoinLatticeLang
+    simplify (+L x x) = x
+    simplify (+L (0L) x) = x
+    simplify (+L x (0L)) = x
+    simplify (*L x x) = x
+    simplify (*L x (+L x y)) = x
+    simplify (+L x (*L x y)) = x
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
+    simplify (0L) = 0L
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
   
   module BoundedJoinSemilattice where
     record BoundedJoinSemilattice
@@ -4399,6 +4713,15 @@ module MathScheme where
         (evalOpenTerm _ n bo x2 vars)
     evalOpenTerm _ n bo (0OL) vars =
       0 bo
+    simplify :
+      BoundedJoinSemilatticeLang ->
+      BoundedJoinSemilatticeLang
+    simplify (+L (0L) x) = x
+    simplify (+L x (0L)) = x
+    simplify (+L x x) = x
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
+    simplify (0L) = 0L
   
   module BoundedLattice where
     record BoundedLattice
@@ -4607,6 +4930,23 @@ module MathScheme where
       0 bo
     evalOpenTerm _ n bo (1OL) vars =
       1 bo
+    simplify :
+      BoundedLatticeLang ->
+      BoundedLatticeLang
+    simplify (*L x x) = x
+    simplify (+L x x) = x
+    simplify (*L x (+L x y)) = x
+    simplify (+L x (*L x y)) = x
+    simplify (+L (0L) x) = x
+    simplify (+L x (0L)) = x
+    simplify (*L (1L) x) = x
+    simplify (*L x (1L)) = x
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
+    simplify (0L) = 0L
+    simplify (1L) = 1L
   
   module BoundedMeetLattice where
     record BoundedMeetLattice
@@ -4797,6 +5137,20 @@ module MathScheme where
       + bo
         (evalOpenTerm _ n bo x1 vars)
         (evalOpenTerm _ n bo x2 vars)
+    simplify :
+      BoundedMeetLatticeLang ->
+      BoundedMeetLatticeLang
+    simplify (*L x x) = x
+    simplify (*L (1L) x) = x
+    simplify (*L x (1L)) = x
+    simplify (+L x x) = x
+    simplify (*L x (+L x y)) = x
+    simplify (+L x (*L x y)) = x
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (1L) = 1L
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module BoundedMeetSemilattice where
     record BoundedMeetSemilattice
@@ -4923,6 +5277,15 @@ module MathScheme where
         (evalOpenTerm _ n bo x2 vars)
     evalOpenTerm _ n bo (1OL) vars =
       1 bo
+    simplify :
+      BoundedMeetSemilatticeLang ->
+      BoundedMeetSemilatticeLang
+    simplify (*L (1L) x) = x
+    simplify (*L x (1L)) = x
+    simplify (*L x x) = x
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (1L) = 1L
   
   module BoundedModularLattice where
     record BoundedModularLattice
@@ -5147,6 +5510,23 @@ module MathScheme where
       0 bo
     evalOpenTerm _ n bo (1OL) vars =
       1 bo
+    simplify :
+      BoundedModularLatticeLang ->
+      BoundedModularLatticeLang
+    simplify (*L x x) = x
+    simplify (+L x x) = x
+    simplify (*L x (+L x y)) = x
+    simplify (+L x (*L x y)) = x
+    simplify (+L (0L) x) = x
+    simplify (+L x (0L)) = x
+    simplify (*L (1L) x) = x
+    simplify (*L x (1L)) = x
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
+    simplify (0L) = 0L
+    simplify (1L) = 1L
   
   module CancellativeCommutativeMonoid where
     record CancellativeCommutativeMonoid
@@ -5293,6 +5673,14 @@ module MathScheme where
       op ca
         (evalOpenTerm _ n ca x1 vars)
         (evalOpenTerm _ n ca x2 vars)
+    simplify :
+      CancellativeCommutativeMonoidLang ->
+      CancellativeCommutativeMonoidLang
+    simplify (opL (eL) x) = x
+    simplify (opL x (eL)) = x
+    simplify (eL) = eL
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module CancellativeCommutativeSemigroup where
     record CancellativeCommutativeSemigroup
@@ -5417,6 +5805,11 @@ module MathScheme where
       op ca
         (evalOpenTerm _ n ca x1 vars)
         (evalOpenTerm _ n ca x2 vars)
+    simplify :
+      CancellativeCommutativeSemigroupLang ->
+      CancellativeCommutativeSemigroupLang
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module CancellativeMagma where
     record CancellativeMagma
@@ -5516,6 +5909,11 @@ module MathScheme where
       op ca
         (evalOpenTerm _ n ca x1 vars)
         (evalOpenTerm _ n ca x2 vars)
+    simplify :
+      CancellativeMagmaLang ->
+      CancellativeMagmaLang
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module CancellativeMonoid where
     record CancellativeMonoid
@@ -5644,6 +6042,14 @@ module MathScheme where
         (evalOpenTerm _ n ca x2 vars)
     evalOpenTerm _ n ca (eOL) vars =
       e ca
+    simplify :
+      CancellativeMonoidLang ->
+      CancellativeMonoidLang
+    simplify (opL (eL) x) = x
+    simplify (opL x (eL)) = x
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
+    simplify (eL) = eL
   
   module CancellativeSemigroup where
     record CancellativeSemigroup
@@ -5754,6 +6160,11 @@ module MathScheme where
       op ca
         (evalOpenTerm _ n ca x1 vars)
         (evalOpenTerm _ n ca x2 vars)
+    simplify :
+      CancellativeSemigroupLang ->
+      CancellativeSemigroupLang
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module Carrier where
     record Carrier
@@ -5800,6 +6211,8 @@ module MathScheme where
       Vec A n -> A
     evalOpenTerm _ n ca (v
                          fin) vars = lookup _ n fin vars
+    simplify :
+      CarrierLang -> CarrierLang
   
   module CommutativeAdditiveMagma where
     record CommutativeAdditiveMagma
@@ -5895,6 +6308,11 @@ module MathScheme where
       + co
         (evalOpenTerm _ n co x1 vars)
         (evalOpenTerm _ n co x2 vars)
+    simplify :
+      CommutativeAdditiveMagmaLang ->
+      CommutativeAdditiveMagmaLang
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module CommutativeGroup where
     record CommutativeGroup
@@ -6044,6 +6462,18 @@ module MathScheme where
                          x1) vars =
       inv co
         (evalOpenTerm _ n co x1 vars)
+    simplify :
+      CommutativeGroupLang ->
+      CommutativeGroupLang
+    simplify (opL (eL) x) = x
+    simplify (opL x (eL)) = x
+    simplify (opL x (invL x)) = eL
+    simplify (opL (invL x) x) = eL
+    simplify (eL) = eL
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
+    simplify (invL x1) =
+      invL (simplify x1)
   
   module CommutativeMagma where
     record CommutativeMagma
@@ -6132,6 +6562,11 @@ module MathScheme where
       op co
         (evalOpenTerm _ n co x1 vars)
         (evalOpenTerm _ n co x2 vars)
+    simplify :
+      CommutativeMagmaLang ->
+      CommutativeMagmaLang
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module CommutativeMonoid where
     record CommutativeMonoid
@@ -6249,6 +6684,14 @@ module MathScheme where
         (evalOpenTerm _ n co x2 vars)
     evalOpenTerm _ n co (eOL) vars =
       e co
+    simplify :
+      CommutativeMonoidLang ->
+      CommutativeMonoidLang
+    simplify (opL (eL) x) = x
+    simplify (opL x (eL)) = x
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
+    simplify (eL) = eL
   
   module CommutativeMonoid1 where
     record CommutativeMonoid1
@@ -6366,6 +6809,14 @@ module MathScheme where
       op co
         (evalOpenTerm _ n co x1 vars)
         (evalOpenTerm _ n co x2 vars)
+    simplify :
+      CommutativeMonoid1Lang ->
+      CommutativeMonoid1Lang
+    simplify (opL (1L) x) = x
+    simplify (opL x (1L)) = x
+    simplify (1L) = 1L
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module CommutativePointedMagma where
     record CommutativePointedMagma
@@ -6473,6 +6924,12 @@ module MathScheme where
         (evalOpenTerm _ n co x2 vars)
     evalOpenTerm _ n co (eOL) vars =
       e co
+    simplify :
+      CommutativePointedMagmaLang ->
+      CommutativePointedMagmaLang
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
+    simplify (eL) = eL
   
   module CommutativeRing where
     record CommutativeRing
@@ -6718,6 +7175,31 @@ module MathScheme where
                          x1) vars =
       neg co
         (evalOpenTerm _ n co x1 vars)
+    simplify :
+      CommutativeRingLang ->
+      CommutativeRingLang
+    simplify (*L (1L) x) = x
+    simplify (*L x (1L)) = x
+    simplify (+L (0L) x) = x
+    simplify (+L x (0L)) = x
+    simplify (+L
+              (*L x y)
+              (*L x z)) = *L x (+L y z)
+    simplify (+L
+              (*L y x)
+              (*L z x)) = *L (+L y z) x
+    simplify (+L x (negL x)) = 0L
+    simplify (+L (negL x) x) = 0L
+    simplify (*L (0L) x) = 0L
+    simplify (*L x (0L)) = 0L
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (1L) = 1L
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
+    simplify (0L) = 0L
+    simplify (negL x1) =
+      negL (simplify x1)
   
   module CommutativeSemigroup where
     record CommutativeSemigroup
@@ -6817,6 +7299,11 @@ module MathScheme where
       op co
         (evalOpenTerm _ n co x1 vars)
         (evalOpenTerm _ n co x2 vars)
+    simplify :
+      CommutativeSemigroupLang ->
+      CommutativeSemigroupLang
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module ComplementSig where
     record ComplementSig
@@ -6889,6 +7376,11 @@ module MathScheme where
                          x1) vars =
       compl co
         (evalOpenTerm _ n co x1 vars)
+    simplify :
+      ComplementSigLang ->
+      ComplementSigLang
+    simplify (complL x1) =
+      complL (simplify x1)
   
   module DistributiveLattice where
     record DistributiveLattice
@@ -7078,6 +7570,20 @@ module MathScheme where
       + di
         (evalOpenTerm _ n di x1 vars)
         (evalOpenTerm _ n di x2 vars)
+    simplify :
+      DistributiveLatticeLang ->
+      DistributiveLatticeLang
+    simplify (*L x x) = x
+    simplify (+L x x) = x
+    simplify (*L x (+L x y)) = x
+    simplify (+L x (*L x y)) = x
+    simplify (+L
+              (*L x y)
+              (*L x z)) = *L x (+L y z)
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module DoubleMonoid where
     record DoubleMonoid
@@ -7247,6 +7753,19 @@ module MathScheme where
         (evalOpenTerm _ n do x2 vars)
     evalOpenTerm _ n do (1OL) vars =
       1 do
+    simplify :
+      DoubleMonoidLang ->
+      DoubleMonoidLang
+    simplify (+L (0L) x) = x
+    simplify (+L x (0L)) = x
+    simplify (*L (1L) x) = x
+    simplify (*L x (1L)) = x
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
+    simplify (0L) = 0L
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (1L) = 1L
   
   module DualDeMorgan where
     record DualDeMorgan
@@ -7404,6 +7923,21 @@ module MathScheme where
                          x1) vars =
       prim du
         (evalOpenTerm _ n du x1 vars)
+    simplify :
+      DualDeMorganLang ->
+      DualDeMorganLang
+    simplify (+L
+              (primL x)
+              (primL y)) = primL (*L x y)
+    simplify (*L
+              (primL x)
+              (primL y)) = primL (+L x y)
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
+    simplify (primL x1) =
+      primL (simplify x1)
   
   module DualSemilattices where
     record DualSemilattices
@@ -7560,6 +8094,15 @@ module MathScheme where
       + du
         (evalOpenTerm _ n du x1 vars)
         (evalOpenTerm _ n du x2 vars)
+    simplify :
+      DualSemilatticesLang ->
+      DualSemilatticesLang
+    simplify (*L x x) = x
+    simplify (+L x x) = x
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module Empty where
     record Empty : Set where
@@ -7648,6 +8191,12 @@ module MathScheme where
         (evalOpenTerm _ n fi x1 vars)
     evalOpenTerm _ n fi (eOL) vars =
       e fi
+    simplify :
+      FixedPointLang -> FixedPointLang
+    simplify (primL (eL)) = eL
+    simplify (primL x1) =
+      primL (simplify x1)
+    simplify (eL) = eL
   
   module Group where
     record Group
@@ -7780,6 +8329,17 @@ module MathScheme where
                          x1) vars =
       inv gr
         (evalOpenTerm _ n gr x1 vars)
+    simplify :
+      GroupLang -> GroupLang
+    simplify (opL (eL) x) = x
+    simplify (opL x (eL)) = x
+    simplify (opL x (invL x)) = eL
+    simplify (opL (invL x) x) = eL
+    simplify (eL) = eL
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
+    simplify (invL x1) =
+      invL (simplify x1)
   
   module Group1 where
     record Group1
@@ -7912,6 +8472,17 @@ module MathScheme where
                          x1) vars =
       inv gr
         (evalOpenTerm _ n gr x1 vars)
+    simplify :
+      Group1Lang -> Group1Lang
+    simplify (opL (1L) x) = x
+    simplify (opL x (1L)) = x
+    simplify (opL x (invL x)) = 1L
+    simplify (opL (invL x) x) = 1L
+    simplify (1L) = 1L
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
+    simplify (invL x1) =
+      invL (simplify x1)
   
   module IdempotentAdditiveMagma where
     record IdempotentAdditiveMagma
@@ -8004,6 +8575,12 @@ module MathScheme where
       + id
         (evalOpenTerm _ n id x1 vars)
         (evalOpenTerm _ n id x2 vars)
+    simplify :
+      IdempotentAdditiveMagmaLang ->
+      IdempotentAdditiveMagmaLang
+    simplify (+L x x) = x
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module IdempotentMagma where
     record IdempotentMagma
@@ -8090,6 +8667,12 @@ module MathScheme where
       op id
         (evalOpenTerm _ n id x1 vars)
         (evalOpenTerm _ n id x2 vars)
+    simplify :
+      IdempotentMagmaLang ->
+      IdempotentMagmaLang
+    simplify (opL x x) = x
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module IdempotentMultMagma where
     record IdempotentMultMagma
@@ -8176,6 +8759,12 @@ module MathScheme where
       * id
         (evalOpenTerm _ n id x1 vars)
         (evalOpenTerm _ n id x2 vars)
+    simplify :
+      IdempotentMultMagmaLang ->
+      IdempotentMultMagmaLang
+    simplify (*L x x) = x
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
   
   module IdempotentSemiRng where
     record IdempotentSemiRng
@@ -8358,6 +8947,23 @@ module MathScheme where
         (evalOpenTerm _ n id x2 vars)
     evalOpenTerm _ n id (0OL) vars =
       0 id
+    simplify :
+      IdempotentSemiRngLang ->
+      IdempotentSemiRngLang
+    simplify (+L (0L) x) = x
+    simplify (+L x (0L)) = x
+    simplify (+L
+              (*L x y)
+              (*L x z)) = *L x (+L y z)
+    simplify (+L
+              (*L y x)
+              (*L z x)) = *L (+L y z) x
+    simplify (+L x x) = x
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (0L) = 0L
   
   module IdempotentSemiring where
     record IdempotentSemiring
@@ -8570,6 +9176,28 @@ module MathScheme where
         (evalOpenTerm _ n id x2 vars)
     evalOpenTerm _ n id (1OL) vars =
       1 id
+    simplify :
+      IdempotentSemiringLang ->
+      IdempotentSemiringLang
+    simplify (*L (1L) x) = x
+    simplify (*L x (1L)) = x
+    simplify (+L (0L) x) = x
+    simplify (+L x (0L)) = x
+    simplify (+L
+              (*L x y)
+              (*L x z)) = *L x (+L y z)
+    simplify (+L
+              (*L y x)
+              (*L z x)) = *L (+L y z) x
+    simplify (*L (0L) x) = 0L
+    simplify (*L x (0L)) = 0L
+    simplify (+L x x) = x
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
+    simplify (0L) = 0L
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (1L) = 1L
   
   module IdempotentUnary where
     record IdempotentUnary
@@ -8648,6 +9276,13 @@ module MathScheme where
                          x1) vars =
       prim id
         (evalOpenTerm _ n id x1 vars)
+    simplify :
+      IdempotentUnaryLang ->
+      IdempotentUnaryLang
+    simplify (primL (primL x)) =
+      primL x
+    simplify (primL x1) =
+      primL (simplify x1)
   
   module Inverse where
     record Inverse
@@ -8765,6 +9400,15 @@ module MathScheme where
       op in
         (evalOpenTerm _ n in x1 vars)
         (evalOpenTerm _ n in x2 vars)
+    simplify :
+      InverseLang -> InverseLang
+    simplify (opL x (invL x)) = eL
+    simplify (opL (invL x) x) = eL
+    simplify (invL x1) =
+      invL (simplify x1)
+    simplify (eL) = eL
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module InverseSig where
     record InverseSig
@@ -8876,6 +9520,13 @@ module MathScheme where
       op in
         (evalOpenTerm _ n in x1 vars)
         (evalOpenTerm _ n in x2 vars)
+    simplify :
+      InverseSigLang -> InverseSigLang
+    simplify (invL x1) =
+      invL (simplify x1)
+    simplify (eL) = eL
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module InverseUnaryOperation where
     record InverseUnaryOperation
@@ -8948,6 +9599,11 @@ module MathScheme where
                          x1) vars =
       inv in
         (evalOpenTerm _ n in x1 vars)
+    simplify :
+      InverseUnaryOperationLang ->
+      InverseUnaryOperationLang
+    simplify (invL x1) =
+      invL (simplify x1)
   
   module Involution where
     record Involution
@@ -9022,6 +9678,11 @@ module MathScheme where
                          x1) vars =
       prim in
         (evalOpenTerm _ n in x1 vars)
+    simplify :
+      InvolutionLang -> InvolutionLang
+    simplify (primL (primL x)) = x
+    simplify (primL x1) =
+      primL (simplify x1)
   
   module InvolutiveAddMagmaSig where
     record InvolutiveAddMagmaSig
@@ -9130,6 +9791,13 @@ module MathScheme where
                          x1) vars =
       prim in
         (evalOpenTerm _ n in x1 vars)
+    simplify :
+      InvolutiveAddMagmaSigLang ->
+      InvolutiveAddMagmaSigLang
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
+    simplify (primL x1) =
+      primL (simplify x1)
   
   module InvolutiveFixedPoint where
     record InvolutiveFixedPoint
@@ -9222,6 +9890,14 @@ module MathScheme where
         (evalOpenTerm _ n in x1 vars)
     evalOpenTerm _ n in (1OL) vars =
       1 in
+    simplify :
+      InvolutiveFixedPointLang ->
+      InvolutiveFixedPointLang
+    simplify (primL (1L)) = 1L
+    simplify (primL (primL x)) = x
+    simplify (primL x1) =
+      primL (simplify x1)
+    simplify (1L) = 1L
   
   module InvolutiveFixes where
     record InvolutiveFixes
@@ -9307,6 +9983,13 @@ module MathScheme where
                          x1) vars =
       prim in
         (evalOpenTerm _ n in x1 vars)
+    simplify :
+      InvolutiveFixesLang ->
+      InvolutiveFixesLang
+    simplify (primL (1L)) = 1L
+    simplify (1L) = 1L
+    simplify (primL x1) =
+      primL (simplify x1)
   
   module InvolutiveMagma where
     record InvolutiveMagma
@@ -9426,6 +10109,17 @@ module MathScheme where
       op in
         (evalOpenTerm _ n in x1 vars)
         (evalOpenTerm _ n in x2 vars)
+    simplify :
+      InvolutiveMagmaLang ->
+      InvolutiveMagmaLang
+    simplify (primL (primL x)) = x
+    simplify (opL
+              (primL y)
+              (primL x)) = primL (opL x y)
+    simplify (primL x1) =
+      primL (simplify x1)
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module InvolutiveMagmaSig where
     record InvolutiveMagmaSig
@@ -9531,6 +10225,13 @@ module MathScheme where
       op in
         (evalOpenTerm _ n in x1 vars)
         (evalOpenTerm _ n in x2 vars)
+    simplify :
+      InvolutiveMagmaSigLang ->
+      InvolutiveMagmaSigLang
+    simplify (primL x1) =
+      primL (simplify x1)
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module InvolutiveMultMagmaSig where
     record InvolutiveMultMagmaSig
@@ -9641,6 +10342,13 @@ module MathScheme where
                          x1) vars =
       prim in
         (evalOpenTerm _ n in x1 vars)
+    simplify :
+      InvolutiveMultMagmaSigLang ->
+      InvolutiveMultMagmaSigLang
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (primL x1) =
+      primL (simplify x1)
   
   module InvolutivePointedMagmaSig where
     record InvolutivePointedMagmaSig
@@ -9769,6 +10477,14 @@ module MathScheme where
       op in
         (evalOpenTerm _ n in x1 vars)
         (evalOpenTerm _ n in x2 vars)
+    simplify :
+      InvolutivePointedMagmaSigLang ->
+      InvolutivePointedMagmaSigLang
+    simplify (primL x1) =
+      primL (simplify x1)
+    simplify (eL) = eL
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module InvolutivePointedSemigroup where
     record InvolutivePointedSemigroup
@@ -9920,6 +10636,18 @@ module MathScheme where
                          x1) vars =
       prim in
         (evalOpenTerm _ n in x1 vars)
+    simplify :
+      InvolutivePointedSemigroupLang ->
+      InvolutivePointedSemigroupLang
+    simplify (primL (primL x)) = x
+    simplify (opL
+              (primL y)
+              (primL x)) = primL (opL x y)
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
+    simplify (eL) = eL
+    simplify (primL x1) =
+      primL (simplify x1)
   
   module InvolutiveRing where
     record InvolutiveRing
@@ -10207,6 +10935,41 @@ module MathScheme where
                          x1) vars =
       neg in
         (evalOpenTerm _ n in x1 vars)
+    simplify :
+      InvolutiveRingLang ->
+      InvolutiveRingLang
+    simplify (+L
+              (*L x y)
+              (*L x z)) = *L x (+L y z)
+    simplify (+L
+              (*L y x)
+              (*L z x)) = *L (+L y z) x
+    simplify (primL (1L)) = 1L
+    simplify (primL (primL x)) = x
+    simplify (+L
+              (primL y)
+              (primL x)) = primL (+L x y)
+    simplify (*L
+              (primL y)
+              (primL x)) = primL (*L x y)
+    simplify (+L (0L) x) = x
+    simplify (+L x (0L)) = x
+    simplify (+L x (negL x)) = 0L
+    simplify (+L (negL x) x) = 0L
+    simplify (*L (1L) x) = x
+    simplify (*L x (1L)) = x
+    simplify (*L (0L) x) = 0L
+    simplify (*L x (0L)) = 0L
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
+    simplify (1L) = 1L
+    simplify (primL x1) =
+      primL (simplify x1)
+    simplify (0L) = 0L
+    simplify (negL x1) =
+      negL (simplify x1)
   
   module InvolutiveRingoid where
     record InvolutiveRingoid
@@ -10400,6 +11163,30 @@ module MathScheme where
       + in
         (evalOpenTerm _ n in x1 vars)
         (evalOpenTerm _ n in x2 vars)
+    simplify :
+      InvolutiveRingoidLang ->
+      InvolutiveRingoidLang
+    simplify (primL (1L)) = 1L
+    simplify (primL (primL x)) = x
+    simplify (+L
+              (*L x y)
+              (*L x z)) = *L x (+L y z)
+    simplify (+L
+              (*L y x)
+              (*L z x)) = *L (+L y z) x
+    simplify (+L
+              (primL y)
+              (primL x)) = primL (+L x y)
+    simplify (*L
+              (primL y)
+              (primL x)) = primL (*L x y)
+    simplify (primL x1) =
+      primL (simplify x1)
+    simplify (1L) = 1L
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module InvolutiveRingoidSig where
     record InvolutiveRingoidSig
@@ -10543,6 +11330,15 @@ module MathScheme where
       + in
         (evalOpenTerm _ n in x1 vars)
         (evalOpenTerm _ n in x2 vars)
+    simplify :
+      InvolutiveRingoidSigLang ->
+      InvolutiveRingoidSigLang
+    simplify (primL x1) =
+      primL (simplify x1)
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module InvolutiveRingoidWithAntiDistrib where
     record InvolutiveRingoidWithAntiDistrib
@@ -10731,6 +11527,27 @@ module MathScheme where
                          x1) vars =
       prim in
         (evalOpenTerm _ n in x1 vars)
+    simplify :
+      InvolutiveRingoidWithAntiDistribLang ->
+      InvolutiveRingoidWithAntiDistribLang
+    simplify (+L
+              (*L x y)
+              (*L x z)) = *L x (+L y z)
+    simplify (+L
+              (*L y x)
+              (*L z x)) = *L (+L y z) x
+    simplify (+L
+              (primL y)
+              (primL x)) = primL (+L x y)
+    simplify (*L
+              (primL y)
+              (primL x)) = primL (*L x y)
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
+    simplify (primL x1) =
+      primL (simplify x1)
   
   module InvolutiveSemigroup where
     record InvolutiveSemigroup
@@ -10859,6 +11676,17 @@ module MathScheme where
                          x1) vars =
       prim in
         (evalOpenTerm _ n in x1 vars)
+    simplify :
+      InvolutiveSemigroupLang ->
+      InvolutiveSemigroupLang
+    simplify (primL (primL x)) = x
+    simplify (opL
+              (primL y)
+              (primL x)) = primL (opL x y)
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
+    simplify (primL x1) =
+      primL (simplify x1)
   
   module JacobianIdentity where
     record JacobianIdentity
@@ -10997,6 +11825,19 @@ module MathScheme where
       * ja
         (evalOpenTerm _ n ja x1 vars)
         (evalOpenTerm _ n ja x2 vars)
+    simplify :
+      JacobianIdentityLang ->
+      JacobianIdentityLang
+    simplify (+L
+              (+L
+               (*L x (*L y z))
+               (*L y (*L z x)))
+              (*L z (*L x y))) = 0L
+    simplify (0L) = 0L
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
   
   module JoinSemilattice where
     record JoinSemilattice
@@ -11099,6 +11940,12 @@ module MathScheme where
       + jo
         (evalOpenTerm _ n jo x1 vars)
         (evalOpenTerm _ n jo x2 vars)
+    simplify :
+      JoinSemilatticeLang ->
+      JoinSemilatticeLang
+    simplify (+L x x) = x
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module JoinSemilattice_RingoidSig where
     record JoinSemilattice_RingoidSig
@@ -11244,6 +12091,14 @@ module MathScheme where
       * jo
         (evalOpenTerm _ n jo x1 vars)
         (evalOpenTerm _ n jo x2 vars)
+    simplify :
+      JoinSemilattice_RingoidSigLang ->
+      JoinSemilattice_RingoidSigLang
+    simplify (+L x x) = x
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
   
   module Kei where
     record Kei (A : Set) : Set where
@@ -11336,6 +12191,14 @@ module MathScheme where
       |> ke
         (evalOpenTerm _ n ke x1 vars)
         (evalOpenTerm _ n ke x2 vars)
+    simplify : KeiLang -> KeiLang
+    simplify (|>L
+              (|>L x y)
+              (|>L x z)) = |>L x (|>L y z)
+    simplify (|>L x x) = x
+    simplify (|>L (|>L x y) y) = x
+    simplify (|>L x1 x2) =
+      |>L (simplify x1) (simplify x2)
   
   module Lattice where
     record Lattice
@@ -11498,6 +12361,16 @@ module MathScheme where
       + la
         (evalOpenTerm _ n la x1 vars)
         (evalOpenTerm _ n la x2 vars)
+    simplify :
+      LatticeLang -> LatticeLang
+    simplify (*L x x) = x
+    simplify (+L x x) = x
+    simplify (*L x (+L x y)) = x
+    simplify (+L x (*L x y)) = x
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module Left0 where
     record Left0
@@ -11587,6 +12460,12 @@ module MathScheme where
       op le
         (evalOpenTerm _ n le x1 vars)
         (evalOpenTerm _ n le x2 vars)
+    simplify :
+      Left0Lang -> Left0Lang
+    simplify (opL (0L) x) = 0L
+    simplify (0L) = 0L
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module LeftAbsorption where
     record LeftAbsorption
@@ -11708,6 +12587,14 @@ module MathScheme where
       + le
         (evalOpenTerm _ n le x1 vars)
         (evalOpenTerm _ n le x2 vars)
+    simplify :
+      LeftAbsorptionLang ->
+      LeftAbsorptionLang
+    simplify (*L x (+L x y)) = x
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module LeftAbsorptionOp where
     record LeftAbsorptionOp
@@ -11829,6 +12716,14 @@ module MathScheme where
       + le
         (evalOpenTerm _ n le x1 vars)
         (evalOpenTerm _ n le x2 vars)
+    simplify :
+      LeftAbsorptionOpLang ->
+      LeftAbsorptionOpLang
+    simplify (+L x (*L x y)) = x
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module LeftBiMagma where
     record LeftBiMagma
@@ -11941,6 +12836,14 @@ module MathScheme where
       linv le
         (evalOpenTerm _ n le x1 vars)
         (evalOpenTerm _ n le x2 vars)
+    simplify :
+      LeftBiMagmaLang ->
+      LeftBiMagmaLang
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
+    simplify (linvL x1 x2) =
+      linvL (simplify x1)
+        (simplify x2)
   
   module LeftBinaryInverse where
     record LeftBinaryInverse
@@ -12062,6 +12965,14 @@ module MathScheme where
       <| le
         (evalOpenTerm _ n le x1 vars)
         (evalOpenTerm _ n le x2 vars)
+    simplify :
+      LeftBinaryInverseLang ->
+      LeftBinaryInverseLang
+    simplify (<|L (|>L x y) x) = y
+    simplify (|>L x1 x2) =
+      |>L (simplify x1) (simplify x2)
+    simplify (<|L x1 x2) =
+      <|L (simplify x1) (simplify x2)
   
   module LeftCancellative where
     record LeftCancellative
@@ -12183,6 +13094,15 @@ module MathScheme where
       linv le
         (evalOpenTerm _ n le x1 vars)
         (evalOpenTerm _ n le x2 vars)
+    simplify :
+      LeftCancellativeLang ->
+      LeftCancellativeLang
+    simplify (opL x (linvL x y)) = y
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
+    simplify (linvL x1 x2) =
+      linvL (simplify x1)
+        (simplify x2)
   
   module LeftCancellativeMagma where
     record LeftCancellativeMagma
@@ -12275,6 +13195,11 @@ module MathScheme where
       op le
         (evalOpenTerm _ n le x1 vars)
         (evalOpenTerm _ n le x2 vars)
+    simplify :
+      LeftCancellativeMagmaLang ->
+      LeftCancellativeMagmaLang
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module LeftCancellativeOp where
     record LeftCancellativeOp
@@ -12396,6 +13321,15 @@ module MathScheme where
       linv le
         (evalOpenTerm _ n le x1 vars)
         (evalOpenTerm _ n le x2 vars)
+    simplify :
+      LeftCancellativeOpLang ->
+      LeftCancellativeOpLang
+    simplify (linvL x (opL x y)) = y
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
+    simplify (linvL x1 x2) =
+      linvL (simplify x1)
+        (simplify x2)
   
   module LeftCancellativeSemigroup where
     record LeftCancellativeSemigroup
@@ -12502,6 +13436,11 @@ module MathScheme where
       op le
         (evalOpenTerm _ n le x1 vars)
         (evalOpenTerm _ n le x2 vars)
+    simplify :
+      LeftCancellativeSemigroupLang ->
+      LeftCancellativeSemigroupLang
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module LeftDistributiveMagma where
     record LeftDistributiveMagma
@@ -12595,6 +13534,14 @@ module MathScheme where
       op le
         (evalOpenTerm _ n le x1 vars)
         (evalOpenTerm _ n le x2 vars)
+    simplify :
+      LeftDistributiveMagmaLang ->
+      LeftDistributiveMagmaLang
+    simplify (opL
+              (opL x y)
+              (opL x z)) = opL x (opL y z)
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module LeftIdempotence where
     record LeftIdempotence
@@ -12681,6 +13628,12 @@ module MathScheme where
       |> le
         (evalOpenTerm _ n le x1 vars)
         (evalOpenTerm _ n le x2 vars)
+    simplify :
+      LeftIdempotenceLang ->
+      LeftIdempotenceLang
+    simplify (|>L x x) = x
+    simplify (|>L x1 x2) =
+      |>L (simplify x1) (simplify x2)
   
   module LeftInverse where
     record LeftInverse
@@ -12799,6 +13752,15 @@ module MathScheme where
       op le
         (evalOpenTerm _ n le x1 vars)
         (evalOpenTerm _ n le x2 vars)
+    simplify :
+      LeftInverseLang ->
+      LeftInverseLang
+    simplify (opL x (invL x)) = eL
+    simplify (invL x1) =
+      invL (simplify x1)
+    simplify (eL) = eL
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module LeftInverseMagma where
     record LeftInverseMagma
@@ -12880,6 +13842,12 @@ module MathScheme where
       linv le
         (evalOpenTerm _ n le x1 vars)
         (evalOpenTerm _ n le x2 vars)
+    simplify :
+      LeftInverseMagmaLang ->
+      LeftInverseMagmaLang
+    simplify (linvL x1 x2) =
+      linvL (simplify x1)
+        (simplify x2)
   
   module LeftLoop where
     record LeftLoop
@@ -13016,6 +13984,17 @@ module MathScheme where
       linv le
         (evalOpenTerm _ n le x1 vars)
         (evalOpenTerm _ n le x2 vars)
+    simplify :
+      LeftLoopLang -> LeftLoopLang
+    simplify (opL x (eL)) = x
+    simplify (opL x (linvL x y)) = y
+    simplify (linvL x (opL x y)) = y
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
+    simplify (eL) = eL
+    simplify (linvL x1 x2) =
+      linvL (simplify x1)
+        (simplify x2)
   
   module LeftMonoid where
     record LeftMonoid
@@ -13118,6 +14097,12 @@ module MathScheme where
         (evalOpenTerm _ n le x2 vars)
     evalOpenTerm _ n le (eOL) vars =
       e le
+    simplify :
+      LeftMonoidLang -> LeftMonoidLang
+    simplify (opL (eL) x) = x
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
+    simplify (eL) = eL
   
   module LeftPreSemiring where
     record LeftPreSemiring
@@ -13266,6 +14251,16 @@ module MathScheme where
       + le
         (evalOpenTerm _ n le x1 vars)
         (evalOpenTerm _ n le x2 vars)
+    simplify :
+      LeftPreSemiringLang ->
+      LeftPreSemiringLang
+    simplify (+L
+              (*L x y)
+              (*L x z)) = *L x (+L y z)
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module LeftQuasiGroup where
     record LeftQuasiGroup
@@ -13394,6 +14389,16 @@ module MathScheme where
       linv le
         (evalOpenTerm _ n le x1 vars)
         (evalOpenTerm _ n le x2 vars)
+    simplify :
+      LeftQuasiGroupLang ->
+      LeftQuasiGroupLang
+    simplify (opL x (linvL x y)) = y
+    simplify (linvL x (opL x y)) = y
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
+    simplify (linvL x1 x2) =
+      linvL (simplify x1)
+        (simplify x2)
   
   module LeftRack where
     record LeftRack
@@ -13511,6 +14516,15 @@ module MathScheme where
       <| le
         (evalOpenTerm _ n le x1 vars)
         (evalOpenTerm _ n le x2 vars)
+    simplify :
+      LeftRackLang -> LeftRackLang
+    simplify (|>L
+              (|>L x y)
+              (|>L x z)) = |>L x (|>L y z)
+    simplify (|>L x1 x2) =
+      |>L (simplify x1) (simplify x2)
+    simplify (<|L x1 x2) =
+      <|L (simplify x1) (simplify x2)
   
   module LeftRingoid where
     record LeftRingoid
@@ -13632,6 +14646,16 @@ module MathScheme where
       + le
         (evalOpenTerm _ n le x1 vars)
         (evalOpenTerm _ n le x2 vars)
+    simplify :
+      LeftRingoidLang ->
+      LeftRingoidLang
+    simplify (+L
+              (*L x y)
+              (*L x z)) = *L x (+L y z)
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module LeftShelf where
     record LeftShelf
@@ -13718,6 +14742,13 @@ module MathScheme where
       |> le
         (evalOpenTerm _ n le x1 vars)
         (evalOpenTerm _ n le x2 vars)
+    simplify :
+      LeftShelfLang -> LeftShelfLang
+    simplify (|>L
+              (|>L x y)
+              (|>L x z)) = |>L x (|>L y z)
+    simplify (|>L x1 x2) =
+      |>L (simplify x1) (simplify x2)
   
   module LeftShelfSig where
     record LeftShelfSig
@@ -13798,6 +14829,11 @@ module MathScheme where
       |> le
         (evalOpenTerm _ n le x1 vars)
         (evalOpenTerm _ n le x2 vars)
+    simplify :
+      LeftShelfSigLang ->
+      LeftShelfSigLang
+    simplify (|>L x1 x2) =
+      |>L (simplify x1) (simplify x2)
   
   module LeftSpindle where
     record LeftSpindle
@@ -13892,6 +14928,15 @@ module MathScheme where
       |> le
         (evalOpenTerm _ n le x1 vars)
         (evalOpenTerm _ n le x2 vars)
+    simplify :
+      LeftSpindleLang ->
+      LeftSpindleLang
+    simplify (|>L
+              (|>L x y)
+              (|>L x z)) = |>L x (|>L y z)
+    simplify (|>L x x) = x
+    simplify (|>L x1 x2) =
+      |>L (simplify x1) (simplify x2)
   
   module LeftSpindle_Shelf where
     record LeftSpindle_Shelf
@@ -14031,6 +15076,20 @@ module MathScheme where
       <| le
         (evalOpenTerm _ n le x1 vars)
         (evalOpenTerm _ n le x2 vars)
+    simplify :
+      LeftSpindle_ShelfLang ->
+      LeftSpindle_ShelfLang
+    simplify (|>L
+              (|>L x y)
+              (|>L x z)) = |>L x (|>L y z)
+    simplify (|>L x x) = x
+    simplify (<|L
+              (<|L y x)
+              (<|L z x)) = <|L (<|L y z) x
+    simplify (|>L x1 x2) =
+      |>L (simplify x1) (simplify x2)
+    simplify (<|L x1 x2) =
+      <|L (simplify x1) (simplify x2)
   
   module LeftSpindle_ShelfSig where
     record LeftSpindle_ShelfSig
@@ -14164,6 +15223,17 @@ module MathScheme where
       <| le
         (evalOpenTerm _ n le x1 vars)
         (evalOpenTerm _ n le x2 vars)
+    simplify :
+      LeftSpindle_ShelfSigLang ->
+      LeftSpindle_ShelfSigLang
+    simplify (|>L
+              (|>L x y)
+              (|>L x z)) = |>L x (|>L y z)
+    simplify (|>L x x) = x
+    simplify (|>L x1 x2) =
+      |>L (simplify x1) (simplify x2)
+    simplify (<|L x1 x2) =
+      <|L (simplify x1) (simplify x2)
   
   module LeftUnital where
     record LeftUnital
@@ -14257,6 +15327,12 @@ module MathScheme where
       op le
         (evalOpenTerm _ n le x1 vars)
         (evalOpenTerm _ n le x2 vars)
+    simplify :
+      LeftUnitalLang -> LeftUnitalLang
+    simplify (opL (eL) x) = x
+    simplify (eL) = eL
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module LeftZero where
     record LeftZero
@@ -14348,6 +15424,12 @@ module MathScheme where
       op le
         (evalOpenTerm _ n le x1 vars)
         (evalOpenTerm _ n le x2 vars)
+    simplify :
+      LeftZeroLang -> LeftZeroLang
+    simplify (opL (eL) x) = eL
+    simplify (eL) = eL
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module LieRing where
     record LieRing
@@ -14597,6 +15679,37 @@ module MathScheme where
         (evalOpenTerm _ n li x1 vars)
     evalOpenTerm _ n li (1OL) vars =
       1 li
+    simplify :
+      LieRingLang -> LieRingLang
+    simplify (+L
+              (+L
+               (*L x (*L y z))
+               (*L y (*L z x)))
+              (*L z (*L x y))) = 0L
+    simplify (+L (0L) x) = x
+    simplify (+L x (0L)) = x
+    simplify (+L
+              (*L x y)
+              (*L x z)) = *L x (+L y z)
+    simplify (+L
+              (*L y x)
+              (*L z x)) = *L (+L y z) x
+    simplify (+L x (negL x)) = 0L
+    simplify (+L (negL x) x) = 0L
+    simplify (*L (1L) x) = x
+    simplify (*L x (1L)) = x
+    simplify (*L (0L) x) = 0L
+    simplify (*L x (0L)) = 0L
+    simplify (negL (*L y x)) =
+      *L x y
+    simplify (0L) = 0L
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (negL x1) =
+      negL (simplify x1)
+    simplify (1L) = 1L
   
   module Loop where
     record Loop
@@ -14775,6 +15888,22 @@ module MathScheme where
       rinv lo
         (evalOpenTerm _ n lo x1 vars)
         (evalOpenTerm _ n lo x2 vars)
+    simplify : LoopLang -> LoopLang
+    simplify (opL (eL) x) = x
+    simplify (opL x (eL)) = x
+    simplify (opL x (linvL x y)) = y
+    simplify (linvL x (opL x y)) = y
+    simplify (opL (rinvL y x) x) = y
+    simplify (rinvL (opL y x) x) = y
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
+    simplify (eL) = eL
+    simplify (linvL x1 x2) =
+      linvL (simplify x1)
+        (simplify x2)
+    simplify (rinvL x1 x2) =
+      rinvL (simplify x1)
+        (simplify x2)
   
   module Magma where
     record Magma
@@ -14848,6 +15977,10 @@ module MathScheme where
       op ma
         (evalOpenTerm _ n ma x1 vars)
         (evalOpenTerm _ n ma x2 vars)
+    simplify :
+      MagmaLang -> MagmaLang
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module MedialMagma where
     record MedialMagma
@@ -14939,6 +16072,11 @@ module MathScheme where
       op me
         (evalOpenTerm _ n me x1 vars)
         (evalOpenTerm _ n me x2 vars)
+    simplify :
+      MedialMagmaLang ->
+      MedialMagmaLang
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module MedialQuasiGroup where
     record MedialQuasiGroup
@@ -15126,6 +16264,21 @@ module MathScheme where
       rinv me
         (evalOpenTerm _ n me x1 vars)
         (evalOpenTerm _ n me x2 vars)
+    simplify :
+      MedialQuasiGroupLang ->
+      MedialQuasiGroupLang
+    simplify (opL x (linvL x y)) = y
+    simplify (linvL x (opL x y)) = y
+    simplify (opL (rinvL y x) x) = y
+    simplify (rinvL (opL y x) x) = y
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
+    simplify (linvL x1 x2) =
+      linvL (simplify x1)
+        (simplify x2)
+    simplify (rinvL x1 x2) =
+      rinvL (simplify x1)
+        (simplify x2)
   
   module MeetSemilattice where
     record MeetSemilattice
@@ -15228,6 +16381,12 @@ module MathScheme where
       op me
         (evalOpenTerm _ n me x1 vars)
         (evalOpenTerm _ n me x2 vars)
+    simplify :
+      MeetSemilatticeLang ->
+      MeetSemilatticeLang
+    simplify (opL x x) = x
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module MiddleAbsorption where
     record MiddleAbsorption
@@ -15317,6 +16476,13 @@ module MathScheme where
       op mi
         (evalOpenTerm _ n mi x1 vars)
         (evalOpenTerm _ n mi x2 vars)
+    simplify :
+      MiddleAbsorptionLang ->
+      MiddleAbsorptionLang
+    simplify (opL (opL x y) z) =
+      opL x z
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module MiddleCommute where
     record MiddleCommute
@@ -15407,6 +16573,11 @@ module MathScheme where
       op mi
         (evalOpenTerm _ n mi x1 vars)
         (evalOpenTerm _ n mi x2 vars)
+    simplify :
+      MiddleCommuteLang ->
+      MiddleCommuteLang
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module ModularLattice where
     record ModularLattice
@@ -15587,6 +16758,17 @@ module MathScheme where
       + mo
         (evalOpenTerm _ n mo x1 vars)
         (evalOpenTerm _ n mo x2 vars)
+    simplify :
+      ModularLatticeLang ->
+      ModularLatticeLang
+    simplify (*L x x) = x
+    simplify (+L x x) = x
+    simplify (*L x (+L x y)) = x
+    simplify (+L x (*L x y)) = x
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module Modularity where
     record Modularity
@@ -15707,6 +16889,12 @@ module MathScheme where
       + mo
         (evalOpenTerm _ n mo x1 vars)
         (evalOpenTerm _ n mo x2 vars)
+    simplify :
+      ModularityLang -> ModularityLang
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module Monoid where
     record Monoid
@@ -15808,6 +16996,13 @@ module MathScheme where
       op mo
         (evalOpenTerm _ n mo x1 vars)
         (evalOpenTerm _ n mo x2 vars)
+    simplify :
+      MonoidLang -> MonoidLang
+    simplify (opL (eL) x) = x
+    simplify (opL x (eL)) = x
+    simplify (eL) = eL
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module Monoid1 where
     record Monoid1
@@ -15910,6 +17105,13 @@ module MathScheme where
       op mo
         (evalOpenTerm _ n mo x1 vars)
         (evalOpenTerm _ n mo x2 vars)
+    simplify :
+      Monoid1Lang -> Monoid1Lang
+    simplify (opL (1L) x) = x
+    simplify (opL x (1L)) = x
+    simplify (1L) = 1L
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module MoufangIdentity where
     record MoufangIdentity
@@ -16001,6 +17203,11 @@ module MathScheme where
       op mo
         (evalOpenTerm _ n mo x1 vars)
         (evalOpenTerm _ n mo x2 vars)
+    simplify :
+      MoufangIdentityLang ->
+      MoufangIdentityLang
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module MoufangLaw where
     record MoufangLaw
@@ -16094,6 +17301,10 @@ module MathScheme where
       op mo
         (evalOpenTerm _ n mo x1 vars)
         (evalOpenTerm _ n mo x2 vars)
+    simplify :
+      MoufangLawLang -> MoufangLawLang
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module MoufangLoop where
     record MoufangLoop
@@ -16296,6 +17507,24 @@ module MathScheme where
       rinv mo
         (evalOpenTerm _ n mo x1 vars)
         (evalOpenTerm _ n mo x2 vars)
+    simplify :
+      MoufangLoopLang ->
+      MoufangLoopLang
+    simplify (opL (eL) x) = x
+    simplify (opL x (eL)) = x
+    simplify (opL x (linvL x y)) = y
+    simplify (linvL x (opL x y)) = y
+    simplify (opL (rinvL y x) x) = y
+    simplify (rinvL (opL y x) x) = y
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
+    simplify (eL) = eL
+    simplify (linvL x1 x2) =
+      linvL (simplify x1)
+        (simplify x2)
+    simplify (rinvL x1 x2) =
+      rinvL (simplify x1)
+        (simplify x2)
   
   module MoufangQuasiGroup where
     record MoufangQuasiGroup
@@ -16486,6 +17715,21 @@ module MathScheme where
       rinv mo
         (evalOpenTerm _ n mo x1 vars)
         (evalOpenTerm _ n mo x2 vars)
+    simplify :
+      MoufangQuasiGroupLang ->
+      MoufangQuasiGroupLang
+    simplify (opL x (linvL x y)) = y
+    simplify (linvL x (opL x y)) = y
+    simplify (opL (rinvL y x) x) = y
+    simplify (rinvL (opL y x) x) = y
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
+    simplify (linvL x1 x2) =
+      linvL (simplify x1)
+        (simplify x2)
+    simplify (rinvL x1 x2) =
+      rinvL (simplify x1)
+        (simplify x2)
   
   module MultCommutativeMonoid where
     record MultCommutativeMonoid
@@ -16605,6 +17849,14 @@ module MathScheme where
       * mu
         (evalOpenTerm _ n mu x1 vars)
         (evalOpenTerm _ n mu x2 vars)
+    simplify :
+      MultCommutativeMonoidLang ->
+      MultCommutativeMonoidLang
+    simplify (*L (1L) x) = x
+    simplify (*L x (1L)) = x
+    simplify (1L) = 1L
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
   
   module MultCommutativeSemigroup where
     record MultCommutativeSemigroup
@@ -16709,6 +17961,11 @@ module MathScheme where
       * mu
         (evalOpenTerm _ n mu x1 vars)
         (evalOpenTerm _ n mu x2 vars)
+    simplify :
+      MultCommutativeSemigroupLang ->
+      MultCommutativeSemigroupLang
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
   
   module MultGroup where
     record MultGroup
@@ -16845,6 +18102,17 @@ module MathScheme where
                          x1) vars =
       inv mu
         (evalOpenTerm _ n mu x1 vars)
+    simplify :
+      MultGroupLang -> MultGroupLang
+    simplify (*L (1L) x) = x
+    simplify (*L x (1L)) = x
+    simplify (*L x (invL x)) = 1L
+    simplify (*L (invL x) x) = 1L
+    simplify (1L) = 1L
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (invL x1) =
+      invL (simplify x1)
   
   module MultMagma where
     record MultMagma
@@ -16921,6 +18189,10 @@ module MathScheme where
       * mu
         (evalOpenTerm _ n mu x1 vars)
         (evalOpenTerm _ n mu x2 vars)
+    simplify :
+      MultMagmaLang -> MultMagmaLang
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
   
   module MultMeetSemilattice where
     record MultMeetSemilattice
@@ -17023,6 +18295,12 @@ module MathScheme where
       * mu
         (evalOpenTerm _ n mu x1 vars)
         (evalOpenTerm _ n mu x2 vars)
+    simplify :
+      MultMeetSemilatticeLang ->
+      MultMeetSemilatticeLang
+    simplify (*L x x) = x
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
   
   module MultMonoid where
     record MultMonoid
@@ -17129,6 +18407,13 @@ module MathScheme where
         (evalOpenTerm _ n mu x2 vars)
     evalOpenTerm _ n mu (1OL) vars =
       1 mu
+    simplify :
+      MultMonoidLang -> MultMonoidLang
+    simplify (*L (1L) x) = x
+    simplify (*L x (1L)) = x
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (1L) = 1L
   
   module MultPointedMagma where
     record MultPointedMagma
@@ -17221,6 +18506,12 @@ module MathScheme where
       * mu
         (evalOpenTerm _ n mu x1 vars)
         (evalOpenTerm _ n mu x2 vars)
+    simplify :
+      MultPointedMagmaLang ->
+      MultPointedMagmaLang
+    simplify (1L) = 1L
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
   
   module MultPointedSemigroup where
     record MultPointedSemigroup
@@ -17325,6 +18616,12 @@ module MathScheme where
       * mu
         (evalOpenTerm _ n mu x1 vars)
         (evalOpenTerm _ n mu x2 vars)
+    simplify :
+      MultPointedSemigroupLang ->
+      MultPointedSemigroupLang
+    simplify (1L) = 1L
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
   
   module MultSemigroup where
     record MultSemigroup
@@ -17414,6 +18711,11 @@ module MathScheme where
       * mu
         (evalOpenTerm _ n mu x1 vars)
         (evalOpenTerm _ n mu x2 vars)
+    simplify :
+      MultSemigroupLang ->
+      MultSemigroupLang
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
   
   module MultSemilattice_RingoidSig where
     record MultSemilattice_RingoidSig
@@ -17559,6 +18861,14 @@ module MathScheme where
       + mu
         (evalOpenTerm _ n mu x1 vars)
         (evalOpenTerm _ n mu x2 vars)
+    simplify :
+      MultSemilattice_RingoidSigLang ->
+      MultSemilattice_RingoidSigLang
+    simplify (*L x x) = x
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module MultUnaryAntiDistribution where
     record MultUnaryAntiDistribution
@@ -17682,6 +18992,16 @@ module MathScheme where
       * mu
         (evalOpenTerm _ n mu x1 vars)
         (evalOpenTerm _ n mu x2 vars)
+    simplify :
+      MultUnaryAntiDistributionLang ->
+      MultUnaryAntiDistributionLang
+    simplify (*L
+              (primL y)
+              (primL x)) = primL (*L x y)
+    simplify (primL x1) =
+      primL (simplify x1)
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
   
   module MultUnital where
     record MultUnital
@@ -17779,6 +19099,13 @@ module MathScheme where
       * mu
         (evalOpenTerm _ n mu x1 vars)
         (evalOpenTerm _ n mu x2 vars)
+    simplify :
+      MultUnitalLang -> MultUnitalLang
+    simplify (*L (1L) x) = x
+    simplify (*L x (1L)) = x
+    simplify (1L) = 1L
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
   
   module NearRing where
     record NearRing
@@ -17964,6 +19291,22 @@ module MathScheme where
                          x1) vars =
       neg ne
         (evalOpenTerm _ n ne x1 vars)
+    simplify :
+      NearRingLang -> NearRingLang
+    simplify (+L (0L) x) = x
+    simplify (+L x (0L)) = x
+    simplify (+L x (negL x)) = 0L
+    simplify (+L (negL x) x) = 0L
+    simplify (+L
+              (*L y x)
+              (*L z x)) = *L (+L y z) x
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
+    simplify (0L) = 0L
+    simplify (negL x1) =
+      negL (simplify x1)
   
   module NearSemiring where
     record NearSemiring
@@ -18104,6 +19447,16 @@ module MathScheme where
       + ne
         (evalOpenTerm _ n ne x1 vars)
         (evalOpenTerm _ n ne x2 vars)
+    simplify :
+      NearSemiringLang ->
+      NearSemiringLang
+    simplify (+L
+              (*L y x)
+              (*L z x)) = *L (+L y z) x
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module NonDistributiveAddPreSemiring where
     record NonDistributiveAddPreSemiring
@@ -18246,6 +19599,13 @@ module MathScheme where
       * no
         (evalOpenTerm _ n no x1 vars)
         (evalOpenTerm _ n no x2 vars)
+    simplify :
+      NonDistributiveAddPreSemiringLang ->
+      NonDistributiveAddPreSemiringLang
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
   
   module NonassociativeNondistributiveRing where
     record NonassociativeNondistributiveRing
@@ -18445,6 +19805,20 @@ module MathScheme where
       + no
         (evalOpenTerm _ n no x1 vars)
         (evalOpenTerm _ n no x2 vars)
+    simplify :
+      NonassociativeNondistributiveRingLang ->
+      NonassociativeNondistributiveRingLang
+    simplify (*L (1L) x) = x
+    simplify (*L x (1L)) = x
+    simplify (*L x (invL x)) = 1L
+    simplify (*L (invL x) x) = 1L
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (1L) = 1L
+    simplify (invL x1) =
+      invL (simplify x1)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module NonassociativeRing where
     record NonassociativeRing
@@ -18646,6 +20020,26 @@ module MathScheme where
                          x1) vars =
       inv no
         (evalOpenTerm _ n no x1 vars)
+    simplify :
+      NonassociativeRingLang ->
+      NonassociativeRingLang
+    simplify (*L (1L) x) = x
+    simplify (*L x (1L)) = x
+    simplify (*L x (invL x)) = 1L
+    simplify (*L (invL x) x) = 1L
+    simplify (+L
+              (*L x y)
+              (*L x z)) = *L x (+L y z)
+    simplify (+L
+              (*L y x)
+              (*L z x)) = *L (+L y z) x
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
+    simplify (1L) = 1L
+    simplify (invL x1) =
+      invL (simplify x1)
   
   module NormalBand where
     record NormalBand
@@ -18748,6 +20142,11 @@ module MathScheme where
       op no
         (evalOpenTerm _ n no x1 vars)
         (evalOpenTerm _ n no x2 vars)
+    simplify :
+      NormalBandLang -> NormalBandLang
+    simplify (opL x x) = x
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module OrDeMorgran where
     record OrDeMorgran
@@ -18894,6 +20293,18 @@ module MathScheme where
                          x1) vars =
       prim or
         (evalOpenTerm _ n or x1 vars)
+    simplify :
+      OrDeMorgranLang ->
+      OrDeMorgranLang
+    simplify (*L
+              (primL x)
+              (primL y)) = primL (+L x y)
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
+    simplify (primL x1) =
+      primL (simplify x1)
   
   module Pointed where
     record Pointed
@@ -18947,6 +20358,9 @@ module MathScheme where
                          fin) vars = lookup _ n fin vars
     evalOpenTerm _ n po (eOL) vars =
       e po
+    simplify :
+      PointedLang -> PointedLang
+    simplify (eL) = eL
   
   module Pointed0Magma where
     record Pointed0Magma
@@ -19038,6 +20452,12 @@ module MathScheme where
       op po
         (evalOpenTerm _ n po x1 vars)
         (evalOpenTerm _ n po x2 vars)
+    simplify :
+      Pointed0MagmaLang ->
+      Pointed0MagmaLang
+    simplify (0L) = 0L
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module Pointed1Magma where
     record Pointed1Magma
@@ -19129,6 +20549,12 @@ module MathScheme where
       op po
         (evalOpenTerm _ n po x1 vars)
         (evalOpenTerm _ n po x2 vars)
+    simplify :
+      Pointed1MagmaLang ->
+      Pointed1MagmaLang
+    simplify (1L) = 1L
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module PointedInvolutiveMagma0Sig where
     record PointedInvolutiveMagma0Sig
@@ -19257,6 +20683,14 @@ module MathScheme where
         (evalOpenTerm _ n po x1 vars)
     evalOpenTerm _ n po (0OL) vars =
       0 po
+    simplify :
+      PointedInvolutiveMagma0SigLang ->
+      PointedInvolutiveMagma0SigLang
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (primL x1) =
+      primL (simplify x1)
+    simplify (0L) = 0L
   
   module PointedMagma where
     record PointedMagma
@@ -19348,6 +20782,12 @@ module MathScheme where
       op po
         (evalOpenTerm _ n po x1 vars)
         (evalOpenTerm _ n po x2 vars)
+    simplify :
+      PointedMagmaLang ->
+      PointedMagmaLang
+    simplify (eL) = eL
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module PointedOne where
     record PointedOne
@@ -19405,6 +20845,9 @@ module MathScheme where
                          fin) vars = lookup _ n fin vars
     evalOpenTerm _ n po (1OL) vars =
       1 po
+    simplify :
+      PointedOneLang -> PointedOneLang
+    simplify (1L) = 1L
   
   module PointedPlusMagma where
     record PointedPlusMagma
@@ -19497,6 +20940,12 @@ module MathScheme where
         (evalOpenTerm _ n po x2 vars)
     evalOpenTerm _ n po (eOL) vars =
       e po
+    simplify :
+      PointedPlusMagmaLang ->
+      PointedPlusMagmaLang
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
+    simplify (eL) = eL
   
   module PointedSemigroup where
     record PointedSemigroup
@@ -19598,6 +21047,12 @@ module MathScheme where
         (evalOpenTerm _ n po x2 vars)
     evalOpenTerm _ n po (eOL) vars =
       e po
+    simplify :
+      PointedSemigroupLang ->
+      PointedSemigroupLang
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
+    simplify (eL) = eL
   
   module PointedSteinerMagma where
     record PointedSteinerMagma
@@ -19705,6 +21160,13 @@ module MathScheme where
         (evalOpenTerm _ n po x2 vars)
     evalOpenTerm _ n po (eOL) vars =
       e po
+    simplify :
+      PointedSteinerMagmaLang ->
+      PointedSteinerMagmaLang
+    simplify (opL x (opL x y)) = y
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
+    simplify (eL) = eL
   
   module PointedTimesMagma where
     record PointedTimesMagma
@@ -19798,6 +21260,12 @@ module MathScheme where
         (evalOpenTerm _ n po x2 vars)
     evalOpenTerm _ n po (eOL) vars =
       e po
+    simplify :
+      PointedTimesMagmaLang ->
+      PointedTimesMagmaLang
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (eL) = eL
   
   module PointedTimesZeroMagma where
     record PointedTimesZeroMagma
@@ -19893,6 +21361,12 @@ module MathScheme where
       * po
         (evalOpenTerm _ n po x1 vars)
         (evalOpenTerm _ n po x2 vars)
+    simplify :
+      PointedTimesZeroMagmaLang ->
+      PointedTimesZeroMagmaLang
+    simplify (0L) = 0L
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
   
   module PointedUnarySystem where
     record PointedUnarySystem
@@ -19977,6 +21451,12 @@ module MathScheme where
         (evalOpenTerm _ n po x1 vars)
     evalOpenTerm _ n po (eOL) vars =
       e po
+    simplify :
+      PointedUnarySystemLang ->
+      PointedUnarySystemLang
+    simplify (primL x1) =
+      primL (simplify x1)
+    simplify (eL) = eL
   
   module PointedZero where
     record PointedZero
@@ -20034,6 +21514,10 @@ module MathScheme where
                          fin) vars = lookup _ n fin vars
     evalOpenTerm _ n po (0OL) vars =
       0 po
+    simplify :
+      PointedZeroLang ->
+      PointedZeroLang
+    simplify (0L) = 0L
   
   module PreSemiring where
     record PreSemiring
@@ -20189,6 +21673,19 @@ module MathScheme where
       + pr
         (evalOpenTerm _ n pr x1 vars)
         (evalOpenTerm _ n pr x2 vars)
+    simplify :
+      PreSemiringLang ->
+      PreSemiringLang
+    simplify (+L
+              (*L x y)
+              (*L x z)) = *L x (+L y z)
+    simplify (+L
+              (*L y x)
+              (*L z x)) = *L (+L y z) x
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module PrimAdditiveGroup where
     record PrimAdditiveGroup
@@ -20342,6 +21839,18 @@ module MathScheme where
                          x1) vars =
       inv_ pr
         (evalOpenTerm _ n pr x1 vars)
+    simplify :
+      PrimAdditiveGroupLang ->
+      PrimAdditiveGroupLang
+    simplify (*_L (0_L) x) = x
+    simplify (*_L x (0_L)) = x
+    simplify (*_L x (inv_L x)) = 0_L
+    simplify (*_L (inv_L x) x) = 0_L
+    simplify (0_L) = 0_L
+    simplify (*_L x1 x2) =
+      *_L (simplify x1) (simplify x2)
+    simplify (inv_L x1) =
+      inv_L (simplify x1)
   
   module PrimRingoidSig where
     record PrimRingoidSig
@@ -20480,6 +21989,15 @@ module MathScheme where
                          x1) vars =
       prim pr
         (evalOpenTerm _ n pr x1 vars)
+    simplify :
+      PrimRingoidSigLang ->
+      PrimRingoidSigLang
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
+    simplify (primL x1) =
+      primL (simplify x1)
   
   module PseudoInverse where
     record PseudoInverse
@@ -20589,6 +22107,16 @@ module MathScheme where
       op ps
         (evalOpenTerm _ n ps x1 vars)
         (evalOpenTerm _ n ps x2 vars)
+    simplify :
+      PseudoInverseLang ->
+      PseudoInverseLang
+    simplify (opL
+              (opL x (invL x))
+              x) = x
+    simplify (invL x1) =
+      invL (simplify x1)
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module PseudoInverseSig where
     record PseudoInverseSig
@@ -20693,6 +22221,13 @@ module MathScheme where
       op ps
         (evalOpenTerm _ n ps x1 vars)
         (evalOpenTerm _ n ps x2 vars)
+    simplify :
+      PseudoInverseSigLang ->
+      PseudoInverseSigLang
+    simplify (invL x1) =
+      invL (simplify x1)
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module PseudoInvolution where
     record PseudoInvolution
@@ -20805,6 +22340,16 @@ module MathScheme where
       op ps
         (evalOpenTerm _ n ps x1 vars)
         (evalOpenTerm _ n ps x2 vars)
+    simplify :
+      PseudoInvolutionLang ->
+      PseudoInvolutionLang
+    simplify (opL
+              (opL (invL x) x)
+              (invL x)) = invL x
+    simplify (invL x1) =
+      invL (simplify x1)
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module Quandle where
     record Quandle
@@ -20955,6 +22500,22 @@ module MathScheme where
       <| qu
         (evalOpenTerm _ n qu x1 vars)
         (evalOpenTerm _ n qu x2 vars)
+    simplify :
+      QuandleLang -> QuandleLang
+    simplify (|>L
+              (|>L x y)
+              (|>L x z)) = |>L x (|>L y z)
+    simplify (<|L
+              (<|L y x)
+              (<|L z x)) = <|L (<|L y z) x
+    simplify (<|L (|>L x y) x) = y
+    simplify (|>L x (<|L y x)) = y
+    simplify (|>L x x) = x
+    simplify (<|L x x) = x
+    simplify (|>L x1 x2) =
+      |>L (simplify x1) (simplify x2)
+    simplify (<|L x1 x2) =
+      <|L (simplify x1) (simplify x2)
   
   module QuasiGroup where
     record QuasiGroup
@@ -21125,6 +22686,20 @@ module MathScheme where
       rinv qu
         (evalOpenTerm _ n qu x1 vars)
         (evalOpenTerm _ n qu x2 vars)
+    simplify :
+      QuasiGroupLang -> QuasiGroupLang
+    simplify (opL x (linvL x y)) = y
+    simplify (linvL x (opL x y)) = y
+    simplify (opL (rinvL y x) x) = y
+    simplify (rinvL (opL y x) x) = y
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
+    simplify (linvL x1 x2) =
+      linvL (simplify x1)
+        (simplify x2)
+    simplify (rinvL x1 x2) =
+      rinvL (simplify x1)
+        (simplify x2)
   
   module QuasiInverse where
     record QuasiInverse
@@ -21242,6 +22817,19 @@ module MathScheme where
       op qu
         (evalOpenTerm _ n qu x1 vars)
         (evalOpenTerm _ n qu x2 vars)
+    simplify :
+      QuasiInverseLang ->
+      QuasiInverseLang
+    simplify (opL
+              (opL x (invL x))
+              x) = x
+    simplify (opL
+              (opL (invL x) x)
+              (invL x)) = invL x
+    simplify (invL x1) =
+      invL (simplify x1)
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module Rack where
     record Rack
@@ -21377,6 +22965,19 @@ module MathScheme where
       <| ra
         (evalOpenTerm _ n ra x1 vars)
         (evalOpenTerm _ n ra x2 vars)
+    simplify : RackLang -> RackLang
+    simplify (|>L
+              (|>L x y)
+              (|>L x z)) = |>L x (|>L y z)
+    simplify (<|L
+              (<|L y x)
+              (<|L z x)) = <|L (<|L y z) x
+    simplify (<|L (|>L x y) x) = y
+    simplify (|>L x (<|L y x)) = y
+    simplify (|>L x1 x2) =
+      |>L (simplify x1) (simplify x2)
+    simplify (<|L x1 x2) =
+      <|L (simplify x1) (simplify x2)
   
   module RectangularBand where
     record RectangularBand
@@ -21482,6 +23083,12 @@ module MathScheme where
       op re
         (evalOpenTerm _ n re x1 vars)
         (evalOpenTerm _ n re x2 vars)
+    simplify :
+      RectangularBandLang ->
+      RectangularBandLang
+    simplify (opL x x) = x
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module RegularSemigroup where
     record RegularSemigroup
@@ -21601,6 +23208,16 @@ module MathScheme where
                          x1) vars =
       inv re
         (evalOpenTerm _ n re x1 vars)
+    simplify :
+      RegularSemigroupLang ->
+      RegularSemigroupLang
+    simplify (opL
+              (opL x (invL x))
+              x) = x
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
+    simplify (invL x1) =
+      invL (simplify x1)
   
   module Right0 where
     record Right0
@@ -21690,6 +23307,12 @@ module MathScheme where
       op ri
         (evalOpenTerm _ n ri x1 vars)
         (evalOpenTerm _ n ri x2 vars)
+    simplify :
+      Right0Lang -> Right0Lang
+    simplify (opL x (0L)) = 0L
+    simplify (0L) = 0L
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module RightBiMagma where
     record RightBiMagma
@@ -21803,6 +23426,14 @@ module MathScheme where
       rinv ri
         (evalOpenTerm _ n ri x1 vars)
         (evalOpenTerm _ n ri x2 vars)
+    simplify :
+      RightBiMagmaLang ->
+      RightBiMagmaLang
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
+    simplify (rinvL x1 x2) =
+      rinvL (simplify x1)
+        (simplify x2)
   
   module RightBinaryInverse where
     record RightBinaryInverse
@@ -21924,6 +23555,14 @@ module MathScheme where
       <| ri
         (evalOpenTerm _ n ri x1 vars)
         (evalOpenTerm _ n ri x2 vars)
+    simplify :
+      RightBinaryInverseLang ->
+      RightBinaryInverseLang
+    simplify (|>L x (<|L y x)) = y
+    simplify (|>L x1 x2) =
+      |>L (simplify x1) (simplify x2)
+    simplify (<|L x1 x2) =
+      <|L (simplify x1) (simplify x2)
   
   module RightCancellative where
     record RightCancellative
@@ -22045,6 +23684,15 @@ module MathScheme where
       rinv ri
         (evalOpenTerm _ n ri x1 vars)
         (evalOpenTerm _ n ri x2 vars)
+    simplify :
+      RightCancellativeLang ->
+      RightCancellativeLang
+    simplify (opL (rinvL y x) x) = y
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
+    simplify (rinvL x1 x2) =
+      rinvL (simplify x1)
+        (simplify x2)
   
   module RightCancellativeMagma where
     record RightCancellativeMagma
@@ -22139,6 +23787,11 @@ module MathScheme where
       op ri
         (evalOpenTerm _ n ri x1 vars)
         (evalOpenTerm _ n ri x2 vars)
+    simplify :
+      RightCancellativeMagmaLang ->
+      RightCancellativeMagmaLang
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module RightCancellativeOp where
     record RightCancellativeOp
@@ -22260,6 +23913,15 @@ module MathScheme where
       rinv ri
         (evalOpenTerm _ n ri x1 vars)
         (evalOpenTerm _ n ri x2 vars)
+    simplify :
+      RightCancellativeOpLang ->
+      RightCancellativeOpLang
+    simplify (rinvL (opL y x) x) = y
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
+    simplify (rinvL x1 x2) =
+      rinvL (simplify x1)
+        (simplify x2)
   
   module RightCancellativeSemigroup where
     record RightCancellativeSemigroup
@@ -22366,6 +24028,11 @@ module MathScheme where
       op ri
         (evalOpenTerm _ n ri x1 vars)
         (evalOpenTerm _ n ri x2 vars)
+    simplify :
+      RightCancellativeSemigroupLang ->
+      RightCancellativeSemigroupLang
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module RightDistributiveMagma where
     record RightDistributiveMagma
@@ -22461,6 +24128,14 @@ module MathScheme where
       op ri
         (evalOpenTerm _ n ri x1 vars)
         (evalOpenTerm _ n ri x2 vars)
+    simplify :
+      RightDistributiveMagmaLang ->
+      RightDistributiveMagmaLang
+    simplify (opL
+              (opL y x)
+              (opL z x)) = opL (opL y z) x
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module RightIdempotence where
     record RightIdempotence
@@ -22547,6 +24222,12 @@ module MathScheme where
       <| ri
         (evalOpenTerm _ n ri x1 vars)
         (evalOpenTerm _ n ri x2 vars)
+    simplify :
+      RightIdempotenceLang ->
+      RightIdempotenceLang
+    simplify (<|L x x) = x
+    simplify (<|L x1 x2) =
+      <|L (simplify x1) (simplify x2)
   
   module RightInverse where
     record RightInverse
@@ -22666,6 +24347,15 @@ module MathScheme where
       op ri
         (evalOpenTerm _ n ri x1 vars)
         (evalOpenTerm _ n ri x2 vars)
+    simplify :
+      RightInverseLang ->
+      RightInverseLang
+    simplify (opL (invL x) x) = eL
+    simplify (invL x1) =
+      invL (simplify x1)
+    simplify (eL) = eL
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module RightInverseMagma where
     record RightInverseMagma
@@ -22747,6 +24437,12 @@ module MathScheme where
       rinv ri
         (evalOpenTerm _ n ri x1 vars)
         (evalOpenTerm _ n ri x2 vars)
+    simplify :
+      RightInverseMagmaLang ->
+      RightInverseMagmaLang
+    simplify (rinvL x1 x2) =
+      rinvL (simplify x1)
+        (simplify x2)
   
   module RightMonoid where
     record RightMonoid
@@ -22850,6 +24546,13 @@ module MathScheme where
         (evalOpenTerm _ n ri x2 vars)
     evalOpenTerm _ n ri (eOL) vars =
       e ri
+    simplify :
+      RightMonoidLang ->
+      RightMonoidLang
+    simplify (opL x (eL)) = x
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
+    simplify (eL) = eL
   
   module RightPreSemiring where
     record RightPreSemiring
@@ -22998,6 +24701,16 @@ module MathScheme where
       + ri
         (evalOpenTerm _ n ri x1 vars)
         (evalOpenTerm _ n ri x2 vars)
+    simplify :
+      RightPreSemiringLang ->
+      RightPreSemiringLang
+    simplify (+L
+              (*L y x)
+              (*L z x)) = *L (+L y z) x
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module RightQuasiGroup where
     record RightQuasiGroup
@@ -23126,6 +24839,16 @@ module MathScheme where
       rinv ri
         (evalOpenTerm _ n ri x1 vars)
         (evalOpenTerm _ n ri x2 vars)
+    simplify :
+      RightQuasiGroupLang ->
+      RightQuasiGroupLang
+    simplify (opL (rinvL y x) x) = y
+    simplify (rinvL (opL y x) x) = y
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
+    simplify (rinvL x1 x2) =
+      rinvL (simplify x1)
+        (simplify x2)
   
   module RightRack where
     record RightRack
@@ -23244,6 +24967,15 @@ module MathScheme where
       |> ri
         (evalOpenTerm _ n ri x1 vars)
         (evalOpenTerm _ n ri x2 vars)
+    simplify :
+      RightRackLang -> RightRackLang
+    simplify (<|L
+              (<|L y x)
+              (<|L z x)) = <|L (<|L y z) x
+    simplify (<|L x1 x2) =
+      <|L (simplify x1) (simplify x2)
+    simplify (|>L x1 x2) =
+      |>L (simplify x1) (simplify x2)
   
   module RightRingoid where
     record RightRingoid
@@ -23366,6 +25098,16 @@ module MathScheme where
       + ri
         (evalOpenTerm _ n ri x1 vars)
         (evalOpenTerm _ n ri x2 vars)
+    simplify :
+      RightRingoidLang ->
+      RightRingoidLang
+    simplify (+L
+              (*L y x)
+              (*L z x)) = *L (+L y z) x
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module RightSelfInverse where
     record RightSelfInverse
@@ -23454,6 +25196,12 @@ module MathScheme where
       |> ri
         (evalOpenTerm _ n ri x1 vars)
         (evalOpenTerm _ n ri x2 vars)
+    simplify :
+      RightSelfInverseLang ->
+      RightSelfInverseLang
+    simplify (|>L (|>L x y) y) = x
+    simplify (|>L x1 x2) =
+      |>L (simplify x1) (simplify x2)
   
   module RightShelf where
     record RightShelf
@@ -23542,6 +25290,13 @@ module MathScheme where
       <| ri
         (evalOpenTerm _ n ri x1 vars)
         (evalOpenTerm _ n ri x2 vars)
+    simplify :
+      RightShelfLang -> RightShelfLang
+    simplify (<|L
+              (<|L y x)
+              (<|L z x)) = <|L (<|L y z) x
+    simplify (<|L x1 x2) =
+      <|L (simplify x1) (simplify x2)
   
   module RightShelfSig where
     record RightShelfSig
@@ -23622,6 +25377,11 @@ module MathScheme where
       <| ri
         (evalOpenTerm _ n ri x1 vars)
         (evalOpenTerm _ n ri x2 vars)
+    simplify :
+      RightShelfSigLang ->
+      RightShelfSigLang
+    simplify (<|L x1 x2) =
+      <|L (simplify x1) (simplify x2)
   
   module RightSpindle where
     record RightSpindle
@@ -23717,6 +25477,15 @@ module MathScheme where
       <| ri
         (evalOpenTerm _ n ri x1 vars)
         (evalOpenTerm _ n ri x2 vars)
+    simplify :
+      RightSpindleLang ->
+      RightSpindleLang
+    simplify (<|L
+              (<|L y x)
+              (<|L z x)) = <|L (<|L y z) x
+    simplify (<|L x x) = x
+    simplify (<|L x1 x2) =
+      <|L (simplify x1) (simplify x2)
   
   module RightSpindle_Shelf where
     record RightSpindle_Shelf
@@ -23856,6 +25625,20 @@ module MathScheme where
       |> ri
         (evalOpenTerm _ n ri x1 vars)
         (evalOpenTerm _ n ri x2 vars)
+    simplify :
+      RightSpindle_ShelfLang ->
+      RightSpindle_ShelfLang
+    simplify (<|L
+              (<|L y x)
+              (<|L z x)) = <|L (<|L y z) x
+    simplify (<|L x x) = x
+    simplify (|>L
+              (|>L x y)
+              (|>L x z)) = |>L x (|>L y z)
+    simplify (<|L x1 x2) =
+      <|L (simplify x1) (simplify x2)
+    simplify (|>L x1 x2) =
+      |>L (simplify x1) (simplify x2)
   
   module RightSpindle_ShelfSig where
     record RightSpindle_ShelfSig
@@ -23989,6 +25772,17 @@ module MathScheme where
       |> ri
         (evalOpenTerm _ n ri x1 vars)
         (evalOpenTerm _ n ri x2 vars)
+    simplify :
+      RightSpindle_ShelfSigLang ->
+      RightSpindle_ShelfSigLang
+    simplify (<|L
+              (<|L y x)
+              (<|L z x)) = <|L (<|L y z) x
+    simplify (<|L x x) = x
+    simplify (<|L x1 x2) =
+      <|L (simplify x1) (simplify x2)
+    simplify (|>L x1 x2) =
+      |>L (simplify x1) (simplify x2)
   
   module RightUnital where
     record RightUnital
@@ -24083,6 +25877,13 @@ module MathScheme where
       op ri
         (evalOpenTerm _ n ri x1 vars)
         (evalOpenTerm _ n ri x2 vars)
+    simplify :
+      RightUnitalLang ->
+      RightUnitalLang
+    simplify (opL x (eL)) = x
+    simplify (eL) = eL
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module RightZero where
     record RightZero
@@ -24175,6 +25976,12 @@ module MathScheme where
       op ri
         (evalOpenTerm _ n ri x1 vars)
         (evalOpenTerm _ n ri x2 vars)
+    simplify :
+      RightZeroLang -> RightZeroLang
+    simplify (opL x (eL)) = eL
+    simplify (eL) = eL
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module Ring where
     record Ring
@@ -24397,6 +26204,29 @@ module MathScheme where
         (evalOpenTerm _ n ri x1 vars)
     evalOpenTerm _ n ri (1OL) vars =
       1 ri
+    simplify : RingLang -> RingLang
+    simplify (+L (0L) x) = x
+    simplify (+L x (0L)) = x
+    simplify (+L
+              (*L x y)
+              (*L x z)) = *L x (+L y z)
+    simplify (+L
+              (*L y x)
+              (*L z x)) = *L (+L y z) x
+    simplify (+L x (negL x)) = 0L
+    simplify (+L (negL x) x) = 0L
+    simplify (*L (1L) x) = x
+    simplify (*L x (1L)) = x
+    simplify (*L (0L) x) = 0L
+    simplify (*L x (0L)) = 0L
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
+    simplify (0L) = 0L
+    simplify (negL x1) =
+      negL (simplify x1)
+    simplify (1L) = 1L
   
   module Ringoid where
     record Ringoid
@@ -24521,6 +26351,18 @@ module MathScheme where
       + ri
         (evalOpenTerm _ n ri x1 vars)
         (evalOpenTerm _ n ri x2 vars)
+    simplify :
+      RingoidLang -> RingoidLang
+    simplify (+L
+              (*L x y)
+              (*L x z)) = *L x (+L y z)
+    simplify (+L
+              (*L y x)
+              (*L z x)) = *L (+L y z) x
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module Ringoid01Sig where
     record Ringoid01Sig
@@ -24656,6 +26498,15 @@ module MathScheme where
       0 ri
     evalOpenTerm _ n ri (1OL) vars =
       1 ri
+    simplify :
+      Ringoid01SigLang ->
+      Ringoid01SigLang
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
+    simplify (0L) = 0L
+    simplify (1L) = 1L
   
   module Ringoid0Sig where
     record Ringoid0Sig
@@ -24779,6 +26630,14 @@ module MathScheme where
       * ri
         (evalOpenTerm _ n ri x1 vars)
         (evalOpenTerm _ n ri x2 vars)
+    simplify :
+      Ringoid0SigLang ->
+      Ringoid0SigLang
+    simplify (0L) = 0L
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
   
   module Ringoid1 where
     record Ringoid1
@@ -24915,6 +26774,19 @@ module MathScheme where
         (evalOpenTerm _ n ri x2 vars)
     evalOpenTerm _ n ri (1OL) vars =
       1 ri
+    simplify :
+      Ringoid1Lang -> Ringoid1Lang
+    simplify (+L
+              (*L x y)
+              (*L x z)) = *L x (+L y z)
+    simplify (+L
+              (*L y x)
+              (*L z x)) = *L (+L y z) x
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
+    simplify (1L) = 1L
   
   module Ringoid1Sig where
     record Ringoid1Sig
@@ -25038,6 +26910,14 @@ module MathScheme where
       + ri
         (evalOpenTerm _ n ri x1 vars)
         (evalOpenTerm _ n ri x2 vars)
+    simplify :
+      Ringoid1SigLang ->
+      Ringoid1SigLang
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (1L) = 1L
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module RingoidSig where
     record RingoidSig
@@ -25148,6 +27028,12 @@ module MathScheme where
       + ri
         (evalOpenTerm _ n ri x1 vars)
         (evalOpenTerm _ n ri x2 vars)
+    simplify :
+      RingoidSigLang -> RingoidSigLang
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module RingoidWithAddAntiDistrib where
     record RingoidWithAddAntiDistrib
@@ -25325,6 +27211,24 @@ module MathScheme where
       * ri
         (evalOpenTerm _ n ri x1 vars)
         (evalOpenTerm _ n ri x2 vars)
+    simplify :
+      RingoidWithAddAntiDistribLang ->
+      RingoidWithAddAntiDistribLang
+    simplify (+L
+              (primL y)
+              (primL x)) = primL (+L x y)
+    simplify (+L
+              (*L x y)
+              (*L x z)) = *L x (+L y z)
+    simplify (+L
+              (*L y x)
+              (*L z x)) = *L (+L y z) x
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
+    simplify (primL x1) =
+      primL (simplify x1)
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
   
   module RingoidWithInvolution where
     record RingoidWithInvolution
@@ -25486,6 +27390,21 @@ module MathScheme where
                          x1) vars =
       prim ri
         (evalOpenTerm _ n ri x1 vars)
+    simplify :
+      RingoidWithInvolutionLang ->
+      RingoidWithInvolutionLang
+    simplify (+L
+              (*L x y)
+              (*L x z)) = *L x (+L y z)
+    simplify (+L
+              (*L y x)
+              (*L z x)) = *L (+L y z) x
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
+    simplify (primL x1) =
+      primL (simplify x1)
   
   module RingoidWithMultAntiDistrib where
     record RingoidWithMultAntiDistrib
@@ -25663,6 +27582,24 @@ module MathScheme where
       + ri
         (evalOpenTerm _ n ri x1 vars)
         (evalOpenTerm _ n ri x2 vars)
+    simplify :
+      RingoidWithMultAntiDistribLang ->
+      RingoidWithMultAntiDistribLang
+    simplify (*L
+              (primL y)
+              (primL x)) = primL (*L x y)
+    simplify (+L
+              (*L x y)
+              (*L x z)) = *L x (+L y z)
+    simplify (+L
+              (*L y x)
+              (*L z x)) = *L (+L y z) x
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (primL x1) =
+      primL (simplify x1)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   
   module Rng where
     record Rng (A : Set) : Set where
@@ -25855,6 +27792,24 @@ module MathScheme where
       * rn
         (evalOpenTerm _ n rn x1 vars)
         (evalOpenTerm _ n rn x2 vars)
+    simplify : RngLang -> RngLang
+    simplify (+L (0L) x) = x
+    simplify (+L x (0L)) = x
+    simplify (+L x (negL x)) = 0L
+    simplify (+L (negL x) x) = 0L
+    simplify (+L
+              (*L x y)
+              (*L x z)) = *L x (+L y z)
+    simplify (+L
+              (*L y x)
+              (*L z x)) = *L (+L y z) x
+    simplify (0L) = 0L
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
+    simplify (negL x1) =
+      negL (simplify x1)
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
   
   module SemiRng where
     record SemiRng
@@ -26023,6 +27978,21 @@ module MathScheme where
         (evalOpenTerm _ n se x2 vars)
     evalOpenTerm _ n se (0OL) vars =
       0 se
+    simplify :
+      SemiRngLang -> SemiRngLang
+    simplify (+L (0L) x) = x
+    simplify (+L x (0L)) = x
+    simplify (+L
+              (*L x y)
+              (*L x z)) = *L x (+L y z)
+    simplify (+L
+              (*L y x)
+              (*L z x)) = *L (+L y z) x
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
+    simplify (0L) = 0L
   
   module SemiRngWithUnit where
     record SemiRngWithUnit
@@ -26218,6 +28188,25 @@ module MathScheme where
         (evalOpenTerm _ n se x2 vars)
     evalOpenTerm _ n se (0OL) vars =
       0 se
+    simplify :
+      SemiRngWithUnitLang ->
+      SemiRngWithUnitLang
+    simplify (*L (1L) x) = x
+    simplify (*L x (1L)) = x
+    simplify (+L (0L) x) = x
+    simplify (+L x (0L)) = x
+    simplify (+L
+              (*L x y)
+              (*L x z)) = *L x (+L y z)
+    simplify (+L
+              (*L y x)
+              (*L z x)) = *L (+L y z) x
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (1L) = 1L
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
+    simplify (0L) = 0L
   
   module Semigroup where
     record Semigroup
@@ -26303,6 +28292,10 @@ module MathScheme where
       op se
         (evalOpenTerm _ n se x1 vars)
         (evalOpenTerm _ n se x2 vars)
+    simplify :
+      SemigroupLang -> SemigroupLang
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module Semiring where
     record Semiring
@@ -26501,6 +28494,26 @@ module MathScheme where
         (evalOpenTerm _ n se x2 vars)
     evalOpenTerm _ n se (1OL) vars =
       1 se
+    simplify :
+      SemiringLang -> SemiringLang
+    simplify (*L (1L) x) = x
+    simplify (*L x (1L)) = x
+    simplify (+L (0L) x) = x
+    simplify (+L x (0L)) = x
+    simplify (+L
+              (*L x y)
+              (*L x z)) = *L x (+L y z)
+    simplify (+L
+              (*L y x)
+              (*L z x)) = *L (+L y z) x
+    simplify (*L (0L) x) = 0L
+    simplify (*L x (0L)) = 0L
+    simplify (0L) = 0L
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (1L) = 1L
   
   module Shelf where
     record Shelf
@@ -26626,6 +28639,18 @@ module MathScheme where
       <| sh
         (evalOpenTerm _ n sh x1 vars)
         (evalOpenTerm _ n sh x2 vars)
+    simplify :
+      ShelfLang -> ShelfLang
+    simplify (|>L
+              (|>L x y)
+              (|>L x z)) = |>L x (|>L y z)
+    simplify (<|L
+              (<|L y x)
+              (<|L z x)) = <|L (<|L y z) x
+    simplify (|>L x1 x2) =
+      |>L (simplify x1) (simplify x2)
+    simplify (<|L x1 x2) =
+      <|L (simplify x1) (simplify x2)
   
   module ShelfSig where
     record ShelfSig
@@ -26733,6 +28758,12 @@ module MathScheme where
       <| sh
         (evalOpenTerm _ n sh x1 vars)
         (evalOpenTerm _ n sh x2 vars)
+    simplify :
+      ShelfSigLang -> ShelfSigLang
+    simplify (|>L x1 x2) =
+      |>L (simplify x1) (simplify x2)
+    simplify (<|L x1 x2) =
+      <|L (simplify x1) (simplify x2)
   
   module Sloop where
     record Sloop
@@ -26836,6 +28867,13 @@ module MathScheme where
       op sl
         (evalOpenTerm _ n sl x1 vars)
         (evalOpenTerm _ n sl x2 vars)
+    simplify :
+      SloopLang -> SloopLang
+    simplify (opL x (opL x y)) = y
+    simplify (opL x x) = eL
+    simplify (eL) = eL
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module Spindle where
     record Spindle
@@ -26972,6 +29010,20 @@ module MathScheme where
       <| sp
         (evalOpenTerm _ n sp x1 vars)
         (evalOpenTerm _ n sp x2 vars)
+    simplify :
+      SpindleLang -> SpindleLang
+    simplify (|>L
+              (|>L x y)
+              (|>L x z)) = |>L x (|>L y z)
+    simplify (<|L
+              (<|L y x)
+              (<|L z x)) = <|L (<|L y z) x
+    simplify (|>L x x) = x
+    simplify (<|L x x) = x
+    simplify (|>L x1 x2) =
+      |>L (simplify x1) (simplify x2)
+    simplify (<|L x1 x2) =
+      <|L (simplify x1) (simplify x2)
   
   module Squag where
     record Squag
@@ -27064,6 +29116,12 @@ module MathScheme where
       op sq
         (evalOpenTerm _ n sq x1 vars)
         (evalOpenTerm _ n sq x2 vars)
+    simplify :
+      SquagLang -> SquagLang
+    simplify (opL x (opL x y)) = y
+    simplify (opL x x) = x
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module SteinerMagma where
     record SteinerMagma
@@ -27158,6 +29216,12 @@ module MathScheme where
       op st
         (evalOpenTerm _ n st x1 vars)
         (evalOpenTerm _ n st x2 vars)
+    simplify :
+      SteinerMagmaLang ->
+      SteinerMagmaLang
+    simplify (opL x (opL x y)) = y
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module TwoPointed where
     record TwoPointed
@@ -27226,6 +29290,10 @@ module MathScheme where
       e1 tw
     evalOpenTerm _ n tw (e2OL) vars =
       e2 tw
+    simplify :
+      TwoPointedLang -> TwoPointedLang
+    simplify (e1L) = e1L
+    simplify (e2L) = e2L
   
   module TwoPointed01 where
     record TwoPointed01
@@ -27295,6 +29363,11 @@ module MathScheme where
       e1 tw
     evalOpenTerm _ n tw (e2OL) vars =
       e2 tw
+    simplify :
+      TwoPointed01Lang ->
+      TwoPointed01Lang
+    simplify (e1L) = e1L
+    simplify (e2L) = e2L
   
   module UnaryAntiDistribution where
     record UnaryAntiDistribution
@@ -27412,6 +29485,16 @@ module MathScheme where
       op un
         (evalOpenTerm _ n un x1 vars)
         (evalOpenTerm _ n un x2 vars)
+    simplify :
+      UnaryAntiDistributionLang ->
+      UnaryAntiDistributionLang
+    simplify (opL
+              (primL y)
+              (primL x)) = primL (opL x y)
+    simplify (primL x1) =
+      primL (simplify x1)
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module UnaryDistributes where
     record UnaryDistributes
@@ -27526,6 +29609,16 @@ module MathScheme where
       op un
         (evalOpenTerm _ n un x1 vars)
         (evalOpenTerm _ n un x2 vars)
+    simplify :
+      UnaryDistributesLang ->
+      UnaryDistributesLang
+    simplify (opL
+              (primL x)
+              (primL y)) = primL (opL x y)
+    simplify (primL x1) =
+      primL (simplify x1)
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module UnaryOperation where
     record UnaryOperation
@@ -27598,6 +29691,11 @@ module MathScheme where
                          x1) vars =
       prim un
         (evalOpenTerm _ n un x1 vars)
+    simplify :
+      UnaryOperationLang ->
+      UnaryOperationLang
+    simplify (primL x1) =
+      primL (simplify x1)
   
   module UnipotentPointedMagma where
     record UnipotentPointedMagma
@@ -27698,6 +29796,13 @@ module MathScheme where
       op un
         (evalOpenTerm _ n un x1 vars)
         (evalOpenTerm _ n un x2 vars)
+    simplify :
+      UnipotentPointedMagmaLang ->
+      UnipotentPointedMagmaLang
+    simplify (opL x x) = eL
+    simplify (eL) = eL
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module Unital where
     record Unital
@@ -27790,6 +29895,13 @@ module MathScheme where
       op un
         (evalOpenTerm _ n un x1 vars)
         (evalOpenTerm _ n un x2 vars)
+    simplify :
+      UnitalLang -> UnitalLang
+    simplify (opL (eL) x) = x
+    simplify (opL x (eL)) = x
+    simplify (eL) = eL
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module Zero where
     record Zero
@@ -27882,6 +29994,12 @@ module MathScheme where
       op ze
         (evalOpenTerm _ n ze x1 vars)
         (evalOpenTerm _ n ze x2 vars)
+    simplify : ZeroLang -> ZeroLang
+    simplify (opL (eL) x) = eL
+    simplify (opL x (eL)) = eL
+    simplify (eL) = eL
+    simplify (opL x1 x2) =
+      opL (simplify x1) (simplify x2)
   
   module Zero0 where
     record Zero0
@@ -27976,6 +30094,13 @@ module MathScheme where
       * ze
         (evalOpenTerm _ n ze x1 vars)
         (evalOpenTerm _ n ze x2 vars)
+    simplify :
+      Zero0Lang -> Zero0Lang
+    simplify (*L (0L) x) = 0L
+    simplify (*L x (0L)) = 0L
+    simplify (0L) = 0L
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
   
   module Zero_Ringoid0Sig where
     record Zero_Ringoid0Sig
@@ -28111,4 +30236,14 @@ module MathScheme where
       + ze
         (evalOpenTerm _ n ze x1 vars)
         (evalOpenTerm _ n ze x2 vars)
+    simplify :
+      Zero_Ringoid0SigLang ->
+      Zero_Ringoid0SigLang
+    simplify (*L (0L) x) = 0L
+    simplify (*L x (0L)) = 0L
+    simplify (0L) = 0L
+    simplify (*L x1 x2) =
+      *L (simplify x1) (simplify x2)
+    simplify (+L x1 x2) =
+      +L (simplify x1) (simplify x2)
   

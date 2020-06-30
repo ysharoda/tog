@@ -21,7 +21,7 @@ import           Tog.Deriving.OpenTermLang
 import           Tog.Deriving.Evaluator
 import           Tog.Deriving.OpenTermEvaluator
 import           Tog.Deriving.TogPrelude (prelude)
---import           Tog.Deriving.PartialEvaluator 
+import           Tog.Deriving.Simplifier 
 
 processDefs :: [Language] -> Module
 processDefs = processModule . defsToModule
@@ -46,13 +46,16 @@ leverageThry thry =
      openTrmLang = openTermLang thry
      evalTrmLang = evalFunc thry
      evalOpenTrmLang = openEvalFunc thry 
-     -- peval = partialEval thry 
+     simplifier = simplifyFunc thry 
  in [sigs, prodthry, hom, relInterp] ++ 
-    [trmlang, openTrmLang] ++ evalTrmLang ++ evalOpenTrmLang
+    [trmlang, openTrmLang] ++ evalTrmLang ++ evalOpenTrmLang ++ simplifier 
 
 genEverything :: InnerModule -> InnerModule
 genEverything m@(Module_ (Module n p (Decl_ decls))) =
-  Module_ (Module n p (Decl_ $ decls ++ (concatMap leverageThry $ getEqTheories m)))
+  Module_ (Module n p (Decl_ $
+    -- [strToDecl "open NatNum ; open Prelude ; "] ++ 
+    decls ++
+    (concatMap leverageThry $ getEqTheories m)))
 genEverything x = x  
 
 {- ------- Filtering the EqTheories ------------ -} 
