@@ -26,3 +26,6 @@ auto-save-list
 tramp
 .\#*
 /papers/type-checking-metas.tex
+.DS_Store
+.stack-work/
+stack.yaml.lock
