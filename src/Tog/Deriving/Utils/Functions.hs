@@ -2,7 +2,7 @@ module Tog.Deriving.Utils.Functions where
 
 import Tog.Raw.Abs
 import Tog.Deriving.Types  (Name_)
-import Tog.Deriving.TUtils (mkQName, mkArg, exprArity, genVars) 
+import Tog.Deriving.TUtils (mkName, mkQName, mkArg, exprArity, genVars) 
 
 import Tog.Deriving.Lenses (name)
 import Control.Lens ((^.))
@@ -39,6 +39,7 @@ instance MkPattern FApp where
     _ -> error "unknown pattern"
   mkPattern _ = error "unknown pattern"   
 
+-- Given a func type, like (op : A -> A -> A), it returns an expr (op x1 x2) 
 fapp :: FType -> FApp
 fapp (Constr n typ) =
  let nm = n ^. name
@@ -55,4 +56,12 @@ functor fnm (App (a:as)) = App $ a : map (\x -> Arg $ App [mkArg fnm,x]) as
 functor _ _ = error "invalid function application" 
 -- QQ: Can we do better than passsing the name?
 -- i.e.: pass a unary function (Expr -> Expr) 
+
+curry' :: [Arg] -> Expr
+curry' [x] = App [x]
+curry' (x:xs) = Fun (App [x]) (curry' xs) 
+
+mkTypeSig :: Name_ -> [Arg] -> TypeSig
+mkTypeSig fname args =
+  Sig (mkName fname) (curry' args) 
 
