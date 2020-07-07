@@ -48,7 +48,10 @@ library
 		     , Tog.Deriving.OpenTermEvaluator
 		     , Tog.Deriving.TogPrelude
                      , Tog.Deriving.Utils.Functions
-                     , Tog.Deriving.Simplifier   
+                     , Tog.Deriving.Simplifier
+                     , Tog.Deriving.Utils.Variables
+                     , Tog.Deriving.StagedTerms
+                     , Tog.Deriving.Utils.Types 
                      
   other-modules:       Data.Collect
                      , Tog.Instrumentation.Conf

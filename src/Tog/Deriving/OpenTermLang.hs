@@ -1,6 +1,8 @@
 module Tog.Deriving.OpenTermLang
   ( openLangNm,
     olangSuffix,
+    mapping, 
+    openLangTyp,  
     varsConstrName, 
     openTermLang) where
 
@@ -10,7 +12,9 @@ import Tog.Deriving.Types (Name_)
 import Tog.Raw.Abs
 import Tog.Deriving.Utils.Renames
 import Tog.Deriving.Types (gmap)
+import Tog.Deriving.Lenses 
 
+import Data.Map as Map (Map,fromList) 
 import Control.Lens ((^.))
 
 varsConstrName :: String 
@@ -19,8 +23,18 @@ varsConstrName = "v"
 openLangNm :: Eq.EqTheory -> Name_ 
 openLangNm thy = thy ^. thyName ++ "OpenLang"
 
+openLangTyp :: Eq.EqTheory -> Expr
+openLangTyp eq =
+  Pi (Tel [HBind [mkArg "n"] (App [mkArg "Nat"])]) $
+   (App [mkArg $ openLangNm eq, mkArg "n"]) 
+
 olangSuffix :: String
 olangSuffix = "OL"
+
+mapping :: EqTheory -> Map Name_ Name_
+mapping eq =
+  let names = map (\(Constr n _) -> n ^. name) (eq ^. funcTypes) 
+  in Map.fromList (zip names (map (++ olangSuffix) names)) 
 
 liftConstr :: Expr -> Expr 
 liftConstr (App [arg]) = (App [arg,mkArg "n"])

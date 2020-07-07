@@ -50,9 +50,7 @@ simplify (Constr _ e) =
 -- The type of the simplify function 
 simpType :: EqTheory -> Decl
 simpType eq =
-  TypeSig $ mkTypeSig simpFunNm (take 2 $ repeat$  mkArg (TL.termLangNm eq)) 
---  TypeSig $ Sig (mkName simpFunNm)
---    (Fun (App [mkArg $ TL.termLangNm eq]) (App [mkArg $ TL.termLangNm eq])) 
+  TypeSig $ mkSimpTypeSig simpFunNm (take 2 $ repeat$  mkArg (TL.termLangNm eq)) 
 
 -- simplification rules 
 simpRules :: [Constr] -> [Decl]

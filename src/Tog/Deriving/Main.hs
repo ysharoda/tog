@@ -21,7 +21,8 @@ import           Tog.Deriving.OpenTermLang
 import           Tog.Deriving.Evaluator
 import           Tog.Deriving.OpenTermEvaluator
 import           Tog.Deriving.TogPrelude (prelude)
-import           Tog.Deriving.Simplifier 
+import           Tog.Deriving.Simplifier
+import           Tog.Deriving.StagedTerms 
 
 processDefs :: [Language] -> Module
 processDefs = processModule . defsToModule
@@ -32,7 +33,7 @@ defsToModule = createModules . view (graph . nodes) . computeGraph
 processModule :: Module -> Module
 processModule (Module n p (Decl_ decls)) =
    Module n p $ Decl_ $
-     (prodType : map strToDecl prelude) -- choice, code, comp, staged]) 
+     (prodType : map strToDecl prelude) 
       ++ map genEverything decls   
 processModule _ = error $ "Unparsed theory expressions exists" 
 
@@ -46,9 +47,12 @@ leverageThry thry =
      openTrmLang = openTermLang thry
      evalTrmLang = evalFunc thry
      evalOpenTrmLang = openEvalFunc thry 
-     simplifier = simplifyFunc thry 
+     simplifier = simplifyFunc thry
+     stagedClosedTerms = liftTermCl thry
+     stagedOpenTerms = liftTermOp thry 
  in [sigs, prodthry, hom, relInterp] ++ 
-    [trmlang, openTrmLang] ++ evalTrmLang ++ evalOpenTrmLang ++ simplifier 
+    [trmlang, openTrmLang] ++ evalTrmLang ++ evalOpenTrmLang ++ simplifier ++
+    stagedClosedTerms ++ stagedOpenTerms
 
 genEverything :: InnerModule -> InnerModule
 genEverything m@(Module_ (Module n p (Decl_ decls))) =

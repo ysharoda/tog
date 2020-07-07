@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------
 -- Checking declarations
 ------------------------------------------------------------------------
--- Solved Metas: 14227
+-- Solved Metas: 17873
 -- Unsolved Metas: 0
 ------------------------------------------------------------------------
 -- Unsolved problems: 0
@@ -110,6 +110,102 @@ module MathScheme where
          (sucInj _ _
             (trans _ _ _ _ (sym _ _ _ q) p))
          xs)
+  module Code where
+    
+  
+  open NatNums
+  data Wrap (A : Set) : Set where
+    Q : A -> Wrap A
+  data Stage : Set where
+    s0 : Stage
+    s1 : Stage
+  CodeRep :
+    (A : Set) (s : Stage) -> Set
+  CodeRep A (s0) = A
+  CodeRep A (s1) =
+    Wrap (CodeRep A s0)
+  uncode :
+    (A : Set) ->
+    CodeRep A s1 -> CodeRep A s0
+  uncode _ (Q x) = x
+  code :
+    (A : Set) ->
+    CodeRep A s0 -> CodeRep A s1
+  code _ x = Q x
+  run :
+    (A : Set) -> CodeRep A s1 -> A
+  run _ (Q x) = x
+  module Staging where
+    
+  
+  open Code
+  data Choice : Set where
+    Expr : Choice
+    Const : Choice
+  data Comp
+    (A : Set) (s : Stage) :
+    Set where
+    Computation :
+      Choice ->
+      CodeRep A s -> Comp A s
+  data Staged
+    (A : Set) : Set where
+    Now : A -> Staged A
+    Later : Comp A s1 -> Staged A
+  expr :
+    (A : Set) ->
+    CodeRep A s1 -> Staged A
+  expr _ x =
+    Later (Computation Expr x)
+  const :
+    (A : Set) ->
+    CodeRep A s1 -> Staged A
+  const _ x =
+    Later (Computation Const x)
+  stage0 :
+    (A : Set) -> A -> Staged A
+  stage0 _ x = Now x
+  stage1 :
+    (A : Set) (B : Set) ->
+    (A -> B) ->
+    (CodeRep A s1 ->
+     CodeRep B s1) ->
+    Staged A -> Staged B
+  stage1 _ _ f g (Now x) =
+    Now (f x)
+  stage1 _ _ f g (Later
+                  (Computation _ x)) =
+    expr _ (g x)
+  stage2 :
+    (A : Set) (B : Set) (C : Set) ->
+    (A -> B -> C) ->
+    (CodeRep A s1 ->
+     CodeRep B s1 -> CodeRep C s1) ->
+    Staged A -> Staged B -> Staged C
+  stage2 _ _ _ f _ (Now x) (Now
+                            y) = stage0 _ (f x y)
+  stage2 _ _ _ _ g (Now x) (Later
+                            (Computation _ y)) =
+    expr _ (g (code _ x) y)
+  stage2 _ _ _ _ g (Later
+                    (Computation _ x)) (Now y) =
+    expr _ (g x (code _ y))
+  stage2 _ _ _ _ g (Later
+                    (Computation _ x)) (Later
+                                        (Computation _ y)) =
+    expr _ (g x y)
+  codeLift1 :
+    (A : Set) (B : Set) ->
+    (A -> B) ->
+    CodeRep A s1 -> CodeRep B s1
+  codeLift1 _ _ f (Q x) = Q (f x)
+  codeLift2 :
+    (A : Set) (B : Set) (C : Set) ->
+    (A -> B -> C) ->
+    CodeRep A s1 ->
+    CodeRep B s1 -> CodeRep C s1
+  codeLift2 _ _ _ f (Q x) (Q y) =
+    Q (f x y)
   module AdditiveCommutativeSemigroup where
     record AdditiveCommutativeSemigroup
       (A : Set) : Set where
@@ -220,6 +316,41 @@ module MathScheme where
       AdditiveCommutativeSemigroupLang
     simplify (+L x1 x2) =
       +L (simplify x1) (simplify x2)
+    liftAdditiveCommutativeSemigroupLang :
+      AdditiveCommutativeSemigroupLang ->
+      Staged
+        AdditiveCommutativeSemigroupLang
+    liftAdditiveCommutativeSemigroupLang x =
+      Now x
+    +OL' :
+      (n : Nat) ->
+      AdditiveCommutativeSemigroupOpenLang
+        n ->
+      AdditiveCommutativeSemigroupOpenLang
+        n ->
+      AdditiveCommutativeSemigroupOpenLang
+        n
+    +OL' _ x1 x2 = +OL x1 x2
+    liftAdditiveCommutativeSemigroupOpenLang :
+      (n : Nat) ->
+      AdditiveCommutativeSemigroupOpenLang
+        n ->
+      Staged
+        (AdditiveCommutativeSemigroupOpenLang
+           n)
+    liftAdditiveCommutativeSemigroupOpenLang _ (v
+                                                fin) = const _ (code _ (v fin))
+    liftAdditiveCommutativeSemigroupOpenLang _ (+OL
+                                                x1
+                                                x2) =
+      stage2 _ _ _ (+OL' _)
+        (codeLift2 _ _ _ (+OL' _))
+        (liftAdditiveCommutativeSemigroupOpenLang
+           _
+           x1)
+        (liftAdditiveCommutativeSemigroupOpenLang
+           _
+           x2)
   
   module AdditiveMagma where
     record AdditiveMagma
@@ -305,6 +436,29 @@ module MathScheme where
       AdditiveMagmaLang
     simplify (+L x1 x2) =
       +L (simplify x1) (simplify x2)
+    liftAdditiveMagmaLang :
+      AdditiveMagmaLang ->
+      Staged AdditiveMagmaLang
+    liftAdditiveMagmaLang x = Now x
+    +OL' :
+      (n : Nat) ->
+      AdditiveMagmaOpenLang n ->
+      AdditiveMagmaOpenLang n ->
+      AdditiveMagmaOpenLang n
+    +OL' _ x1 x2 = +OL x1 x2
+    liftAdditiveMagmaOpenLang :
+      (n : Nat) ->
+      AdditiveMagmaOpenLang n ->
+      Staged (AdditiveMagmaOpenLang n)
+    liftAdditiveMagmaOpenLang _ (v
+                                 fin) = const _ (code _ (v fin))
+    liftAdditiveMagmaOpenLang _ (+OL
+                                 x1
+                                 x2) =
+      stage2 _ _ _ (+OL' _)
+        (codeLift2 _ _ _ (+OL' _))
+        (liftAdditiveMagmaOpenLang _ x1)
+        (liftAdditiveMagmaOpenLang _ x2)
   
   module AdditiveMonoid where
     record AdditiveMonoid
@@ -422,6 +576,38 @@ module MathScheme where
     simplify (+L x1 x2) =
       +L (simplify x1) (simplify x2)
     simplify (0L) = 0L
+    liftAdditiveMonoidLang :
+      AdditiveMonoidLang ->
+      Staged AdditiveMonoidLang
+    liftAdditiveMonoidLang x = Now x
+    +OL' :
+      (n : Nat) ->
+      AdditiveMonoidOpenLang n ->
+      AdditiveMonoidOpenLang n ->
+      AdditiveMonoidOpenLang n
+    +OL' _ x1 x2 = +OL x1 x2
+    0OL' :
+      (n : Nat) ->
+      AdditiveMonoidOpenLang n
+    0OL' _ = 0OL
+    liftAdditiveMonoidOpenLang :
+      (n : Nat) ->
+      AdditiveMonoidOpenLang n ->
+      Staged
+        (AdditiveMonoidOpenLang n)
+    liftAdditiveMonoidOpenLang _ (v
+                                  fin) = const _ (code _ (v fin))
+    liftAdditiveMonoidOpenLang _ (+OL
+                                  x1
+                                  x2) =
+      stage2 _ _ _ (+OL' _)
+        (codeLift2 _ _ _ (+OL' _))
+        (liftAdditiveMonoidOpenLang _
+           x1)
+        (liftAdditiveMonoidOpenLang _
+           x2)
+    liftAdditiveMonoidOpenLang _ (0OL) =
+      Now 0OL
   
   module AdditivePointedMagma where
     record AdditivePointedMagma
@@ -523,6 +709,44 @@ module MathScheme where
     simplify (0L) = 0L
     simplify (+L x1 x2) =
       +L (simplify x1) (simplify x2)
+    liftAdditivePointedMagmaLang :
+      AdditivePointedMagmaLang ->
+      Staged AdditivePointedMagmaLang
+    liftAdditivePointedMagmaLang x =
+      Now x
+    0OL' :
+      (n : Nat) ->
+      AdditivePointedMagmaOpenLang n
+    0OL' _ = 0OL
+    +OL' :
+      (n : Nat) ->
+      AdditivePointedMagmaOpenLang
+        n ->
+      AdditivePointedMagmaOpenLang
+        n ->
+      AdditivePointedMagmaOpenLang n
+    +OL' _ x1 x2 = +OL x1 x2
+    liftAdditivePointedMagmaOpenLang :
+      (n : Nat) ->
+      AdditivePointedMagmaOpenLang
+        n ->
+      Staged
+        (AdditivePointedMagmaOpenLang n)
+    liftAdditivePointedMagmaOpenLang _ (v
+                                        fin) = const _ (code _ (v fin))
+    liftAdditivePointedMagmaOpenLang _ (0OL) =
+      Now 0OL
+    liftAdditivePointedMagmaOpenLang _ (+OL
+                                        x1
+                                        x2) =
+      stage2 _ _ _ (+OL' _)
+        (codeLift2 _ _ _ (+OL' _))
+        (liftAdditivePointedMagmaOpenLang
+           _
+           x1)
+        (liftAdditivePointedMagmaOpenLang
+           _
+           x2)
   
   module AdditivePointedSemigroup where
     record AdditivePointedSemigroup
@@ -640,6 +864,48 @@ module MathScheme where
     simplify (0L) = 0L
     simplify (+L x1 x2) =
       +L (simplify x1) (simplify x2)
+    liftAdditivePointedSemigroupLang :
+      AdditivePointedSemigroupLang ->
+      Staged
+        AdditivePointedSemigroupLang
+    liftAdditivePointedSemigroupLang x =
+      Now x
+    0OL' :
+      (n : Nat) ->
+      AdditivePointedSemigroupOpenLang
+        n
+    0OL' _ = 0OL
+    +OL' :
+      (n : Nat) ->
+      AdditivePointedSemigroupOpenLang
+        n ->
+      AdditivePointedSemigroupOpenLang
+        n ->
+      AdditivePointedSemigroupOpenLang
+        n
+    +OL' _ x1 x2 = +OL x1 x2
+    liftAdditivePointedSemigroupOpenLang :
+      (n : Nat) ->
+      AdditivePointedSemigroupOpenLang
+        n ->
+      Staged
+        (AdditivePointedSemigroupOpenLang
+           n)
+    liftAdditivePointedSemigroupOpenLang _ (v
+                                            fin) = const _ (code _ (v fin))
+    liftAdditivePointedSemigroupOpenLang _ (0OL) =
+      Now 0OL
+    liftAdditivePointedSemigroupOpenLang _ (+OL
+                                            x1
+                                            x2) =
+      stage2 _ _ _ (+OL' _)
+        (codeLift2 _ _ _ (+OL' _))
+        (liftAdditivePointedSemigroupOpenLang
+           _
+           x1)
+        (liftAdditivePointedSemigroupOpenLang
+           _
+           x2)
   
   module AdditiveSemigroup where
     record AdditiveSemigroup
@@ -735,6 +1001,33 @@ module MathScheme where
       AdditiveSemigroupLang
     simplify (+L x1 x2) =
       +L (simplify x1) (simplify x2)
+    liftAdditiveSemigroupLang :
+      AdditiveSemigroupLang ->
+      Staged AdditiveSemigroupLang
+    liftAdditiveSemigroupLang x =
+      Now x
+    +OL' :
+      (n : Nat) ->
+      AdditiveSemigroupOpenLang n ->
+      AdditiveSemigroupOpenLang n ->
+      AdditiveSemigroupOpenLang n
+    +OL' _ x1 x2 = +OL x1 x2
+    liftAdditiveSemigroupOpenLang :
+      (n : Nat) ->
+      AdditiveSemigroupOpenLang n ->
+      Staged
+        (AdditiveSemigroupOpenLang n)
+    liftAdditiveSemigroupOpenLang _ (v
+                                     fin) = const _ (code _ (v fin))
+    liftAdditiveSemigroupOpenLang _ (+OL
+                                     x1
+                                     x2) =
+      stage2 _ _ _ (+OL' _)
+        (codeLift2 _ _ _ (+OL' _))
+        (liftAdditiveSemigroupOpenLang _
+           x1)
+        (liftAdditiveSemigroupOpenLang _
+           x2)
   
   module AdditiveUnital where
     record AdditiveUnital
@@ -843,6 +1136,38 @@ module MathScheme where
     simplify (0L) = 0L
     simplify (+L x1 x2) =
       +L (simplify x1) (simplify x2)
+    liftAdditiveUnitalLang :
+      AdditiveUnitalLang ->
+      Staged AdditiveUnitalLang
+    liftAdditiveUnitalLang x = Now x
+    0OL' :
+      (n : Nat) ->
+      AdditiveUnitalOpenLang n
+    0OL' _ = 0OL
+    +OL' :
+      (n : Nat) ->
+      AdditiveUnitalOpenLang n ->
+      AdditiveUnitalOpenLang n ->
+      AdditiveUnitalOpenLang n
+    +OL' _ x1 x2 = +OL x1 x2
+    liftAdditiveUnitalOpenLang :
+      (n : Nat) ->
+      AdditiveUnitalOpenLang n ->
+      Staged
+        (AdditiveUnitalOpenLang n)
+    liftAdditiveUnitalOpenLang _ (v
+                                  fin) = const _ (code _ (v fin))
+    liftAdditiveUnitalOpenLang _ (0OL) =
+      Now 0OL
+    liftAdditiveUnitalOpenLang _ (+OL
+                                  x1
+                                  x2) =
+      stage2 _ _ _ (+OL' _)
+        (codeLift2 _ _ _ (+OL' _))
+        (liftAdditiveUnitalOpenLang _
+           x1)
+        (liftAdditiveUnitalOpenLang _
+           x2)
   
   module Carrier where
     record Carrier
@@ -891,6 +1216,16 @@ module MathScheme where
                          fin) vars = lookup _ n fin vars
     simplify :
       CarrierLang -> CarrierLang
+    liftCarrierLang :
+      CarrierLang ->
+      Staged CarrierLang
+    liftCarrierLang x = Now x
+    liftCarrierOpenLang :
+      (n : Nat) ->
+      CarrierOpenLang n ->
+      Staged (CarrierOpenLang n)
+    liftCarrierOpenLang _ (v fin) =
+      const _ (code _ (v fin))
   
   module CommutativeMagma where
     record CommutativeMagma
@@ -984,6 +1319,33 @@ module MathScheme where
       CommutativeMagmaLang
     simplify (opL x1 x2) =
       opL (simplify x1) (simplify x2)
+    liftCommutativeMagmaLang :
+      CommutativeMagmaLang ->
+      Staged CommutativeMagmaLang
+    liftCommutativeMagmaLang x =
+      Now x
+    opOL' :
+      (n : Nat) ->
+      CommutativeMagmaOpenLang n ->
+      CommutativeMagmaOpenLang n ->
+      CommutativeMagmaOpenLang n
+    opOL' _ x1 x2 = opOL x1 x2
+    liftCommutativeMagmaOpenLang :
+      (n : Nat) ->
+      CommutativeMagmaOpenLang n ->
+      Staged
+        (CommutativeMagmaOpenLang n)
+    liftCommutativeMagmaOpenLang _ (v
+                                    fin) = const _ (code _ (v fin))
+    liftCommutativeMagmaOpenLang _ (opOL
+                                    x1
+                                    x2) =
+      stage2 _ _ _ (opOL' _)
+        (codeLift2 _ _ _ (opOL' _))
+        (liftCommutativeMagmaOpenLang _
+           x1)
+        (liftCommutativeMagmaOpenLang _
+           x2)
   
   module CommutativeMonoid where
     record CommutativeMonoid
@@ -1109,6 +1471,39 @@ module MathScheme where
     simplify (opL x1 x2) =
       opL (simplify x1) (simplify x2)
     simplify (eL) = eL
+    liftCommutativeMonoidLang :
+      CommutativeMonoidLang ->
+      Staged CommutativeMonoidLang
+    liftCommutativeMonoidLang x =
+      Now x
+    opOL' :
+      (n : Nat) ->
+      CommutativeMonoidOpenLang n ->
+      CommutativeMonoidOpenLang n ->
+      CommutativeMonoidOpenLang n
+    opOL' _ x1 x2 = opOL x1 x2
+    eOL' :
+      (n : Nat) ->
+      CommutativeMonoidOpenLang n
+    eOL' _ = eOL
+    liftCommutativeMonoidOpenLang :
+      (n : Nat) ->
+      CommutativeMonoidOpenLang n ->
+      Staged
+        (CommutativeMonoidOpenLang n)
+    liftCommutativeMonoidOpenLang _ (v
+                                     fin) = const _ (code _ (v fin))
+    liftCommutativeMonoidOpenLang _ (opOL
+                                     x1
+                                     x2) =
+      stage2 _ _ _ (opOL' _)
+        (codeLift2 _ _ _ (opOL' _))
+        (liftCommutativeMonoidOpenLang _
+           x1)
+        (liftCommutativeMonoidOpenLang _
+           x2)
+    liftCommutativeMonoidOpenLang _ (eOL) =
+      Now eOL
   
   module CommutativeSemigroup where
     record CommutativeSemigroup
@@ -1213,6 +1608,38 @@ module MathScheme where
       CommutativeSemigroupLang
     simplify (opL x1 x2) =
       opL (simplify x1) (simplify x2)
+    liftCommutativeSemigroupLang :
+      CommutativeSemigroupLang ->
+      Staged CommutativeSemigroupLang
+    liftCommutativeSemigroupLang x =
+      Now x
+    opOL' :
+      (n : Nat) ->
+      CommutativeSemigroupOpenLang
+        n ->
+      CommutativeSemigroupOpenLang
+        n ->
+      CommutativeSemigroupOpenLang n
+    opOL' _ x1 x2 = opOL x1 x2
+    liftCommutativeSemigroupOpenLang :
+      (n : Nat) ->
+      CommutativeSemigroupOpenLang
+        n ->
+      Staged
+        (CommutativeSemigroupOpenLang n)
+    liftCommutativeSemigroupOpenLang _ (v
+                                        fin) = const _ (code _ (v fin))
+    liftCommutativeSemigroupOpenLang _ (opOL
+                                        x1
+                                        x2) =
+      stage2 _ _ _ (opOL' _)
+        (codeLift2 _ _ _ (opOL' _))
+        (liftCommutativeSemigroupOpenLang
+           _
+           x1)
+        (liftCommutativeSemigroupOpenLang
+           _
+           x2)
   
   module Empty where
     record Empty : Set where
@@ -1318,6 +1745,35 @@ module MathScheme where
     simplify (eL) = eL
     simplify (opL x1 x2) =
       opL (simplify x1) (simplify x2)
+    liftLeftUnitalLang :
+      LeftUnitalLang ->
+      Staged LeftUnitalLang
+    liftLeftUnitalLang x = Now x
+    eOL' :
+      (n : Nat) ->
+      LeftUnitalOpenLang n
+    eOL' _ = eOL
+    opOL' :
+      (n : Nat) ->
+      LeftUnitalOpenLang n ->
+      LeftUnitalOpenLang n ->
+      LeftUnitalOpenLang n
+    opOL' _ x1 x2 = opOL x1 x2
+    liftLeftUnitalOpenLang :
+      (n : Nat) ->
+      LeftUnitalOpenLang n ->
+      Staged (LeftUnitalOpenLang n)
+    liftLeftUnitalOpenLang _ (v
+                              fin) = const _ (code _ (v fin))
+    liftLeftUnitalOpenLang _ (eOL) =
+      Now eOL
+    liftLeftUnitalOpenLang _ (opOL
+                              x1
+                              x2) =
+      stage2 _ _ _ (opOL' _)
+        (codeLift2 _ _ _ (opOL' _))
+        (liftLeftUnitalOpenLang _ x1)
+        (liftLeftUnitalOpenLang _ x2)
   
   module Magma where
     record Magma
@@ -1395,6 +1851,28 @@ module MathScheme where
       MagmaLang -> MagmaLang
     simplify (opL x1 x2) =
       opL (simplify x1) (simplify x2)
+    liftMagmaLang :
+      MagmaLang -> Staged MagmaLang
+    liftMagmaLang x = Now x
+    opOL' :
+      (n : Nat) ->
+      MagmaOpenLang n ->
+      MagmaOpenLang n ->
+      MagmaOpenLang n
+    opOL' _ x1 x2 = opOL x1 x2
+    liftMagmaOpenLang :
+      (n : Nat) ->
+      MagmaOpenLang n ->
+      Staged (MagmaOpenLang n)
+    liftMagmaOpenLang _ (v fin) =
+      const _ (code _ (v fin))
+    liftMagmaOpenLang _ (opOL
+                         x1
+                         x2) =
+      stage2 _ _ _ (opOL' _)
+        (codeLift2 _ _ _ (opOL' _))
+        (liftMagmaOpenLang _ x1)
+        (liftMagmaOpenLang _ x2)
   
   module Monoid where
     record Monoid
@@ -1503,6 +1981,33 @@ module MathScheme where
     simplify (eL) = eL
     simplify (opL x1 x2) =
       opL (simplify x1) (simplify x2)
+    liftMonoidLang :
+      MonoidLang -> Staged MonoidLang
+    liftMonoidLang x = Now x
+    eOL' :
+      (n : Nat) -> MonoidOpenLang n
+    eOL' _ = eOL
+    opOL' :
+      (n : Nat) ->
+      MonoidOpenLang n ->
+      MonoidOpenLang n ->
+      MonoidOpenLang n
+    opOL' _ x1 x2 = opOL x1 x2
+    liftMonoidOpenLang :
+      (n : Nat) ->
+      MonoidOpenLang n ->
+      Staged (MonoidOpenLang n)
+    liftMonoidOpenLang _ (v fin) =
+      const _ (code _ (v fin))
+    liftMonoidOpenLang _ (eOL) =
+      Now eOL
+    liftMonoidOpenLang _ (opOL
+                          x1
+                          x2) =
+      stage2 _ _ _ (opOL' _)
+        (codeLift2 _ _ _ (opOL' _))
+        (liftMonoidOpenLang _ x1)
+        (liftMonoidOpenLang _ x2)
   
   module Pointed where
     record Pointed
@@ -1559,6 +2064,21 @@ module MathScheme where
     simplify :
       PointedLang -> PointedLang
     simplify (eL) = eL
+    liftPointedLang :
+      PointedLang ->
+      Staged PointedLang
+    liftPointedLang x = Now x
+    eOL' :
+      (n : Nat) -> PointedOpenLang n
+    eOL' _ = eOL
+    liftPointedOpenLang :
+      (n : Nat) ->
+      PointedOpenLang n ->
+      Staged (PointedOpenLang n)
+    liftPointedOpenLang _ (v fin) =
+      const _ (code _ (v fin))
+    liftPointedOpenLang _ (eOL) =
+      Now eOL
   
   module Pointed0Magma where
     record Pointed0Magma
@@ -1656,6 +2176,35 @@ module MathScheme where
     simplify (0L) = 0L
     simplify (opL x1 x2) =
       opL (simplify x1) (simplify x2)
+    liftPointed0MagmaLang :
+      Pointed0MagmaLang ->
+      Staged Pointed0MagmaLang
+    liftPointed0MagmaLang x = Now x
+    0OL' :
+      (n : Nat) ->
+      Pointed0MagmaOpenLang n
+    0OL' _ = 0OL
+    opOL' :
+      (n : Nat) ->
+      Pointed0MagmaOpenLang n ->
+      Pointed0MagmaOpenLang n ->
+      Pointed0MagmaOpenLang n
+    opOL' _ x1 x2 = opOL x1 x2
+    liftPointed0MagmaOpenLang :
+      (n : Nat) ->
+      Pointed0MagmaOpenLang n ->
+      Staged (Pointed0MagmaOpenLang n)
+    liftPointed0MagmaOpenLang _ (v
+                                 fin) = const _ (code _ (v fin))
+    liftPointed0MagmaOpenLang _ (0OL) =
+      Now 0OL
+    liftPointed0MagmaOpenLang _ (opOL
+                                 x1
+                                 x2) =
+      stage2 _ _ _ (opOL' _)
+        (codeLift2 _ _ _ (opOL' _))
+        (liftPointed0MagmaOpenLang _ x1)
+        (liftPointed0MagmaOpenLang _ x2)
   
   module PointedMagma where
     record PointedMagma
@@ -1753,6 +2302,35 @@ module MathScheme where
     simplify (eL) = eL
     simplify (opL x1 x2) =
       opL (simplify x1) (simplify x2)
+    liftPointedMagmaLang :
+      PointedMagmaLang ->
+      Staged PointedMagmaLang
+    liftPointedMagmaLang x = Now x
+    eOL' :
+      (n : Nat) ->
+      PointedMagmaOpenLang n
+    eOL' _ = eOL
+    opOL' :
+      (n : Nat) ->
+      PointedMagmaOpenLang n ->
+      PointedMagmaOpenLang n ->
+      PointedMagmaOpenLang n
+    opOL' _ x1 x2 = opOL x1 x2
+    liftPointedMagmaOpenLang :
+      (n : Nat) ->
+      PointedMagmaOpenLang n ->
+      Staged (PointedMagmaOpenLang n)
+    liftPointedMagmaOpenLang _ (v
+                                fin) = const _ (code _ (v fin))
+    liftPointedMagmaOpenLang _ (eOL) =
+      Now eOL
+    liftPointedMagmaOpenLang _ (opOL
+                                x1
+                                x2) =
+      stage2 _ _ _ (opOL' _)
+        (codeLift2 _ _ _ (opOL' _))
+        (liftPointedMagmaOpenLang _ x1)
+        (liftPointedMagmaOpenLang _ x2)
   
   module PointedOne where
     record PointedOne
@@ -1813,6 +2391,22 @@ module MathScheme where
     simplify :
       PointedOneLang -> PointedOneLang
     simplify (1L) = 1L
+    liftPointedOneLang :
+      PointedOneLang ->
+      Staged PointedOneLang
+    liftPointedOneLang x = Now x
+    1OL' :
+      (n : Nat) ->
+      PointedOneOpenLang n
+    1OL' _ = 1OL
+    liftPointedOneOpenLang :
+      (n : Nat) ->
+      PointedOneOpenLang n ->
+      Staged (PointedOneOpenLang n)
+    liftPointedOneOpenLang _ (v
+                              fin) = const _ (code _ (v fin))
+    liftPointedOneOpenLang _ (1OL) =
+      Now 1OL
   
   module PointedPlusMagma where
     record PointedPlusMagma
@@ -1911,6 +2505,39 @@ module MathScheme where
     simplify (+L x1 x2) =
       +L (simplify x1) (simplify x2)
     simplify (eL) = eL
+    liftPointedPlusMagmaLang :
+      PointedPlusMagmaLang ->
+      Staged PointedPlusMagmaLang
+    liftPointedPlusMagmaLang x =
+      Now x
+    +OL' :
+      (n : Nat) ->
+      PointedPlusMagmaOpenLang n ->
+      PointedPlusMagmaOpenLang n ->
+      PointedPlusMagmaOpenLang n
+    +OL' _ x1 x2 = +OL x1 x2
+    eOL' :
+      (n : Nat) ->
+      PointedPlusMagmaOpenLang n
+    eOL' _ = eOL
+    liftPointedPlusMagmaOpenLang :
+      (n : Nat) ->
+      PointedPlusMagmaOpenLang n ->
+      Staged
+        (PointedPlusMagmaOpenLang n)
+    liftPointedPlusMagmaOpenLang _ (v
+                                    fin) = const _ (code _ (v fin))
+    liftPointedPlusMagmaOpenLang _ (+OL
+                                    x1
+                                    x2) =
+      stage2 _ _ _ (+OL' _)
+        (codeLift2 _ _ _ (+OL' _))
+        (liftPointedPlusMagmaOpenLang _
+           x1)
+        (liftPointedPlusMagmaOpenLang _
+           x2)
+    liftPointedPlusMagmaOpenLang _ (eOL) =
+      Now eOL
   
   module PointedSemigroup where
     record PointedSemigroup
@@ -2018,6 +2645,39 @@ module MathScheme where
     simplify (opL x1 x2) =
       opL (simplify x1) (simplify x2)
     simplify (eL) = eL
+    liftPointedSemigroupLang :
+      PointedSemigroupLang ->
+      Staged PointedSemigroupLang
+    liftPointedSemigroupLang x =
+      Now x
+    opOL' :
+      (n : Nat) ->
+      PointedSemigroupOpenLang n ->
+      PointedSemigroupOpenLang n ->
+      PointedSemigroupOpenLang n
+    opOL' _ x1 x2 = opOL x1 x2
+    eOL' :
+      (n : Nat) ->
+      PointedSemigroupOpenLang n
+    eOL' _ = eOL
+    liftPointedSemigroupOpenLang :
+      (n : Nat) ->
+      PointedSemigroupOpenLang n ->
+      Staged
+        (PointedSemigroupOpenLang n)
+    liftPointedSemigroupOpenLang _ (v
+                                    fin) = const _ (code _ (v fin))
+    liftPointedSemigroupOpenLang _ (opOL
+                                    x1
+                                    x2) =
+      stage2 _ _ _ (opOL' _)
+        (codeLift2 _ _ _ (opOL' _))
+        (liftPointedSemigroupOpenLang _
+           x1)
+        (liftPointedSemigroupOpenLang _
+           x2)
+    liftPointedSemigroupOpenLang _ (eOL) =
+      Now eOL
   
   module PointedZero where
     record PointedZero
@@ -2079,6 +2739,22 @@ module MathScheme where
       PointedZeroLang ->
       PointedZeroLang
     simplify (0L) = 0L
+    liftPointedZeroLang :
+      PointedZeroLang ->
+      Staged PointedZeroLang
+    liftPointedZeroLang x = Now x
+    0OL' :
+      (n : Nat) ->
+      PointedZeroOpenLang n
+    0OL' _ = 0OL
+    liftPointedZeroOpenLang :
+      (n : Nat) ->
+      PointedZeroOpenLang n ->
+      Staged (PointedZeroOpenLang n)
+    liftPointedZeroOpenLang _ (v
+                               fin) = const _ (code _ (v fin))
+    liftPointedZeroOpenLang _ (0OL) =
+      Now 0OL
   
   module RightUnital where
     record RightUnital
@@ -2180,6 +2856,35 @@ module MathScheme where
     simplify (eL) = eL
     simplify (opL x1 x2) =
       opL (simplify x1) (simplify x2)
+    liftRightUnitalLang :
+      RightUnitalLang ->
+      Staged RightUnitalLang
+    liftRightUnitalLang x = Now x
+    eOL' :
+      (n : Nat) ->
+      RightUnitalOpenLang n
+    eOL' _ = eOL
+    opOL' :
+      (n : Nat) ->
+      RightUnitalOpenLang n ->
+      RightUnitalOpenLang n ->
+      RightUnitalOpenLang n
+    opOL' _ x1 x2 = opOL x1 x2
+    liftRightUnitalOpenLang :
+      (n : Nat) ->
+      RightUnitalOpenLang n ->
+      Staged (RightUnitalOpenLang n)
+    liftRightUnitalOpenLang _ (v
+                               fin) = const _ (code _ (v fin))
+    liftRightUnitalOpenLang _ (eOL) =
+      Now eOL
+    liftRightUnitalOpenLang _ (opOL
+                               x1
+                               x2) =
+      stage2 _ _ _ (opOL' _)
+        (codeLift2 _ _ _ (opOL' _))
+        (liftRightUnitalOpenLang _ x1)
+        (liftRightUnitalOpenLang _ x2)
   
   module Semigroup where
     record Semigroup
@@ -2269,6 +2974,29 @@ module MathScheme where
       SemigroupLang -> SemigroupLang
     simplify (opL x1 x2) =
       opL (simplify x1) (simplify x2)
+    liftSemigroupLang :
+      SemigroupLang ->
+      Staged SemigroupLang
+    liftSemigroupLang x = Now x
+    opOL' :
+      (n : Nat) ->
+      SemigroupOpenLang n ->
+      SemigroupOpenLang n ->
+      SemigroupOpenLang n
+    opOL' _ x1 x2 = opOL x1 x2
+    liftSemigroupOpenLang :
+      (n : Nat) ->
+      SemigroupOpenLang n ->
+      Staged (SemigroupOpenLang n)
+    liftSemigroupOpenLang _ (v
+                             fin) = const _ (code _ (v fin))
+    liftSemigroupOpenLang _ (opOL
+                             x1
+                             x2) =
+      stage2 _ _ _ (opOL' _)
+        (codeLift2 _ _ _ (opOL' _))
+        (liftSemigroupOpenLang _ x1)
+        (liftSemigroupOpenLang _ x2)
   
   module Unital where
     record Unital
@@ -2368,4 +3096,31 @@ module MathScheme where
     simplify (eL) = eL
     simplify (opL x1 x2) =
       opL (simplify x1) (simplify x2)
+    liftUnitalLang :
+      UnitalLang -> Staged UnitalLang
+    liftUnitalLang x = Now x
+    eOL' :
+      (n : Nat) -> UnitalOpenLang n
+    eOL' _ = eOL
+    opOL' :
+      (n : Nat) ->
+      UnitalOpenLang n ->
+      UnitalOpenLang n ->
+      UnitalOpenLang n
+    opOL' _ x1 x2 = opOL x1 x2
+    liftUnitalOpenLang :
+      (n : Nat) ->
+      UnitalOpenLang n ->
+      Staged (UnitalOpenLang n)
+    liftUnitalOpenLang _ (v fin) =
+      const _ (code _ (v fin))
+    liftUnitalOpenLang _ (eOL) =
+      Now eOL
+    liftUnitalOpenLang _ (opOL
+                          x1
+                          x2) =
+      stage2 _ _ _ (opOL' _)
+        (codeLift2 _ _ _ (opOL' _))
+        (liftUnitalOpenLang _ x1)
+        (liftUnitalOpenLang _ x2)
   

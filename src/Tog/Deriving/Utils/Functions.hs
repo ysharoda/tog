@@ -15,7 +15,6 @@ class MkPattern a where
   mkPattern :: a -> Pattern
 
 instance MkPattern FType where 
-  --mkPattern _ = IdP $ NotQual $ Name ((0,0),"default")
   mkPattern (Constr n typ) =
    let nm = n ^. name 
        arity = exprArity typ
@@ -57,11 +56,17 @@ functor _ _ = error "invalid function application"
 -- QQ: Can we do better than passsing the name?
 -- i.e.: pass a unary function (Expr -> Expr) 
 
+-- Given a type constructor C and a type A, it returns the type C A. 
+liftType :: Name_ -> Arg -> Arg
+liftType tconstr typ =
+  Arg $ App [mkArg tconstr, typ] 
+
 curry' :: [Arg] -> Expr
 curry' [x] = App [x]
-curry' (x:xs) = Fun (App [x]) (curry' xs) 
+curry' (x:xs) = Fun (App [x]) (curry' xs)
+curry' _ = error "no args passed"
 
-mkTypeSig :: Name_ -> [Arg] -> TypeSig
-mkTypeSig fname args =
+mkSimpTypeSig :: Name_ -> [Arg] -> TypeSig
+mkSimpTypeSig fname args =
   Sig (mkName fname) (curry' args) 
 
