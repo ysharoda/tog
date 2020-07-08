@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------
 -- Checking declarations
 ------------------------------------------------------------------------
--- Solved Metas: 17873
+-- Solved Metas: 18461
 -- Unsolved Metas: 0
 ------------------------------------------------------------------------
 -- Unsolved problems: 0
@@ -351,6 +351,12 @@ module MathScheme where
         (liftAdditiveCommutativeSemigroupOpenLang
            _
            x2)
+    record AdditiveCommutativeSemigroupTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        +T : Repr A -> Repr A -> Repr A
   
   module AdditiveMagma where
     record AdditiveMagma
@@ -459,6 +465,12 @@ module MathScheme where
         (codeLift2 _ _ _ (+OL' _))
         (liftAdditiveMagmaOpenLang _ x1)
         (liftAdditiveMagmaOpenLang _ x2)
+    record AdditiveMagmaTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        +T : Repr A -> Repr A -> Repr A
   
   module AdditiveMonoid where
     record AdditiveMonoid
@@ -608,6 +620,13 @@ module MathScheme where
            x2)
     liftAdditiveMonoidOpenLang _ (0OL) =
       Now 0OL
+    record AdditiveMonoidTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        +T : Repr A -> Repr A -> Repr A
+        0T : Repr A
   
   module AdditivePointedMagma where
     record AdditivePointedMagma
@@ -747,6 +766,13 @@ module MathScheme where
         (liftAdditivePointedMagmaOpenLang
            _
            x2)
+    record AdditivePointedMagmaTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        0T : Repr A
+        +T : Repr A -> Repr A -> Repr A
   
   module AdditivePointedSemigroup where
     record AdditivePointedSemigroup
@@ -906,6 +932,13 @@ module MathScheme where
         (liftAdditivePointedSemigroupOpenLang
            _
            x2)
+    record AdditivePointedSemigroupTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        0T : Repr A
+        +T : Repr A -> Repr A -> Repr A
   
   module AdditiveSemigroup where
     record AdditiveSemigroup
@@ -1028,6 +1061,12 @@ module MathScheme where
            x1)
         (liftAdditiveSemigroupOpenLang _
            x2)
+    record AdditiveSemigroupTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        +T : Repr A -> Repr A -> Repr A
   
   module AdditiveUnital where
     record AdditiveUnital
@@ -1168,6 +1207,13 @@ module MathScheme where
            x1)
         (liftAdditiveUnitalOpenLang _
            x2)
+    record AdditiveUnitalTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        0T : Repr A
+        +T : Repr A -> Repr A -> Repr A
   
   module Carrier where
     record Carrier
@@ -1226,6 +1272,12 @@ module MathScheme where
       Staged (CarrierOpenLang n)
     liftCarrierOpenLang _ (v fin) =
       const _ (code _ (v fin))
+    record CarrierTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        
   
   module CommutativeMagma where
     record CommutativeMagma
@@ -1346,6 +1398,12 @@ module MathScheme where
            x1)
         (liftCommutativeMagmaOpenLang _
            x2)
+    record CommutativeMagmaTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        opT : Repr A -> Repr A -> Repr A
   
   module CommutativeMonoid where
     record CommutativeMonoid
@@ -1504,6 +1562,13 @@ module MathScheme where
            x2)
     liftCommutativeMonoidOpenLang _ (eOL) =
       Now eOL
+    record CommutativeMonoidTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        opT : Repr A -> Repr A -> Repr A
+        eT : Repr A
   
   module CommutativeSemigroup where
     record CommutativeSemigroup
@@ -1640,6 +1705,12 @@ module MathScheme where
         (liftCommutativeSemigroupOpenLang
            _
            x2)
+    record CommutativeSemigroupTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        opT : Repr A -> Repr A -> Repr A
   
   module Empty where
     record Empty : Set where
@@ -1774,6 +1845,13 @@ module MathScheme where
         (codeLift2 _ _ _ (opOL' _))
         (liftLeftUnitalOpenLang _ x1)
         (liftLeftUnitalOpenLang _ x2)
+    record LeftUnitalTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        eT : Repr A
+        opT : Repr A -> Repr A -> Repr A
   
   module Magma where
     record Magma
@@ -1873,6 +1951,12 @@ module MathScheme where
         (codeLift2 _ _ _ (opOL' _))
         (liftMagmaOpenLang _ x1)
         (liftMagmaOpenLang _ x2)
+    record MagmaTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        opT : Repr A -> Repr A -> Repr A
   
   module Monoid where
     record Monoid
@@ -2008,6 +2092,13 @@ module MathScheme where
         (codeLift2 _ _ _ (opOL' _))
         (liftMonoidOpenLang _ x1)
         (liftMonoidOpenLang _ x2)
+    record MonoidTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        eT : Repr A
+        opT : Repr A -> Repr A -> Repr A
   
   module Pointed where
     record Pointed
@@ -2079,6 +2170,12 @@ module MathScheme where
       const _ (code _ (v fin))
     liftPointedOpenLang _ (eOL) =
       Now eOL
+    record PointedTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        eT : Repr A
   
   module Pointed0Magma where
     record Pointed0Magma
@@ -2205,6 +2302,13 @@ module MathScheme where
         (codeLift2 _ _ _ (opOL' _))
         (liftPointed0MagmaOpenLang _ x1)
         (liftPointed0MagmaOpenLang _ x2)
+    record Pointed0MagmaTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        0T : Repr A
+        opT : Repr A -> Repr A -> Repr A
   
   module PointedMagma where
     record PointedMagma
@@ -2331,6 +2435,13 @@ module MathScheme where
         (codeLift2 _ _ _ (opOL' _))
         (liftPointedMagmaOpenLang _ x1)
         (liftPointedMagmaOpenLang _ x2)
+    record PointedMagmaTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        eT : Repr A
+        opT : Repr A -> Repr A -> Repr A
   
   module PointedOne where
     record PointedOne
@@ -2407,6 +2518,12 @@ module MathScheme where
                               fin) = const _ (code _ (v fin))
     liftPointedOneOpenLang _ (1OL) =
       Now 1OL
+    record PointedOneTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        1T : Repr A
   
   module PointedPlusMagma where
     record PointedPlusMagma
@@ -2538,6 +2655,13 @@ module MathScheme where
            x2)
     liftPointedPlusMagmaOpenLang _ (eOL) =
       Now eOL
+    record PointedPlusMagmaTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        +T : Repr A -> Repr A -> Repr A
+        eT : Repr A
   
   module PointedSemigroup where
     record PointedSemigroup
@@ -2678,6 +2802,13 @@ module MathScheme where
            x2)
     liftPointedSemigroupOpenLang _ (eOL) =
       Now eOL
+    record PointedSemigroupTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        opT : Repr A -> Repr A -> Repr A
+        eT : Repr A
   
   module PointedZero where
     record PointedZero
@@ -2755,6 +2886,12 @@ module MathScheme where
                                fin) = const _ (code _ (v fin))
     liftPointedZeroOpenLang _ (0OL) =
       Now 0OL
+    record PointedZeroTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        0T : Repr A
   
   module RightUnital where
     record RightUnital
@@ -2885,6 +3022,13 @@ module MathScheme where
         (codeLift2 _ _ _ (opOL' _))
         (liftRightUnitalOpenLang _ x1)
         (liftRightUnitalOpenLang _ x2)
+    record RightUnitalTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        eT : Repr A
+        opT : Repr A -> Repr A -> Repr A
   
   module Semigroup where
     record Semigroup
@@ -2997,6 +3141,12 @@ module MathScheme where
         (codeLift2 _ _ _ (opOL' _))
         (liftSemigroupOpenLang _ x1)
         (liftSemigroupOpenLang _ x2)
+    record SemigroupTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        opT : Repr A -> Repr A -> Repr A
   
   module Unital where
     record Unital
@@ -3123,4 +3273,11 @@ module MathScheme where
         (codeLift2 _ _ _ (opOL' _))
         (liftUnitalOpenLang _ x1)
         (liftUnitalOpenLang _ x2)
+    record UnitalTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        eT : Repr A
+        opT : Repr A -> Repr A -> Repr A
   

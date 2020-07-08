@@ -51,7 +51,8 @@ library
                      , Tog.Deriving.Simplifier
                      , Tog.Deriving.Utils.Variables
                      , Tog.Deriving.StagedTerms
-                     , Tog.Deriving.Utils.Types 
+                     , Tog.Deriving.Utils.Types
+                     , Tog.Deriving.Tagless  
                      
   other-modules:       Data.Collect
                      , Tog.Instrumentation.Conf

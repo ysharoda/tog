@@ -1,7 +1,7 @@
 module Tog.Deriving.Utils.Functions where
 
 import Tog.Raw.Abs
-import Tog.Deriving.Types  (Name_)
+import Tog.Deriving.Types  (Name_, gmap)
 import Tog.Deriving.TUtils (mkName, mkQName, mkArg, exprArity, genVars) 
 
 import Tog.Deriving.Lenses (name)
@@ -60,6 +60,10 @@ functor _ _ = error "invalid function application"
 liftType :: Name_ -> Arg -> Arg
 liftType tconstr typ =
   Arg $ App [mkArg tconstr, typ] 
+
+liftConstr :: Name_ -> Constr -> Constr
+liftConstr tconstr c =
+  gmap (liftType tconstr) c 
 
 curry' :: [Arg] -> Expr
 curry' [x] = App [x]

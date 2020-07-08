@@ -22,7 +22,8 @@ import           Tog.Deriving.Evaluator
 import           Tog.Deriving.OpenTermEvaluator
 import           Tog.Deriving.TogPrelude (prelude)
 import           Tog.Deriving.Simplifier
-import           Tog.Deriving.StagedTerms 
+import           Tog.Deriving.StagedTerms
+import           Tog.Deriving.Tagless 
 
 processDefs :: [Language] -> Module
 processDefs = processModule . defsToModule
@@ -49,10 +50,11 @@ leverageThry thry =
      evalOpenTrmLang = openEvalFunc thry 
      simplifier = simplifyFunc thry
      stagedClosedTerms = liftTermCl thry
-     stagedOpenTerms = liftTermOp thry 
+     stagedOpenTerms = liftTermOp thry
+     tagless = taglessRep thry  
  in [sigs, prodthry, hom, relInterp] ++ 
     [trmlang, openTrmLang] ++ evalTrmLang ++ evalOpenTrmLang ++ simplifier ++
-    stagedClosedTerms ++ stagedOpenTerms
+    stagedClosedTerms ++ stagedOpenTerms ++ [tagless] 
 
 genEverything :: InnerModule -> InnerModule
 genEverything m@(Module_ (Module n p (Decl_ decls))) =
