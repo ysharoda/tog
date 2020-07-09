@@ -117,3 +117,17 @@ record MonoidTagless2 (Repr : Set -> Set) : Set₁ where
     A : Set
     e : Repr A
     op : Repr A -> Repr A -> Repr A
+
+data MagmaTerm : Set where
+  op : MagmaTerm -> MagmaTerm -> MagmaTerm
+
+inductionM : (P : MagmaTerm → Set) → ({x y : MagmaTerm} → P x → P y → P (op x y)) → ((x : MagmaTerm) → P x)
+inductionM p f (op e1 e2) = f (inductionM p f e1) (inductionM p f e2)
+
+data MagmaTerm' (A : Set) : Set where
+  singleton : A → MagmaTerm' A
+  op : MagmaTerm' A → MagmaTerm' A → MagmaTerm' A 
+
+inductionM' : {A : Set} → (P : MagmaTerm' A → Set) → ({x y : MagmaTerm' A} → P x → P y → P (op x y)) → ((x : MagmaTerm' A) → P x)
+inductionM' p f (singleton x₁) = {!!}
+inductionM' p f (op e1 e2) = f (inductionM' p f e1) (inductionM' p f e2)
