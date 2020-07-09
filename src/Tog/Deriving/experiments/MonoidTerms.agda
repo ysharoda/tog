@@ -128,6 +128,6 @@ data MagmaTerm' (A : Set) : Set where
   singleton : A → MagmaTerm' A
   op : MagmaTerm' A → MagmaTerm' A → MagmaTerm' A 
 
-inductionM' : {A : Set} → (P : MagmaTerm' A → Set) → ({x y : MagmaTerm' A} → P x → P y → P (op x y)) → ((x : MagmaTerm' A) → P x)
-inductionM' p f (singleton x₁) = {!!}
-inductionM' p f (op e1 e2) = f (inductionM' p f e1) (inductionM' p f e2)
+inductionM' : {A : Set} → (P : MagmaTerm' A → Set) → ({x : A} → P (singleton x)) → ({x y : MagmaTerm' A} → P x → P y → P (op x y)) → ((x : MagmaTerm' A) → P x)
+inductionM' p psing f (singleton e) = psing {e}
+inductionM' p psing f (op e1 e2) = f (inductionM' p psing f e1) (inductionM' p psing f e2)
