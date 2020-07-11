@@ -61,6 +61,11 @@ liftType :: Name_ -> Arg -> Arg
 liftType tconstr typ =
   Arg $ App [mkArg tconstr, typ] 
 
+liftType' :: Name_ -> [Arg] -> Arg
+liftType' tconstr types =
+  Arg $ App $ mkArg tconstr : types 
+
+-- 
 liftConstr :: Name_ -> Constr -> Constr
 liftConstr tconstr c =
   gmap (liftType tconstr) c 

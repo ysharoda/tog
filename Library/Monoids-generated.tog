@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------
 -- Checking declarations
 ------------------------------------------------------------------------
--- Solved Metas: 18461
+-- Solved Metas: 12095
 -- Unsolved Metas: 0
 ------------------------------------------------------------------------
 -- Unsolved problems: 0
@@ -269,94 +269,60 @@ module MathScheme where
           interp x2 y2 ->
           interp (+ Ad1 x1 x2)
             (+ Ad2 y1 y2)
-    data AdditiveCommutativeSemigroupLang
+    data AdditiveCommutativeSemigroupTerm
       : Set where
       +L :
-        AdditiveCommutativeSemigroupLang ->
-        AdditiveCommutativeSemigroupLang ->
-        AdditiveCommutativeSemigroupLang
-    data AdditiveCommutativeSemigroupOpenLang
+        AdditiveCommutativeSemigroupTerm ->
+        AdditiveCommutativeSemigroupTerm ->
+        AdditiveCommutativeSemigroupTerm
+    data ClAdditiveCommutativeSemigroupTerm
+      (A : Set) : Set where
+      sing :
+        A ->
+        ClAdditiveCommutativeSemigroupTerm
+          A
+      +Cl :
+        ClAdditiveCommutativeSemigroupTerm
+          A ->
+        ClAdditiveCommutativeSemigroupTerm
+          A ->
+        ClAdditiveCommutativeSemigroupTerm
+          A
+    data OpAdditiveCommutativeSemigroupTerm
       (n : Nat) : Set where
       v :
         Fin n ->
-        AdditiveCommutativeSemigroupOpenLang
+        OpAdditiveCommutativeSemigroupTerm
           n
       +OL :
-        AdditiveCommutativeSemigroupOpenLang
+        OpAdditiveCommutativeSemigroupTerm
           n ->
-        AdditiveCommutativeSemigroupOpenLang
+        OpAdditiveCommutativeSemigroupTerm
           n ->
-        AdditiveCommutativeSemigroupOpenLang
+        OpAdditiveCommutativeSemigroupTerm
           n
-    evalTerm :
-      (A : Set) ->
-      AdditiveCommutativeSemigroup
+    data OpAdditiveCommutativeSemigroupTerm2
+      (n : Nat) (A : Set) : Set where
+      v2 :
+        Fin n ->
+        OpAdditiveCommutativeSemigroupTerm2
+          n
+          A
+      sing2 :
         A ->
-      AdditiveCommutativeSemigroupLang ->
-      A
-    evalTerm _ Ad (+L x1 x2) =
-      + Ad (evalTerm _ Ad x1)
-        (evalTerm _ Ad x2)
-    evalOpenTerm :
-      (A : Set) (n : Nat) ->
-      AdditiveCommutativeSemigroup
-        A ->
-      AdditiveCommutativeSemigroupOpenLang
-        n -> Vec A n -> A
-    evalOpenTerm _ n ad (v
-                         fin) vars = lookup _ n fin vars
-    evalOpenTerm _ n ad (+OL
-                         x1
-                         x2) vars =
-      + ad
-        (evalOpenTerm _ n ad x1 vars)
-        (evalOpenTerm _ n ad x2 vars)
-    simplify :
-      AdditiveCommutativeSemigroupLang ->
-      AdditiveCommutativeSemigroupLang
-    simplify (+L x1 x2) =
-      +L (simplify x1) (simplify x2)
-    liftAdditiveCommutativeSemigroupLang :
-      AdditiveCommutativeSemigroupLang ->
-      Staged
-        AdditiveCommutativeSemigroupLang
-    liftAdditiveCommutativeSemigroupLang x =
-      Now x
-    +OL' :
-      (n : Nat) ->
-      AdditiveCommutativeSemigroupOpenLang
-        n ->
-      AdditiveCommutativeSemigroupOpenLang
-        n ->
-      AdditiveCommutativeSemigroupOpenLang
-        n
-    +OL' _ x1 x2 = +OL x1 x2
-    liftAdditiveCommutativeSemigroupOpenLang :
-      (n : Nat) ->
-      AdditiveCommutativeSemigroupOpenLang
-        n ->
-      Staged
-        (AdditiveCommutativeSemigroupOpenLang
-           n)
-    liftAdditiveCommutativeSemigroupOpenLang _ (v
-                                                fin) = const _ (code _ (v fin))
-    liftAdditiveCommutativeSemigroupOpenLang _ (+OL
-                                                x1
-                                                x2) =
-      stage2 _ _ _ (+OL' _)
-        (codeLift2 _ _ _ (+OL' _))
-        (liftAdditiveCommutativeSemigroupOpenLang
-           _
-           x1)
-        (liftAdditiveCommutativeSemigroupOpenLang
-           _
-           x2)
-    record AdditiveCommutativeSemigroupTagless
-      (A : Set) (Repr : Set -> Set) :
-      Set where
-      constructor tagless
-      field
-        +T : Repr A -> Repr A -> Repr A
+        OpAdditiveCommutativeSemigroupTerm2
+          n
+          A
+      +OL2 :
+        OpAdditiveCommutativeSemigroupTerm2
+          n
+          A ->
+        OpAdditiveCommutativeSemigroupTerm2
+          n
+          A ->
+        OpAdditiveCommutativeSemigroupTerm2
+          n
+          A
   
   module AdditiveMagma where
     record AdditiveMagma
@@ -403,74 +369,39 @@ module MathScheme where
           interp x2 y2 ->
           interp (+ Ad1 x1 x2)
             (+ Ad2 y1 y2)
-    data AdditiveMagmaLang
+    data AdditiveMagmaTerm
       : Set where
       +L :
-        AdditiveMagmaLang ->
-        AdditiveMagmaLang ->
-        AdditiveMagmaLang
-    data AdditiveMagmaOpenLang
+        AdditiveMagmaTerm ->
+        AdditiveMagmaTerm ->
+        AdditiveMagmaTerm
+    data ClAdditiveMagmaTerm
+      (A : Set) : Set where
+      sing :
+        A -> ClAdditiveMagmaTerm A
+      +Cl :
+        ClAdditiveMagmaTerm A ->
+        ClAdditiveMagmaTerm A ->
+        ClAdditiveMagmaTerm A
+    data OpAdditiveMagmaTerm
       (n : Nat) : Set where
       v :
-        Fin n -> AdditiveMagmaOpenLang n
+        Fin n -> OpAdditiveMagmaTerm n
       +OL :
-        AdditiveMagmaOpenLang n ->
-        AdditiveMagmaOpenLang n ->
-        AdditiveMagmaOpenLang n
-    evalTerm :
-      (A : Set) ->
-      AdditiveMagma A ->
-      AdditiveMagmaLang -> A
-    evalTerm _ Ad (+L x1 x2) =
-      + Ad (evalTerm _ Ad x1)
-        (evalTerm _ Ad x2)
-    evalOpenTerm :
-      (A : Set) (n : Nat) ->
-      AdditiveMagma A ->
-      AdditiveMagmaOpenLang n ->
-      Vec A n -> A
-    evalOpenTerm _ n ad (v
-                         fin) vars = lookup _ n fin vars
-    evalOpenTerm _ n ad (+OL
-                         x1
-                         x2) vars =
-      + ad
-        (evalOpenTerm _ n ad x1 vars)
-        (evalOpenTerm _ n ad x2 vars)
-    simplify :
-      AdditiveMagmaLang ->
-      AdditiveMagmaLang
-    simplify (+L x1 x2) =
-      +L (simplify x1) (simplify x2)
-    liftAdditiveMagmaLang :
-      AdditiveMagmaLang ->
-      Staged AdditiveMagmaLang
-    liftAdditiveMagmaLang x = Now x
-    +OL' :
-      (n : Nat) ->
-      AdditiveMagmaOpenLang n ->
-      AdditiveMagmaOpenLang n ->
-      AdditiveMagmaOpenLang n
-    +OL' _ x1 x2 = +OL x1 x2
-    liftAdditiveMagmaOpenLang :
-      (n : Nat) ->
-      AdditiveMagmaOpenLang n ->
-      Staged (AdditiveMagmaOpenLang n)
-    liftAdditiveMagmaOpenLang _ (v
-                                 fin) = const _ (code _ (v fin))
-    liftAdditiveMagmaOpenLang _ (+OL
-                                 x1
-                                 x2) =
-      stage2 _ _ _ (+OL' _)
-        (codeLift2 _ _ _ (+OL' _))
-        (liftAdditiveMagmaOpenLang _ x1)
-        (liftAdditiveMagmaOpenLang _ x2)
-    record AdditiveMagmaTagless
-      (A : Set) (Repr : Set -> Set) :
-      Set where
-      constructor tagless
-      field
-        +T : Repr A -> Repr A -> Repr A
+        OpAdditiveMagmaTerm n ->
+        OpAdditiveMagmaTerm n ->
+        OpAdditiveMagmaTerm n
+    data OpAdditiveMagmaTerm2
+      (n : Nat) (A : Set) : Set where
+      v2 :
+        Fin n ->
+        OpAdditiveMagmaTerm2 n A
+      sing2 :
+        A -> OpAdditiveMagmaTerm2 n A
+      +OL2 :
+        OpAdditiveMagmaTerm2 n A ->
+        OpAdditiveMagmaTerm2 n A ->
+        OpAdditiveMagmaTerm2 n A
   
   module AdditiveMonoid where
     record AdditiveMonoid
@@ -540,93 +471,43 @@ module MathScheme where
             (+ Ad2 y1 y2)
         interp-0 :
           interp (0 Ad1) (0 Ad2)
-    data AdditiveMonoidLang
+    data AdditiveMonoidTerm
       : Set where
       +L :
-        AdditiveMonoidLang ->
-        AdditiveMonoidLang ->
-        AdditiveMonoidLang
-      0L : AdditiveMonoidLang
-    data AdditiveMonoidOpenLang
+        AdditiveMonoidTerm ->
+        AdditiveMonoidTerm ->
+        AdditiveMonoidTerm
+      0L : AdditiveMonoidTerm
+    data ClAdditiveMonoidTerm
+      (A : Set) : Set where
+      sing :
+        A -> ClAdditiveMonoidTerm A
+      +Cl :
+        ClAdditiveMonoidTerm A ->
+        ClAdditiveMonoidTerm A ->
+        ClAdditiveMonoidTerm A
+      0Cl : ClAdditiveMonoidTerm A
+    data OpAdditiveMonoidTerm
       (n : Nat) : Set where
       v :
-        Fin n ->
-        AdditiveMonoidOpenLang n
+        Fin n -> OpAdditiveMonoidTerm n
       +OL :
-        AdditiveMonoidOpenLang n ->
-        AdditiveMonoidOpenLang n ->
-        AdditiveMonoidOpenLang n
-      0OL : AdditiveMonoidOpenLang n
-    evalTerm :
-      (A : Set) ->
-      AdditiveMonoid A ->
-      AdditiveMonoidLang -> A
-    evalTerm _ Ad (+L x1 x2) =
-      + Ad (evalTerm _ Ad x1)
-        (evalTerm _ Ad x2)
-    evalTerm _ Ad (0L) = 0 Ad
-    evalOpenTerm :
-      (A : Set) (n : Nat) ->
-      AdditiveMonoid A ->
-      AdditiveMonoidOpenLang n ->
-      Vec A n -> A
-    evalOpenTerm _ n ad (v
-                         fin) vars = lookup _ n fin vars
-    evalOpenTerm _ n ad (+OL
-                         x1
-                         x2) vars =
-      + ad
-        (evalOpenTerm _ n ad x1 vars)
-        (evalOpenTerm _ n ad x2 vars)
-    evalOpenTerm _ n ad (0OL) vars =
-      0 ad
-    simplify :
-      AdditiveMonoidLang ->
-      AdditiveMonoidLang
-    simplify (+L (0L) x) = x
-    simplify (+L x (0L)) = x
-    simplify (+L x1 x2) =
-      +L (simplify x1) (simplify x2)
-    simplify (0L) = 0L
-    liftAdditiveMonoidLang :
-      AdditiveMonoidLang ->
-      Staged AdditiveMonoidLang
-    liftAdditiveMonoidLang x = Now x
-    +OL' :
-      (n : Nat) ->
-      AdditiveMonoidOpenLang n ->
-      AdditiveMonoidOpenLang n ->
-      AdditiveMonoidOpenLang n
-    +OL' _ x1 x2 = +OL x1 x2
-    0OL' :
-      (n : Nat) ->
-      AdditiveMonoidOpenLang n
-    0OL' _ = 0OL
-    liftAdditiveMonoidOpenLang :
-      (n : Nat) ->
-      AdditiveMonoidOpenLang n ->
-      Staged
-        (AdditiveMonoidOpenLang n)
-    liftAdditiveMonoidOpenLang _ (v
-                                  fin) = const _ (code _ (v fin))
-    liftAdditiveMonoidOpenLang _ (+OL
-                                  x1
-                                  x2) =
-      stage2 _ _ _ (+OL' _)
-        (codeLift2 _ _ _ (+OL' _))
-        (liftAdditiveMonoidOpenLang _
-           x1)
-        (liftAdditiveMonoidOpenLang _
-           x2)
-    liftAdditiveMonoidOpenLang _ (0OL) =
-      Now 0OL
-    record AdditiveMonoidTagless
-      (A : Set) (Repr : Set -> Set) :
-      Set where
-      constructor tagless
-      field
-        +T : Repr A -> Repr A -> Repr A
-        0T : Repr A
+        OpAdditiveMonoidTerm n ->
+        OpAdditiveMonoidTerm n ->
+        OpAdditiveMonoidTerm n
+      0OL : OpAdditiveMonoidTerm n
+    data OpAdditiveMonoidTerm2
+      (n : Nat) (A : Set) : Set where
+      v2 :
+        Fin n ->
+        OpAdditiveMonoidTerm2 n A
+      sing2 :
+        A -> OpAdditiveMonoidTerm2 n A
+      +OL2 :
+        OpAdditiveMonoidTerm2 n A ->
+        OpAdditiveMonoidTerm2 n A ->
+        OpAdditiveMonoidTerm2 n A
+      0OL2 : OpAdditiveMonoidTerm2 n A
   
   module AdditivePointedMagma where
     record AdditivePointedMagma
@@ -679,100 +560,51 @@ module MathScheme where
           interp x2 y2 ->
           interp (+ Ad1 x1 x2)
             (+ Ad2 y1 y2)
-    data AdditivePointedMagmaLang
+    data AdditivePointedMagmaTerm
       : Set where
-      0L : AdditivePointedMagmaLang
+      0L : AdditivePointedMagmaTerm
       +L :
-        AdditivePointedMagmaLang ->
-        AdditivePointedMagmaLang ->
-        AdditivePointedMagmaLang
-    data AdditivePointedMagmaOpenLang
+        AdditivePointedMagmaTerm ->
+        AdditivePointedMagmaTerm ->
+        AdditivePointedMagmaTerm
+    data ClAdditivePointedMagmaTerm
+      (A : Set) : Set where
+      sing :
+        A ->
+        ClAdditivePointedMagmaTerm A
+      0Cl :
+        ClAdditivePointedMagmaTerm A
+      +Cl :
+        ClAdditivePointedMagmaTerm A ->
+        ClAdditivePointedMagmaTerm A ->
+        ClAdditivePointedMagmaTerm A
+    data OpAdditivePointedMagmaTerm
       (n : Nat) : Set where
       v :
         Fin n ->
-        AdditivePointedMagmaOpenLang n
+        OpAdditivePointedMagmaTerm n
       0OL :
-        AdditivePointedMagmaOpenLang n
+        OpAdditivePointedMagmaTerm n
       +OL :
-        AdditivePointedMagmaOpenLang
-          n ->
-        AdditivePointedMagmaOpenLang
-          n ->
-        AdditivePointedMagmaOpenLang n
-    evalTerm :
-      (A : Set) ->
-      AdditivePointedMagma A ->
-      AdditivePointedMagmaLang -> A
-    evalTerm _ Ad (0L) = 0 Ad
-    evalTerm _ Ad (+L x1 x2) =
-      + Ad (evalTerm _ Ad x1)
-        (evalTerm _ Ad x2)
-    evalOpenTerm :
-      (A : Set) (n : Nat) ->
-      AdditivePointedMagma A ->
-      AdditivePointedMagmaOpenLang
-        n -> Vec A n -> A
-    evalOpenTerm _ n ad (v
-                         fin) vars = lookup _ n fin vars
-    evalOpenTerm _ n ad (0OL) vars =
-      0 ad
-    evalOpenTerm _ n ad (+OL
-                         x1
-                         x2) vars =
-      + ad
-        (evalOpenTerm _ n ad x1 vars)
-        (evalOpenTerm _ n ad x2 vars)
-    simplify :
-      AdditivePointedMagmaLang ->
-      AdditivePointedMagmaLang
-    simplify (0L) = 0L
-    simplify (+L x1 x2) =
-      +L (simplify x1) (simplify x2)
-    liftAdditivePointedMagmaLang :
-      AdditivePointedMagmaLang ->
-      Staged AdditivePointedMagmaLang
-    liftAdditivePointedMagmaLang x =
-      Now x
-    0OL' :
-      (n : Nat) ->
-      AdditivePointedMagmaOpenLang n
-    0OL' _ = 0OL
-    +OL' :
-      (n : Nat) ->
-      AdditivePointedMagmaOpenLang
-        n ->
-      AdditivePointedMagmaOpenLang
-        n ->
-      AdditivePointedMagmaOpenLang n
-    +OL' _ x1 x2 = +OL x1 x2
-    liftAdditivePointedMagmaOpenLang :
-      (n : Nat) ->
-      AdditivePointedMagmaOpenLang
-        n ->
-      Staged
-        (AdditivePointedMagmaOpenLang n)
-    liftAdditivePointedMagmaOpenLang _ (v
-                                        fin) = const _ (code _ (v fin))
-    liftAdditivePointedMagmaOpenLang _ (0OL) =
-      Now 0OL
-    liftAdditivePointedMagmaOpenLang _ (+OL
-                                        x1
-                                        x2) =
-      stage2 _ _ _ (+OL' _)
-        (codeLift2 _ _ _ (+OL' _))
-        (liftAdditivePointedMagmaOpenLang
-           _
-           x1)
-        (liftAdditivePointedMagmaOpenLang
-           _
-           x2)
-    record AdditivePointedMagmaTagless
-      (A : Set) (Repr : Set -> Set) :
-      Set where
-      constructor tagless
-      field
-        0T : Repr A
-        +T : Repr A -> Repr A -> Repr A
+        OpAdditivePointedMagmaTerm n ->
+        OpAdditivePointedMagmaTerm n ->
+        OpAdditivePointedMagmaTerm n
+    data OpAdditivePointedMagmaTerm2
+      (n : Nat) (A : Set) : Set where
+      v2 :
+        Fin n ->
+        OpAdditivePointedMagmaTerm2 n A
+      sing2 :
+        A ->
+        OpAdditivePointedMagmaTerm2 n A
+      0OL2 :
+        OpAdditivePointedMagmaTerm2 n A
+      +OL2 :
+        OpAdditivePointedMagmaTerm2 n
+          A ->
+        OpAdditivePointedMagmaTerm2 n
+          A ->
+        OpAdditivePointedMagmaTerm2 n A
   
   module AdditivePointedSemigroup where
     record AdditivePointedSemigroup
@@ -836,109 +668,66 @@ module MathScheme where
           interp x2 y2 ->
           interp (+ Ad1 x1 x2)
             (+ Ad2 y1 y2)
-    data AdditivePointedSemigroupLang
+    data AdditivePointedSemigroupTerm
       : Set where
       0L :
-        AdditivePointedSemigroupLang
+        AdditivePointedSemigroupTerm
       +L :
-        AdditivePointedSemigroupLang ->
-        AdditivePointedSemigroupLang ->
-        AdditivePointedSemigroupLang
-    data AdditivePointedSemigroupOpenLang
+        AdditivePointedSemigroupTerm ->
+        AdditivePointedSemigroupTerm ->
+        AdditivePointedSemigroupTerm
+    data ClAdditivePointedSemigroupTerm
+      (A : Set) : Set where
+      sing :
+        A ->
+        ClAdditivePointedSemigroupTerm A
+      0Cl :
+        ClAdditivePointedSemigroupTerm A
+      +Cl :
+        ClAdditivePointedSemigroupTerm
+          A ->
+        ClAdditivePointedSemigroupTerm
+          A ->
+        ClAdditivePointedSemigroupTerm A
+    data OpAdditivePointedSemigroupTerm
       (n : Nat) : Set where
       v :
         Fin n ->
-        AdditivePointedSemigroupOpenLang
-          n
+        OpAdditivePointedSemigroupTerm n
       0OL :
-        AdditivePointedSemigroupOpenLang
-          n
+        OpAdditivePointedSemigroupTerm n
       +OL :
-        AdditivePointedSemigroupOpenLang
+        OpAdditivePointedSemigroupTerm
           n ->
-        AdditivePointedSemigroupOpenLang
+        OpAdditivePointedSemigroupTerm
           n ->
-        AdditivePointedSemigroupOpenLang
+        OpAdditivePointedSemigroupTerm n
+    data OpAdditivePointedSemigroupTerm2
+      (n : Nat) (A : Set) : Set where
+      v2 :
+        Fin n ->
+        OpAdditivePointedSemigroupTerm2
           n
-    evalTerm :
-      (A : Set) ->
-      AdditivePointedSemigroup A ->
-      AdditivePointedSemigroupLang ->
-      A
-    evalTerm _ Ad (0L) = 0 Ad
-    evalTerm _ Ad (+L x1 x2) =
-      + Ad (evalTerm _ Ad x1)
-        (evalTerm _ Ad x2)
-    evalOpenTerm :
-      (A : Set) (n : Nat) ->
-      AdditivePointedSemigroup A ->
-      AdditivePointedSemigroupOpenLang
-        n -> Vec A n -> A
-    evalOpenTerm _ n ad (v
-                         fin) vars = lookup _ n fin vars
-    evalOpenTerm _ n ad (0OL) vars =
-      0 ad
-    evalOpenTerm _ n ad (+OL
-                         x1
-                         x2) vars =
-      + ad
-        (evalOpenTerm _ n ad x1 vars)
-        (evalOpenTerm _ n ad x2 vars)
-    simplify :
-      AdditivePointedSemigroupLang ->
-      AdditivePointedSemigroupLang
-    simplify (0L) = 0L
-    simplify (+L x1 x2) =
-      +L (simplify x1) (simplify x2)
-    liftAdditivePointedSemigroupLang :
-      AdditivePointedSemigroupLang ->
-      Staged
-        AdditivePointedSemigroupLang
-    liftAdditivePointedSemigroupLang x =
-      Now x
-    0OL' :
-      (n : Nat) ->
-      AdditivePointedSemigroupOpenLang
-        n
-    0OL' _ = 0OL
-    +OL' :
-      (n : Nat) ->
-      AdditivePointedSemigroupOpenLang
-        n ->
-      AdditivePointedSemigroupOpenLang
-        n ->
-      AdditivePointedSemigroupOpenLang
-        n
-    +OL' _ x1 x2 = +OL x1 x2
-    liftAdditivePointedSemigroupOpenLang :
-      (n : Nat) ->
-      AdditivePointedSemigroupOpenLang
-        n ->
-      Staged
-        (AdditivePointedSemigroupOpenLang
-           n)
-    liftAdditivePointedSemigroupOpenLang _ (v
-                                            fin) = const _ (code _ (v fin))
-    liftAdditivePointedSemigroupOpenLang _ (0OL) =
-      Now 0OL
-    liftAdditivePointedSemigroupOpenLang _ (+OL
-                                            x1
-                                            x2) =
-      stage2 _ _ _ (+OL' _)
-        (codeLift2 _ _ _ (+OL' _))
-        (liftAdditivePointedSemigroupOpenLang
-           _
-           x1)
-        (liftAdditivePointedSemigroupOpenLang
-           _
-           x2)
-    record AdditivePointedSemigroupTagless
-      (A : Set) (Repr : Set -> Set) :
-      Set where
-      constructor tagless
-      field
-        0T : Repr A
-        +T : Repr A -> Repr A -> Repr A
+          A
+      sing2 :
+        A ->
+        OpAdditivePointedSemigroupTerm2
+          n
+          A
+      0OL2 :
+        OpAdditivePointedSemigroupTerm2
+          n
+          A
+      +OL2 :
+        OpAdditivePointedSemigroupTerm2
+          n
+          A ->
+        OpAdditivePointedSemigroupTerm2
+          n
+          A ->
+        OpAdditivePointedSemigroupTerm2
+          n
+          A
   
   module AdditiveSemigroup where
     record AdditiveSemigroup
@@ -994,79 +783,41 @@ module MathScheme where
           interp x2 y2 ->
           interp (+ Ad1 x1 x2)
             (+ Ad2 y1 y2)
-    data AdditiveSemigroupLang
+    data AdditiveSemigroupTerm
       : Set where
       +L :
-        AdditiveSemigroupLang ->
-        AdditiveSemigroupLang ->
-        AdditiveSemigroupLang
-    data AdditiveSemigroupOpenLang
+        AdditiveSemigroupTerm ->
+        AdditiveSemigroupTerm ->
+        AdditiveSemigroupTerm
+    data ClAdditiveSemigroupTerm
+      (A : Set) : Set where
+      sing :
+        A -> ClAdditiveSemigroupTerm A
+      +Cl :
+        ClAdditiveSemigroupTerm A ->
+        ClAdditiveSemigroupTerm A ->
+        ClAdditiveSemigroupTerm A
+    data OpAdditiveSemigroupTerm
       (n : Nat) : Set where
       v :
         Fin n ->
-        AdditiveSemigroupOpenLang n
+        OpAdditiveSemigroupTerm n
       +OL :
-        AdditiveSemigroupOpenLang n ->
-        AdditiveSemigroupOpenLang n ->
-        AdditiveSemigroupOpenLang n
-    evalTerm :
-      (A : Set) ->
-      AdditiveSemigroup A ->
-      AdditiveSemigroupLang -> A
-    evalTerm _ Ad (+L x1 x2) =
-      + Ad (evalTerm _ Ad x1)
-        (evalTerm _ Ad x2)
-    evalOpenTerm :
-      (A : Set) (n : Nat) ->
-      AdditiveSemigroup A ->
-      AdditiveSemigroupOpenLang n ->
-      Vec A n -> A
-    evalOpenTerm _ n ad (v
-                         fin) vars = lookup _ n fin vars
-    evalOpenTerm _ n ad (+OL
-                         x1
-                         x2) vars =
-      + ad
-        (evalOpenTerm _ n ad x1 vars)
-        (evalOpenTerm _ n ad x2 vars)
-    simplify :
-      AdditiveSemigroupLang ->
-      AdditiveSemigroupLang
-    simplify (+L x1 x2) =
-      +L (simplify x1) (simplify x2)
-    liftAdditiveSemigroupLang :
-      AdditiveSemigroupLang ->
-      Staged AdditiveSemigroupLang
-    liftAdditiveSemigroupLang x =
-      Now x
-    +OL' :
-      (n : Nat) ->
-      AdditiveSemigroupOpenLang n ->
-      AdditiveSemigroupOpenLang n ->
-      AdditiveSemigroupOpenLang n
-    +OL' _ x1 x2 = +OL x1 x2
-    liftAdditiveSemigroupOpenLang :
-      (n : Nat) ->
-      AdditiveSemigroupOpenLang n ->
-      Staged
-        (AdditiveSemigroupOpenLang n)
-    liftAdditiveSemigroupOpenLang _ (v
-                                     fin) = const _ (code _ (v fin))
-    liftAdditiveSemigroupOpenLang _ (+OL
-                                     x1
-                                     x2) =
-      stage2 _ _ _ (+OL' _)
-        (codeLift2 _ _ _ (+OL' _))
-        (liftAdditiveSemigroupOpenLang _
-           x1)
-        (liftAdditiveSemigroupOpenLang _
-           x2)
-    record AdditiveSemigroupTagless
-      (A : Set) (Repr : Set -> Set) :
-      Set where
-      constructor tagless
-      field
-        +T : Repr A -> Repr A -> Repr A
+        OpAdditiveSemigroupTerm n ->
+        OpAdditiveSemigroupTerm n ->
+        OpAdditiveSemigroupTerm n
+    data OpAdditiveSemigroupTerm2
+      (n : Nat) (A : Set) : Set where
+      v2 :
+        Fin n ->
+        OpAdditiveSemigroupTerm2 n A
+      sing2 :
+        A ->
+        OpAdditiveSemigroupTerm2 n A
+      +OL2 :
+        OpAdditiveSemigroupTerm2 n A ->
+        OpAdditiveSemigroupTerm2 n A ->
+        OpAdditiveSemigroupTerm2 n A
   
   module AdditiveUnital where
     record AdditiveUnital
@@ -1127,93 +878,43 @@ module MathScheme where
           interp x2 y2 ->
           interp (+ Ad1 x1 x2)
             (+ Ad2 y1 y2)
-    data AdditiveUnitalLang
+    data AdditiveUnitalTerm
       : Set where
-      0L : AdditiveUnitalLang
+      0L : AdditiveUnitalTerm
       +L :
-        AdditiveUnitalLang ->
-        AdditiveUnitalLang ->
-        AdditiveUnitalLang
-    data AdditiveUnitalOpenLang
+        AdditiveUnitalTerm ->
+        AdditiveUnitalTerm ->
+        AdditiveUnitalTerm
+    data ClAdditiveUnitalTerm
+      (A : Set) : Set where
+      sing :
+        A -> ClAdditiveUnitalTerm A
+      0Cl : ClAdditiveUnitalTerm A
+      +Cl :
+        ClAdditiveUnitalTerm A ->
+        ClAdditiveUnitalTerm A ->
+        ClAdditiveUnitalTerm A
+    data OpAdditiveUnitalTerm
       (n : Nat) : Set where
       v :
-        Fin n ->
-        AdditiveUnitalOpenLang n
-      0OL : AdditiveUnitalOpenLang n
+        Fin n -> OpAdditiveUnitalTerm n
+      0OL : OpAdditiveUnitalTerm n
       +OL :
-        AdditiveUnitalOpenLang n ->
-        AdditiveUnitalOpenLang n ->
-        AdditiveUnitalOpenLang n
-    evalTerm :
-      (A : Set) ->
-      AdditiveUnital A ->
-      AdditiveUnitalLang -> A
-    evalTerm _ Ad (0L) = 0 Ad
-    evalTerm _ Ad (+L x1 x2) =
-      + Ad (evalTerm _ Ad x1)
-        (evalTerm _ Ad x2)
-    evalOpenTerm :
-      (A : Set) (n : Nat) ->
-      AdditiveUnital A ->
-      AdditiveUnitalOpenLang n ->
-      Vec A n -> A
-    evalOpenTerm _ n ad (v
-                         fin) vars = lookup _ n fin vars
-    evalOpenTerm _ n ad (0OL) vars =
-      0 ad
-    evalOpenTerm _ n ad (+OL
-                         x1
-                         x2) vars =
-      + ad
-        (evalOpenTerm _ n ad x1 vars)
-        (evalOpenTerm _ n ad x2 vars)
-    simplify :
-      AdditiveUnitalLang ->
-      AdditiveUnitalLang
-    simplify (+L (0L) x) = x
-    simplify (+L x (0L)) = x
-    simplify (0L) = 0L
-    simplify (+L x1 x2) =
-      +L (simplify x1) (simplify x2)
-    liftAdditiveUnitalLang :
-      AdditiveUnitalLang ->
-      Staged AdditiveUnitalLang
-    liftAdditiveUnitalLang x = Now x
-    0OL' :
-      (n : Nat) ->
-      AdditiveUnitalOpenLang n
-    0OL' _ = 0OL
-    +OL' :
-      (n : Nat) ->
-      AdditiveUnitalOpenLang n ->
-      AdditiveUnitalOpenLang n ->
-      AdditiveUnitalOpenLang n
-    +OL' _ x1 x2 = +OL x1 x2
-    liftAdditiveUnitalOpenLang :
-      (n : Nat) ->
-      AdditiveUnitalOpenLang n ->
-      Staged
-        (AdditiveUnitalOpenLang n)
-    liftAdditiveUnitalOpenLang _ (v
-                                  fin) = const _ (code _ (v fin))
-    liftAdditiveUnitalOpenLang _ (0OL) =
-      Now 0OL
-    liftAdditiveUnitalOpenLang _ (+OL
-                                  x1
-                                  x2) =
-      stage2 _ _ _ (+OL' _)
-        (codeLift2 _ _ _ (+OL' _))
-        (liftAdditiveUnitalOpenLang _
-           x1)
-        (liftAdditiveUnitalOpenLang _
-           x2)
-    record AdditiveUnitalTagless
-      (A : Set) (Repr : Set -> Set) :
-      Set where
-      constructor tagless
-      field
-        0T : Repr A
-        +T : Repr A -> Repr A -> Repr A
+        OpAdditiveUnitalTerm n ->
+        OpAdditiveUnitalTerm n ->
+        OpAdditiveUnitalTerm n
+    data OpAdditiveUnitalTerm2
+      (n : Nat) (A : Set) : Set where
+      v2 :
+        Fin n ->
+        OpAdditiveUnitalTerm2 n A
+      sing2 :
+        A -> OpAdditiveUnitalTerm2 n A
+      0OL2 : OpAdditiveUnitalTerm2 n A
+      +OL2 :
+        OpAdditiveUnitalTerm2 n A ->
+        OpAdditiveUnitalTerm2 n A ->
+        OpAdditiveUnitalTerm2 n A
   
   module Carrier where
     record Carrier
@@ -1245,39 +946,19 @@ module MathScheme where
       constructor CarrierRelInterpC
       field
         interp : A1 -> A2 -> Set
-    data CarrierLang : Set where
+    data CarrierTerm : Set where
       
-    data CarrierOpenLang
+    data ClCarrierTerm
+      (A : Set) : Set where
+      sing : A -> ClCarrierTerm A
+    data OpCarrierTerm
       (n : Nat) : Set where
-      v : Fin n -> CarrierOpenLang n
-    evalTerm :
-      (A : Set) ->
-      Carrier A -> CarrierLang -> A
-    evalOpenTerm :
-      (A : Set) (n : Nat) ->
-      Carrier A ->
-      CarrierOpenLang n ->
-      Vec A n -> A
-    evalOpenTerm _ n ca (v
-                         fin) vars = lookup _ n fin vars
-    simplify :
-      CarrierLang -> CarrierLang
-    liftCarrierLang :
-      CarrierLang ->
-      Staged CarrierLang
-    liftCarrierLang x = Now x
-    liftCarrierOpenLang :
-      (n : Nat) ->
-      CarrierOpenLang n ->
-      Staged (CarrierOpenLang n)
-    liftCarrierOpenLang _ (v fin) =
-      const _ (code _ (v fin))
-    record CarrierTagless
-      (A : Set) (Repr : Set -> Set) :
-      Set where
-      constructor tagless
-      field
-        
+      v : Fin n -> OpCarrierTerm n
+    data OpCarrierTerm2
+      (n : Nat) (A : Set) : Set where
+      v2 :
+        Fin n -> OpCarrierTerm2 n A
+      sing2 : A -> OpCarrierTerm2 n A
   
   module CommutativeMagma where
     record CommutativeMagma
@@ -1331,79 +1012,40 @@ module MathScheme where
           interp x2 y2 ->
           interp (op Co1 x1 x2)
             (op Co2 y1 y2)
-    data CommutativeMagmaLang
+    data CommutativeMagmaTerm
       : Set where
       opL :
-        CommutativeMagmaLang ->
-        CommutativeMagmaLang ->
-        CommutativeMagmaLang
-    data CommutativeMagmaOpenLang
+        CommutativeMagmaTerm ->
+        CommutativeMagmaTerm ->
+        CommutativeMagmaTerm
+    data ClCommutativeMagmaTerm
+      (A : Set) : Set where
+      sing :
+        A -> ClCommutativeMagmaTerm A
+      opCl :
+        ClCommutativeMagmaTerm A ->
+        ClCommutativeMagmaTerm A ->
+        ClCommutativeMagmaTerm A
+    data OpCommutativeMagmaTerm
       (n : Nat) : Set where
       v :
         Fin n ->
-        CommutativeMagmaOpenLang n
+        OpCommutativeMagmaTerm n
       opOL :
-        CommutativeMagmaOpenLang n ->
-        CommutativeMagmaOpenLang n ->
-        CommutativeMagmaOpenLang n
-    evalTerm :
-      (A : Set) ->
-      CommutativeMagma A ->
-      CommutativeMagmaLang -> A
-    evalTerm _ Co (opL x1 x2) =
-      op Co (evalTerm _ Co x1)
-        (evalTerm _ Co x2)
-    evalOpenTerm :
-      (A : Set) (n : Nat) ->
-      CommutativeMagma A ->
-      CommutativeMagmaOpenLang n ->
-      Vec A n -> A
-    evalOpenTerm _ n co (v
-                         fin) vars = lookup _ n fin vars
-    evalOpenTerm _ n co (opOL
-                         x1
-                         x2) vars =
-      op co
-        (evalOpenTerm _ n co x1 vars)
-        (evalOpenTerm _ n co x2 vars)
-    simplify :
-      CommutativeMagmaLang ->
-      CommutativeMagmaLang
-    simplify (opL x1 x2) =
-      opL (simplify x1) (simplify x2)
-    liftCommutativeMagmaLang :
-      CommutativeMagmaLang ->
-      Staged CommutativeMagmaLang
-    liftCommutativeMagmaLang x =
-      Now x
-    opOL' :
-      (n : Nat) ->
-      CommutativeMagmaOpenLang n ->
-      CommutativeMagmaOpenLang n ->
-      CommutativeMagmaOpenLang n
-    opOL' _ x1 x2 = opOL x1 x2
-    liftCommutativeMagmaOpenLang :
-      (n : Nat) ->
-      CommutativeMagmaOpenLang n ->
-      Staged
-        (CommutativeMagmaOpenLang n)
-    liftCommutativeMagmaOpenLang _ (v
-                                    fin) = const _ (code _ (v fin))
-    liftCommutativeMagmaOpenLang _ (opOL
-                                    x1
-                                    x2) =
-      stage2 _ _ _ (opOL' _)
-        (codeLift2 _ _ _ (opOL' _))
-        (liftCommutativeMagmaOpenLang _
-           x1)
-        (liftCommutativeMagmaOpenLang _
-           x2)
-    record CommutativeMagmaTagless
-      (A : Set) (Repr : Set -> Set) :
-      Set where
-      constructor tagless
-      field
-        opT : Repr A -> Repr A -> Repr A
+        OpCommutativeMagmaTerm n ->
+        OpCommutativeMagmaTerm n ->
+        OpCommutativeMagmaTerm n
+    data OpCommutativeMagmaTerm2
+      (n : Nat) (A : Set) : Set where
+      v2 :
+        Fin n ->
+        OpCommutativeMagmaTerm2 n A
+      sing2 :
+        A -> OpCommutativeMagmaTerm2 n A
+      opOL2 :
+        OpCommutativeMagmaTerm2 n A ->
+        OpCommutativeMagmaTerm2 n A ->
+        OpCommutativeMagmaTerm2 n A
   
   module CommutativeMonoid where
     record CommutativeMonoid
@@ -1480,95 +1122,46 @@ module MathScheme where
             (op Co2 y1 y2)
         interp-e :
           interp (e Co1) (e Co2)
-    data CommutativeMonoidLang
+    data CommutativeMonoidTerm
       : Set where
       opL :
-        CommutativeMonoidLang ->
-        CommutativeMonoidLang ->
-        CommutativeMonoidLang
-      eL : CommutativeMonoidLang
-    data CommutativeMonoidOpenLang
+        CommutativeMonoidTerm ->
+        CommutativeMonoidTerm ->
+        CommutativeMonoidTerm
+      eL : CommutativeMonoidTerm
+    data ClCommutativeMonoidTerm
+      (A : Set) : Set where
+      sing :
+        A -> ClCommutativeMonoidTerm A
+      opCl :
+        ClCommutativeMonoidTerm A ->
+        ClCommutativeMonoidTerm A ->
+        ClCommutativeMonoidTerm A
+      eCl : ClCommutativeMonoidTerm A
+    data OpCommutativeMonoidTerm
       (n : Nat) : Set where
       v :
         Fin n ->
-        CommutativeMonoidOpenLang n
+        OpCommutativeMonoidTerm n
       opOL :
-        CommutativeMonoidOpenLang n ->
-        CommutativeMonoidOpenLang n ->
-        CommutativeMonoidOpenLang n
-      eOL :
-        CommutativeMonoidOpenLang n
-    evalTerm :
-      (A : Set) ->
-      CommutativeMonoid A ->
-      CommutativeMonoidLang -> A
-    evalTerm _ Co (opL x1 x2) =
-      op Co (evalTerm _ Co x1)
-        (evalTerm _ Co x2)
-    evalTerm _ Co (eL) = e Co
-    evalOpenTerm :
-      (A : Set) (n : Nat) ->
-      CommutativeMonoid A ->
-      CommutativeMonoidOpenLang n ->
-      Vec A n -> A
-    evalOpenTerm _ n co (v
-                         fin) vars = lookup _ n fin vars
-    evalOpenTerm _ n co (opOL
-                         x1
-                         x2) vars =
-      op co
-        (evalOpenTerm _ n co x1 vars)
-        (evalOpenTerm _ n co x2 vars)
-    evalOpenTerm _ n co (eOL) vars =
-      e co
-    simplify :
-      CommutativeMonoidLang ->
-      CommutativeMonoidLang
-    simplify (opL (eL) x) = x
-    simplify (opL x (eL)) = x
-    simplify (opL x1 x2) =
-      opL (simplify x1) (simplify x2)
-    simplify (eL) = eL
-    liftCommutativeMonoidLang :
-      CommutativeMonoidLang ->
-      Staged CommutativeMonoidLang
-    liftCommutativeMonoidLang x =
-      Now x
-    opOL' :
-      (n : Nat) ->
-      CommutativeMonoidOpenLang n ->
-      CommutativeMonoidOpenLang n ->
-      CommutativeMonoidOpenLang n
-    opOL' _ x1 x2 = opOL x1 x2
-    eOL' :
-      (n : Nat) ->
-      CommutativeMonoidOpenLang n
-    eOL' _ = eOL
-    liftCommutativeMonoidOpenLang :
-      (n : Nat) ->
-      CommutativeMonoidOpenLang n ->
-      Staged
-        (CommutativeMonoidOpenLang n)
-    liftCommutativeMonoidOpenLang _ (v
-                                     fin) = const _ (code _ (v fin))
-    liftCommutativeMonoidOpenLang _ (opOL
-                                     x1
-                                     x2) =
-      stage2 _ _ _ (opOL' _)
-        (codeLift2 _ _ _ (opOL' _))
-        (liftCommutativeMonoidOpenLang _
-           x1)
-        (liftCommutativeMonoidOpenLang _
-           x2)
-    liftCommutativeMonoidOpenLang _ (eOL) =
-      Now eOL
-    record CommutativeMonoidTagless
-      (A : Set) (Repr : Set -> Set) :
-      Set where
-      constructor tagless
-      field
-        opT : Repr A -> Repr A -> Repr A
-        eT : Repr A
+        OpCommutativeMonoidTerm n ->
+        OpCommutativeMonoidTerm n ->
+        OpCommutativeMonoidTerm n
+      eOL : OpCommutativeMonoidTerm n
+    data OpCommutativeMonoidTerm2
+      (n : Nat) (A : Set) : Set where
+      v2 :
+        Fin n ->
+        OpCommutativeMonoidTerm2 n A
+      sing2 :
+        A ->
+        OpCommutativeMonoidTerm2 n A
+      opOL2 :
+        OpCommutativeMonoidTerm2 n A ->
+        OpCommutativeMonoidTerm2 n A ->
+        OpCommutativeMonoidTerm2 n A
+      eOL2 :
+        OpCommutativeMonoidTerm2 n A
   
   module CommutativeSemigroup where
     record CommutativeSemigroup
@@ -1631,86 +1224,44 @@ module MathScheme where
           interp x2 y2 ->
           interp (op Co1 x1 x2)
             (op Co2 y1 y2)
-    data CommutativeSemigroupLang
+    data CommutativeSemigroupTerm
       : Set where
       opL :
-        CommutativeSemigroupLang ->
-        CommutativeSemigroupLang ->
-        CommutativeSemigroupLang
-    data CommutativeSemigroupOpenLang
+        CommutativeSemigroupTerm ->
+        CommutativeSemigroupTerm ->
+        CommutativeSemigroupTerm
+    data ClCommutativeSemigroupTerm
+      (A : Set) : Set where
+      sing :
+        A ->
+        ClCommutativeSemigroupTerm A
+      opCl :
+        ClCommutativeSemigroupTerm A ->
+        ClCommutativeSemigroupTerm A ->
+        ClCommutativeSemigroupTerm A
+    data OpCommutativeSemigroupTerm
       (n : Nat) : Set where
       v :
         Fin n ->
-        CommutativeSemigroupOpenLang n
+        OpCommutativeSemigroupTerm n
       opOL :
-        CommutativeSemigroupOpenLang
-          n ->
-        CommutativeSemigroupOpenLang
-          n ->
-        CommutativeSemigroupOpenLang n
-    evalTerm :
-      (A : Set) ->
-      CommutativeSemigroup A ->
-      CommutativeSemigroupLang -> A
-    evalTerm _ Co (opL x1 x2) =
-      op Co (evalTerm _ Co x1)
-        (evalTerm _ Co x2)
-    evalOpenTerm :
-      (A : Set) (n : Nat) ->
-      CommutativeSemigroup A ->
-      CommutativeSemigroupOpenLang
-        n -> Vec A n -> A
-    evalOpenTerm _ n co (v
-                         fin) vars = lookup _ n fin vars
-    evalOpenTerm _ n co (opOL
-                         x1
-                         x2) vars =
-      op co
-        (evalOpenTerm _ n co x1 vars)
-        (evalOpenTerm _ n co x2 vars)
-    simplify :
-      CommutativeSemigroupLang ->
-      CommutativeSemigroupLang
-    simplify (opL x1 x2) =
-      opL (simplify x1) (simplify x2)
-    liftCommutativeSemigroupLang :
-      CommutativeSemigroupLang ->
-      Staged CommutativeSemigroupLang
-    liftCommutativeSemigroupLang x =
-      Now x
-    opOL' :
-      (n : Nat) ->
-      CommutativeSemigroupOpenLang
-        n ->
-      CommutativeSemigroupOpenLang
-        n ->
-      CommutativeSemigroupOpenLang n
-    opOL' _ x1 x2 = opOL x1 x2
-    liftCommutativeSemigroupOpenLang :
-      (n : Nat) ->
-      CommutativeSemigroupOpenLang
-        n ->
-      Staged
-        (CommutativeSemigroupOpenLang n)
-    liftCommutativeSemigroupOpenLang _ (v
-                                        fin) = const _ (code _ (v fin))
-    liftCommutativeSemigroupOpenLang _ (opOL
-                                        x1
-                                        x2) =
-      stage2 _ _ _ (opOL' _)
-        (codeLift2 _ _ _ (opOL' _))
-        (liftCommutativeSemigroupOpenLang
-           _
-           x1)
-        (liftCommutativeSemigroupOpenLang
-           _
-           x2)
-    record CommutativeSemigroupTagless
-      (A : Set) (Repr : Set -> Set) :
-      Set where
-      constructor tagless
-      field
-        opT : Repr A -> Repr A -> Repr A
+        OpCommutativeSemigroupTerm n ->
+        OpCommutativeSemigroupTerm n ->
+        OpCommutativeSemigroupTerm n
+    data OpCommutativeSemigroupTerm2
+      (n : Nat) (A : Set) : Set where
+      v2 :
+        Fin n ->
+        OpCommutativeSemigroupTerm2 n A
+      sing2 :
+        A ->
+        OpCommutativeSemigroupTerm2 n A
+      opOL2 :
+        OpCommutativeSemigroupTerm2 n
+          A ->
+        OpCommutativeSemigroupTerm2 n
+          A ->
+        OpCommutativeSemigroupTerm2 n A
   
   module Empty where
     record Empty : Set where
@@ -1773,85 +1324,39 @@ module MathScheme where
           interp x2 y2 ->
           interp (op Le1 x1 x2)
             (op Le2 y1 y2)
-    data LeftUnitalLang : Set where
-      eL : LeftUnitalLang
+    data LeftUnitalTerm : Set where
+      eL : LeftUnitalTerm
       opL :
-        LeftUnitalLang ->
-        LeftUnitalLang -> LeftUnitalLang
-    data LeftUnitalOpenLang
+        LeftUnitalTerm ->
+        LeftUnitalTerm -> LeftUnitalTerm
+    data ClLeftUnitalTerm
+      (A : Set) : Set where
+      sing : A -> ClLeftUnitalTerm A
+      eCl : ClLeftUnitalTerm A
+      opCl :
+        ClLeftUnitalTerm A ->
+        ClLeftUnitalTerm A ->
+        ClLeftUnitalTerm A
+    data OpLeftUnitalTerm
       (n : Nat) : Set where
       v :
-        Fin n -> LeftUnitalOpenLang n
-      eOL : LeftUnitalOpenLang n
+        Fin n -> OpLeftUnitalTerm n
+      eOL : OpLeftUnitalTerm n
       opOL :
-        LeftUnitalOpenLang n ->
-        LeftUnitalOpenLang n ->
-        LeftUnitalOpenLang n
-    evalTerm :
-      (A : Set) ->
-      LeftUnital A ->
-      LeftUnitalLang -> A
-    evalTerm _ Le (eL) = e Le
-    evalTerm _ Le (opL x1 x2) =
-      op Le (evalTerm _ Le x1)
-        (evalTerm _ Le x2)
-    evalOpenTerm :
-      (A : Set) (n : Nat) ->
-      LeftUnital A ->
-      LeftUnitalOpenLang n ->
-      Vec A n -> A
-    evalOpenTerm _ n le (v
-                         fin) vars = lookup _ n fin vars
-    evalOpenTerm _ n le (eOL) vars =
-      e le
-    evalOpenTerm _ n le (opOL
-                         x1
-                         x2) vars =
-      op le
-        (evalOpenTerm _ n le x1 vars)
-        (evalOpenTerm _ n le x2 vars)
-    simplify :
-      LeftUnitalLang -> LeftUnitalLang
-    simplify (opL (eL) x) = x
-    simplify (eL) = eL
-    simplify (opL x1 x2) =
-      opL (simplify x1) (simplify x2)
-    liftLeftUnitalLang :
-      LeftUnitalLang ->
-      Staged LeftUnitalLang
-    liftLeftUnitalLang x = Now x
-    eOL' :
-      (n : Nat) ->
-      LeftUnitalOpenLang n
-    eOL' _ = eOL
-    opOL' :
-      (n : Nat) ->
-      LeftUnitalOpenLang n ->
-      LeftUnitalOpenLang n ->
-      LeftUnitalOpenLang n
-    opOL' _ x1 x2 = opOL x1 x2
-    liftLeftUnitalOpenLang :
-      (n : Nat) ->
-      LeftUnitalOpenLang n ->
-      Staged (LeftUnitalOpenLang n)
-    liftLeftUnitalOpenLang _ (v
-                              fin) = const _ (code _ (v fin))
-    liftLeftUnitalOpenLang _ (eOL) =
-      Now eOL
-    liftLeftUnitalOpenLang _ (opOL
-                              x1
-                              x2) =
-      stage2 _ _ _ (opOL' _)
-        (codeLift2 _ _ _ (opOL' _))
-        (liftLeftUnitalOpenLang _ x1)
-        (liftLeftUnitalOpenLang _ x2)
-    record LeftUnitalTagless
-      (A : Set) (Repr : Set -> Set) :
-      Set where
-      constructor tagless
-      field
-        eT : Repr A
-        opT : Repr A -> Repr A -> Repr A
+        OpLeftUnitalTerm n ->
+        OpLeftUnitalTerm n ->
+        OpLeftUnitalTerm n
+    data OpLeftUnitalTerm2
+      (n : Nat) (A : Set) : Set where
+      v2 :
+        Fin n -> OpLeftUnitalTerm2 n A
+      sing2 :
+        A -> OpLeftUnitalTerm2 n A
+      eOL2 : OpLeftUnitalTerm2 n A
+      opOL2 :
+        OpLeftUnitalTerm2 n A ->
+        OpLeftUnitalTerm2 n A ->
+        OpLeftUnitalTerm2 n A
   
   module Magma where
     record Magma
@@ -1896,67 +1401,30 @@ module MathScheme where
           interp x2 y2 ->
           interp (op Ma1 x1 x2)
             (op Ma2 y1 y2)
-    data MagmaLang : Set where
+    data MagmaTerm : Set where
       opL :
-        MagmaLang ->
-        MagmaLang -> MagmaLang
-    data MagmaOpenLang
+        MagmaTerm ->
+        MagmaTerm -> MagmaTerm
+    data ClMagmaTerm
+      (A : Set) : Set where
+      sing : A -> ClMagmaTerm A
+      opCl :
+        ClMagmaTerm A ->
+        ClMagmaTerm A -> ClMagmaTerm A
+    data OpMagmaTerm
       (n : Nat) : Set where
-      v : Fin n -> MagmaOpenLang n
+      v : Fin n -> OpMagmaTerm n
       opOL :
-        MagmaOpenLang n ->
-        MagmaOpenLang n ->
-        MagmaOpenLang n
-    evalTerm :
-      (A : Set) ->
-      Magma A -> MagmaLang -> A
-    evalTerm _ Ma (opL x1 x2) =
-      op Ma (evalTerm _ Ma x1)
-        (evalTerm _ Ma x2)
-    evalOpenTerm :
-      (A : Set) (n : Nat) ->
-      Magma A ->
-      MagmaOpenLang n -> Vec A n -> A
-    evalOpenTerm _ n ma (v
-                         fin) vars = lookup _ n fin vars
-    evalOpenTerm _ n ma (opOL
-                         x1
-                         x2) vars =
-      op ma
-        (evalOpenTerm _ n ma x1 vars)
-        (evalOpenTerm _ n ma x2 vars)
-    simplify :
-      MagmaLang -> MagmaLang
-    simplify (opL x1 x2) =
-      opL (simplify x1) (simplify x2)
-    liftMagmaLang :
-      MagmaLang -> Staged MagmaLang
-    liftMagmaLang x = Now x
-    opOL' :
-      (n : Nat) ->
-      MagmaOpenLang n ->
-      MagmaOpenLang n ->
-      MagmaOpenLang n
-    opOL' _ x1 x2 = opOL x1 x2
-    liftMagmaOpenLang :
-      (n : Nat) ->
-      MagmaOpenLang n ->
-      Staged (MagmaOpenLang n)
-    liftMagmaOpenLang _ (v fin) =
-      const _ (code _ (v fin))
-    liftMagmaOpenLang _ (opOL
-                         x1
-                         x2) =
-      stage2 _ _ _ (opOL' _)
-        (codeLift2 _ _ _ (opOL' _))
-        (liftMagmaOpenLang _ x1)
-        (liftMagmaOpenLang _ x2)
-    record MagmaTagless
-      (A : Set) (Repr : Set -> Set) :
-      Set where
-      constructor tagless
-      field
-        opT : Repr A -> Repr A -> Repr A
+        OpMagmaTerm n ->
+        OpMagmaTerm n -> OpMagmaTerm n
+    data OpMagmaTerm2
+      (n : Nat) (A : Set) : Set where
+      v2 : Fin n -> OpMagmaTerm2 n A
+      sing2 : A -> OpMagmaTerm2 n A
+      opOL2 :
+        OpMagmaTerm2 n A ->
+        OpMagmaTerm2 n A ->
+        OpMagmaTerm2 n A
   
   module Monoid where
     record Monoid
@@ -2024,81 +1492,35 @@ module MathScheme where
           interp x2 y2 ->
           interp (op Mo1 x1 x2)
             (op Mo2 y1 y2)
-    data MonoidLang : Set where
-      eL : MonoidLang
+    data MonoidTerm : Set where
+      eL : MonoidTerm
       opL :
-        MonoidLang ->
-        MonoidLang -> MonoidLang
-    data MonoidOpenLang
+        MonoidTerm ->
+        MonoidTerm -> MonoidTerm
+    data ClMonoidTerm
+      (A : Set) : Set where
+      sing : A -> ClMonoidTerm A
+      eCl : ClMonoidTerm A
+      opCl :
+        ClMonoidTerm A ->
+        ClMonoidTerm A -> ClMonoidTerm A
+    data OpMonoidTerm
       (n : Nat) : Set where
-      v : Fin n -> MonoidOpenLang n
-      eOL : MonoidOpenLang n
+      v : Fin n -> OpMonoidTerm n
+      eOL : OpMonoidTerm n
       opOL :
-        MonoidOpenLang n ->
-        MonoidOpenLang n ->
-        MonoidOpenLang n
-    evalTerm :
-      (A : Set) ->
-      Monoid A -> MonoidLang -> A
-    evalTerm _ Mo (eL) = e Mo
-    evalTerm _ Mo (opL x1 x2) =
-      op Mo (evalTerm _ Mo x1)
-        (evalTerm _ Mo x2)
-    evalOpenTerm :
-      (A : Set) (n : Nat) ->
-      Monoid A ->
-      MonoidOpenLang n -> Vec A n -> A
-    evalOpenTerm _ n mo (v
-                         fin) vars = lookup _ n fin vars
-    evalOpenTerm _ n mo (eOL) vars =
-      e mo
-    evalOpenTerm _ n mo (opOL
-                         x1
-                         x2) vars =
-      op mo
-        (evalOpenTerm _ n mo x1 vars)
-        (evalOpenTerm _ n mo x2 vars)
-    simplify :
-      MonoidLang -> MonoidLang
-    simplify (opL (eL) x) = x
-    simplify (opL x (eL)) = x
-    simplify (eL) = eL
-    simplify (opL x1 x2) =
-      opL (simplify x1) (simplify x2)
-    liftMonoidLang :
-      MonoidLang -> Staged MonoidLang
-    liftMonoidLang x = Now x
-    eOL' :
-      (n : Nat) -> MonoidOpenLang n
-    eOL' _ = eOL
-    opOL' :
-      (n : Nat) ->
-      MonoidOpenLang n ->
-      MonoidOpenLang n ->
-      MonoidOpenLang n
-    opOL' _ x1 x2 = opOL x1 x2
-    liftMonoidOpenLang :
-      (n : Nat) ->
-      MonoidOpenLang n ->
-      Staged (MonoidOpenLang n)
-    liftMonoidOpenLang _ (v fin) =
-      const _ (code _ (v fin))
-    liftMonoidOpenLang _ (eOL) =
-      Now eOL
-    liftMonoidOpenLang _ (opOL
-                          x1
-                          x2) =
-      stage2 _ _ _ (opOL' _)
-        (codeLift2 _ _ _ (opOL' _))
-        (liftMonoidOpenLang _ x1)
-        (liftMonoidOpenLang _ x2)
-    record MonoidTagless
-      (A : Set) (Repr : Set -> Set) :
-      Set where
-      constructor tagless
-      field
-        eT : Repr A
-        opT : Repr A -> Repr A -> Repr A
+        OpMonoidTerm n ->
+        OpMonoidTerm n -> OpMonoidTerm n
+    data OpMonoidTerm2
+      (n : Nat) (A : Set) : Set where
+      v2 :
+        Fin n -> OpMonoidTerm2 n A
+      sing2 : A -> OpMonoidTerm2 n A
+      eOL2 : OpMonoidTerm2 n A
+      opOL2 :
+        OpMonoidTerm2 n A ->
+        OpMonoidTerm2 n A ->
+        OpMonoidTerm2 n A
   
   module Pointed where
     record Pointed
@@ -2133,49 +1555,22 @@ module MathScheme where
         interp : A1 -> A2 -> Set
         interp-e :
           interp (e Po1) (e Po2)
-    data PointedLang : Set where
-      eL : PointedLang
-    data PointedOpenLang
+    data PointedTerm : Set where
+      eL : PointedTerm
+    data ClPointedTerm
+      (A : Set) : Set where
+      sing : A -> ClPointedTerm A
+      eCl : ClPointedTerm A
+    data OpPointedTerm
       (n : Nat) : Set where
-      v : Fin n -> PointedOpenLang n
-      eOL : PointedOpenLang n
-    evalTerm :
-      (A : Set) ->
-      Pointed A -> PointedLang -> A
-    evalTerm _ Po (eL) = e Po
-    evalOpenTerm :
-      (A : Set) (n : Nat) ->
-      Pointed A ->
-      PointedOpenLang n ->
-      Vec A n -> A
-    evalOpenTerm _ n po (v
-                         fin) vars = lookup _ n fin vars
-    evalOpenTerm _ n po (eOL) vars =
-      e po
-    simplify :
-      PointedLang -> PointedLang
-    simplify (eL) = eL
-    liftPointedLang :
-      PointedLang ->
-      Staged PointedLang
-    liftPointedLang x = Now x
-    eOL' :
-      (n : Nat) -> PointedOpenLang n
-    eOL' _ = eOL
-    liftPointedOpenLang :
-      (n : Nat) ->
-      PointedOpenLang n ->
-      Staged (PointedOpenLang n)
-    liftPointedOpenLang _ (v fin) =
-      const _ (code _ (v fin))
-    liftPointedOpenLang _ (eOL) =
-      Now eOL
-    record PointedTagless
-      (A : Set) (Repr : Set -> Set) :
-      Set where
-      constructor tagless
-      field
-        eT : Repr A
+      v : Fin n -> OpPointedTerm n
+      eOL : OpPointedTerm n
+    data OpPointedTerm2
+      (n : Nat) (A : Set) : Set where
+      v2 :
+        Fin n -> OpPointedTerm2 n A
+      sing2 : A -> OpPointedTerm2 n A
+      eOL2 : OpPointedTerm2 n A
   
   module Pointed0Magma where
     record Pointed0Magma
@@ -2228,87 +1623,43 @@ module MathScheme where
           interp x2 y2 ->
           interp (op Po1 x1 x2)
             (op Po2 y1 y2)
-    data Pointed0MagmaLang
+    data Pointed0MagmaTerm
       : Set where
-      0L : Pointed0MagmaLang
+      0L : Pointed0MagmaTerm
       opL :
-        Pointed0MagmaLang ->
-        Pointed0MagmaLang ->
-        Pointed0MagmaLang
-    data Pointed0MagmaOpenLang
+        Pointed0MagmaTerm ->
+        Pointed0MagmaTerm ->
+        Pointed0MagmaTerm
+    data ClPointed0MagmaTerm
+      (A : Set) : Set where
+      sing :
+        A -> ClPointed0MagmaTerm A
+      0Cl : ClPointed0MagmaTerm A
+      opCl :
+        ClPointed0MagmaTerm A ->
+        ClPointed0MagmaTerm A ->
+        ClPointed0MagmaTerm A
+    data OpPointed0MagmaTerm
       (n : Nat) : Set where
       v :
-        Fin n -> Pointed0MagmaOpenLang n
-      0OL : Pointed0MagmaOpenLang n
+        Fin n -> OpPointed0MagmaTerm n
+      0OL : OpPointed0MagmaTerm n
       opOL :
-        Pointed0MagmaOpenLang n ->
-        Pointed0MagmaOpenLang n ->
-        Pointed0MagmaOpenLang n
-    evalTerm :
-      (A : Set) ->
-      Pointed0Magma A ->
-      Pointed0MagmaLang -> A
-    evalTerm _ Po (0L) = 0 Po
-    evalTerm _ Po (opL x1 x2) =
-      op Po (evalTerm _ Po x1)
-        (evalTerm _ Po x2)
-    evalOpenTerm :
-      (A : Set) (n : Nat) ->
-      Pointed0Magma A ->
-      Pointed0MagmaOpenLang n ->
-      Vec A n -> A
-    evalOpenTerm _ n po (v
-                         fin) vars = lookup _ n fin vars
-    evalOpenTerm _ n po (0OL) vars =
-      0 po
-    evalOpenTerm _ n po (opOL
-                         x1
-                         x2) vars =
-      op po
-        (evalOpenTerm _ n po x1 vars)
-        (evalOpenTerm _ n po x2 vars)
-    simplify :
-      Pointed0MagmaLang ->
-      Pointed0MagmaLang
-    simplify (0L) = 0L
-    simplify (opL x1 x2) =
-      opL (simplify x1) (simplify x2)
-    liftPointed0MagmaLang :
-      Pointed0MagmaLang ->
-      Staged Pointed0MagmaLang
-    liftPointed0MagmaLang x = Now x
-    0OL' :
-      (n : Nat) ->
-      Pointed0MagmaOpenLang n
-    0OL' _ = 0OL
-    opOL' :
-      (n : Nat) ->
-      Pointed0MagmaOpenLang n ->
-      Pointed0MagmaOpenLang n ->
-      Pointed0MagmaOpenLang n
-    opOL' _ x1 x2 = opOL x1 x2
-    liftPointed0MagmaOpenLang :
-      (n : Nat) ->
-      Pointed0MagmaOpenLang n ->
-      Staged (Pointed0MagmaOpenLang n)
-    liftPointed0MagmaOpenLang _ (v
-                                 fin) = const _ (code _ (v fin))
-    liftPointed0MagmaOpenLang _ (0OL) =
-      Now 0OL
-    liftPointed0MagmaOpenLang _ (opOL
-                                 x1
-                                 x2) =
-      stage2 _ _ _ (opOL' _)
-        (codeLift2 _ _ _ (opOL' _))
-        (liftPointed0MagmaOpenLang _ x1)
-        (liftPointed0MagmaOpenLang _ x2)
-    record Pointed0MagmaTagless
-      (A : Set) (Repr : Set -> Set) :
-      Set where
-      constructor tagless
-      field
-        0T : Repr A
-        opT : Repr A -> Repr A -> Repr A
+        OpPointed0MagmaTerm n ->
+        OpPointed0MagmaTerm n ->
+        OpPointed0MagmaTerm n
+    data OpPointed0MagmaTerm2
+      (n : Nat) (A : Set) : Set where
+      v2 :
+        Fin n ->
+        OpPointed0MagmaTerm2 n A
+      sing2 :
+        A -> OpPointed0MagmaTerm2 n A
+      0OL2 : OpPointed0MagmaTerm2 n A
+      opOL2 :
+        OpPointed0MagmaTerm2 n A ->
+        OpPointed0MagmaTerm2 n A ->
+        OpPointed0MagmaTerm2 n A
   
   module PointedMagma where
     record PointedMagma
@@ -2361,87 +1712,42 @@ module MathScheme where
           interp x2 y2 ->
           interp (op Po1 x1 x2)
             (op Po2 y1 y2)
-    data PointedMagmaLang
+    data PointedMagmaTerm
       : Set where
-      eL : PointedMagmaLang
+      eL : PointedMagmaTerm
       opL :
-        PointedMagmaLang ->
-        PointedMagmaLang ->
-        PointedMagmaLang
-    data PointedMagmaOpenLang
+        PointedMagmaTerm ->
+        PointedMagmaTerm ->
+        PointedMagmaTerm
+    data ClPointedMagmaTerm
+      (A : Set) : Set where
+      sing :
+        A -> ClPointedMagmaTerm A
+      eCl : ClPointedMagmaTerm A
+      opCl :
+        ClPointedMagmaTerm A ->
+        ClPointedMagmaTerm A ->
+        ClPointedMagmaTerm A
+    data OpPointedMagmaTerm
       (n : Nat) : Set where
       v :
-        Fin n -> PointedMagmaOpenLang n
-      eOL : PointedMagmaOpenLang n
+        Fin n -> OpPointedMagmaTerm n
+      eOL : OpPointedMagmaTerm n
       opOL :
-        PointedMagmaOpenLang n ->
-        PointedMagmaOpenLang n ->
-        PointedMagmaOpenLang n
-    evalTerm :
-      (A : Set) ->
-      PointedMagma A ->
-      PointedMagmaLang -> A
-    evalTerm _ Po (eL) = e Po
-    evalTerm _ Po (opL x1 x2) =
-      op Po (evalTerm _ Po x1)
-        (evalTerm _ Po x2)
-    evalOpenTerm :
-      (A : Set) (n : Nat) ->
-      PointedMagma A ->
-      PointedMagmaOpenLang n ->
-      Vec A n -> A
-    evalOpenTerm _ n po (v
-                         fin) vars = lookup _ n fin vars
-    evalOpenTerm _ n po (eOL) vars =
-      e po
-    evalOpenTerm _ n po (opOL
-                         x1
-                         x2) vars =
-      op po
-        (evalOpenTerm _ n po x1 vars)
-        (evalOpenTerm _ n po x2 vars)
-    simplify :
-      PointedMagmaLang ->
-      PointedMagmaLang
-    simplify (eL) = eL
-    simplify (opL x1 x2) =
-      opL (simplify x1) (simplify x2)
-    liftPointedMagmaLang :
-      PointedMagmaLang ->
-      Staged PointedMagmaLang
-    liftPointedMagmaLang x = Now x
-    eOL' :
-      (n : Nat) ->
-      PointedMagmaOpenLang n
-    eOL' _ = eOL
-    opOL' :
-      (n : Nat) ->
-      PointedMagmaOpenLang n ->
-      PointedMagmaOpenLang n ->
-      PointedMagmaOpenLang n
-    opOL' _ x1 x2 = opOL x1 x2
-    liftPointedMagmaOpenLang :
-      (n : Nat) ->
-      PointedMagmaOpenLang n ->
-      Staged (PointedMagmaOpenLang n)
-    liftPointedMagmaOpenLang _ (v
-                                fin) = const _ (code _ (v fin))
-    liftPointedMagmaOpenLang _ (eOL) =
-      Now eOL
-    liftPointedMagmaOpenLang _ (opOL
-                                x1
-                                x2) =
-      stage2 _ _ _ (opOL' _)
-        (codeLift2 _ _ _ (opOL' _))
-        (liftPointedMagmaOpenLang _ x1)
-        (liftPointedMagmaOpenLang _ x2)
-    record PointedMagmaTagless
-      (A : Set) (Repr : Set -> Set) :
-      Set where
-      constructor tagless
-      field
-        eT : Repr A
-        opT : Repr A -> Repr A -> Repr A
+        OpPointedMagmaTerm n ->
+        OpPointedMagmaTerm n ->
+        OpPointedMagmaTerm n
+    data OpPointedMagmaTerm2
+      (n : Nat) (A : Set) : Set where
+      v2 :
+        Fin n -> OpPointedMagmaTerm2 n A
+      sing2 :
+        A -> OpPointedMagmaTerm2 n A
+      eOL2 : OpPointedMagmaTerm2 n A
+      opOL2 :
+        OpPointedMagmaTerm2 n A ->
+        OpPointedMagmaTerm2 n A ->
+        OpPointedMagmaTerm2 n A
   
   module PointedOne where
     record PointedOne
@@ -2478,52 +1784,24 @@ module MathScheme where
         interp : A1 -> A2 -> Set
         interp-1 :
           interp (1 Po1) (1 Po2)
-    data PointedOneLang : Set where
-      1L : PointedOneLang
-    data PointedOneOpenLang
+    data PointedOneTerm : Set where
+      1L : PointedOneTerm
+    data ClPointedOneTerm
+      (A : Set) : Set where
+      sing : A -> ClPointedOneTerm A
+      1Cl : ClPointedOneTerm A
+    data OpPointedOneTerm
       (n : Nat) : Set where
       v :
-        Fin n -> PointedOneOpenLang n
-      1OL : PointedOneOpenLang n
-    evalTerm :
-      (A : Set) ->
-      PointedOne A ->
-      PointedOneLang -> A
-    evalTerm _ Po (1L) = 1 Po
-    evalOpenTerm :
-      (A : Set) (n : Nat) ->
-      PointedOne A ->
-      PointedOneOpenLang n ->
-      Vec A n -> A
-    evalOpenTerm _ n po (v
-                         fin) vars = lookup _ n fin vars
-    evalOpenTerm _ n po (1OL) vars =
-      1 po
-    simplify :
-      PointedOneLang -> PointedOneLang
-    simplify (1L) = 1L
-    liftPointedOneLang :
-      PointedOneLang ->
-      Staged PointedOneLang
-    liftPointedOneLang x = Now x
-    1OL' :
-      (n : Nat) ->
-      PointedOneOpenLang n
-    1OL' _ = 1OL
-    liftPointedOneOpenLang :
-      (n : Nat) ->
-      PointedOneOpenLang n ->
-      Staged (PointedOneOpenLang n)
-    liftPointedOneOpenLang _ (v
-                              fin) = const _ (code _ (v fin))
-    liftPointedOneOpenLang _ (1OL) =
-      Now 1OL
-    record PointedOneTagless
-      (A : Set) (Repr : Set -> Set) :
-      Set where
-      constructor tagless
-      field
-        1T : Repr A
+        Fin n -> OpPointedOneTerm n
+      1OL : OpPointedOneTerm n
+    data OpPointedOneTerm2
+      (n : Nat) (A : Set) : Set where
+      v2 :
+        Fin n -> OpPointedOneTerm2 n A
+      sing2 :
+        A -> OpPointedOneTerm2 n A
+      1OL2 : OpPointedOneTerm2 n A
   
   module PointedPlusMagma where
     record PointedPlusMagma
@@ -2576,92 +1854,45 @@ module MathScheme where
             (+ Po2 y1 y2)
         interp-e :
           interp (e Po1) (e Po2)
-    data PointedPlusMagmaLang
+    data PointedPlusMagmaTerm
       : Set where
       +L :
-        PointedPlusMagmaLang ->
-        PointedPlusMagmaLang ->
-        PointedPlusMagmaLang
-      eL : PointedPlusMagmaLang
-    data PointedPlusMagmaOpenLang
+        PointedPlusMagmaTerm ->
+        PointedPlusMagmaTerm ->
+        PointedPlusMagmaTerm
+      eL : PointedPlusMagmaTerm
+    data ClPointedPlusMagmaTerm
+      (A : Set) : Set where
+      sing :
+        A -> ClPointedPlusMagmaTerm A
+      +Cl :
+        ClPointedPlusMagmaTerm A ->
+        ClPointedPlusMagmaTerm A ->
+        ClPointedPlusMagmaTerm A
+      eCl : ClPointedPlusMagmaTerm A
+    data OpPointedPlusMagmaTerm
       (n : Nat) : Set where
       v :
         Fin n ->
-        PointedPlusMagmaOpenLang n
+        OpPointedPlusMagmaTerm n
       +OL :
-        PointedPlusMagmaOpenLang n ->
-        PointedPlusMagmaOpenLang n ->
-        PointedPlusMagmaOpenLang n
-      eOL : PointedPlusMagmaOpenLang n
-    evalTerm :
-      (A : Set) ->
-      PointedPlusMagma A ->
-      PointedPlusMagmaLang -> A
-    evalTerm _ Po (+L x1 x2) =
-      + Po (evalTerm _ Po x1)
-        (evalTerm _ Po x2)
-    evalTerm _ Po (eL) = e Po
-    evalOpenTerm :
-      (A : Set) (n : Nat) ->
-      PointedPlusMagma A ->
-      PointedPlusMagmaOpenLang n ->
-      Vec A n -> A
-    evalOpenTerm _ n po (v
-                         fin) vars = lookup _ n fin vars
-    evalOpenTerm _ n po (+OL
-                         x1
-                         x2) vars =
-      + po
-        (evalOpenTerm _ n po x1 vars)
-        (evalOpenTerm _ n po x2 vars)
-    evalOpenTerm _ n po (eOL) vars =
-      e po
-    simplify :
-      PointedPlusMagmaLang ->
-      PointedPlusMagmaLang
-    simplify (+L x1 x2) =
-      +L (simplify x1) (simplify x2)
-    simplify (eL) = eL
-    liftPointedPlusMagmaLang :
-      PointedPlusMagmaLang ->
-      Staged PointedPlusMagmaLang
-    liftPointedPlusMagmaLang x =
-      Now x
-    +OL' :
-      (n : Nat) ->
-      PointedPlusMagmaOpenLang n ->
-      PointedPlusMagmaOpenLang n ->
-      PointedPlusMagmaOpenLang n
-    +OL' _ x1 x2 = +OL x1 x2
-    eOL' :
-      (n : Nat) ->
-      PointedPlusMagmaOpenLang n
-    eOL' _ = eOL
-    liftPointedPlusMagmaOpenLang :
-      (n : Nat) ->
-      PointedPlusMagmaOpenLang n ->
-      Staged
-        (PointedPlusMagmaOpenLang n)
-    liftPointedPlusMagmaOpenLang _ (v
-                                    fin) = const _ (code _ (v fin))
-    liftPointedPlusMagmaOpenLang _ (+OL
-                                    x1
-                                    x2) =
-      stage2 _ _ _ (+OL' _)
-        (codeLift2 _ _ _ (+OL' _))
-        (liftPointedPlusMagmaOpenLang _
-           x1)
-        (liftPointedPlusMagmaOpenLang _
-           x2)
-    liftPointedPlusMagmaOpenLang _ (eOL) =
-      Now eOL
-    record PointedPlusMagmaTagless
-      (A : Set) (Repr : Set -> Set) :
-      Set where
-      constructor tagless
-      field
-        +T : Repr A -> Repr A -> Repr A
-        eT : Repr A
+        OpPointedPlusMagmaTerm n ->
+        OpPointedPlusMagmaTerm n ->
+        OpPointedPlusMagmaTerm n
+      eOL : OpPointedPlusMagmaTerm n
+    data OpPointedPlusMagmaTerm2
+      (n : Nat) (A : Set) : Set where
+      v2 :
+        Fin n ->
+        OpPointedPlusMagmaTerm2 n A
+      sing2 :
+        A -> OpPointedPlusMagmaTerm2 n A
+      +OL2 :
+        OpPointedPlusMagmaTerm2 n A ->
+        OpPointedPlusMagmaTerm2 n A ->
+        OpPointedPlusMagmaTerm2 n A
+      eOL2 :
+        OpPointedPlusMagmaTerm2 n A
   
   module PointedSemigroup where
     record PointedSemigroup
@@ -2723,92 +1954,45 @@ module MathScheme where
             (op Po2 y1 y2)
         interp-e :
           interp (e Po1) (e Po2)
-    data PointedSemigroupLang
+    data PointedSemigroupTerm
       : Set where
       opL :
-        PointedSemigroupLang ->
-        PointedSemigroupLang ->
-        PointedSemigroupLang
-      eL : PointedSemigroupLang
-    data PointedSemigroupOpenLang
+        PointedSemigroupTerm ->
+        PointedSemigroupTerm ->
+        PointedSemigroupTerm
+      eL : PointedSemigroupTerm
+    data ClPointedSemigroupTerm
+      (A : Set) : Set where
+      sing :
+        A -> ClPointedSemigroupTerm A
+      opCl :
+        ClPointedSemigroupTerm A ->
+        ClPointedSemigroupTerm A ->
+        ClPointedSemigroupTerm A
+      eCl : ClPointedSemigroupTerm A
+    data OpPointedSemigroupTerm
       (n : Nat) : Set where
       v :
         Fin n ->
-        PointedSemigroupOpenLang n
+        OpPointedSemigroupTerm n
       opOL :
-        PointedSemigroupOpenLang n ->
-        PointedSemigroupOpenLang n ->
-        PointedSemigroupOpenLang n
-      eOL : PointedSemigroupOpenLang n
-    evalTerm :
-      (A : Set) ->
-      PointedSemigroup A ->
-      PointedSemigroupLang -> A
-    evalTerm _ Po (opL x1 x2) =
-      op Po (evalTerm _ Po x1)
-        (evalTerm _ Po x2)
-    evalTerm _ Po (eL) = e Po
-    evalOpenTerm :
-      (A : Set) (n : Nat) ->
-      PointedSemigroup A ->
-      PointedSemigroupOpenLang n ->
-      Vec A n -> A
-    evalOpenTerm _ n po (v
-                         fin) vars = lookup _ n fin vars
-    evalOpenTerm _ n po (opOL
-                         x1
-                         x2) vars =
-      op po
-        (evalOpenTerm _ n po x1 vars)
-        (evalOpenTerm _ n po x2 vars)
-    evalOpenTerm _ n po (eOL) vars =
-      e po
-    simplify :
-      PointedSemigroupLang ->
-      PointedSemigroupLang
-    simplify (opL x1 x2) =
-      opL (simplify x1) (simplify x2)
-    simplify (eL) = eL
-    liftPointedSemigroupLang :
-      PointedSemigroupLang ->
-      Staged PointedSemigroupLang
-    liftPointedSemigroupLang x =
-      Now x
-    opOL' :
-      (n : Nat) ->
-      PointedSemigroupOpenLang n ->
-      PointedSemigroupOpenLang n ->
-      PointedSemigroupOpenLang n
-    opOL' _ x1 x2 = opOL x1 x2
-    eOL' :
-      (n : Nat) ->
-      PointedSemigroupOpenLang n
-    eOL' _ = eOL
-    liftPointedSemigroupOpenLang :
-      (n : Nat) ->
-      PointedSemigroupOpenLang n ->
-      Staged
-        (PointedSemigroupOpenLang n)
-    liftPointedSemigroupOpenLang _ (v
-                                    fin) = const _ (code _ (v fin))
-    liftPointedSemigroupOpenLang _ (opOL
-                                    x1
-                                    x2) =
-      stage2 _ _ _ (opOL' _)
-        (codeLift2 _ _ _ (opOL' _))
-        (liftPointedSemigroupOpenLang _
-           x1)
-        (liftPointedSemigroupOpenLang _
-           x2)
-    liftPointedSemigroupOpenLang _ (eOL) =
-      Now eOL
-    record PointedSemigroupTagless
-      (A : Set) (Repr : Set -> Set) :
-      Set where
-      constructor tagless
-      field
-        opT : Repr A -> Repr A -> Repr A
-        eT : Repr A
+        OpPointedSemigroupTerm n ->
+        OpPointedSemigroupTerm n ->
+        OpPointedSemigroupTerm n
+      eOL : OpPointedSemigroupTerm n
+    data OpPointedSemigroupTerm2
+      (n : Nat) (A : Set) : Set where
+      v2 :
+        Fin n ->
+        OpPointedSemigroupTerm2 n A
+      sing2 :
+        A -> OpPointedSemigroupTerm2 n A
+      opOL2 :
+        OpPointedSemigroupTerm2 n A ->
+        OpPointedSemigroupTerm2 n A ->
+        OpPointedSemigroupTerm2 n A
+      eOL2 :
+        OpPointedSemigroupTerm2 n A
   
   module PointedZero where
     record PointedZero
@@ -2845,53 +2029,25 @@ module MathScheme where
         interp : A1 -> A2 -> Set
         interp-0 :
           interp (0 Po1) (0 Po2)
-    data PointedZeroLang : Set where
-      0L : PointedZeroLang
-    data PointedZeroOpenLang
+    data PointedZeroTerm : Set where
+      0L : PointedZeroTerm
+    data ClPointedZeroTerm
+      (A : Set) : Set where
+      sing :
+        A -> ClPointedZeroTerm A
+      0Cl : ClPointedZeroTerm A
+    data OpPointedZeroTerm
       (n : Nat) : Set where
       v :
-        Fin n -> PointedZeroOpenLang n
-      0OL : PointedZeroOpenLang n
-    evalTerm :
-      (A : Set) ->
-      PointedZero A ->
-      PointedZeroLang -> A
-    evalTerm _ Po (0L) = 0 Po
-    evalOpenTerm :
-      (A : Set) (n : Nat) ->
-      PointedZero A ->
-      PointedZeroOpenLang n ->
-      Vec A n -> A
-    evalOpenTerm _ n po (v
-                         fin) vars = lookup _ n fin vars
-    evalOpenTerm _ n po (0OL) vars =
-      0 po
-    simplify :
-      PointedZeroLang ->
-      PointedZeroLang
-    simplify (0L) = 0L
-    liftPointedZeroLang :
-      PointedZeroLang ->
-      Staged PointedZeroLang
-    liftPointedZeroLang x = Now x
-    0OL' :
-      (n : Nat) ->
-      PointedZeroOpenLang n
-    0OL' _ = 0OL
-    liftPointedZeroOpenLang :
-      (n : Nat) ->
-      PointedZeroOpenLang n ->
-      Staged (PointedZeroOpenLang n)
-    liftPointedZeroOpenLang _ (v
-                               fin) = const _ (code _ (v fin))
-    liftPointedZeroOpenLang _ (0OL) =
-      Now 0OL
-    record PointedZeroTagless
-      (A : Set) (Repr : Set -> Set) :
-      Set where
-      constructor tagless
-      field
-        0T : Repr A
+        Fin n -> OpPointedZeroTerm n
+      0OL : OpPointedZeroTerm n
+    data OpPointedZeroTerm2
+      (n : Nat) (A : Set) : Set where
+      v2 :
+        Fin n -> OpPointedZeroTerm2 n A
+      sing2 :
+        A -> OpPointedZeroTerm2 n A
+      0OL2 : OpPointedZeroTerm2 n A
   
   module RightUnital where
     record RightUnital
@@ -2948,87 +2104,41 @@ module MathScheme where
           interp x2 y2 ->
           interp (op Ri1 x1 x2)
             (op Ri2 y1 y2)
-    data RightUnitalLang : Set where
-      eL : RightUnitalLang
+    data RightUnitalTerm : Set where
+      eL : RightUnitalTerm
       opL :
-        RightUnitalLang ->
-        RightUnitalLang ->
-        RightUnitalLang
-    data RightUnitalOpenLang
+        RightUnitalTerm ->
+        RightUnitalTerm ->
+        RightUnitalTerm
+    data ClRightUnitalTerm
+      (A : Set) : Set where
+      sing :
+        A -> ClRightUnitalTerm A
+      eCl : ClRightUnitalTerm A
+      opCl :
+        ClRightUnitalTerm A ->
+        ClRightUnitalTerm A ->
+        ClRightUnitalTerm A
+    data OpRightUnitalTerm
       (n : Nat) : Set where
       v :
-        Fin n -> RightUnitalOpenLang n
-      eOL : RightUnitalOpenLang n
+        Fin n -> OpRightUnitalTerm n
+      eOL : OpRightUnitalTerm n
       opOL :
-        RightUnitalOpenLang n ->
-        RightUnitalOpenLang n ->
-        RightUnitalOpenLang n
-    evalTerm :
-      (A : Set) ->
-      RightUnital A ->
-      RightUnitalLang -> A
-    evalTerm _ Ri (eL) = e Ri
-    evalTerm _ Ri (opL x1 x2) =
-      op Ri (evalTerm _ Ri x1)
-        (evalTerm _ Ri x2)
-    evalOpenTerm :
-      (A : Set) (n : Nat) ->
-      RightUnital A ->
-      RightUnitalOpenLang n ->
-      Vec A n -> A
-    evalOpenTerm _ n ri (v
-                         fin) vars = lookup _ n fin vars
-    evalOpenTerm _ n ri (eOL) vars =
-      e ri
-    evalOpenTerm _ n ri (opOL
-                         x1
-                         x2) vars =
-      op ri
-        (evalOpenTerm _ n ri x1 vars)
-        (evalOpenTerm _ n ri x2 vars)
-    simplify :
-      RightUnitalLang ->
-      RightUnitalLang
-    simplify (opL x (eL)) = x
-    simplify (eL) = eL
-    simplify (opL x1 x2) =
-      opL (simplify x1) (simplify x2)
-    liftRightUnitalLang :
-      RightUnitalLang ->
-      Staged RightUnitalLang
-    liftRightUnitalLang x = Now x
-    eOL' :
-      (n : Nat) ->
-      RightUnitalOpenLang n
-    eOL' _ = eOL
-    opOL' :
-      (n : Nat) ->
-      RightUnitalOpenLang n ->
-      RightUnitalOpenLang n ->
-      RightUnitalOpenLang n
-    opOL' _ x1 x2 = opOL x1 x2
-    liftRightUnitalOpenLang :
-      (n : Nat) ->
-      RightUnitalOpenLang n ->
-      Staged (RightUnitalOpenLang n)
-    liftRightUnitalOpenLang _ (v
-                               fin) = const _ (code _ (v fin))
-    liftRightUnitalOpenLang _ (eOL) =
-      Now eOL
-    liftRightUnitalOpenLang _ (opOL
-                               x1
-                               x2) =
-      stage2 _ _ _ (opOL' _)
-        (codeLift2 _ _ _ (opOL' _))
-        (liftRightUnitalOpenLang _ x1)
-        (liftRightUnitalOpenLang _ x2)
-    record RightUnitalTagless
-      (A : Set) (Repr : Set -> Set) :
-      Set where
-      constructor tagless
-      field
-        eT : Repr A
-        opT : Repr A -> Repr A -> Repr A
+        OpRightUnitalTerm n ->
+        OpRightUnitalTerm n ->
+        OpRightUnitalTerm n
+    data OpRightUnitalTerm2
+      (n : Nat) (A : Set) : Set where
+      v2 :
+        Fin n -> OpRightUnitalTerm2 n A
+      sing2 :
+        A -> OpRightUnitalTerm2 n A
+      eOL2 : OpRightUnitalTerm2 n A
+      opOL2 :
+        OpRightUnitalTerm2 n A ->
+        OpRightUnitalTerm2 n A ->
+        OpRightUnitalTerm2 n A
   
   module Semigroup where
     record Semigroup
@@ -3082,71 +2192,34 @@ module MathScheme where
           interp x2 y2 ->
           interp (op Se1 x1 x2)
             (op Se2 y1 y2)
-    data SemigroupLang : Set where
+    data SemigroupTerm : Set where
       opL :
-        SemigroupLang ->
-        SemigroupLang -> SemigroupLang
-    data SemigroupOpenLang
+        SemigroupTerm ->
+        SemigroupTerm -> SemigroupTerm
+    data ClSemigroupTerm
+      (A : Set) : Set where
+      sing : A -> ClSemigroupTerm A
+      opCl :
+        ClSemigroupTerm A ->
+        ClSemigroupTerm A ->
+        ClSemigroupTerm A
+    data OpSemigroupTerm
       (n : Nat) : Set where
-      v :
-        Fin n -> SemigroupOpenLang n
+      v : Fin n -> OpSemigroupTerm n
       opOL :
-        SemigroupOpenLang n ->
-        SemigroupOpenLang n ->
-        SemigroupOpenLang n
-    evalTerm :
-      (A : Set) ->
-      Semigroup A ->
-      SemigroupLang -> A
-    evalTerm _ Se (opL x1 x2) =
-      op Se (evalTerm _ Se x1)
-        (evalTerm _ Se x2)
-    evalOpenTerm :
-      (A : Set) (n : Nat) ->
-      Semigroup A ->
-      SemigroupOpenLang n ->
-      Vec A n -> A
-    evalOpenTerm _ n se (v
-                         fin) vars = lookup _ n fin vars
-    evalOpenTerm _ n se (opOL
-                         x1
-                         x2) vars =
-      op se
-        (evalOpenTerm _ n se x1 vars)
-        (evalOpenTerm _ n se x2 vars)
-    simplify :
-      SemigroupLang -> SemigroupLang
-    simplify (opL x1 x2) =
-      opL (simplify x1) (simplify x2)
-    liftSemigroupLang :
-      SemigroupLang ->
-      Staged SemigroupLang
-    liftSemigroupLang x = Now x
-    opOL' :
-      (n : Nat) ->
-      SemigroupOpenLang n ->
-      SemigroupOpenLang n ->
-      SemigroupOpenLang n
-    opOL' _ x1 x2 = opOL x1 x2
-    liftSemigroupOpenLang :
-      (n : Nat) ->
-      SemigroupOpenLang n ->
-      Staged (SemigroupOpenLang n)
-    liftSemigroupOpenLang _ (v
-                             fin) = const _ (code _ (v fin))
-    liftSemigroupOpenLang _ (opOL
-                             x1
-                             x2) =
-      stage2 _ _ _ (opOL' _)
-        (codeLift2 _ _ _ (opOL' _))
-        (liftSemigroupOpenLang _ x1)
-        (liftSemigroupOpenLang _ x2)
-    record SemigroupTagless
-      (A : Set) (Repr : Set -> Set) :
-      Set where
-      constructor tagless
-      field
-        opT : Repr A -> Repr A -> Repr A
+        OpSemigroupTerm n ->
+        OpSemigroupTerm n ->
+        OpSemigroupTerm n
+    data OpSemigroupTerm2
+      (n : Nat) (A : Set) : Set where
+      v2 :
+        Fin n -> OpSemigroupTerm2 n A
+      sing2 :
+        A -> OpSemigroupTerm2 n A
+      opOL2 :
+        OpSemigroupTerm2 n A ->
+        OpSemigroupTerm2 n A ->
+        OpSemigroupTerm2 n A
   
   module Unital where
     record Unital
@@ -3205,79 +2278,33 @@ module MathScheme where
           interp x2 y2 ->
           interp (op Un1 x1 x2)
             (op Un2 y1 y2)
-    data UnitalLang : Set where
-      eL : UnitalLang
+    data UnitalTerm : Set where
+      eL : UnitalTerm
       opL :
-        UnitalLang ->
-        UnitalLang -> UnitalLang
-    data UnitalOpenLang
+        UnitalTerm ->
+        UnitalTerm -> UnitalTerm
+    data ClUnitalTerm
+      (A : Set) : Set where
+      sing : A -> ClUnitalTerm A
+      eCl : ClUnitalTerm A
+      opCl :
+        ClUnitalTerm A ->
+        ClUnitalTerm A -> ClUnitalTerm A
+    data OpUnitalTerm
       (n : Nat) : Set where
-      v : Fin n -> UnitalOpenLang n
-      eOL : UnitalOpenLang n
+      v : Fin n -> OpUnitalTerm n
+      eOL : OpUnitalTerm n
       opOL :
-        UnitalOpenLang n ->
-        UnitalOpenLang n ->
-        UnitalOpenLang n
-    evalTerm :
-      (A : Set) ->
-      Unital A -> UnitalLang -> A
-    evalTerm _ Un (eL) = e Un
-    evalTerm _ Un (opL x1 x2) =
-      op Un (evalTerm _ Un x1)
-        (evalTerm _ Un x2)
-    evalOpenTerm :
-      (A : Set) (n : Nat) ->
-      Unital A ->
-      UnitalOpenLang n -> Vec A n -> A
-    evalOpenTerm _ n un (v
-                         fin) vars = lookup _ n fin vars
-    evalOpenTerm _ n un (eOL) vars =
-      e un
-    evalOpenTerm _ n un (opOL
-                         x1
-                         x2) vars =
-      op un
-        (evalOpenTerm _ n un x1 vars)
-        (evalOpenTerm _ n un x2 vars)
-    simplify :
-      UnitalLang -> UnitalLang
-    simplify (opL (eL) x) = x
-    simplify (opL x (eL)) = x
-    simplify (eL) = eL
-    simplify (opL x1 x2) =
-      opL (simplify x1) (simplify x2)
-    liftUnitalLang :
-      UnitalLang -> Staged UnitalLang
-    liftUnitalLang x = Now x
-    eOL' :
-      (n : Nat) -> UnitalOpenLang n
-    eOL' _ = eOL
-    opOL' :
-      (n : Nat) ->
-      UnitalOpenLang n ->
-      UnitalOpenLang n ->
-      UnitalOpenLang n
-    opOL' _ x1 x2 = opOL x1 x2
-    liftUnitalOpenLang :
-      (n : Nat) ->
-      UnitalOpenLang n ->
-      Staged (UnitalOpenLang n)
-    liftUnitalOpenLang _ (v fin) =
-      const _ (code _ (v fin))
-    liftUnitalOpenLang _ (eOL) =
-      Now eOL
-    liftUnitalOpenLang _ (opOL
-                          x1
-                          x2) =
-      stage2 _ _ _ (opOL' _)
-        (codeLift2 _ _ _ (opOL' _))
-        (liftUnitalOpenLang _ x1)
-        (liftUnitalOpenLang _ x2)
-    record UnitalTagless
-      (A : Set) (Repr : Set -> Set) :
-      Set where
-      constructor tagless
-      field
-        eT : Repr A
-        opT : Repr A -> Repr A -> Repr A
+        OpUnitalTerm n ->
+        OpUnitalTerm n -> OpUnitalTerm n
+    data OpUnitalTerm2
+      (n : Nat) (A : Set) : Set where
+      v2 :
+        Fin n -> OpUnitalTerm2 n A
+      sing2 : A -> OpUnitalTerm2 n A
+      eOL2 : OpUnitalTerm2 n A
+      opOL2 :
+        OpUnitalTerm2 n A ->
+        OpUnitalTerm2 n A ->
+        OpUnitalTerm2 n A
   
