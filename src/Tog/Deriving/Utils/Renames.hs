@@ -25,3 +25,8 @@ foldren :: EqTheory -> [(String,String)] -> EqTheory
 foldren eq [] = eq 
 foldren eq ((old,new):rens) =
   foldren (gmap (\x -> if x == old then new else x) eq) rens 
+
+foldrenConstrs ::  [(String,String)] -> Constr -> Constr
+foldrenConstrs [] c = c
+foldrenConstrs ((old,new):rens) c =
+  foldrenConstrs rens (gmap (\x -> if x == old then new else x) c)

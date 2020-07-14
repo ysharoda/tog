@@ -18,9 +18,21 @@ import Data.Map as Map (Map,fromList, toList)
 data Term = Basic
           | Closed Name_
           | Open Name_
-          | ExtOpen Name_ Name_ 
+          | ExtOpen Name_ Name_ deriving Show
+
+data TermLang = TermLang {
+  termTy  :: Term,
+  tname   :: Name_,
+  params  :: Params,
+  cons    :: [Constr] } deriving Show
 
 -- step1: rename all constrs of the thoery
+v1,v2, sing, sing2 :: String
+v1 = "v"
+v2 = "v2"
+sing = "sing"
+sing2 = "sing2"
+
 mapping :: EqTheory -> Term -> Map Name_ Name_
 mapping eq Basic = mappingHelper eq "L"
 mapping eq (Closed _) = mappingHelper eq "Cl"
@@ -66,9 +78,9 @@ constructors t thryNm cs =
      constrs = map (constructorsHelper $ termType thryNm t) cs
  in case t of
    Basic -> constrs
-   (Closed carrierNm) -> (singleton "sing" carrierNm typ) : constrs
-   (Open natVarNm) -> (vars "v" natVarNm typ) : constrs
-   (ExtOpen natVarNm carrierNm) -> (vars "v2" natVarNm typ) : (singleton "sing2" carrierNm typ) : constrs 
+   (Closed carrierNm) -> (singleton sing carrierNm typ) : constrs
+   (Open natVarNm) -> (vars v1 natVarNm typ) : constrs
+   (ExtOpen natVarNm carrierNm) -> (vars v2 natVarNm typ) : (singleton "sing2" carrierNm typ) : constrs 
 
 constructorsHelper :: Expr -> Constr -> Constr
 constructorsHelper (App as) c = gmap (\_ -> as) c
@@ -80,9 +92,29 @@ singleton singConstrNm carrierNm declType =
     (Fun (App [mkArg carrierNm]) declType)
 
 vars :: Name_ -> Name_ -> Expr -> Constr
-vars varConstrNm natVarNm expr =
+vars vconstrNm natVarNm expr =
  let fin = App [mkArg "Fin", mkArg natVarNm]
- in Constr (mkName varConstrNm) (Fun fin expr) 
+ in Constr (mkName vconstrNm) (Fun fin expr) 
+
+{-
+data TermLang = TermLang {
+  term    :: Term,
+  name    :: Name_,
+  params  :: Params
+  constrs :: [Constr] }
+-}
+
+tlang :: EqTheory -> Term -> TermLang
+tlang eq term =
+ let neq = foldren eq $ Map.toList (mapping eq term) 
+ in TermLang term (declName (neq ^. thyName) term) (mkParams term) $
+       constructors term  (neq ^. thyName) (neq ^. funcTypes)
+
+termLangs :: EqTheory -> [TermLang]
+termLangs eq = 
+ let nm = getConstrName $ eq ^. sort
+ in map (tlang eq) [Basic, Closed nm, Open "n", ExtOpen "n" nm]
+
     
 decl :: EqTheory -> Term -> Decl 
 decl eq term  =
@@ -90,11 +122,13 @@ decl eq term  =
  in Data (mkName $ declName (neq ^. thyName) term) (mkParams term) $
      DataDeclDef setType $ constructors term  (neq ^. thyName) (neq ^. funcTypes) 
 
-termLangs :: EqTheory -> [Decl]
-termLangs eq =
- let nm = getConstrName $ eq ^. sort
- in map (decl eq) [Basic, Closed nm, Open "n", ExtOpen "n" nm]
+tlToDecl :: TermLang -> Decl
+tlToDecl (TermLang _ nm pars constrs) =
+ Data (mkName nm) pars (DataDeclDef setType constrs)
 
+termLangsToDecls :: [TermLang] -> [Decl]
+termLangsToDecls tls = map tlToDecl tls 
+  
 {-
 
 e : A

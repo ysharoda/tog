@@ -11,13 +11,22 @@ type FType = Constr
 
 type FApp = Expr
 
+farity :: Expr -> Int
+farity e = farityH e -1
+ where 
+  farityH (Fun _ e2) = 1 + farityH e2
+  farityH (App _) = 1
+  farityH (Id _) = 1
+  farityH (Pi (Tel bs) ex) = length bs + farityH ex
+  farityH _ = error "not a function" 
+
 class MkPattern a where
   mkPattern :: a -> Pattern
 
 instance MkPattern FType where 
   mkPattern (Constr n typ) =
    let nm = n ^. name 
-       arity = exprArity typ
+       arity = farity typ
        vars = genVars arity 
    in if (arity == 0)
         then IdP $ mkQName nm 
@@ -42,7 +51,7 @@ instance MkPattern FApp where
 fapp :: FType -> FApp
 fapp (Constr n typ) =
  let nm = n ^. name
-     arity = exprArity typ
+     arity = farity typ
      vars = genVars arity
  in if (arity == 0) then App [mkArg nm]
     else App $ mkArg nm : map mkArg vars 
@@ -55,6 +64,12 @@ functor fnm (App (a:as)) = App $ a : map (\x -> Arg $ App [mkArg fnm,x]) as
 functor _ _ = error "invalid function application" 
 -- QQ: Can we do better than passsing the name?
 -- i.e.: pass a unary function (Expr -> Expr) 
+
+functor' :: FApp -> FApp -> FApp
+functor' (App args) (Id (NotQual (Name (_,n)))) = App (args ++ [mkArg n])
+functor' (App args) (App (a:as)) = App $ a : (map (\x -> Arg $ App (args ++ [x])) as)
+functor' _ _ = error "invalid function application" 
+
 
 -- Given a type constructor C and a type A, it returns the type C A. 
 liftType :: Name_ -> Arg -> Arg
@@ -79,3 +94,10 @@ mkSimpTypeSig :: Name_ -> [Arg] -> TypeSig
 mkSimpTypeSig fname args =
   Sig (mkName fname) (curry' args) 
 
+mkPiTypeSig :: Name_ -> [Binding] -> [Arg] -> TypeSig
+mkPiTypeSig fname [] args = mkSimpTypeSig fname args
+mkPiTypeSig fname binds args =
+  Sig (mkName fname) (Pi (Tel binds) (curry' args)) 
+
+mkFunDef :: Expr -> FunDefBody
+mkFunDef e = FunDefBody e NoWhere 

@@ -9,7 +9,6 @@ import           Control.Lens (view)
 import           Tog.Raw.Abs           as Abs
 import qualified Tog.Deriving.EqTheory as Eq
 import           Tog.Deriving.Hom
-import           Tog.Deriving.TermLang
 import           Tog.Deriving.TGraphTest 
 import           Tog.Deriving.ProductTheory
 import           Tog.Deriving.Signature 
@@ -17,13 +16,13 @@ import           Tog.Deriving.TypeConversions
 import           Tog.Deriving.Types
 import           Tog.Deriving.TUtils  (mkName, setType,strToDecl)
 import           Tog.Deriving.RelationalInterp
-import           Tog.Deriving.OpenTermLang
-import           Tog.Deriving.Evaluator
-import           Tog.Deriving.OpenTermEvaluator
+import           Tog.Deriving.Terms
+--import           Tog.Deriving.Evaluator
+--import           Tog.Deriving.OpenTermEvaluator
 import           Tog.Deriving.TogPrelude (prelude)
 import           Tog.Deriving.Simplifier
-import           Tog.Deriving.StagedTerms
-import           Tog.Deriving.Tagless 
+--import           Tog.Deriving.StagedTerms
+--import           Tog.Deriving.Tagless 
 
 processDefs :: [Language] -> Module
 processDefs = processModule . defsToModule
@@ -44,17 +43,21 @@ leverageThry thry =
      prodthry = (prodTheoryToDecl . productThry) thry
      hom = homomorphism thry
      relInterp = relationalInterp thry
-     trmlang = termLang thry
-     openTrmLang = openTermLang thry
-     evalTrmLang = evalFunc thry
-     evalOpenTrmLang = openEvalFunc thry 
-     simplifier = simplifyFunc thry
-     stagedClosedTerms = liftTermCl thry
-     stagedOpenTerms = liftTermOp thry
-     tagless = taglessRep thry  
- in [sigs, prodthry, hom, relInterp] ++ 
-    [trmlang, openTrmLang] ++ evalTrmLang ++ evalOpenTrmLang ++ simplifier ++
-    stagedClosedTerms ++ stagedOpenTerms ++ [tagless] 
+     trmLangs = termLangs thry
+     temLangsDecls = termLangsToDecls trmLangs
+     simplifiers = simplifyFuncs thry trmLangs
+ --    trmlang = termLang thry
+ --    openTrmLang = openTermLang thry
+ --    evalTrmLang = evalFunc thry
+ --    evalOpenTrmLang = openEvalFunc thry 
+ --    simplifier = simplifyFunc thry
+ --    stagedClosedTerms = liftTermCl thry
+ --    stagedOpenTerms = liftTermOp thry
+ --    tagless = taglessRep thry  
+ in [sigs, prodthry, hom, relInterp] ++ temLangsDecls ++ simplifiers
+    
+    --[trmlang, openTrmLang] ++ evalTrmLang ++ evalOpenTrmLang ++ simplifier ++
+    --stagedClosedTerms ++ stagedOpenTerms ++ [tagless] 
 
 genEverything :: InnerModule -> InnerModule
 genEverything m@(Module_ (Module n p (Decl_ decls))) =

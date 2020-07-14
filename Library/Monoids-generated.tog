@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------
 -- Checking declarations
 ------------------------------------------------------------------------
--- Solved Metas: 12095
+-- Solved Metas: 15407
 -- Unsolved Metas: 0
 ------------------------------------------------------------------------
 -- Unsolved problems: 0
@@ -323,6 +323,45 @@ module MathScheme where
         OpAdditiveCommutativeSemigroupTerm2
           n
           A
+    simplifyB :
+      AdditiveCommutativeSemigroupTerm ->
+      AdditiveCommutativeSemigroupTerm
+    simplifyB (+L x1 x2) =
+      +L (simplifyB x1) (simplifyB x2)
+    simplifyCl :
+      (A : Set) ->
+      ClAdditiveCommutativeSemigroupTerm
+        A ->
+      ClAdditiveCommutativeSemigroupTerm
+        A
+    simplifyCl _ (+Cl x1 x2) =
+      +Cl (simplifyCl _ x1)
+        (simplifyCl _ x2)
+    simplifyCl _ (sing x1) = sing x1
+    simplifyOp :
+      (n : Nat) ->
+      OpAdditiveCommutativeSemigroupTerm
+        n ->
+      OpAdditiveCommutativeSemigroupTerm
+        n
+    simplifyOp _ (+OL x1 x2) =
+      +OL (simplifyOp _ x1)
+        (simplifyOp _ x2)
+    simplifyOp _ (v x1) = v x1
+    simplifyOpE :
+      (n : Nat) (A : Set) ->
+      OpAdditiveCommutativeSemigroupTerm2
+        n
+        A ->
+      OpAdditiveCommutativeSemigroupTerm2
+        n
+        A
+    simplifyOpE _ _ (+OL2 x1 x2) =
+      +OL2 (simplifyOpE _ _ x1)
+        (simplifyOpE _ _ x2)
+    simplifyOpE _ _ (v2 x1) = v2 x1
+    simplifyOpE _ _ (sing2 x1) =
+      sing2 x1
   
   module AdditiveMagma where
     record AdditiveMagma
@@ -402,6 +441,37 @@ module MathScheme where
         OpAdditiveMagmaTerm2 n A ->
         OpAdditiveMagmaTerm2 n A ->
         OpAdditiveMagmaTerm2 n A
+    simplifyB :
+      AdditiveMagmaTerm ->
+      AdditiveMagmaTerm
+    simplifyB (+L x1 x2) =
+      +L (simplifyB x1) (simplifyB x2)
+    simplifyCl :
+      (A : Set) ->
+      ClAdditiveMagmaTerm A ->
+      ClAdditiveMagmaTerm A
+    simplifyCl _ (+Cl x1 x2) =
+      +Cl (simplifyCl _ x1)
+        (simplifyCl _ x2)
+    simplifyCl _ (sing x1) = sing x1
+    simplifyOp :
+      (n : Nat) ->
+      OpAdditiveMagmaTerm n ->
+      OpAdditiveMagmaTerm n
+    simplifyOp _ (+OL x1 x2) =
+      +OL (simplifyOp _ x1)
+        (simplifyOp _ x2)
+    simplifyOp _ (v x1) = v x1
+    simplifyOpE :
+      (n : Nat) (A : Set) ->
+      OpAdditiveMagmaTerm2 n A ->
+      OpAdditiveMagmaTerm2 n A
+    simplifyOpE _ _ (+OL2 x1 x2) =
+      +OL2 (simplifyOpE _ _ x1)
+        (simplifyOpE _ _ x2)
+    simplifyOpE _ _ (v2 x1) = v2 x1
+    simplifyOpE _ _ (sing2 x1) =
+      sing2 x1
   
   module AdditiveMonoid where
     record AdditiveMonoid
@@ -508,6 +578,41 @@ module MathScheme where
         OpAdditiveMonoidTerm2 n A ->
         OpAdditiveMonoidTerm2 n A
       0OL2 : OpAdditiveMonoidTerm2 n A
+    simplifyB :
+      AdditiveMonoidTerm ->
+      AdditiveMonoidTerm
+    simplifyB (+L x1 x2) =
+      +L (simplifyB x1) (simplifyB x2)
+    simplifyB (0L) = 0L
+    simplifyCl :
+      (A : Set) ->
+      ClAdditiveMonoidTerm A ->
+      ClAdditiveMonoidTerm A
+    simplifyCl _ (+Cl x1 x2) =
+      +Cl (simplifyCl _ x1)
+        (simplifyCl _ x2)
+    simplifyCl _ (0Cl) = 0Cl
+    simplifyCl _ (sing x1) = sing x1
+    simplifyOp :
+      (n : Nat) ->
+      OpAdditiveMonoidTerm n ->
+      OpAdditiveMonoidTerm n
+    simplifyOp _ (+OL x1 x2) =
+      +OL (simplifyOp _ x1)
+        (simplifyOp _ x2)
+    simplifyOp _ (0OL) = 0OL
+    simplifyOp _ (v x1) = v x1
+    simplifyOpE :
+      (n : Nat) (A : Set) ->
+      OpAdditiveMonoidTerm2 n A ->
+      OpAdditiveMonoidTerm2 n A
+    simplifyOpE _ _ (+OL2 x1 x2) =
+      +OL2 (simplifyOpE _ _ x1)
+        (simplifyOpE _ _ x2)
+    simplifyOpE _ _ (0OL2) = 0OL2
+    simplifyOpE _ _ (v2 x1) = v2 x1
+    simplifyOpE _ _ (sing2 x1) =
+      sing2 x1
   
   module AdditivePointedMagma where
     record AdditivePointedMagma
@@ -605,6 +710,42 @@ module MathScheme where
         OpAdditivePointedMagmaTerm2 n
           A ->
         OpAdditivePointedMagmaTerm2 n A
+    simplifyB :
+      AdditivePointedMagmaTerm ->
+      AdditivePointedMagmaTerm
+    simplifyB (0L) = 0L
+    simplifyB (+L x1 x2) =
+      +L (simplifyB x1) (simplifyB x2)
+    simplifyCl :
+      (A : Set) ->
+      ClAdditivePointedMagmaTerm A ->
+      ClAdditivePointedMagmaTerm A
+    simplifyCl _ (0Cl) = 0Cl
+    simplifyCl _ (+Cl x1 x2) =
+      +Cl (simplifyCl _ x1)
+        (simplifyCl _ x2)
+    simplifyCl _ (sing x1) = sing x1
+    simplifyOp :
+      (n : Nat) ->
+      OpAdditivePointedMagmaTerm n ->
+      OpAdditivePointedMagmaTerm n
+    simplifyOp _ (0OL) = 0OL
+    simplifyOp _ (+OL x1 x2) =
+      +OL (simplifyOp _ x1)
+        (simplifyOp _ x2)
+    simplifyOp _ (v x1) = v x1
+    simplifyOpE :
+      (n : Nat) (A : Set) ->
+      OpAdditivePointedMagmaTerm2 n
+        A ->
+      OpAdditivePointedMagmaTerm2 n A
+    simplifyOpE _ _ (0OL2) = 0OL2
+    simplifyOpE _ _ (+OL2 x1 x2) =
+      +OL2 (simplifyOpE _ _ x1)
+        (simplifyOpE _ _ x2)
+    simplifyOpE _ _ (v2 x1) = v2 x1
+    simplifyOpE _ _ (sing2 x1) =
+      sing2 x1
   
   module AdditivePointedSemigroup where
     record AdditivePointedSemigroup
@@ -728,6 +869,47 @@ module MathScheme where
         OpAdditivePointedSemigroupTerm2
           n
           A
+    simplifyB :
+      AdditivePointedSemigroupTerm ->
+      AdditivePointedSemigroupTerm
+    simplifyB (0L) = 0L
+    simplifyB (+L x1 x2) =
+      +L (simplifyB x1) (simplifyB x2)
+    simplifyCl :
+      (A : Set) ->
+      ClAdditivePointedSemigroupTerm
+        A ->
+      ClAdditivePointedSemigroupTerm A
+    simplifyCl _ (0Cl) = 0Cl
+    simplifyCl _ (+Cl x1 x2) =
+      +Cl (simplifyCl _ x1)
+        (simplifyCl _ x2)
+    simplifyCl _ (sing x1) = sing x1
+    simplifyOp :
+      (n : Nat) ->
+      OpAdditivePointedSemigroupTerm
+        n ->
+      OpAdditivePointedSemigroupTerm n
+    simplifyOp _ (0OL) = 0OL
+    simplifyOp _ (+OL x1 x2) =
+      +OL (simplifyOp _ x1)
+        (simplifyOp _ x2)
+    simplifyOp _ (v x1) = v x1
+    simplifyOpE :
+      (n : Nat) (A : Set) ->
+      OpAdditivePointedSemigroupTerm2
+        n
+        A ->
+      OpAdditivePointedSemigroupTerm2
+        n
+        A
+    simplifyOpE _ _ (0OL2) = 0OL2
+    simplifyOpE _ _ (+OL2 x1 x2) =
+      +OL2 (simplifyOpE _ _ x1)
+        (simplifyOpE _ _ x2)
+    simplifyOpE _ _ (v2 x1) = v2 x1
+    simplifyOpE _ _ (sing2 x1) =
+      sing2 x1
   
   module AdditiveSemigroup where
     record AdditiveSemigroup
@@ -818,6 +1000,37 @@ module MathScheme where
         OpAdditiveSemigroupTerm2 n A ->
         OpAdditiveSemigroupTerm2 n A ->
         OpAdditiveSemigroupTerm2 n A
+    simplifyB :
+      AdditiveSemigroupTerm ->
+      AdditiveSemigroupTerm
+    simplifyB (+L x1 x2) =
+      +L (simplifyB x1) (simplifyB x2)
+    simplifyCl :
+      (A : Set) ->
+      ClAdditiveSemigroupTerm A ->
+      ClAdditiveSemigroupTerm A
+    simplifyCl _ (+Cl x1 x2) =
+      +Cl (simplifyCl _ x1)
+        (simplifyCl _ x2)
+    simplifyCl _ (sing x1) = sing x1
+    simplifyOp :
+      (n : Nat) ->
+      OpAdditiveSemigroupTerm n ->
+      OpAdditiveSemigroupTerm n
+    simplifyOp _ (+OL x1 x2) =
+      +OL (simplifyOp _ x1)
+        (simplifyOp _ x2)
+    simplifyOp _ (v x1) = v x1
+    simplifyOpE :
+      (n : Nat) (A : Set) ->
+      OpAdditiveSemigroupTerm2 n A ->
+      OpAdditiveSemigroupTerm2 n A
+    simplifyOpE _ _ (+OL2 x1 x2) =
+      +OL2 (simplifyOpE _ _ x1)
+        (simplifyOpE _ _ x2)
+    simplifyOpE _ _ (v2 x1) = v2 x1
+    simplifyOpE _ _ (sing2 x1) =
+      sing2 x1
   
   module AdditiveUnital where
     record AdditiveUnital
@@ -915,6 +1128,41 @@ module MathScheme where
         OpAdditiveUnitalTerm2 n A ->
         OpAdditiveUnitalTerm2 n A ->
         OpAdditiveUnitalTerm2 n A
+    simplifyB :
+      AdditiveUnitalTerm ->
+      AdditiveUnitalTerm
+    simplifyB (0L) = 0L
+    simplifyB (+L x1 x2) =
+      +L (simplifyB x1) (simplifyB x2)
+    simplifyCl :
+      (A : Set) ->
+      ClAdditiveUnitalTerm A ->
+      ClAdditiveUnitalTerm A
+    simplifyCl _ (0Cl) = 0Cl
+    simplifyCl _ (+Cl x1 x2) =
+      +Cl (simplifyCl _ x1)
+        (simplifyCl _ x2)
+    simplifyCl _ (sing x1) = sing x1
+    simplifyOp :
+      (n : Nat) ->
+      OpAdditiveUnitalTerm n ->
+      OpAdditiveUnitalTerm n
+    simplifyOp _ (0OL) = 0OL
+    simplifyOp _ (+OL x1 x2) =
+      +OL (simplifyOp _ x1)
+        (simplifyOp _ x2)
+    simplifyOp _ (v x1) = v x1
+    simplifyOpE :
+      (n : Nat) (A : Set) ->
+      OpAdditiveUnitalTerm2 n A ->
+      OpAdditiveUnitalTerm2 n A
+    simplifyOpE _ _ (0OL2) = 0OL2
+    simplifyOpE _ _ (+OL2 x1 x2) =
+      +OL2 (simplifyOpE _ _ x1)
+        (simplifyOpE _ _ x2)
+    simplifyOpE _ _ (v2 x1) = v2 x1
+    simplifyOpE _ _ (sing2 x1) =
+      sing2 x1
   
   module Carrier where
     record Carrier
@@ -959,6 +1207,25 @@ module MathScheme where
       v2 :
         Fin n -> OpCarrierTerm2 n A
       sing2 : A -> OpCarrierTerm2 n A
+    simplifyB :
+      CarrierTerm -> CarrierTerm
+    simplifyCl :
+      (A : Set) ->
+      ClCarrierTerm A ->
+      ClCarrierTerm A
+    simplifyCl _ (sing x1) = sing x1
+    simplifyOp :
+      (n : Nat) ->
+      OpCarrierTerm n ->
+      OpCarrierTerm n
+    simplifyOp _ (v x1) = v x1
+    simplifyOpE :
+      (n : Nat) (A : Set) ->
+      OpCarrierTerm2 n A ->
+      OpCarrierTerm2 n A
+    simplifyOpE _ _ (v2 x1) = v2 x1
+    simplifyOpE _ _ (sing2 x1) =
+      sing2 x1
   
   module CommutativeMagma where
     record CommutativeMagma
@@ -1046,6 +1313,38 @@ module MathScheme where
         OpCommutativeMagmaTerm2 n A ->
         OpCommutativeMagmaTerm2 n A ->
         OpCommutativeMagmaTerm2 n A
+    simplifyB :
+      CommutativeMagmaTerm ->
+      CommutativeMagmaTerm
+    simplifyB (opL x1 x2) =
+      opL (simplifyB x1)
+        (simplifyB x2)
+    simplifyCl :
+      (A : Set) ->
+      ClCommutativeMagmaTerm A ->
+      ClCommutativeMagmaTerm A
+    simplifyCl _ (opCl x1 x2) =
+      opCl (simplifyCl _ x1)
+        (simplifyCl _ x2)
+    simplifyCl _ (sing x1) = sing x1
+    simplifyOp :
+      (n : Nat) ->
+      OpCommutativeMagmaTerm n ->
+      OpCommutativeMagmaTerm n
+    simplifyOp _ (opOL x1 x2) =
+      opOL (simplifyOp _ x1)
+        (simplifyOp _ x2)
+    simplifyOp _ (v x1) = v x1
+    simplifyOpE :
+      (n : Nat) (A : Set) ->
+      OpCommutativeMagmaTerm2 n A ->
+      OpCommutativeMagmaTerm2 n A
+    simplifyOpE _ _ (opOL2 x1 x2) =
+      opOL2 (simplifyOpE _ _ x1)
+        (simplifyOpE _ _ x2)
+    simplifyOpE _ _ (v2 x1) = v2 x1
+    simplifyOpE _ _ (sing2 x1) =
+      sing2 x1
   
   module CommutativeMonoid where
     record CommutativeMonoid
@@ -1162,6 +1461,42 @@ module MathScheme where
         OpCommutativeMonoidTerm2 n A
       eOL2 :
         OpCommutativeMonoidTerm2 n A
+    simplifyB :
+      CommutativeMonoidTerm ->
+      CommutativeMonoidTerm
+    simplifyB (opL x1 x2) =
+      opL (simplifyB x1)
+        (simplifyB x2)
+    simplifyB (eL) = eL
+    simplifyCl :
+      (A : Set) ->
+      ClCommutativeMonoidTerm A ->
+      ClCommutativeMonoidTerm A
+    simplifyCl _ (opCl x1 x2) =
+      opCl (simplifyCl _ x1)
+        (simplifyCl _ x2)
+    simplifyCl _ (eCl) = eCl
+    simplifyCl _ (sing x1) = sing x1
+    simplifyOp :
+      (n : Nat) ->
+      OpCommutativeMonoidTerm n ->
+      OpCommutativeMonoidTerm n
+    simplifyOp _ (opOL x1 x2) =
+      opOL (simplifyOp _ x1)
+        (simplifyOp _ x2)
+    simplifyOp _ (eOL) = eOL
+    simplifyOp _ (v x1) = v x1
+    simplifyOpE :
+      (n : Nat) (A : Set) ->
+      OpCommutativeMonoidTerm2 n A ->
+      OpCommutativeMonoidTerm2 n A
+    simplifyOpE _ _ (opOL2 x1 x2) =
+      opOL2 (simplifyOpE _ _ x1)
+        (simplifyOpE _ _ x2)
+    simplifyOpE _ _ (eOL2) = eOL2
+    simplifyOpE _ _ (v2 x1) = v2 x1
+    simplifyOpE _ _ (sing2 x1) =
+      sing2 x1
   
   module CommutativeSemigroup where
     record CommutativeSemigroup
@@ -1262,6 +1597,39 @@ module MathScheme where
         OpCommutativeSemigroupTerm2 n
           A ->
         OpCommutativeSemigroupTerm2 n A
+    simplifyB :
+      CommutativeSemigroupTerm ->
+      CommutativeSemigroupTerm
+    simplifyB (opL x1 x2) =
+      opL (simplifyB x1)
+        (simplifyB x2)
+    simplifyCl :
+      (A : Set) ->
+      ClCommutativeSemigroupTerm A ->
+      ClCommutativeSemigroupTerm A
+    simplifyCl _ (opCl x1 x2) =
+      opCl (simplifyCl _ x1)
+        (simplifyCl _ x2)
+    simplifyCl _ (sing x1) = sing x1
+    simplifyOp :
+      (n : Nat) ->
+      OpCommutativeSemigroupTerm n ->
+      OpCommutativeSemigroupTerm n
+    simplifyOp _ (opOL x1 x2) =
+      opOL (simplifyOp _ x1)
+        (simplifyOp _ x2)
+    simplifyOp _ (v x1) = v x1
+    simplifyOpE :
+      (n : Nat) (A : Set) ->
+      OpCommutativeSemigroupTerm2 n
+        A ->
+      OpCommutativeSemigroupTerm2 n A
+    simplifyOpE _ _ (opOL2 x1 x2) =
+      opOL2 (simplifyOpE _ _ x1)
+        (simplifyOpE _ _ x2)
+    simplifyOpE _ _ (v2 x1) = v2 x1
+    simplifyOpE _ _ (sing2 x1) =
+      sing2 x1
   
   module Empty where
     record Empty : Set where
@@ -1357,6 +1725,41 @@ module MathScheme where
         OpLeftUnitalTerm2 n A ->
         OpLeftUnitalTerm2 n A ->
         OpLeftUnitalTerm2 n A
+    simplifyB :
+      LeftUnitalTerm -> LeftUnitalTerm
+    simplifyB (eL) = eL
+    simplifyB (opL x1 x2) =
+      opL (simplifyB x1)
+        (simplifyB x2)
+    simplifyCl :
+      (A : Set) ->
+      ClLeftUnitalTerm A ->
+      ClLeftUnitalTerm A
+    simplifyCl _ (eCl) = eCl
+    simplifyCl _ (opCl x1 x2) =
+      opCl (simplifyCl _ x1)
+        (simplifyCl _ x2)
+    simplifyCl _ (sing x1) = sing x1
+    simplifyOp :
+      (n : Nat) ->
+      OpLeftUnitalTerm n ->
+      OpLeftUnitalTerm n
+    simplifyOp _ (eOL) = eOL
+    simplifyOp _ (opOL x1 x2) =
+      opOL (simplifyOp _ x1)
+        (simplifyOp _ x2)
+    simplifyOp _ (v x1) = v x1
+    simplifyOpE :
+      (n : Nat) (A : Set) ->
+      OpLeftUnitalTerm2 n A ->
+      OpLeftUnitalTerm2 n A
+    simplifyOpE _ _ (eOL2) = eOL2
+    simplifyOpE _ _ (opOL2 x1 x2) =
+      opOL2 (simplifyOpE _ _ x1)
+        (simplifyOpE _ _ x2)
+    simplifyOpE _ _ (v2 x1) = v2 x1
+    simplifyOpE _ _ (sing2 x1) =
+      sing2 x1
   
   module Magma where
     record Magma
@@ -1425,6 +1828,35 @@ module MathScheme where
         OpMagmaTerm2 n A ->
         OpMagmaTerm2 n A ->
         OpMagmaTerm2 n A
+    simplifyB :
+      MagmaTerm -> MagmaTerm
+    simplifyB (opL x1 x2) =
+      opL (simplifyB x1)
+        (simplifyB x2)
+    simplifyCl :
+      (A : Set) ->
+      ClMagmaTerm A -> ClMagmaTerm A
+    simplifyCl _ (opCl x1 x2) =
+      opCl (simplifyCl _ x1)
+        (simplifyCl _ x2)
+    simplifyCl _ (sing x1) = sing x1
+    simplifyOp :
+      (n : Nat) ->
+      OpMagmaTerm n -> OpMagmaTerm n
+    simplifyOp _ (opOL x1 x2) =
+      opOL (simplifyOp _ x1)
+        (simplifyOp _ x2)
+    simplifyOp _ (v x1) = v x1
+    simplifyOpE :
+      (n : Nat) (A : Set) ->
+      OpMagmaTerm2 n A ->
+      OpMagmaTerm2 n A
+    simplifyOpE _ _ (opOL2 x1 x2) =
+      opOL2 (simplifyOpE _ _ x1)
+        (simplifyOpE _ _ x2)
+    simplifyOpE _ _ (v2 x1) = v2 x1
+    simplifyOpE _ _ (sing2 x1) =
+      sing2 x1
   
   module Monoid where
     record Monoid
@@ -1521,6 +1953,39 @@ module MathScheme where
         OpMonoidTerm2 n A ->
         OpMonoidTerm2 n A ->
         OpMonoidTerm2 n A
+    simplifyB :
+      MonoidTerm -> MonoidTerm
+    simplifyB (eL) = eL
+    simplifyB (opL x1 x2) =
+      opL (simplifyB x1)
+        (simplifyB x2)
+    simplifyCl :
+      (A : Set) ->
+      ClMonoidTerm A -> ClMonoidTerm A
+    simplifyCl _ (eCl) = eCl
+    simplifyCl _ (opCl x1 x2) =
+      opCl (simplifyCl _ x1)
+        (simplifyCl _ x2)
+    simplifyCl _ (sing x1) = sing x1
+    simplifyOp :
+      (n : Nat) ->
+      OpMonoidTerm n -> OpMonoidTerm n
+    simplifyOp _ (eOL) = eOL
+    simplifyOp _ (opOL x1 x2) =
+      opOL (simplifyOp _ x1)
+        (simplifyOp _ x2)
+    simplifyOp _ (v x1) = v x1
+    simplifyOpE :
+      (n : Nat) (A : Set) ->
+      OpMonoidTerm2 n A ->
+      OpMonoidTerm2 n A
+    simplifyOpE _ _ (eOL2) = eOL2
+    simplifyOpE _ _ (opOL2 x1 x2) =
+      opOL2 (simplifyOpE _ _ x1)
+        (simplifyOpE _ _ x2)
+    simplifyOpE _ _ (v2 x1) = v2 x1
+    simplifyOpE _ _ (sing2 x1) =
+      sing2 x1
   
   module Pointed where
     record Pointed
@@ -1571,6 +2036,29 @@ module MathScheme where
         Fin n -> OpPointedTerm2 n A
       sing2 : A -> OpPointedTerm2 n A
       eOL2 : OpPointedTerm2 n A
+    simplifyB :
+      PointedTerm -> PointedTerm
+    simplifyB (eL) = eL
+    simplifyCl :
+      (A : Set) ->
+      ClPointedTerm A ->
+      ClPointedTerm A
+    simplifyCl _ (eCl) = eCl
+    simplifyCl _ (sing x1) = sing x1
+    simplifyOp :
+      (n : Nat) ->
+      OpPointedTerm n ->
+      OpPointedTerm n
+    simplifyOp _ (eOL) = eOL
+    simplifyOp _ (v x1) = v x1
+    simplifyOpE :
+      (n : Nat) (A : Set) ->
+      OpPointedTerm2 n A ->
+      OpPointedTerm2 n A
+    simplifyOpE _ _ (eOL2) = eOL2
+    simplifyOpE _ _ (v2 x1) = v2 x1
+    simplifyOpE _ _ (sing2 x1) =
+      sing2 x1
   
   module Pointed0Magma where
     record Pointed0Magma
@@ -1660,6 +2148,42 @@ module MathScheme where
         OpPointed0MagmaTerm2 n A ->
         OpPointed0MagmaTerm2 n A ->
         OpPointed0MagmaTerm2 n A
+    simplifyB :
+      Pointed0MagmaTerm ->
+      Pointed0MagmaTerm
+    simplifyB (0L) = 0L
+    simplifyB (opL x1 x2) =
+      opL (simplifyB x1)
+        (simplifyB x2)
+    simplifyCl :
+      (A : Set) ->
+      ClPointed0MagmaTerm A ->
+      ClPointed0MagmaTerm A
+    simplifyCl _ (0Cl) = 0Cl
+    simplifyCl _ (opCl x1 x2) =
+      opCl (simplifyCl _ x1)
+        (simplifyCl _ x2)
+    simplifyCl _ (sing x1) = sing x1
+    simplifyOp :
+      (n : Nat) ->
+      OpPointed0MagmaTerm n ->
+      OpPointed0MagmaTerm n
+    simplifyOp _ (0OL) = 0OL
+    simplifyOp _ (opOL x1 x2) =
+      opOL (simplifyOp _ x1)
+        (simplifyOp _ x2)
+    simplifyOp _ (v x1) = v x1
+    simplifyOpE :
+      (n : Nat) (A : Set) ->
+      OpPointed0MagmaTerm2 n A ->
+      OpPointed0MagmaTerm2 n A
+    simplifyOpE _ _ (0OL2) = 0OL2
+    simplifyOpE _ _ (opOL2 x1 x2) =
+      opOL2 (simplifyOpE _ _ x1)
+        (simplifyOpE _ _ x2)
+    simplifyOpE _ _ (v2 x1) = v2 x1
+    simplifyOpE _ _ (sing2 x1) =
+      sing2 x1
   
   module PointedMagma where
     record PointedMagma
@@ -1748,6 +2272,42 @@ module MathScheme where
         OpPointedMagmaTerm2 n A ->
         OpPointedMagmaTerm2 n A ->
         OpPointedMagmaTerm2 n A
+    simplifyB :
+      PointedMagmaTerm ->
+      PointedMagmaTerm
+    simplifyB (eL) = eL
+    simplifyB (opL x1 x2) =
+      opL (simplifyB x1)
+        (simplifyB x2)
+    simplifyCl :
+      (A : Set) ->
+      ClPointedMagmaTerm A ->
+      ClPointedMagmaTerm A
+    simplifyCl _ (eCl) = eCl
+    simplifyCl _ (opCl x1 x2) =
+      opCl (simplifyCl _ x1)
+        (simplifyCl _ x2)
+    simplifyCl _ (sing x1) = sing x1
+    simplifyOp :
+      (n : Nat) ->
+      OpPointedMagmaTerm n ->
+      OpPointedMagmaTerm n
+    simplifyOp _ (eOL) = eOL
+    simplifyOp _ (opOL x1 x2) =
+      opOL (simplifyOp _ x1)
+        (simplifyOp _ x2)
+    simplifyOp _ (v x1) = v x1
+    simplifyOpE :
+      (n : Nat) (A : Set) ->
+      OpPointedMagmaTerm2 n A ->
+      OpPointedMagmaTerm2 n A
+    simplifyOpE _ _ (eOL2) = eOL2
+    simplifyOpE _ _ (opOL2 x1 x2) =
+      opOL2 (simplifyOpE _ _ x1)
+        (simplifyOpE _ _ x2)
+    simplifyOpE _ _ (v2 x1) = v2 x1
+    simplifyOpE _ _ (sing2 x1) =
+      sing2 x1
   
   module PointedOne where
     record PointedOne
@@ -1802,6 +2362,29 @@ module MathScheme where
       sing2 :
         A -> OpPointedOneTerm2 n A
       1OL2 : OpPointedOneTerm2 n A
+    simplifyB :
+      PointedOneTerm -> PointedOneTerm
+    simplifyB (1L) = 1L
+    simplifyCl :
+      (A : Set) ->
+      ClPointedOneTerm A ->
+      ClPointedOneTerm A
+    simplifyCl _ (1Cl) = 1Cl
+    simplifyCl _ (sing x1) = sing x1
+    simplifyOp :
+      (n : Nat) ->
+      OpPointedOneTerm n ->
+      OpPointedOneTerm n
+    simplifyOp _ (1OL) = 1OL
+    simplifyOp _ (v x1) = v x1
+    simplifyOpE :
+      (n : Nat) (A : Set) ->
+      OpPointedOneTerm2 n A ->
+      OpPointedOneTerm2 n A
+    simplifyOpE _ _ (1OL2) = 1OL2
+    simplifyOpE _ _ (v2 x1) = v2 x1
+    simplifyOpE _ _ (sing2 x1) =
+      sing2 x1
   
   module PointedPlusMagma where
     record PointedPlusMagma
@@ -1893,6 +2476,41 @@ module MathScheme where
         OpPointedPlusMagmaTerm2 n A
       eOL2 :
         OpPointedPlusMagmaTerm2 n A
+    simplifyB :
+      PointedPlusMagmaTerm ->
+      PointedPlusMagmaTerm
+    simplifyB (+L x1 x2) =
+      +L (simplifyB x1) (simplifyB x2)
+    simplifyB (eL) = eL
+    simplifyCl :
+      (A : Set) ->
+      ClPointedPlusMagmaTerm A ->
+      ClPointedPlusMagmaTerm A
+    simplifyCl _ (+Cl x1 x2) =
+      +Cl (simplifyCl _ x1)
+        (simplifyCl _ x2)
+    simplifyCl _ (eCl) = eCl
+    simplifyCl _ (sing x1) = sing x1
+    simplifyOp :
+      (n : Nat) ->
+      OpPointedPlusMagmaTerm n ->
+      OpPointedPlusMagmaTerm n
+    simplifyOp _ (+OL x1 x2) =
+      +OL (simplifyOp _ x1)
+        (simplifyOp _ x2)
+    simplifyOp _ (eOL) = eOL
+    simplifyOp _ (v x1) = v x1
+    simplifyOpE :
+      (n : Nat) (A : Set) ->
+      OpPointedPlusMagmaTerm2 n A ->
+      OpPointedPlusMagmaTerm2 n A
+    simplifyOpE _ _ (+OL2 x1 x2) =
+      +OL2 (simplifyOpE _ _ x1)
+        (simplifyOpE _ _ x2)
+    simplifyOpE _ _ (eOL2) = eOL2
+    simplifyOpE _ _ (v2 x1) = v2 x1
+    simplifyOpE _ _ (sing2 x1) =
+      sing2 x1
   
   module PointedSemigroup where
     record PointedSemigroup
@@ -1993,6 +2611,42 @@ module MathScheme where
         OpPointedSemigroupTerm2 n A
       eOL2 :
         OpPointedSemigroupTerm2 n A
+    simplifyB :
+      PointedSemigroupTerm ->
+      PointedSemigroupTerm
+    simplifyB (opL x1 x2) =
+      opL (simplifyB x1)
+        (simplifyB x2)
+    simplifyB (eL) = eL
+    simplifyCl :
+      (A : Set) ->
+      ClPointedSemigroupTerm A ->
+      ClPointedSemigroupTerm A
+    simplifyCl _ (opCl x1 x2) =
+      opCl (simplifyCl _ x1)
+        (simplifyCl _ x2)
+    simplifyCl _ (eCl) = eCl
+    simplifyCl _ (sing x1) = sing x1
+    simplifyOp :
+      (n : Nat) ->
+      OpPointedSemigroupTerm n ->
+      OpPointedSemigroupTerm n
+    simplifyOp _ (opOL x1 x2) =
+      opOL (simplifyOp _ x1)
+        (simplifyOp _ x2)
+    simplifyOp _ (eOL) = eOL
+    simplifyOp _ (v x1) = v x1
+    simplifyOpE :
+      (n : Nat) (A : Set) ->
+      OpPointedSemigroupTerm2 n A ->
+      OpPointedSemigroupTerm2 n A
+    simplifyOpE _ _ (opOL2 x1 x2) =
+      opOL2 (simplifyOpE _ _ x1)
+        (simplifyOpE _ _ x2)
+    simplifyOpE _ _ (eOL2) = eOL2
+    simplifyOpE _ _ (v2 x1) = v2 x1
+    simplifyOpE _ _ (sing2 x1) =
+      sing2 x1
   
   module PointedZero where
     record PointedZero
@@ -2048,6 +2702,30 @@ module MathScheme where
       sing2 :
         A -> OpPointedZeroTerm2 n A
       0OL2 : OpPointedZeroTerm2 n A
+    simplifyB :
+      PointedZeroTerm ->
+      PointedZeroTerm
+    simplifyB (0L) = 0L
+    simplifyCl :
+      (A : Set) ->
+      ClPointedZeroTerm A ->
+      ClPointedZeroTerm A
+    simplifyCl _ (0Cl) = 0Cl
+    simplifyCl _ (sing x1) = sing x1
+    simplifyOp :
+      (n : Nat) ->
+      OpPointedZeroTerm n ->
+      OpPointedZeroTerm n
+    simplifyOp _ (0OL) = 0OL
+    simplifyOp _ (v x1) = v x1
+    simplifyOpE :
+      (n : Nat) (A : Set) ->
+      OpPointedZeroTerm2 n A ->
+      OpPointedZeroTerm2 n A
+    simplifyOpE _ _ (0OL2) = 0OL2
+    simplifyOpE _ _ (v2 x1) = v2 x1
+    simplifyOpE _ _ (sing2 x1) =
+      sing2 x1
   
   module RightUnital where
     record RightUnital
@@ -2139,6 +2817,42 @@ module MathScheme where
         OpRightUnitalTerm2 n A ->
         OpRightUnitalTerm2 n A ->
         OpRightUnitalTerm2 n A
+    simplifyB :
+      RightUnitalTerm ->
+      RightUnitalTerm
+    simplifyB (eL) = eL
+    simplifyB (opL x1 x2) =
+      opL (simplifyB x1)
+        (simplifyB x2)
+    simplifyCl :
+      (A : Set) ->
+      ClRightUnitalTerm A ->
+      ClRightUnitalTerm A
+    simplifyCl _ (eCl) = eCl
+    simplifyCl _ (opCl x1 x2) =
+      opCl (simplifyCl _ x1)
+        (simplifyCl _ x2)
+    simplifyCl _ (sing x1) = sing x1
+    simplifyOp :
+      (n : Nat) ->
+      OpRightUnitalTerm n ->
+      OpRightUnitalTerm n
+    simplifyOp _ (eOL) = eOL
+    simplifyOp _ (opOL x1 x2) =
+      opOL (simplifyOp _ x1)
+        (simplifyOp _ x2)
+    simplifyOp _ (v x1) = v x1
+    simplifyOpE :
+      (n : Nat) (A : Set) ->
+      OpRightUnitalTerm2 n A ->
+      OpRightUnitalTerm2 n A
+    simplifyOpE _ _ (eOL2) = eOL2
+    simplifyOpE _ _ (opOL2 x1 x2) =
+      opOL2 (simplifyOpE _ _ x1)
+        (simplifyOpE _ _ x2)
+    simplifyOpE _ _ (v2 x1) = v2 x1
+    simplifyOpE _ _ (sing2 x1) =
+      sing2 x1
   
   module Semigroup where
     record Semigroup
@@ -2220,6 +2934,37 @@ module MathScheme where
         OpSemigroupTerm2 n A ->
         OpSemigroupTerm2 n A ->
         OpSemigroupTerm2 n A
+    simplifyB :
+      SemigroupTerm -> SemigroupTerm
+    simplifyB (opL x1 x2) =
+      opL (simplifyB x1)
+        (simplifyB x2)
+    simplifyCl :
+      (A : Set) ->
+      ClSemigroupTerm A ->
+      ClSemigroupTerm A
+    simplifyCl _ (opCl x1 x2) =
+      opCl (simplifyCl _ x1)
+        (simplifyCl _ x2)
+    simplifyCl _ (sing x1) = sing x1
+    simplifyOp :
+      (n : Nat) ->
+      OpSemigroupTerm n ->
+      OpSemigroupTerm n
+    simplifyOp _ (opOL x1 x2) =
+      opOL (simplifyOp _ x1)
+        (simplifyOp _ x2)
+    simplifyOp _ (v x1) = v x1
+    simplifyOpE :
+      (n : Nat) (A : Set) ->
+      OpSemigroupTerm2 n A ->
+      OpSemigroupTerm2 n A
+    simplifyOpE _ _ (opOL2 x1 x2) =
+      opOL2 (simplifyOpE _ _ x1)
+        (simplifyOpE _ _ x2)
+    simplifyOpE _ _ (v2 x1) = v2 x1
+    simplifyOpE _ _ (sing2 x1) =
+      sing2 x1
   
   module Unital where
     record Unital
@@ -2307,4 +3052,37 @@ module MathScheme where
         OpUnitalTerm2 n A ->
         OpUnitalTerm2 n A ->
         OpUnitalTerm2 n A
+    simplifyB :
+      UnitalTerm -> UnitalTerm
+    simplifyB (eL) = eL
+    simplifyB (opL x1 x2) =
+      opL (simplifyB x1)
+        (simplifyB x2)
+    simplifyCl :
+      (A : Set) ->
+      ClUnitalTerm A -> ClUnitalTerm A
+    simplifyCl _ (eCl) = eCl
+    simplifyCl _ (opCl x1 x2) =
+      opCl (simplifyCl _ x1)
+        (simplifyCl _ x2)
+    simplifyCl _ (sing x1) = sing x1
+    simplifyOp :
+      (n : Nat) ->
+      OpUnitalTerm n -> OpUnitalTerm n
+    simplifyOp _ (eOL) = eOL
+    simplifyOp _ (opOL x1 x2) =
+      opOL (simplifyOp _ x1)
+        (simplifyOp _ x2)
+    simplifyOp _ (v x1) = v x1
+    simplifyOpE :
+      (n : Nat) (A : Set) ->
+      OpUnitalTerm2 n A ->
+      OpUnitalTerm2 n A
+    simplifyOpE _ _ (eOL2) = eOL2
+    simplifyOpE _ _ (opOL2 x1 x2) =
+      opOL2 (simplifyOpE _ _ x1)
+        (simplifyOpE _ _ x2)
+    simplifyOpE _ _ (v2 x1) = v2 x1
+    simplifyOpE _ _ (sing2 x1) =
+      sing2 x1
   

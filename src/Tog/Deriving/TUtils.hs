@@ -4,6 +4,8 @@ module Tog.Deriving.TUtils
   , mkQName 
   , setType
   , setTypeAsId
+  , indexName
+  , indexArg
   , mkField
   , shortName
   , twoCharName 
@@ -40,11 +42,23 @@ mkName str = Name ((0,0),str)
 mkQName :: Name_ -> QName
 mkQName str = NotQual $ mkName str 
 
+mkArg :: Name_ -> Arg
+mkArg = Arg . createId
+
+mkArg' :: Name_ -> Int -> Arg
+mkArg' nam n = mkArg $ shortName nam n
+
 setType :: Name
 setType = mkName "Set"
 
 setTypeAsId :: Expr 
 setTypeAsId = createId "Set" 
+
+indexName :: Int -> Name -> Name
+indexName i (Name (p,n)) = Name (p,n ++ show i)
+
+indexArg :: Int -> Arg -> Arg
+indexArg i a = mkArg $ (getArgName a) ++ show i 
 
 getConstrName :: Constr -> Name_
 getConstrName (Constr n _) = n ^. name
@@ -59,11 +73,7 @@ qualDecl declName instName = App [mkArg declName, mkArg instName]
 notQualDecl :: Name_ -> Expr 
 notQualDecl declName = App [mkArg declName]
 
-mkArg :: Name_ -> Arg
-mkArg = Arg . createId
 
-mkArg' :: Name_ -> Int -> Arg
-mkArg' nam n = mkArg $ shortName nam n
 
 mkFunc :: [Expr] -> Expr
 mkFunc [] = error "cannot create function" 
