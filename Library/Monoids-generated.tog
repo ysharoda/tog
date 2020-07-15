@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------
 -- Checking declarations
 ------------------------------------------------------------------------
--- Solved Metas: 15407
+-- Solved Metas: 24563
 -- Unsolved Metas: 0
 ------------------------------------------------------------------------
 -- Unsolved problems: 0
@@ -362,6 +362,54 @@ module MathScheme where
     simplifyOpE _ _ (v2 x1) = v2 x1
     simplifyOpE _ _ (sing2 x1) =
       sing2 x1
+    evalB :
+      (A : Set) ->
+      AdditiveCommutativeSemigroup
+        A ->
+      AdditiveCommutativeSemigroupTerm ->
+      A
+    evalB _ Ad (+L x1 x2) =
+      + Ad (evalB _ Ad x1)
+        (evalB _ Ad x2)
+    evalCl :
+      (A : Set) ->
+      AdditiveCommutativeSemigroup
+        A ->
+      ClAdditiveCommutativeSemigroupTerm
+        A -> A
+    evalCl _ Ad (sing x1) = x1
+    evalCl _ Ad (+Cl x1 x2) =
+      + Ad (evalCl _ Ad x1)
+        (evalCl _ Ad x2)
+    evalOp :
+      (A : Set) (n : Nat) ->
+      AdditiveCommutativeSemigroup
+        A ->
+      Vec A n ->
+      OpAdditiveCommutativeSemigroupTerm
+        n -> A
+    evalOp _ n Ad vars (v x1) =
+      lookup _ n x1 vars
+    evalOp _ n Ad vars (+OL x1 x2) =
+      + Ad (evalOp _ n Ad vars x1)
+        (evalOp _ n Ad vars x2)
+    evalOpE :
+      (A : Set) (n : Nat) ->
+      AdditiveCommutativeSemigroup
+        A ->
+      Vec A n ->
+      OpAdditiveCommutativeSemigroupTerm2
+        n
+        A -> A
+    evalOpE _ n Ad vars (v2 x1) =
+      lookup _ n x1 vars
+    evalOpE _ n Ad vars (sing2 x1) =
+      x1
+    evalOpE _ n Ad vars (+OL2
+                         x1
+                         x2) =
+      + Ad (evalOpE _ n Ad vars x1)
+        (evalOpE _ n Ad vars x2)
   
   module AdditiveMagma where
     record AdditiveMagma
@@ -472,6 +520,45 @@ module MathScheme where
     simplifyOpE _ _ (v2 x1) = v2 x1
     simplifyOpE _ _ (sing2 x1) =
       sing2 x1
+    evalB :
+      (A : Set) ->
+      AdditiveMagma A ->
+      AdditiveMagmaTerm -> A
+    evalB _ Ad (+L x1 x2) =
+      + Ad (evalB _ Ad x1)
+        (evalB _ Ad x2)
+    evalCl :
+      (A : Set) ->
+      AdditiveMagma A ->
+      ClAdditiveMagmaTerm A -> A
+    evalCl _ Ad (sing x1) = x1
+    evalCl _ Ad (+Cl x1 x2) =
+      + Ad (evalCl _ Ad x1)
+        (evalCl _ Ad x2)
+    evalOp :
+      (A : Set) (n : Nat) ->
+      AdditiveMagma A ->
+      Vec A n ->
+      OpAdditiveMagmaTerm n -> A
+    evalOp _ n Ad vars (v x1) =
+      lookup _ n x1 vars
+    evalOp _ n Ad vars (+OL x1 x2) =
+      + Ad (evalOp _ n Ad vars x1)
+        (evalOp _ n Ad vars x2)
+    evalOpE :
+      (A : Set) (n : Nat) ->
+      AdditiveMagma A ->
+      Vec A n ->
+      OpAdditiveMagmaTerm2 n A -> A
+    evalOpE _ n Ad vars (v2 x1) =
+      lookup _ n x1 vars
+    evalOpE _ n Ad vars (sing2 x1) =
+      x1
+    evalOpE _ n Ad vars (+OL2
+                         x1
+                         x2) =
+      + Ad (evalOpE _ n Ad vars x1)
+        (evalOpE _ n Ad vars x2)
   
   module AdditiveMonoid where
     record AdditiveMonoid
@@ -581,6 +668,8 @@ module MathScheme where
     simplifyB :
       AdditiveMonoidTerm ->
       AdditiveMonoidTerm
+    simplifyB (+L (0L) x) = x
+    simplifyB (+L x (0L)) = x
     simplifyB (+L x1 x2) =
       +L (simplifyB x1) (simplifyB x2)
     simplifyB (0L) = 0L
@@ -588,6 +677,8 @@ module MathScheme where
       (A : Set) ->
       ClAdditiveMonoidTerm A ->
       ClAdditiveMonoidTerm A
+    simplifyCl _ (+Cl (0Cl) x) = x
+    simplifyCl _ (+Cl x (0Cl)) = x
     simplifyCl _ (+Cl x1 x2) =
       +Cl (simplifyCl _ x1)
         (simplifyCl _ x2)
@@ -597,6 +688,8 @@ module MathScheme where
       (n : Nat) ->
       OpAdditiveMonoidTerm n ->
       OpAdditiveMonoidTerm n
+    simplifyOp _ (+OL (0OL) x) = x
+    simplifyOp _ (+OL x (0OL)) = x
     simplifyOp _ (+OL x1 x2) =
       +OL (simplifyOp _ x1)
         (simplifyOp _ x2)
@@ -606,6 +699,12 @@ module MathScheme where
       (n : Nat) (A : Set) ->
       OpAdditiveMonoidTerm2 n A ->
       OpAdditiveMonoidTerm2 n A
+    simplifyOpE _ _ (+OL2
+                     (0OL2)
+                     x) = x
+    simplifyOpE _ _ (+OL2
+                     x
+                     (0OL2)) = x
     simplifyOpE _ _ (+OL2 x1 x2) =
       +OL2 (simplifyOpE _ _ x1)
         (simplifyOpE _ _ x2)
@@ -613,6 +712,50 @@ module MathScheme where
     simplifyOpE _ _ (v2 x1) = v2 x1
     simplifyOpE _ _ (sing2 x1) =
       sing2 x1
+    evalB :
+      (A : Set) ->
+      AdditiveMonoid A ->
+      AdditiveMonoidTerm -> A
+    evalB _ Ad (+L x1 x2) =
+      + Ad (evalB _ Ad x1)
+        (evalB _ Ad x2)
+    evalB _ Ad (0L) = 0 Ad
+    evalCl :
+      (A : Set) ->
+      AdditiveMonoid A ->
+      ClAdditiveMonoidTerm A -> A
+    evalCl _ Ad (sing x1) = x1
+    evalCl _ Ad (+Cl x1 x2) =
+      + Ad (evalCl _ Ad x1)
+        (evalCl _ Ad x2)
+    evalCl _ Ad (0Cl) = 0 Ad
+    evalOp :
+      (A : Set) (n : Nat) ->
+      AdditiveMonoid A ->
+      Vec A n ->
+      OpAdditiveMonoidTerm n -> A
+    evalOp _ n Ad vars (v x1) =
+      lookup _ n x1 vars
+    evalOp _ n Ad vars (+OL x1 x2) =
+      + Ad (evalOp _ n Ad vars x1)
+        (evalOp _ n Ad vars x2)
+    evalOp _ n Ad vars (0OL) = 0 Ad
+    evalOpE :
+      (A : Set) (n : Nat) ->
+      AdditiveMonoid A ->
+      Vec A n ->
+      OpAdditiveMonoidTerm2 n A -> A
+    evalOpE _ n Ad vars (v2 x1) =
+      lookup _ n x1 vars
+    evalOpE _ n Ad vars (sing2 x1) =
+      x1
+    evalOpE _ n Ad vars (+OL2
+                         x1
+                         x2) =
+      + Ad (evalOpE _ n Ad vars x1)
+        (evalOpE _ n Ad vars x2)
+    evalOpE _ n Ad vars (0OL2) =
+      0 Ad
   
   module AdditivePointedMagma where
     record AdditivePointedMagma
@@ -746,6 +889,53 @@ module MathScheme where
     simplifyOpE _ _ (v2 x1) = v2 x1
     simplifyOpE _ _ (sing2 x1) =
       sing2 x1
+    evalB :
+      (A : Set) ->
+      AdditivePointedMagma A ->
+      AdditivePointedMagmaTerm -> A
+    evalB _ Ad (0L) = 0 Ad
+    evalB _ Ad (+L x1 x2) =
+      + Ad (evalB _ Ad x1)
+        (evalB _ Ad x2)
+    evalCl :
+      (A : Set) ->
+      AdditivePointedMagma A ->
+      ClAdditivePointedMagmaTerm A ->
+      A
+    evalCl _ Ad (sing x1) = x1
+    evalCl _ Ad (0Cl) = 0 Ad
+    evalCl _ Ad (+Cl x1 x2) =
+      + Ad (evalCl _ Ad x1)
+        (evalCl _ Ad x2)
+    evalOp :
+      (A : Set) (n : Nat) ->
+      AdditivePointedMagma A ->
+      Vec A n ->
+      OpAdditivePointedMagmaTerm n ->
+      A
+    evalOp _ n Ad vars (v x1) =
+      lookup _ n x1 vars
+    evalOp _ n Ad vars (0OL) = 0 Ad
+    evalOp _ n Ad vars (+OL x1 x2) =
+      + Ad (evalOp _ n Ad vars x1)
+        (evalOp _ n Ad vars x2)
+    evalOpE :
+      (A : Set) (n : Nat) ->
+      AdditivePointedMagma A ->
+      Vec A n ->
+      OpAdditivePointedMagmaTerm2 n
+        A -> A
+    evalOpE _ n Ad vars (v2 x1) =
+      lookup _ n x1 vars
+    evalOpE _ n Ad vars (sing2 x1) =
+      x1
+    evalOpE _ n Ad vars (0OL2) =
+      0 Ad
+    evalOpE _ n Ad vars (+OL2
+                         x1
+                         x2) =
+      + Ad (evalOpE _ n Ad vars x1)
+        (evalOpE _ n Ad vars x2)
   
   module AdditivePointedSemigroup where
     record AdditivePointedSemigroup
@@ -910,6 +1100,55 @@ module MathScheme where
     simplifyOpE _ _ (v2 x1) = v2 x1
     simplifyOpE _ _ (sing2 x1) =
       sing2 x1
+    evalB :
+      (A : Set) ->
+      AdditivePointedSemigroup A ->
+      AdditivePointedSemigroupTerm ->
+      A
+    evalB _ Ad (0L) = 0 Ad
+    evalB _ Ad (+L x1 x2) =
+      + Ad (evalB _ Ad x1)
+        (evalB _ Ad x2)
+    evalCl :
+      (A : Set) ->
+      AdditivePointedSemigroup A ->
+      ClAdditivePointedSemigroupTerm
+        A -> A
+    evalCl _ Ad (sing x1) = x1
+    evalCl _ Ad (0Cl) = 0 Ad
+    evalCl _ Ad (+Cl x1 x2) =
+      + Ad (evalCl _ Ad x1)
+        (evalCl _ Ad x2)
+    evalOp :
+      (A : Set) (n : Nat) ->
+      AdditivePointedSemigroup A ->
+      Vec A n ->
+      OpAdditivePointedSemigroupTerm
+        n -> A
+    evalOp _ n Ad vars (v x1) =
+      lookup _ n x1 vars
+    evalOp _ n Ad vars (0OL) = 0 Ad
+    evalOp _ n Ad vars (+OL x1 x2) =
+      + Ad (evalOp _ n Ad vars x1)
+        (evalOp _ n Ad vars x2)
+    evalOpE :
+      (A : Set) (n : Nat) ->
+      AdditivePointedSemigroup A ->
+      Vec A n ->
+      OpAdditivePointedSemigroupTerm2
+        n
+        A -> A
+    evalOpE _ n Ad vars (v2 x1) =
+      lookup _ n x1 vars
+    evalOpE _ n Ad vars (sing2 x1) =
+      x1
+    evalOpE _ n Ad vars (0OL2) =
+      0 Ad
+    evalOpE _ n Ad vars (+OL2
+                         x1
+                         x2) =
+      + Ad (evalOpE _ n Ad vars x1)
+        (evalOpE _ n Ad vars x2)
   
   module AdditiveSemigroup where
     record AdditiveSemigroup
@@ -1031,6 +1270,46 @@ module MathScheme where
     simplifyOpE _ _ (v2 x1) = v2 x1
     simplifyOpE _ _ (sing2 x1) =
       sing2 x1
+    evalB :
+      (A : Set) ->
+      AdditiveSemigroup A ->
+      AdditiveSemigroupTerm -> A
+    evalB _ Ad (+L x1 x2) =
+      + Ad (evalB _ Ad x1)
+        (evalB _ Ad x2)
+    evalCl :
+      (A : Set) ->
+      AdditiveSemigroup A ->
+      ClAdditiveSemigroupTerm A -> A
+    evalCl _ Ad (sing x1) = x1
+    evalCl _ Ad (+Cl x1 x2) =
+      + Ad (evalCl _ Ad x1)
+        (evalCl _ Ad x2)
+    evalOp :
+      (A : Set) (n : Nat) ->
+      AdditiveSemigroup A ->
+      Vec A n ->
+      OpAdditiveSemigroupTerm n -> A
+    evalOp _ n Ad vars (v x1) =
+      lookup _ n x1 vars
+    evalOp _ n Ad vars (+OL x1 x2) =
+      + Ad (evalOp _ n Ad vars x1)
+        (evalOp _ n Ad vars x2)
+    evalOpE :
+      (A : Set) (n : Nat) ->
+      AdditiveSemigroup A ->
+      Vec A n ->
+      OpAdditiveSemigroupTerm2 n A ->
+      A
+    evalOpE _ n Ad vars (v2 x1) =
+      lookup _ n x1 vars
+    evalOpE _ n Ad vars (sing2 x1) =
+      x1
+    evalOpE _ n Ad vars (+OL2
+                         x1
+                         x2) =
+      + Ad (evalOpE _ n Ad vars x1)
+        (evalOpE _ n Ad vars x2)
   
   module AdditiveUnital where
     record AdditiveUnital
@@ -1131,6 +1410,8 @@ module MathScheme where
     simplifyB :
       AdditiveUnitalTerm ->
       AdditiveUnitalTerm
+    simplifyB (+L (0L) x) = x
+    simplifyB (+L x (0L)) = x
     simplifyB (0L) = 0L
     simplifyB (+L x1 x2) =
       +L (simplifyB x1) (simplifyB x2)
@@ -1138,6 +1419,8 @@ module MathScheme where
       (A : Set) ->
       ClAdditiveUnitalTerm A ->
       ClAdditiveUnitalTerm A
+    simplifyCl _ (+Cl (0Cl) x) = x
+    simplifyCl _ (+Cl x (0Cl)) = x
     simplifyCl _ (0Cl) = 0Cl
     simplifyCl _ (+Cl x1 x2) =
       +Cl (simplifyCl _ x1)
@@ -1147,6 +1430,8 @@ module MathScheme where
       (n : Nat) ->
       OpAdditiveUnitalTerm n ->
       OpAdditiveUnitalTerm n
+    simplifyOp _ (+OL (0OL) x) = x
+    simplifyOp _ (+OL x (0OL)) = x
     simplifyOp _ (0OL) = 0OL
     simplifyOp _ (+OL x1 x2) =
       +OL (simplifyOp _ x1)
@@ -1156,6 +1441,12 @@ module MathScheme where
       (n : Nat) (A : Set) ->
       OpAdditiveUnitalTerm2 n A ->
       OpAdditiveUnitalTerm2 n A
+    simplifyOpE _ _ (+OL2
+                     (0OL2)
+                     x) = x
+    simplifyOpE _ _ (+OL2
+                     x
+                     (0OL2)) = x
     simplifyOpE _ _ (0OL2) = 0OL2
     simplifyOpE _ _ (+OL2 x1 x2) =
       +OL2 (simplifyOpE _ _ x1)
@@ -1163,6 +1454,50 @@ module MathScheme where
     simplifyOpE _ _ (v2 x1) = v2 x1
     simplifyOpE _ _ (sing2 x1) =
       sing2 x1
+    evalB :
+      (A : Set) ->
+      AdditiveUnital A ->
+      AdditiveUnitalTerm -> A
+    evalB _ Ad (0L) = 0 Ad
+    evalB _ Ad (+L x1 x2) =
+      + Ad (evalB _ Ad x1)
+        (evalB _ Ad x2)
+    evalCl :
+      (A : Set) ->
+      AdditiveUnital A ->
+      ClAdditiveUnitalTerm A -> A
+    evalCl _ Ad (sing x1) = x1
+    evalCl _ Ad (0Cl) = 0 Ad
+    evalCl _ Ad (+Cl x1 x2) =
+      + Ad (evalCl _ Ad x1)
+        (evalCl _ Ad x2)
+    evalOp :
+      (A : Set) (n : Nat) ->
+      AdditiveUnital A ->
+      Vec A n ->
+      OpAdditiveUnitalTerm n -> A
+    evalOp _ n Ad vars (v x1) =
+      lookup _ n x1 vars
+    evalOp _ n Ad vars (0OL) = 0 Ad
+    evalOp _ n Ad vars (+OL x1 x2) =
+      + Ad (evalOp _ n Ad vars x1)
+        (evalOp _ n Ad vars x2)
+    evalOpE :
+      (A : Set) (n : Nat) ->
+      AdditiveUnital A ->
+      Vec A n ->
+      OpAdditiveUnitalTerm2 n A -> A
+    evalOpE _ n Ad vars (v2 x1) =
+      lookup _ n x1 vars
+    evalOpE _ n Ad vars (sing2 x1) =
+      x1
+    evalOpE _ n Ad vars (0OL2) =
+      0 Ad
+    evalOpE _ n Ad vars (+OL2
+                         x1
+                         x2) =
+      + Ad (evalOpE _ n Ad vars x1)
+        (evalOpE _ n Ad vars x2)
   
   module Carrier where
     record Carrier
@@ -1226,6 +1561,29 @@ module MathScheme where
     simplifyOpE _ _ (v2 x1) = v2 x1
     simplifyOpE _ _ (sing2 x1) =
       sing2 x1
+    evalB :
+      (A : Set) ->
+      Carrier A -> CarrierTerm -> A
+    evalCl :
+      (A : Set) ->
+      Carrier A ->
+      ClCarrierTerm A -> A
+    evalCl _ Ca (sing x1) = x1
+    evalOp :
+      (A : Set) (n : Nat) ->
+      Carrier A ->
+      Vec A n -> OpCarrierTerm n -> A
+    evalOp _ n Ca vars (v x1) =
+      lookup _ n x1 vars
+    evalOpE :
+      (A : Set) (n : Nat) ->
+      Carrier A ->
+      Vec A n ->
+      OpCarrierTerm2 n A -> A
+    evalOpE _ n Ca vars (v2 x1) =
+      lookup _ n x1 vars
+    evalOpE _ n Ca vars (sing2 x1) =
+      x1
   
   module CommutativeMagma where
     record CommutativeMagma
@@ -1345,6 +1703,47 @@ module MathScheme where
     simplifyOpE _ _ (v2 x1) = v2 x1
     simplifyOpE _ _ (sing2 x1) =
       sing2 x1
+    evalB :
+      (A : Set) ->
+      CommutativeMagma A ->
+      CommutativeMagmaTerm -> A
+    evalB _ Co (opL x1 x2) =
+      op Co (evalB _ Co x1)
+        (evalB _ Co x2)
+    evalCl :
+      (A : Set) ->
+      CommutativeMagma A ->
+      ClCommutativeMagmaTerm A -> A
+    evalCl _ Co (sing x1) = x1
+    evalCl _ Co (opCl x1 x2) =
+      op Co (evalCl _ Co x1)
+        (evalCl _ Co x2)
+    evalOp :
+      (A : Set) (n : Nat) ->
+      CommutativeMagma A ->
+      Vec A n ->
+      OpCommutativeMagmaTerm n -> A
+    evalOp _ n Co vars (v x1) =
+      lookup _ n x1 vars
+    evalOp _ n Co vars (opOL
+                        x1
+                        x2) =
+      op Co (evalOp _ n Co vars x1)
+        (evalOp _ n Co vars x2)
+    evalOpE :
+      (A : Set) (n : Nat) ->
+      CommutativeMagma A ->
+      Vec A n ->
+      OpCommutativeMagmaTerm2 n A -> A
+    evalOpE _ n Co vars (v2 x1) =
+      lookup _ n x1 vars
+    evalOpE _ n Co vars (sing2 x1) =
+      x1
+    evalOpE _ n Co vars (opOL2
+                         x1
+                         x2) =
+      op Co (evalOpE _ n Co vars x1)
+        (evalOpE _ n Co vars x2)
   
   module CommutativeMonoid where
     record CommutativeMonoid
@@ -1464,6 +1863,8 @@ module MathScheme where
     simplifyB :
       CommutativeMonoidTerm ->
       CommutativeMonoidTerm
+    simplifyB (opL (eL) x) = x
+    simplifyB (opL x (eL)) = x
     simplifyB (opL x1 x2) =
       opL (simplifyB x1)
         (simplifyB x2)
@@ -1472,6 +1873,8 @@ module MathScheme where
       (A : Set) ->
       ClCommutativeMonoidTerm A ->
       ClCommutativeMonoidTerm A
+    simplifyCl _ (opCl (eCl) x) = x
+    simplifyCl _ (opCl x (eCl)) = x
     simplifyCl _ (opCl x1 x2) =
       opCl (simplifyCl _ x1)
         (simplifyCl _ x2)
@@ -1481,6 +1884,8 @@ module MathScheme where
       (n : Nat) ->
       OpCommutativeMonoidTerm n ->
       OpCommutativeMonoidTerm n
+    simplifyOp _ (opOL (eOL) x) = x
+    simplifyOp _ (opOL x (eOL)) = x
     simplifyOp _ (opOL x1 x2) =
       opOL (simplifyOp _ x1)
         (simplifyOp _ x2)
@@ -1490,6 +1895,12 @@ module MathScheme where
       (n : Nat) (A : Set) ->
       OpCommutativeMonoidTerm2 n A ->
       OpCommutativeMonoidTerm2 n A
+    simplifyOpE _ _ (opOL2
+                     (eOL2)
+                     x) = x
+    simplifyOpE _ _ (opOL2
+                     x
+                     (eOL2)) = x
     simplifyOpE _ _ (opOL2 x1 x2) =
       opOL2 (simplifyOpE _ _ x1)
         (simplifyOpE _ _ x2)
@@ -1497,6 +1908,53 @@ module MathScheme where
     simplifyOpE _ _ (v2 x1) = v2 x1
     simplifyOpE _ _ (sing2 x1) =
       sing2 x1
+    evalB :
+      (A : Set) ->
+      CommutativeMonoid A ->
+      CommutativeMonoidTerm -> A
+    evalB _ Co (opL x1 x2) =
+      op Co (evalB _ Co x1)
+        (evalB _ Co x2)
+    evalB _ Co (eL) = e Co
+    evalCl :
+      (A : Set) ->
+      CommutativeMonoid A ->
+      ClCommutativeMonoidTerm A -> A
+    evalCl _ Co (sing x1) = x1
+    evalCl _ Co (opCl x1 x2) =
+      op Co (evalCl _ Co x1)
+        (evalCl _ Co x2)
+    evalCl _ Co (eCl) = e Co
+    evalOp :
+      (A : Set) (n : Nat) ->
+      CommutativeMonoid A ->
+      Vec A n ->
+      OpCommutativeMonoidTerm n -> A
+    evalOp _ n Co vars (v x1) =
+      lookup _ n x1 vars
+    evalOp _ n Co vars (opOL
+                        x1
+                        x2) =
+      op Co (evalOp _ n Co vars x1)
+        (evalOp _ n Co vars x2)
+    evalOp _ n Co vars (eOL) = e Co
+    evalOpE :
+      (A : Set) (n : Nat) ->
+      CommutativeMonoid A ->
+      Vec A n ->
+      OpCommutativeMonoidTerm2 n A ->
+      A
+    evalOpE _ n Co vars (v2 x1) =
+      lookup _ n x1 vars
+    evalOpE _ n Co vars (sing2 x1) =
+      x1
+    evalOpE _ n Co vars (opOL2
+                         x1
+                         x2) =
+      op Co (evalOpE _ n Co vars x1)
+        (evalOpE _ n Co vars x2)
+    evalOpE _ n Co vars (eOL2) =
+      e Co
   
   module CommutativeSemigroup where
     record CommutativeSemigroup
@@ -1630,6 +2088,50 @@ module MathScheme where
     simplifyOpE _ _ (v2 x1) = v2 x1
     simplifyOpE _ _ (sing2 x1) =
       sing2 x1
+    evalB :
+      (A : Set) ->
+      CommutativeSemigroup A ->
+      CommutativeSemigroupTerm -> A
+    evalB _ Co (opL x1 x2) =
+      op Co (evalB _ Co x1)
+        (evalB _ Co x2)
+    evalCl :
+      (A : Set) ->
+      CommutativeSemigroup A ->
+      ClCommutativeSemigroupTerm A ->
+      A
+    evalCl _ Co (sing x1) = x1
+    evalCl _ Co (opCl x1 x2) =
+      op Co (evalCl _ Co x1)
+        (evalCl _ Co x2)
+    evalOp :
+      (A : Set) (n : Nat) ->
+      CommutativeSemigroup A ->
+      Vec A n ->
+      OpCommutativeSemigroupTerm n ->
+      A
+    evalOp _ n Co vars (v x1) =
+      lookup _ n x1 vars
+    evalOp _ n Co vars (opOL
+                        x1
+                        x2) =
+      op Co (evalOp _ n Co vars x1)
+        (evalOp _ n Co vars x2)
+    evalOpE :
+      (A : Set) (n : Nat) ->
+      CommutativeSemigroup A ->
+      Vec A n ->
+      OpCommutativeSemigroupTerm2 n
+        A -> A
+    evalOpE _ n Co vars (v2 x1) =
+      lookup _ n x1 vars
+    evalOpE _ n Co vars (sing2 x1) =
+      x1
+    evalOpE _ n Co vars (opOL2
+                         x1
+                         x2) =
+      op Co (evalOpE _ n Co vars x1)
+        (evalOpE _ n Co vars x2)
   
   module Empty where
     record Empty : Set where
@@ -1727,6 +2229,7 @@ module MathScheme where
         OpLeftUnitalTerm2 n A
     simplifyB :
       LeftUnitalTerm -> LeftUnitalTerm
+    simplifyB (opL (eL) x) = x
     simplifyB (eL) = eL
     simplifyB (opL x1 x2) =
       opL (simplifyB x1)
@@ -1735,6 +2238,7 @@ module MathScheme where
       (A : Set) ->
       ClLeftUnitalTerm A ->
       ClLeftUnitalTerm A
+    simplifyCl _ (opCl (eCl) x) = x
     simplifyCl _ (eCl) = eCl
     simplifyCl _ (opCl x1 x2) =
       opCl (simplifyCl _ x1)
@@ -1744,6 +2248,7 @@ module MathScheme where
       (n : Nat) ->
       OpLeftUnitalTerm n ->
       OpLeftUnitalTerm n
+    simplifyOp _ (opOL (eOL) x) = x
     simplifyOp _ (eOL) = eOL
     simplifyOp _ (opOL x1 x2) =
       opOL (simplifyOp _ x1)
@@ -1753,6 +2258,9 @@ module MathScheme where
       (n : Nat) (A : Set) ->
       OpLeftUnitalTerm2 n A ->
       OpLeftUnitalTerm2 n A
+    simplifyOpE _ _ (opOL2
+                     (eOL2)
+                     x) = x
     simplifyOpE _ _ (eOL2) = eOL2
     simplifyOpE _ _ (opOL2 x1 x2) =
       opOL2 (simplifyOpE _ _ x1)
@@ -1760,6 +2268,52 @@ module MathScheme where
     simplifyOpE _ _ (v2 x1) = v2 x1
     simplifyOpE _ _ (sing2 x1) =
       sing2 x1
+    evalB :
+      (A : Set) ->
+      LeftUnital A ->
+      LeftUnitalTerm -> A
+    evalB _ Le (eL) = e Le
+    evalB _ Le (opL x1 x2) =
+      op Le (evalB _ Le x1)
+        (evalB _ Le x2)
+    evalCl :
+      (A : Set) ->
+      LeftUnital A ->
+      ClLeftUnitalTerm A -> A
+    evalCl _ Le (sing x1) = x1
+    evalCl _ Le (eCl) = e Le
+    evalCl _ Le (opCl x1 x2) =
+      op Le (evalCl _ Le x1)
+        (evalCl _ Le x2)
+    evalOp :
+      (A : Set) (n : Nat) ->
+      LeftUnital A ->
+      Vec A n ->
+      OpLeftUnitalTerm n -> A
+    evalOp _ n Le vars (v x1) =
+      lookup _ n x1 vars
+    evalOp _ n Le vars (eOL) = e Le
+    evalOp _ n Le vars (opOL
+                        x1
+                        x2) =
+      op Le (evalOp _ n Le vars x1)
+        (evalOp _ n Le vars x2)
+    evalOpE :
+      (A : Set) (n : Nat) ->
+      LeftUnital A ->
+      Vec A n ->
+      OpLeftUnitalTerm2 n A -> A
+    evalOpE _ n Le vars (v2 x1) =
+      lookup _ n x1 vars
+    evalOpE _ n Le vars (sing2 x1) =
+      x1
+    evalOpE _ n Le vars (eOL2) =
+      e Le
+    evalOpE _ n Le vars (opOL2
+                         x1
+                         x2) =
+      op Le (evalOpE _ n Le vars x1)
+        (evalOpE _ n Le vars x2)
   
   module Magma where
     record Magma
@@ -1857,6 +2411,43 @@ module MathScheme where
     simplifyOpE _ _ (v2 x1) = v2 x1
     simplifyOpE _ _ (sing2 x1) =
       sing2 x1
+    evalB :
+      (A : Set) ->
+      Magma A -> MagmaTerm -> A
+    evalB _ Ma (opL x1 x2) =
+      op Ma (evalB _ Ma x1)
+        (evalB _ Ma x2)
+    evalCl :
+      (A : Set) ->
+      Magma A -> ClMagmaTerm A -> A
+    evalCl _ Ma (sing x1) = x1
+    evalCl _ Ma (opCl x1 x2) =
+      op Ma (evalCl _ Ma x1)
+        (evalCl _ Ma x2)
+    evalOp :
+      (A : Set) (n : Nat) ->
+      Magma A ->
+      Vec A n -> OpMagmaTerm n -> A
+    evalOp _ n Ma vars (v x1) =
+      lookup _ n x1 vars
+    evalOp _ n Ma vars (opOL
+                        x1
+                        x2) =
+      op Ma (evalOp _ n Ma vars x1)
+        (evalOp _ n Ma vars x2)
+    evalOpE :
+      (A : Set) (n : Nat) ->
+      Magma A ->
+      Vec A n -> OpMagmaTerm2 n A -> A
+    evalOpE _ n Ma vars (v2 x1) =
+      lookup _ n x1 vars
+    evalOpE _ n Ma vars (sing2 x1) =
+      x1
+    evalOpE _ n Ma vars (opOL2
+                         x1
+                         x2) =
+      op Ma (evalOpE _ n Ma vars x1)
+        (evalOpE _ n Ma vars x2)
   
   module Monoid where
     record Monoid
@@ -1955,6 +2546,8 @@ module MathScheme where
         OpMonoidTerm2 n A
     simplifyB :
       MonoidTerm -> MonoidTerm
+    simplifyB (opL (eL) x) = x
+    simplifyB (opL x (eL)) = x
     simplifyB (eL) = eL
     simplifyB (opL x1 x2) =
       opL (simplifyB x1)
@@ -1962,6 +2555,8 @@ module MathScheme where
     simplifyCl :
       (A : Set) ->
       ClMonoidTerm A -> ClMonoidTerm A
+    simplifyCl _ (opCl (eCl) x) = x
+    simplifyCl _ (opCl x (eCl)) = x
     simplifyCl _ (eCl) = eCl
     simplifyCl _ (opCl x1 x2) =
       opCl (simplifyCl _ x1)
@@ -1970,6 +2565,8 @@ module MathScheme where
     simplifyOp :
       (n : Nat) ->
       OpMonoidTerm n -> OpMonoidTerm n
+    simplifyOp _ (opOL (eOL) x) = x
+    simplifyOp _ (opOL x (eOL)) = x
     simplifyOp _ (eOL) = eOL
     simplifyOp _ (opOL x1 x2) =
       opOL (simplifyOp _ x1)
@@ -1979,6 +2576,12 @@ module MathScheme where
       (n : Nat) (A : Set) ->
       OpMonoidTerm2 n A ->
       OpMonoidTerm2 n A
+    simplifyOpE _ _ (opOL2
+                     (eOL2)
+                     x) = x
+    simplifyOpE _ _ (opOL2
+                     x
+                     (eOL2)) = x
     simplifyOpE _ _ (eOL2) = eOL2
     simplifyOpE _ _ (opOL2 x1 x2) =
       opOL2 (simplifyOpE _ _ x1)
@@ -1986,6 +2589,49 @@ module MathScheme where
     simplifyOpE _ _ (v2 x1) = v2 x1
     simplifyOpE _ _ (sing2 x1) =
       sing2 x1
+    evalB :
+      (A : Set) ->
+      Monoid A -> MonoidTerm -> A
+    evalB _ Mo (eL) = e Mo
+    evalB _ Mo (opL x1 x2) =
+      op Mo (evalB _ Mo x1)
+        (evalB _ Mo x2)
+    evalCl :
+      (A : Set) ->
+      Monoid A -> ClMonoidTerm A -> A
+    evalCl _ Mo (sing x1) = x1
+    evalCl _ Mo (eCl) = e Mo
+    evalCl _ Mo (opCl x1 x2) =
+      op Mo (evalCl _ Mo x1)
+        (evalCl _ Mo x2)
+    evalOp :
+      (A : Set) (n : Nat) ->
+      Monoid A ->
+      Vec A n -> OpMonoidTerm n -> A
+    evalOp _ n Mo vars (v x1) =
+      lookup _ n x1 vars
+    evalOp _ n Mo vars (eOL) = e Mo
+    evalOp _ n Mo vars (opOL
+                        x1
+                        x2) =
+      op Mo (evalOp _ n Mo vars x1)
+        (evalOp _ n Mo vars x2)
+    evalOpE :
+      (A : Set) (n : Nat) ->
+      Monoid A ->
+      Vec A n ->
+      OpMonoidTerm2 n A -> A
+    evalOpE _ n Mo vars (v2 x1) =
+      lookup _ n x1 vars
+    evalOpE _ n Mo vars (sing2 x1) =
+      x1
+    evalOpE _ n Mo vars (eOL2) =
+      e Mo
+    evalOpE _ n Mo vars (opOL2
+                         x1
+                         x2) =
+      op Mo (evalOpE _ n Mo vars x1)
+        (evalOpE _ n Mo vars x2)
   
   module Pointed where
     record Pointed
@@ -2059,6 +2705,34 @@ module MathScheme where
     simplifyOpE _ _ (v2 x1) = v2 x1
     simplifyOpE _ _ (sing2 x1) =
       sing2 x1
+    evalB :
+      (A : Set) ->
+      Pointed A -> PointedTerm -> A
+    evalB _ Po (eL) = e Po
+    evalCl :
+      (A : Set) ->
+      Pointed A ->
+      ClPointedTerm A -> A
+    evalCl _ Po (sing x1) = x1
+    evalCl _ Po (eCl) = e Po
+    evalOp :
+      (A : Set) (n : Nat) ->
+      Pointed A ->
+      Vec A n -> OpPointedTerm n -> A
+    evalOp _ n Po vars (v x1) =
+      lookup _ n x1 vars
+    evalOp _ n Po vars (eOL) = e Po
+    evalOpE :
+      (A : Set) (n : Nat) ->
+      Pointed A ->
+      Vec A n ->
+      OpPointedTerm2 n A -> A
+    evalOpE _ n Po vars (v2 x1) =
+      lookup _ n x1 vars
+    evalOpE _ n Po vars (sing2 x1) =
+      x1
+    evalOpE _ n Po vars (eOL2) =
+      e Po
   
   module Pointed0Magma where
     record Pointed0Magma
@@ -2184,6 +2858,52 @@ module MathScheme where
     simplifyOpE _ _ (v2 x1) = v2 x1
     simplifyOpE _ _ (sing2 x1) =
       sing2 x1
+    evalB :
+      (A : Set) ->
+      Pointed0Magma A ->
+      Pointed0MagmaTerm -> A
+    evalB _ Po (0L) = 0 Po
+    evalB _ Po (opL x1 x2) =
+      op Po (evalB _ Po x1)
+        (evalB _ Po x2)
+    evalCl :
+      (A : Set) ->
+      Pointed0Magma A ->
+      ClPointed0MagmaTerm A -> A
+    evalCl _ Po (sing x1) = x1
+    evalCl _ Po (0Cl) = 0 Po
+    evalCl _ Po (opCl x1 x2) =
+      op Po (evalCl _ Po x1)
+        (evalCl _ Po x2)
+    evalOp :
+      (A : Set) (n : Nat) ->
+      Pointed0Magma A ->
+      Vec A n ->
+      OpPointed0MagmaTerm n -> A
+    evalOp _ n Po vars (v x1) =
+      lookup _ n x1 vars
+    evalOp _ n Po vars (0OL) = 0 Po
+    evalOp _ n Po vars (opOL
+                        x1
+                        x2) =
+      op Po (evalOp _ n Po vars x1)
+        (evalOp _ n Po vars x2)
+    evalOpE :
+      (A : Set) (n : Nat) ->
+      Pointed0Magma A ->
+      Vec A n ->
+      OpPointed0MagmaTerm2 n A -> A
+    evalOpE _ n Po vars (v2 x1) =
+      lookup _ n x1 vars
+    evalOpE _ n Po vars (sing2 x1) =
+      x1
+    evalOpE _ n Po vars (0OL2) =
+      0 Po
+    evalOpE _ n Po vars (opOL2
+                         x1
+                         x2) =
+      op Po (evalOpE _ n Po vars x1)
+        (evalOpE _ n Po vars x2)
   
   module PointedMagma where
     record PointedMagma
@@ -2308,6 +3028,52 @@ module MathScheme where
     simplifyOpE _ _ (v2 x1) = v2 x1
     simplifyOpE _ _ (sing2 x1) =
       sing2 x1
+    evalB :
+      (A : Set) ->
+      PointedMagma A ->
+      PointedMagmaTerm -> A
+    evalB _ Po (eL) = e Po
+    evalB _ Po (opL x1 x2) =
+      op Po (evalB _ Po x1)
+        (evalB _ Po x2)
+    evalCl :
+      (A : Set) ->
+      PointedMagma A ->
+      ClPointedMagmaTerm A -> A
+    evalCl _ Po (sing x1) = x1
+    evalCl _ Po (eCl) = e Po
+    evalCl _ Po (opCl x1 x2) =
+      op Po (evalCl _ Po x1)
+        (evalCl _ Po x2)
+    evalOp :
+      (A : Set) (n : Nat) ->
+      PointedMagma A ->
+      Vec A n ->
+      OpPointedMagmaTerm n -> A
+    evalOp _ n Po vars (v x1) =
+      lookup _ n x1 vars
+    evalOp _ n Po vars (eOL) = e Po
+    evalOp _ n Po vars (opOL
+                        x1
+                        x2) =
+      op Po (evalOp _ n Po vars x1)
+        (evalOp _ n Po vars x2)
+    evalOpE :
+      (A : Set) (n : Nat) ->
+      PointedMagma A ->
+      Vec A n ->
+      OpPointedMagmaTerm2 n A -> A
+    evalOpE _ n Po vars (v2 x1) =
+      lookup _ n x1 vars
+    evalOpE _ n Po vars (sing2 x1) =
+      x1
+    evalOpE _ n Po vars (eOL2) =
+      e Po
+    evalOpE _ n Po vars (opOL2
+                         x1
+                         x2) =
+      op Po (evalOpE _ n Po vars x1)
+        (evalOpE _ n Po vars x2)
   
   module PointedOne where
     record PointedOne
@@ -2385,6 +3151,36 @@ module MathScheme where
     simplifyOpE _ _ (v2 x1) = v2 x1
     simplifyOpE _ _ (sing2 x1) =
       sing2 x1
+    evalB :
+      (A : Set) ->
+      PointedOne A ->
+      PointedOneTerm -> A
+    evalB _ Po (1L) = 1 Po
+    evalCl :
+      (A : Set) ->
+      PointedOne A ->
+      ClPointedOneTerm A -> A
+    evalCl _ Po (sing x1) = x1
+    evalCl _ Po (1Cl) = 1 Po
+    evalOp :
+      (A : Set) (n : Nat) ->
+      PointedOne A ->
+      Vec A n ->
+      OpPointedOneTerm n -> A
+    evalOp _ n Po vars (v x1) =
+      lookup _ n x1 vars
+    evalOp _ n Po vars (1OL) = 1 Po
+    evalOpE :
+      (A : Set) (n : Nat) ->
+      PointedOne A ->
+      Vec A n ->
+      OpPointedOneTerm2 n A -> A
+    evalOpE _ n Po vars (v2 x1) =
+      lookup _ n x1 vars
+    evalOpE _ n Po vars (sing2 x1) =
+      x1
+    evalOpE _ n Po vars (1OL2) =
+      1 Po
   
   module PointedPlusMagma where
     record PointedPlusMagma
@@ -2511,6 +3307,50 @@ module MathScheme where
     simplifyOpE _ _ (v2 x1) = v2 x1
     simplifyOpE _ _ (sing2 x1) =
       sing2 x1
+    evalB :
+      (A : Set) ->
+      PointedPlusMagma A ->
+      PointedPlusMagmaTerm -> A
+    evalB _ Po (+L x1 x2) =
+      + Po (evalB _ Po x1)
+        (evalB _ Po x2)
+    evalB _ Po (eL) = e Po
+    evalCl :
+      (A : Set) ->
+      PointedPlusMagma A ->
+      ClPointedPlusMagmaTerm A -> A
+    evalCl _ Po (sing x1) = x1
+    evalCl _ Po (+Cl x1 x2) =
+      + Po (evalCl _ Po x1)
+        (evalCl _ Po x2)
+    evalCl _ Po (eCl) = e Po
+    evalOp :
+      (A : Set) (n : Nat) ->
+      PointedPlusMagma A ->
+      Vec A n ->
+      OpPointedPlusMagmaTerm n -> A
+    evalOp _ n Po vars (v x1) =
+      lookup _ n x1 vars
+    evalOp _ n Po vars (+OL x1 x2) =
+      + Po (evalOp _ n Po vars x1)
+        (evalOp _ n Po vars x2)
+    evalOp _ n Po vars (eOL) = e Po
+    evalOpE :
+      (A : Set) (n : Nat) ->
+      PointedPlusMagma A ->
+      Vec A n ->
+      OpPointedPlusMagmaTerm2 n A -> A
+    evalOpE _ n Po vars (v2 x1) =
+      lookup _ n x1 vars
+    evalOpE _ n Po vars (sing2 x1) =
+      x1
+    evalOpE _ n Po vars (+OL2
+                         x1
+                         x2) =
+      + Po (evalOpE _ n Po vars x1)
+        (evalOpE _ n Po vars x2)
+    evalOpE _ n Po vars (eOL2) =
+      e Po
   
   module PointedSemigroup where
     record PointedSemigroup
@@ -2647,6 +3487,52 @@ module MathScheme where
     simplifyOpE _ _ (v2 x1) = v2 x1
     simplifyOpE _ _ (sing2 x1) =
       sing2 x1
+    evalB :
+      (A : Set) ->
+      PointedSemigroup A ->
+      PointedSemigroupTerm -> A
+    evalB _ Po (opL x1 x2) =
+      op Po (evalB _ Po x1)
+        (evalB _ Po x2)
+    evalB _ Po (eL) = e Po
+    evalCl :
+      (A : Set) ->
+      PointedSemigroup A ->
+      ClPointedSemigroupTerm A -> A
+    evalCl _ Po (sing x1) = x1
+    evalCl _ Po (opCl x1 x2) =
+      op Po (evalCl _ Po x1)
+        (evalCl _ Po x2)
+    evalCl _ Po (eCl) = e Po
+    evalOp :
+      (A : Set) (n : Nat) ->
+      PointedSemigroup A ->
+      Vec A n ->
+      OpPointedSemigroupTerm n -> A
+    evalOp _ n Po vars (v x1) =
+      lookup _ n x1 vars
+    evalOp _ n Po vars (opOL
+                        x1
+                        x2) =
+      op Po (evalOp _ n Po vars x1)
+        (evalOp _ n Po vars x2)
+    evalOp _ n Po vars (eOL) = e Po
+    evalOpE :
+      (A : Set) (n : Nat) ->
+      PointedSemigroup A ->
+      Vec A n ->
+      OpPointedSemigroupTerm2 n A -> A
+    evalOpE _ n Po vars (v2 x1) =
+      lookup _ n x1 vars
+    evalOpE _ n Po vars (sing2 x1) =
+      x1
+    evalOpE _ n Po vars (opOL2
+                         x1
+                         x2) =
+      op Po (evalOpE _ n Po vars x1)
+        (evalOpE _ n Po vars x2)
+    evalOpE _ n Po vars (eOL2) =
+      e Po
   
   module PointedZero where
     record PointedZero
@@ -2726,6 +3612,36 @@ module MathScheme where
     simplifyOpE _ _ (v2 x1) = v2 x1
     simplifyOpE _ _ (sing2 x1) =
       sing2 x1
+    evalB :
+      (A : Set) ->
+      PointedZero A ->
+      PointedZeroTerm -> A
+    evalB _ Po (0L) = 0 Po
+    evalCl :
+      (A : Set) ->
+      PointedZero A ->
+      ClPointedZeroTerm A -> A
+    evalCl _ Po (sing x1) = x1
+    evalCl _ Po (0Cl) = 0 Po
+    evalOp :
+      (A : Set) (n : Nat) ->
+      PointedZero A ->
+      Vec A n ->
+      OpPointedZeroTerm n -> A
+    evalOp _ n Po vars (v x1) =
+      lookup _ n x1 vars
+    evalOp _ n Po vars (0OL) = 0 Po
+    evalOpE :
+      (A : Set) (n : Nat) ->
+      PointedZero A ->
+      Vec A n ->
+      OpPointedZeroTerm2 n A -> A
+    evalOpE _ n Po vars (v2 x1) =
+      lookup _ n x1 vars
+    evalOpE _ n Po vars (sing2 x1) =
+      x1
+    evalOpE _ n Po vars (0OL2) =
+      0 Po
   
   module RightUnital where
     record RightUnital
@@ -2820,6 +3736,7 @@ module MathScheme where
     simplifyB :
       RightUnitalTerm ->
       RightUnitalTerm
+    simplifyB (opL x (eL)) = x
     simplifyB (eL) = eL
     simplifyB (opL x1 x2) =
       opL (simplifyB x1)
@@ -2828,6 +3745,7 @@ module MathScheme where
       (A : Set) ->
       ClRightUnitalTerm A ->
       ClRightUnitalTerm A
+    simplifyCl _ (opCl x (eCl)) = x
     simplifyCl _ (eCl) = eCl
     simplifyCl _ (opCl x1 x2) =
       opCl (simplifyCl _ x1)
@@ -2837,6 +3755,7 @@ module MathScheme where
       (n : Nat) ->
       OpRightUnitalTerm n ->
       OpRightUnitalTerm n
+    simplifyOp _ (opOL x (eOL)) = x
     simplifyOp _ (eOL) = eOL
     simplifyOp _ (opOL x1 x2) =
       opOL (simplifyOp _ x1)
@@ -2846,6 +3765,9 @@ module MathScheme where
       (n : Nat) (A : Set) ->
       OpRightUnitalTerm2 n A ->
       OpRightUnitalTerm2 n A
+    simplifyOpE _ _ (opOL2
+                     x
+                     (eOL2)) = x
     simplifyOpE _ _ (eOL2) = eOL2
     simplifyOpE _ _ (opOL2 x1 x2) =
       opOL2 (simplifyOpE _ _ x1)
@@ -2853,6 +3775,52 @@ module MathScheme where
     simplifyOpE _ _ (v2 x1) = v2 x1
     simplifyOpE _ _ (sing2 x1) =
       sing2 x1
+    evalB :
+      (A : Set) ->
+      RightUnital A ->
+      RightUnitalTerm -> A
+    evalB _ Ri (eL) = e Ri
+    evalB _ Ri (opL x1 x2) =
+      op Ri (evalB _ Ri x1)
+        (evalB _ Ri x2)
+    evalCl :
+      (A : Set) ->
+      RightUnital A ->
+      ClRightUnitalTerm A -> A
+    evalCl _ Ri (sing x1) = x1
+    evalCl _ Ri (eCl) = e Ri
+    evalCl _ Ri (opCl x1 x2) =
+      op Ri (evalCl _ Ri x1)
+        (evalCl _ Ri x2)
+    evalOp :
+      (A : Set) (n : Nat) ->
+      RightUnital A ->
+      Vec A n ->
+      OpRightUnitalTerm n -> A
+    evalOp _ n Ri vars (v x1) =
+      lookup _ n x1 vars
+    evalOp _ n Ri vars (eOL) = e Ri
+    evalOp _ n Ri vars (opOL
+                        x1
+                        x2) =
+      op Ri (evalOp _ n Ri vars x1)
+        (evalOp _ n Ri vars x2)
+    evalOpE :
+      (A : Set) (n : Nat) ->
+      RightUnital A ->
+      Vec A n ->
+      OpRightUnitalTerm2 n A -> A
+    evalOpE _ n Ri vars (v2 x1) =
+      lookup _ n x1 vars
+    evalOpE _ n Ri vars (sing2 x1) =
+      x1
+    evalOpE _ n Ri vars (eOL2) =
+      e Ri
+    evalOpE _ n Ri vars (opOL2
+                         x1
+                         x2) =
+      op Ri (evalOpE _ n Ri vars x1)
+        (evalOpE _ n Ri vars x2)
   
   module Semigroup where
     record Semigroup
@@ -2965,6 +3933,47 @@ module MathScheme where
     simplifyOpE _ _ (v2 x1) = v2 x1
     simplifyOpE _ _ (sing2 x1) =
       sing2 x1
+    evalB :
+      (A : Set) ->
+      Semigroup A ->
+      SemigroupTerm -> A
+    evalB _ Se (opL x1 x2) =
+      op Se (evalB _ Se x1)
+        (evalB _ Se x2)
+    evalCl :
+      (A : Set) ->
+      Semigroup A ->
+      ClSemigroupTerm A -> A
+    evalCl _ Se (sing x1) = x1
+    evalCl _ Se (opCl x1 x2) =
+      op Se (evalCl _ Se x1)
+        (evalCl _ Se x2)
+    evalOp :
+      (A : Set) (n : Nat) ->
+      Semigroup A ->
+      Vec A n ->
+      OpSemigroupTerm n -> A
+    evalOp _ n Se vars (v x1) =
+      lookup _ n x1 vars
+    evalOp _ n Se vars (opOL
+                        x1
+                        x2) =
+      op Se (evalOp _ n Se vars x1)
+        (evalOp _ n Se vars x2)
+    evalOpE :
+      (A : Set) (n : Nat) ->
+      Semigroup A ->
+      Vec A n ->
+      OpSemigroupTerm2 n A -> A
+    evalOpE _ n Se vars (v2 x1) =
+      lookup _ n x1 vars
+    evalOpE _ n Se vars (sing2 x1) =
+      x1
+    evalOpE _ n Se vars (opOL2
+                         x1
+                         x2) =
+      op Se (evalOpE _ n Se vars x1)
+        (evalOpE _ n Se vars x2)
   
   module Unital where
     record Unital
@@ -3054,6 +4063,8 @@ module MathScheme where
         OpUnitalTerm2 n A
     simplifyB :
       UnitalTerm -> UnitalTerm
+    simplifyB (opL (eL) x) = x
+    simplifyB (opL x (eL)) = x
     simplifyB (eL) = eL
     simplifyB (opL x1 x2) =
       opL (simplifyB x1)
@@ -3061,6 +4072,8 @@ module MathScheme where
     simplifyCl :
       (A : Set) ->
       ClUnitalTerm A -> ClUnitalTerm A
+    simplifyCl _ (opCl (eCl) x) = x
+    simplifyCl _ (opCl x (eCl)) = x
     simplifyCl _ (eCl) = eCl
     simplifyCl _ (opCl x1 x2) =
       opCl (simplifyCl _ x1)
@@ -3069,6 +4082,8 @@ module MathScheme where
     simplifyOp :
       (n : Nat) ->
       OpUnitalTerm n -> OpUnitalTerm n
+    simplifyOp _ (opOL (eOL) x) = x
+    simplifyOp _ (opOL x (eOL)) = x
     simplifyOp _ (eOL) = eOL
     simplifyOp _ (opOL x1 x2) =
       opOL (simplifyOp _ x1)
@@ -3078,6 +4093,12 @@ module MathScheme where
       (n : Nat) (A : Set) ->
       OpUnitalTerm2 n A ->
       OpUnitalTerm2 n A
+    simplifyOpE _ _ (opOL2
+                     (eOL2)
+                     x) = x
+    simplifyOpE _ _ (opOL2
+                     x
+                     (eOL2)) = x
     simplifyOpE _ _ (eOL2) = eOL2
     simplifyOpE _ _ (opOL2 x1 x2) =
       opOL2 (simplifyOpE _ _ x1)
@@ -3085,4 +4106,47 @@ module MathScheme where
     simplifyOpE _ _ (v2 x1) = v2 x1
     simplifyOpE _ _ (sing2 x1) =
       sing2 x1
+    evalB :
+      (A : Set) ->
+      Unital A -> UnitalTerm -> A
+    evalB _ Un (eL) = e Un
+    evalB _ Un (opL x1 x2) =
+      op Un (evalB _ Un x1)
+        (evalB _ Un x2)
+    evalCl :
+      (A : Set) ->
+      Unital A -> ClUnitalTerm A -> A
+    evalCl _ Un (sing x1) = x1
+    evalCl _ Un (eCl) = e Un
+    evalCl _ Un (opCl x1 x2) =
+      op Un (evalCl _ Un x1)
+        (evalCl _ Un x2)
+    evalOp :
+      (A : Set) (n : Nat) ->
+      Unital A ->
+      Vec A n -> OpUnitalTerm n -> A
+    evalOp _ n Un vars (v x1) =
+      lookup _ n x1 vars
+    evalOp _ n Un vars (eOL) = e Un
+    evalOp _ n Un vars (opOL
+                        x1
+                        x2) =
+      op Un (evalOp _ n Un vars x1)
+        (evalOp _ n Un vars x2)
+    evalOpE :
+      (A : Set) (n : Nat) ->
+      Unital A ->
+      Vec A n ->
+      OpUnitalTerm2 n A -> A
+    evalOpE _ n Un vars (v2 x1) =
+      lookup _ n x1 vars
+    evalOpE _ n Un vars (sing2 x1) =
+      x1
+    evalOpE _ n Un vars (eOL2) =
+      e Un
+    evalOpE _ n Un vars (opOL2
+                         x1
+                         x2) =
+      op Un (evalOpE _ n Un vars x1)
+        (evalOpE _ n Un vars x2)
   

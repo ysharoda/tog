@@ -32,7 +32,6 @@ library
                      , Tog.Deriving.EqTheory
                      , Tog.Deriving.TUtils
                      , Tog.Deriving.TypeConversions
-                     , Tog.Deriving.TermLang
                      , Tog.Deriving.ProductTheory
                      , Tog.Deriving.Signature 
                      , Tog.Deriving.Types 
@@ -42,15 +41,12 @@ library
 		     , Tog.Deriving.Utils.Bindings
 		     , Tog.Deriving.Utils.Parameters
 		     , Tog.Deriving.Utils.QualDecls
-                     , Tog.Deriving.OpenTermLang
                      , Tog.Deriving.Utils.Renames
 		     , Tog.Deriving.Evaluator
-		     , Tog.Deriving.OpenTermEvaluator
 		     , Tog.Deriving.TogPrelude
                      , Tog.Deriving.Utils.Functions
                      , Tog.Deriving.Simplifier
                      , Tog.Deriving.Utils.Variables
-                     , Tog.Deriving.StagedTerms
                      , Tog.Deriving.Utils.Types
                      , Tog.Deriving.Tagless
                      , Tog.Deriving.Terms 

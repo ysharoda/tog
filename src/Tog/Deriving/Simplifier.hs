@@ -69,7 +69,7 @@ simpRules :: Term -> [Constr] -> [Decl]
 simpRules term axms=
  let
   rules = filter (/= Nothing) $ map simplify axms
- in map (\(Just (x,y)) -> FunDef (mkName $ simpFuncNm term) ([x]) y) rules 
+ in map (\(Just (x,y)) -> FunDef (mkName $ simpFuncNm term) (underscorePattern term ++ [x]) y) rules 
 
 -- the recursive cases 
 simpDecls :: Term -> [Constr] -> [Decl]
@@ -102,13 +102,13 @@ simplifyOpExt :: {A : Term} {n : Nat} -> MonTerm n A -> MonTerm n A
 
 oneSimpFunc :: EqTheory -> TermLang -> [Decl]
 oneSimpFunc thry termLang@(TermLang term _ _ constrs) =
- let axms = map (foldrenConstrs (Map.toList $ mapping thry term)) (thry ^. axioms) -- (foldren thry $ Map.toList $ ) ^. axioms
+ let axms = map (foldrenConstrs (Map.toList $ mapping thry term)) (thry ^. axioms) 
      check c = (getConstrName c == v1 || getConstrName c == v2 || getConstrName c == sing || getConstrName c == sing2)
      varsConsts = filter check  constrs
      fdecls = filter (not . check) constrs
  in 
   (simpFuncType term $ tlToDecl termLang) : 
-  (-- simpRules term axms ++
+  (simpRules term axms ++
    simpDecls term fdecls ++
    simpVarsConsts term varsConsts)
 

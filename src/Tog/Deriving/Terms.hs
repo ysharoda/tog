@@ -18,13 +18,16 @@ import Data.Map as Map (Map,fromList, toList)
 data Term = Basic
           | Closed Name_
           | Open Name_
-          | ExtOpen Name_ Name_ deriving Show
+          | ExtOpen Name_ Name_ deriving (Eq,Show)
 
 data TermLang = TermLang {
   termTy  :: Term,
   tname   :: Name_,
   params  :: Params,
   cons    :: [Constr] } deriving Show
+
+getTermType :: TermLang -> Term
+getTermType (TermLang ty _ _ _) = ty 
 
 -- step1: rename all constrs of the thoery
 v1,v2, sing, sing2 :: String
@@ -63,10 +66,10 @@ termType thryNm t@(ExtOpen natVarNm carrierNm) =
 
 mkParams :: Term -> Params
 mkParams Basic = mkParamsHelper []
-mkParams (Closed carrierNm) = mkParamsHelper [(carrierNm,setTypeAsId)]
+mkParams (Closed carrierNm) = mkParamsHelper [(carrierNm,App [mkArg "Set"])]
 mkParams (Open natVarNm) = mkParamsHelper [(natVarNm,Id (mkQName "Nat"))]
 mkParams (ExtOpen natVarNm carrierNm) =
-  mkParamsHelper [(natVarNm,Id (mkQName "Nat")),(carrierNm,setTypeAsId)]
+  mkParamsHelper [(natVarNm,App [mkArg "Nat"]),(carrierNm,App [mkArg "Set"])]
 
 mkParamsHelper :: [(Name_,Expr)] -> Params
 mkParamsHelper [] = NoParams

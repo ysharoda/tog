@@ -7,7 +7,7 @@ import Control.Lens
 import Tog.Raw.Abs   
 import Tog.Deriving.Types  (Name_)
 import Tog.Deriving.TUtils (createId, mkArg)
-import Tog.Deriving.EqTheory
+--import Tog.Deriving.EqTheory
 import Tog.Deriving.Lenses   (name)
   
 data PConstr = PConstr {
@@ -19,17 +19,6 @@ data PConstr = PConstr {
 mkPConstr :: Constr -> Int -> Int -> PConstr
 mkPConstr (Constr nm ctyp) wst indx =
   PConstr (nm ^. name) ctyp (indx < wst)
-
-mkPConstrs :: EqTheory -> (PConstr,[PConstr],[PConstr])
-mkPConstrs t =
-  let wst = t ^. waist
-      axms  = t ^. axioms
-      funcs = t ^. funcTypes
-      constrs = (t ^. sort) : (funcs ++ axms)
-      pconstrs = map (\(c,i) -> mkPConstr c wst i) $ zip  constrs [0..length constrs]
-   in (head pconstrs,
-       take (length funcs) (drop 1 pconstrs),
-       take (length axms)  (drop (1 + length funcs) pconstrs)) 
 
 -- If the constr is a param, qualify it with an index, (like A1 and A2) 
 -- If not, qualify with the instance name  (like (op M1)) 

@@ -4,13 +4,15 @@ module Tog.Deriving.Utils.Bindings
    indexBindings, 
    repeatBinds,
    getOneBindNames,
-   getBindingsNames) where 
+   getBindingsNames,
+   unionBindings) where 
 
 import Tog.Raw.Abs
 
 import Tog.Deriving.Utils.QualDecls 
 import Tog.Deriving.Types (Name_)
-import Tog.Deriving.TUtils 
+import Tog.Deriving.TUtils
+import Tog.Deriving.Types (gmap)
 
 
 mkBindExpr :: PConstr -> PConstr -> (Name_,Int) -> [Expr]
@@ -52,3 +54,29 @@ getOneBindNames (HBind as _) = map (\a -> getArgName a) as
 
 getBindingsNames :: [Binding] -> [Name_]
 getBindingsNames binds = concatMap getOneBindNames binds
+
+neutralizeBind :: Binding -> Binding
+neutralizeBind b = gmap (\(Name ((_,_),n)) -> (Name ((0,0),n))) b 
+
+alterBind :: Binding -> Binding
+alterBind (Bind as e) = HBind as e
+alterBind (HBind as e) = Bind as e 
+
+-- Problem: Deciding whether an argument should be hidden 
+unionBindings :: [Binding] -> [Binding] -> [Binding]
+unionBindings b1 [] = b1 
+unionBindings b1 b2 =
+  let nb1 = map neutralizeBind b1
+      nb2 = map neutralizeBind b2
+      b = head nb2 
+  in if elem b nb1 || elem (alterBind b) nb1
+     then unionBindings b1 (tail b2)
+     else (unionBindings b1 (tail b2)) ++ [b]
+{-
+unionBindings b1 ((Bind as e):b2) =
+   let newBind = Bind (map (mkArg . getArgName) as) e
+       newHiddBind = HBind (map (mkArg . getArgName) as) e
+  in if elem newBind b1 || elem newHiddBind b1
+  then unionBindings b1 b2
+  else (unionBindings b1 b2) ++ [newBind]
+ -}

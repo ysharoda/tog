@@ -63,7 +63,7 @@ oneInterp interpFunc carrier inst1 inst2 fsym@(PConstr nm _ _) =
 relationalInterp :: Eq.EqTheory -> Decl
 relationalInterp t =
   let nm = t ^. Eq.thyName ++ "RelInterp"
-      (psort,pfuncs,_) = mkPConstrs t
+      (psort,pfuncs,_) = Eq.mkPConstrs t
       ((i1, n1), (i2, n2)) = createThryInsts t
       interpTyp = mkTwoParamsType psort n1 n2 
       newDecls = map (oneInterp interpTyp psort n1 n2) pfuncs

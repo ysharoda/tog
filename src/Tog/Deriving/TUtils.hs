@@ -19,10 +19,12 @@ module Tog.Deriving.TUtils
   , mkArg' 
   , mkFunc
   , fldsToBinding
+  , fldsToHiddenBinds
   , mkParams
   , createId
   , strToDecl
   , eqFunArgs
+  , eqFunApp
   ) where
 
 import Control.Lens ((^.))
@@ -37,7 +39,7 @@ createId :: String -> Expr
 createId = Id . NotQual . mkName
 
 mkName :: Name_ -> Name
-mkName str = Name ((0,0),str) 
+mkName str = Name ((1,20),str) 
 
 mkQName :: Name_ -> QName
 mkQName str = NotQual $ mkName str 
@@ -121,7 +123,11 @@ mkField [] = NoFields
 mkField xs = Fields xs
 
 fldsToBinding :: Constr -> Binding
-fldsToBinding (Constr nm typ) = Bind [mkArg $ nm^.name] typ 
+fldsToBinding (Constr nm typ) = Bind [mkArg $ nm^.name] typ
+
+fldsToHiddenBinds :: Constr -> Binding
+fldsToHiddenBinds (Constr nm typ) = HBind [mkArg $ nm^.name] typ 
+
 
 mkParams :: [Binding] -> Params
 mkParams [] = NoParams
@@ -154,3 +160,4 @@ eqFunArgs _ = error "Something wrong"
 eqFunApp :: Constr -> Expr
 eqFunApp (Constr nm (Fun e1 e2)) =
   App $ [mkArg (nm ^. name)] ++ eqFunArgs e1 ++ eqFunArgs e2
+eqFunApp _ = error "not a function"

@@ -2,7 +2,7 @@ module Tog.Deriving.Utils.Functions where
 
 import Tog.Raw.Abs
 import Tog.Deriving.Types  (Name_, gmap)
-import Tog.Deriving.TUtils (mkName, mkQName, mkArg, exprArity, genVars) 
+import Tog.Deriving.TUtils (mkName, mkQName, mkArg, genVars) 
 
 import Tog.Deriving.Lenses (name)
 import Control.Lens ((^.))
