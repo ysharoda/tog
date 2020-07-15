@@ -17,7 +17,7 @@ import           Tog.Deriving.Types
 import           Tog.Deriving.TUtils  (mkName, setType,strToDecl)
 import           Tog.Deriving.RelationalInterp
 import           Tog.Deriving.Terms
---import           Tog.Deriving.Evaluator
+import           Tog.Deriving.Evaluator
 --import           Tog.Deriving.OpenTermEvaluator
 import           Tog.Deriving.TogPrelude (prelude)
 import           Tog.Deriving.Simplifier
@@ -46,6 +46,7 @@ leverageThry thry =
      trmLangs = termLangs thry
      temLangsDecls = termLangsToDecls trmLangs
      simplifiers = simplifyFuncs thry trmLangs
+     evaluators = evalFuncs thry trmLangs 
  --    trmlang = termLang thry
  --    openTrmLang = openTermLang thry
  --    evalTrmLang = evalFunc thry
@@ -54,7 +55,7 @@ leverageThry thry =
  --    stagedClosedTerms = liftTermCl thry
  --    stagedOpenTerms = liftTermOp thry
  --    tagless = taglessRep thry  
- in [sigs, prodthry, hom, relInterp] ++ temLangsDecls ++ simplifiers
+ in [sigs, prodthry, hom, relInterp] ++ temLangsDecls ++ simplifiers ++ evaluators 
     
     --[trmlang, openTrmLang] ++ evalTrmLang ++ evalOpenTrmLang ++ simplifier ++
     --stagedClosedTerms ++ stagedOpenTerms ++ [tagless] 

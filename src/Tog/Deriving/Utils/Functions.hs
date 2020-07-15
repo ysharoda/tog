@@ -9,7 +9,10 @@ import Control.Lens ((^.))
 
 type FType = Constr
 
-type FApp = Expr
+data FApp = FApp [Binding] Expr
+
+getExpr :: FApp -> Expr 
+getExpr (FApp _ e) = e 
 
 farity :: Expr -> Int
 farity e = farityH e -1
@@ -34,7 +37,7 @@ instance MkPattern FType where
 
 -- given an expression that is a function application (like op x y),
 -- It returns a pattern to be used when pattern matching.  
-instance MkPattern FApp where
+instance MkPattern Expr where
   mkPattern (Id qn) = IdP qn
   mkPattern (App ars) =
    let qname (Arg (Id qn)) = qn
@@ -53,19 +56,26 @@ fapp (Constr n typ) =
  let nm = n ^. name
      arity = farity typ
      vars = genVars arity
- in if (arity == 0) then App [mkArg nm]
-    else App $ mkArg nm : map mkArg vars 
-  
+     etyp (Fun e _) = e -- this works because we are in unisorted setup
+     etyp (App args) = App args
+     etyp _ = error "not a function"
+ in if (arity == 0) then FApp [] $ App [mkArg nm]
+    else FApp [HBind (map mkArg vars) (etyp typ)]$
+          App $ mkArg nm : map mkArg vars         
+
+fappExpr :: FType -> Expr
+fappExpr c = getExpr $ fapp c
+
 -- given an expression that is a function application (like op x y)
 -- it maps a unary function to every argument of the function (like: op (f x) (f y)) 
-functor :: Name_ -> FApp -> FApp
+functor :: Name_ -> Expr -> Expr
 functor fnm (Id (NotQual (Name (_,n)))) = App [mkArg fnm, mkArg n]
 functor fnm (App (a:as)) = App $ a : map (\x -> Arg $ App [mkArg fnm,x]) as
 functor _ _ = error "invalid function application" 
 -- QQ: Can we do better than passsing the name?
 -- i.e.: pass a unary function (Expr -> Expr) 
 
-functor' :: FApp -> FApp -> FApp
+functor' :: Expr -> Expr -> Expr
 functor' (App args) (Id (NotQual (Name (_,n)))) = App (args ++ [mkArg n])
 functor' (App args) (App (a:as)) = App $ a : (map (\x -> Arg $ App (args ++ [x])) as)
 functor' _ _ = error "invalid function application" 
@@ -89,6 +99,10 @@ curry' :: [Arg] -> Expr
 curry' [x] = App [x]
 curry' (x:xs) = Fun (App [x]) (curry' xs)
 curry' _ = error "no args passed"
+
+curryExpr :: [Expr] -> Expr
+curryExpr [e] = e
+curryExpr (e:es) = Fun e (curryExpr es) 
 
 mkSimpTypeSig :: Name_ -> [Arg] -> TypeSig
 mkSimpTypeSig fname args =

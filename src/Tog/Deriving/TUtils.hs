@@ -4,6 +4,7 @@ module Tog.Deriving.TUtils
   , mkQName 
   , setType
   , setTypeAsId
+  , setTypeExpr
   , indexName
   , indexArg
   , mkField
@@ -52,6 +53,9 @@ mkArg' nam n = mkArg $ shortName nam n
 
 setType :: Name
 setType = mkName "Set"
+
+setTypeExpr :: Expr
+setTypeExpr = App [mkArg "Set"]
 
 setTypeAsId :: Expr 
 setTypeAsId = createId "Set" 

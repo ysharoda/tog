@@ -5,7 +5,8 @@ module Tog.Deriving.Utils.Bindings
    repeatBinds,
    getOneBindNames,
    getBindingsNames,
-   unionBindings) where 
+   unionBindings,
+   getBindingArgs) where 
 
 import Tog.Raw.Abs
 
@@ -72,11 +73,7 @@ unionBindings b1 b2 =
   in if elem b nb1 || elem (alterBind b) nb1
      then unionBindings b1 (tail b2)
      else (unionBindings b1 (tail b2)) ++ [b]
-{-
-unionBindings b1 ((Bind as e):b2) =
-   let newBind = Bind (map (mkArg . getArgName) as) e
-       newHiddBind = HBind (map (mkArg . getArgName) as) e
-  in if elem newBind b1 || elem newHiddBind b1
-  then unionBindings b1 b2
-  else (unionBindings b1 b2) ++ [newBind]
- -}
+
+getBindingArgs :: Binding -> [Arg]
+getBindingArgs (Bind as _) = as
+getBindingArgs (HBind as _) = as 

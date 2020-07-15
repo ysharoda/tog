@@ -27,7 +27,10 @@ data TermLang = TermLang {
   cons    :: [Constr] } deriving Show
 
 getTermType :: TermLang -> Term
-getTermType (TermLang ty _ _ _) = ty 
+getTermType (TermLang ty _ _ _) = ty
+
+getTermConstructors :: TermLang -> [Constr]
+getTermConstructors (TermLang _ _ _ cs) = cs
 
 -- step1: rename all constrs of the thoery
 v1,v2, sing, sing2 :: String

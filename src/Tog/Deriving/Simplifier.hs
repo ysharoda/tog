@@ -75,13 +75,13 @@ simpRules term axms=
 simpDecls :: Term -> [Constr] -> [Decl]
 simpDecls term ftyps =
   let patterns = map mkPattern ftyps
-      fundefs = map (functor' (adjustFuncCalls term) . fapp) ftyps
+      fundefs = map (functor' (adjustFuncCalls term) . fappExpr) ftyps
   in
     zipWith (\x y -> FunDef (mkName $ simpFuncNm term) (underscorePattern term ++ [x]) (FunDefBody y NoWhere)) patterns fundefs     
 
 simpVarsConsts :: Term -> [Constr] -> [Decl]
 simpVarsConsts term cs =
-  map (\c -> FunDef (mkName $ simpFuncNm term) (underscorePattern term ++ [mkPattern c]) (FunDefBody (fapp c) NoWhere)) cs  
+  map (\c -> FunDef (mkName $ simpFuncNm term) (underscorePattern term ++ [mkPattern c]) (FunDefBody (fappExpr c) NoWhere)) cs  
   
 simpFuncType :: Term -> Decl -> Decl
 simpFuncType term datatype =
