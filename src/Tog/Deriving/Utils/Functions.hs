@@ -107,7 +107,8 @@ curry' _ = error "no args passed"
 
 curryExpr :: [Expr] -> Expr
 curryExpr [e] = e
-curryExpr (e:es) = Fun e (curryExpr es) 
+curryExpr (e:es) = Fun e (curryExpr es)
+curryExpr _ = error "not a valid expression"
 
 mkSimpTypeSig :: Name_ -> [Arg] -> TypeSig
 mkSimpTypeSig fname args =

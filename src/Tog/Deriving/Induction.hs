@@ -2,12 +2,11 @@ module Tog.Deriving.Induction where
 
 import Tog.Raw.Abs hiding (Open)
 import Tog.Deriving.Terms
-import Tog.Deriving.EqTheory
 import Tog.Deriving.TUtils 
 import Tog.Deriving.Utils.Functions
 import Tog.Deriving.Utils.Bindings
 import Tog.Deriving.Utils.Types
-import Tog.Deriving.Types  (Name_, gmap)
+import Tog.Deriving.Types  (Name_)
 
 import Tog.Deriving.Lenses (name)
 import Control.Lens ((^.))
@@ -70,8 +69,8 @@ typeSingleton constantConstrName =
 
 -- given an expression e, construct P e 
 applyPred :: Expr -> Expr
-applyPred (App as) = App $ (mkArg predicateName) : [Arg $ App as]
 applyPred (App [a]) = App $ (mkArg predicateName) : [a]
+applyPred (App as) = App $ (mkArg predicateName) : [Arg $ App as]
 applyPred (Id (NotQual x)) = App $ (mkArg predicateName) : [mkArg $ x ^. name]
 applyPred _ = error "not a valid function application"
 
@@ -98,20 +97,20 @@ inductionOpE : {A : Set} {n : ℕ} → (P : MonTerm' n A → Set) →
           (P e) → 
           ({x y : MonTerm' n A} → P x → P y → P (op x y)) → ((x : MonTerm' n A) → P x)
 -} 
-typeSig :: EqTheory -> TermLang -> TypeSig 
-typeSig eq tlang =
+typeSig :: TermLang -> TypeSig 
+typeSig tl =
  let
-  (DTApp binds texpr) = tapp (tlToDecl tlang) Nothing
+  (DTApp binds texpr) = tapp (tlToDecl tl) Nothing
   check c = (getConstrName c == v1 || getConstrName c == v2 || getConstrName c == sing || getConstrName c == sing2)
-  fdecls = filter (not . check) (getTermConstructors tlang)
-  pred = Pi (Tel [Bind [mkArg "x"] texpr]) (applyPred (App [mkArg "x"]))
- in Sig (mkName $ inducFuncNm $ getTermType tlang) $ 
+  fdecls = filter (not . check) (getTermConstructors tl)
+  predApp = Pi (Tel [Bind [mkArg "x"] texpr]) (applyPred (App [mkArg "x"]))
+ in Sig (mkName $ inducFuncNm $ getTermType tl) $ 
     Pi (Tel $ binds ++ [Bind [mkArg predicateName] (Fun texpr setTypeExpr)]) $
-      case getTermType tlang of
-        Basic -> curryExpr $ (map typeFun fdecls) ++ [pred]
-        Closed _ -> curryExpr $ (typeSingleton sing) : (map typeFun fdecls) ++ [pred]
-        Open _ -> curryExpr $ (typeVar v1) : (map typeFun fdecls) ++ [pred]
-        ExtOpen _ _ -> curryExpr $ (typeVar v2) : (typeSingleton sing2) : (map typeFun fdecls) ++ [pred]
+      case getTermType tl of
+        Basic -> curryExpr $ (map typeFun fdecls) ++ [predApp]
+        Closed _ -> curryExpr $ (typeSingleton sing) : (map typeFun fdecls) ++ [predApp]
+        Open _ -> curryExpr $ (typeVar v1) : (map typeFun fdecls) ++ [predApp]
+        ExtOpen _ _ -> curryExpr $ (typeVar v2) : (typeSingleton sing2) : (map typeFun fdecls) ++ [predApp]
 
       {-
 fdecl :: Constr -> (Pattern, FunDefBody)
@@ -128,8 +127,8 @@ patternName :: Name_ -> Name_
 patternName n = map toLower (predicateName ++ n)
 
 -- the patterns for one function declaration 
-patterns :: Term -> [Constr] -> [Pattern] 
-patterns term cs =
+patterns :: [Constr] -> [Pattern] 
+patterns cs =
   [IdP $ mkQName predicateVar] ++ map (IdP . mkQName . patternName . getConstrName) cs
 
 -- the expression to be passed over in recursive calls 
@@ -148,24 +147,24 @@ adjustFuncCalls n (App (a:as)) = App $ a : (take n $ repeat (mkArg "_")) ++ as
 adjustFuncCalls _ _ = error "not a function application" 
 
   
-oneInducDef :: EqTheory -> TermLang -> [Decl]
-oneInducDef thry tlang =
- let constructors = getTermConstructors tlang
+oneInducDef :: TermLang -> [Decl]
+oneInducDef tl =
+ let tconstrs = getTermConstructors tl
   --   constantDecl = filter (getConstrName c == sing || getConstrName c == sing2) constructors
-     ttyp = getTermType tlang
-     constrPatterns = patterns ttyp constructors
+     ttyp = getTermType tl
+     constrPatterns = patterns tconstrs
      check c = (getConstrName c == v1 || getConstrName c == v2 || getConstrName c == sing || getConstrName c == sing2)
      constrFunc index c@(Constr _ e) =
        let pName = getPatternName $ constrPatterns !! index
            newConstr = Constr (mkName $ pName) e 
        in if check c || farity e == 0 then fappExpr newConstr
-          else adjustFuncCalls (farity e) $ functor' (recExpr ttyp constructors) (fappExpr newConstr)
+          else adjustFuncCalls (farity e) $ functor' (recExpr ttyp tconstrs) (fappExpr newConstr)
      mkDecl i c =
        FunDef (mkName $ inducFuncNm ttyp)
         (underscorePattern ttyp ++ constrPatterns ++ [mkPattern c])
         (FunDefBody (constrFunc i c) NoWhere)
- in (TypeSig $ typeSig thry tlang) : zipWith mkDecl [1 .. (length constructors)] constructors
+ in (TypeSig $ typeSig tl) : zipWith mkDecl [1 .. (length tconstrs)] tconstrs
 
-inductionFuncs :: EqTheory -> [TermLang] -> [Decl]
-inductionFuncs thry tlangs = 
-  concatMap (oneInducDef thry) tlangs
+inductionFuncs :: [TermLang] -> [Decl]
+inductionFuncs tlangs = 
+  concatMap oneInducDef tlangs

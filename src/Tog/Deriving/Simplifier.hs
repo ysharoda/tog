@@ -2,7 +2,7 @@ module Tog.Deriving.Simplifier where
 
 import Tog.Raw.Abs hiding (Open) 
 import Tog.Deriving.Utils.Functions 
-import Tog.Deriving.TUtils (mkName, mkQName, mkArg, getConstrName)
+import Tog.Deriving.TUtils (mkName, mkArg, getConstrName)
 import Tog.Deriving.EqTheory 
 import Tog.Deriving.Utils.Types
 import Tog.Deriving.Terms
@@ -10,7 +10,7 @@ import Tog.Deriving.Utils.Renames (foldrenConstrs)
 
 import Control.Lens ((^.))
 import Data.Generics (everything, mkQ)
-import Data.Map as Map (Map, toList) 
+import Data.Map as Map (toList) 
 
 type Rule = Constr
 

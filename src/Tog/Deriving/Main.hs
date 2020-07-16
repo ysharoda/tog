@@ -22,7 +22,7 @@ import           Tog.Deriving.Evaluator
 import           Tog.Deriving.TogPrelude (prelude)
 import           Tog.Deriving.Simplifier
 import           Tog.Deriving.Induction 
---import           Tog.Deriving.StagedTerms
+import           Tog.Deriving.StagedTerms
 --import           Tog.Deriving.Tagless 
 
 processDefs :: [Language] -> Module
@@ -48,16 +48,10 @@ leverageThry thry =
      temLangsDecls = termLangsToDecls trmLangs
      simplifiers = simplifyFuncs thry trmLangs
      evaluators = evalFuncs thry trmLangs
-     inductions = inductionFuncs thry trmLangs 
- --    trmlang = termLang thry
- --    openTrmLang = openTermLang thry
- --    evalTrmLang = evalFunc thry
- --    evalOpenTrmLang = openEvalFunc thry 
- --    simplifier = simplifyFunc thry
- --    stagedClosedTerms = liftTermCl thry
- --    stagedOpenTerms = liftTermOp thry
+     inductions = inductionFuncs trmLangs
+     stagedTLs = stagedFuncs trmLangs
  --    tagless = taglessRep thry  
- in [sigs, prodthry, hom, relInterp] ++ temLangsDecls ++ simplifiers ++ evaluators ++ inductions 
+ in [sigs, prodthry, hom, relInterp] ++ temLangsDecls ++ simplifiers ++ evaluators ++ inductions ++ stagedTLs
     
     --[trmlang, openTrmLang] ++ evalTrmLang ++ evalOpenTrmLang ++ simplifier ++
     --stagedClosedTerms ++ stagedOpenTerms ++ [tagless] 

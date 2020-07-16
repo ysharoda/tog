@@ -90,7 +90,7 @@ projectConstr thry instName c@(Constr n _)  =
   else App [mkArg (n ^. name),mkArg instName]
 
 applyProjConstr :: EqTheory -> String -> Constr -> Expr
-applyProjConstr thry instName c@(Constr n e) =
+applyProjConstr thry instName c@(Constr _ e) =
   let vars = genVars $ farity e 
   in App $ (Arg $ projectConstr thry instName c) : map mkArg vars 
 

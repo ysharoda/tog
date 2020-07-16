@@ -179,6 +179,6 @@ getName (Qual _ (Name (_,n))) = n
 
 getPatternName :: Pattern -> Name_
 getPatternName (IdP qname) = getName qname
-getPatternName (ConP qname ps) = getName qname
+getPatternName (ConP qname _) = getName qname
 getPatternName _ = error "either empty or hidden pattern"
 

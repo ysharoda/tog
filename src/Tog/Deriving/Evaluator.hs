@@ -1,22 +1,16 @@
 module Tog.Deriving.Evaluator where
 
 import Control.Lens ((^.))
-import Data.List (union)
 
--- import Tog.Deriving.TypeConversions
--- import Tog.Parse as P
--- import Tog.Deriving.Main
 import Tog.Raw.Abs hiding (Open)
 import Tog.Deriving.EqTheory as Eq
-import Tog.Deriving.Terms --(termLangNm)
+import Tog.Deriving.Terms
 import Tog.Deriving.Utils.Types
 import Tog.Deriving.Utils.Functions
 import Tog.Deriving.Utils.Bindings (unionBindings)
 
 import Tog.Deriving.Types (Name_)
 import Tog.Deriving.TUtils
-
-import Data.List ((\\),union)
 
 evalFuncName :: Term -> String
 evalFuncName Basic         = "evalB"
@@ -110,14 +104,14 @@ oneEvalFunc eq termLang@(TermLang term _ _ constrs) =
       envName = "vars"
       checkVar c = getConstrName c == v1 || getConstrName c == v2
       checkConstant c = getConstrName c == sing || getConstrName c == sing2
-      vars = filter checkVar  constrs
+      vs = filter checkVar  constrs
       constants = filter checkConstant constrs
       fdecls = filter (\c -> not (checkVar c || checkConstant c)) constrs --  constrs \\ (vars `union` constants)
       funcs = eq ^. funcTypes 
   in 
   [TypeSig $ ftype eq termLang] ++
-     (if vars == [] then [] 
-      else [FunDef (mkName $ evalFuncName term) (concatMap (cpattern instName envName term) vars) (lookup' "n" envName)]) ++ 
+     (if vs == [] then [] 
+      else [FunDef (mkName $ evalFuncName term) (concatMap (cpattern instName envName term) vs) (lookup' "n" envName)]) ++ 
      (if constants == [] then []
       else [FunDef (mkName $ evalFuncName term) (concatMap (cpattern instName envName term) constants) constFunc]) ++ 
      zipWith (FunDef (mkName $ evalFuncName term))
