@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------
 -- Checking declarations
 ------------------------------------------------------------------------
--- Solved Metas: 24563
+-- Solved Metas: 36771
 -- Unsolved Metas: 0
 ------------------------------------------------------------------------
 -- Unsolved problems: 0
@@ -410,6 +410,91 @@ module MathScheme where
                          x2) =
       + Ad (evalOpE _ n Ad vars x1)
         (evalOpE _ n Ad vars x2)
+    inductionB :
+      (P : AdditiveCommutativeSemigroupTerm ->
+           Set) ->
+      ((x1 : AdditiveCommutativeSemigroupTerm)
+       (x2 : AdditiveCommutativeSemigroupTerm) ->
+       P x1 -> P x2 -> P (+L x1 x2)) ->
+      (x : AdditiveCommutativeSemigroupTerm) ->
+      P x
+    inductionB p p+l (+L x1 x2) =
+      p+l _ _ (inductionB p p+l x1)
+        (inductionB p p+l x2)
+    inductionCl :
+      (A : Set)
+      (P : ClAdditiveCommutativeSemigroupTerm
+             A -> Set) ->
+      ((x1 : A) -> P (sing x1)) ->
+      ((x1 : ClAdditiveCommutativeSemigroupTerm
+          A)
+       (x2 : ClAdditiveCommutativeSemigroupTerm
+          A) ->
+       P x1 ->
+       P x2 -> P (+Cl x1 x2)) ->
+      (x : ClAdditiveCommutativeSemigroupTerm
+         A) -> P x
+    inductionCl _ p psing p+cl (sing
+                                x1) = psing x1
+    inductionCl _ p psing p+cl (+Cl
+                                x1
+                                x2) =
+      p+cl _ _
+        (inductionCl _ p psing p+cl x1)
+        (inductionCl _ p psing p+cl x2)
+    inductionOp :
+      (n : Nat)
+      (P : OpAdditiveCommutativeSemigroupTerm
+             n -> Set) ->
+      ((fin : Fin n) -> P (v fin)) ->
+      ((x1 : OpAdditiveCommutativeSemigroupTerm
+          n)
+       (x2 : OpAdditiveCommutativeSemigroupTerm
+          n) ->
+       P x1 ->
+       P x2 -> P (+OL x1 x2)) ->
+      (x : OpAdditiveCommutativeSemigroupTerm
+         n) -> P x
+    inductionOp _ p pv p+ol (v x1) =
+      pv x1
+    inductionOp _ p pv p+ol (+OL
+                             x1
+                             x2) =
+      p+ol _ _
+        (inductionOp _ p pv p+ol x1)
+        (inductionOp _ p pv p+ol x2)
+    inductionOpE :
+      (n : Nat) (A : Set)
+      (P : OpAdditiveCommutativeSemigroupTerm2
+             n
+             A -> Set) ->
+      ((fin : Fin n) -> P (v2 fin)) ->
+      ((x1 : A) -> P (sing2 x1)) ->
+      ((x1 : OpAdditiveCommutativeSemigroupTerm2
+          n
+          A)
+       (x2 : OpAdditiveCommutativeSemigroupTerm2
+          n
+          A) ->
+       P x1 ->
+       P x2 -> P (+OL2 x1 x2)) ->
+      (x : OpAdditiveCommutativeSemigroupTerm2
+         n
+         A) -> P x
+    inductionOpE _ _ p pv2 psing2 p+ol2 (v2
+                                         x1) = pv2 x1
+    inductionOpE _ _ p pv2 psing2 p+ol2 (sing2
+                                         x1) = psing2 x1
+    inductionOpE _ _ p pv2 psing2 p+ol2 (+OL2
+                                         x1
+                                         x2) =
+      p+ol2 _ _
+        (inductionOpE _ _ p pv2 psing2
+           p+ol2
+           x1)
+        (inductionOpE _ _ p pv2 psing2
+           p+ol2
+           x2)
   
   module AdditiveMagma where
     record AdditiveMagma
@@ -559,6 +644,81 @@ module MathScheme where
                          x2) =
       + Ad (evalOpE _ n Ad vars x1)
         (evalOpE _ n Ad vars x2)
+    inductionB :
+      (P : AdditiveMagmaTerm ->
+           Set) ->
+      ((x1 : AdditiveMagmaTerm)
+       (x2 : AdditiveMagmaTerm) ->
+       P x1 -> P x2 -> P (+L x1 x2)) ->
+      (x : AdditiveMagmaTerm) -> P x
+    inductionB p p+l (+L x1 x2) =
+      p+l _ _ (inductionB p p+l x1)
+        (inductionB p p+l x2)
+    inductionCl :
+      (A : Set)
+      (P : ClAdditiveMagmaTerm A ->
+           Set) ->
+      ((x1 : A) -> P (sing x1)) ->
+      ((x1 : ClAdditiveMagmaTerm A)
+       (x2 : ClAdditiveMagmaTerm A) ->
+       P x1 ->
+       P x2 -> P (+Cl x1 x2)) ->
+      (x : ClAdditiveMagmaTerm A) ->
+      P x
+    inductionCl _ p psing p+cl (sing
+                                x1) = psing x1
+    inductionCl _ p psing p+cl (+Cl
+                                x1
+                                x2) =
+      p+cl _ _
+        (inductionCl _ p psing p+cl x1)
+        (inductionCl _ p psing p+cl x2)
+    inductionOp :
+      (n : Nat)
+      (P : OpAdditiveMagmaTerm n ->
+           Set) ->
+      ((fin : Fin n) -> P (v fin)) ->
+      ((x1 : OpAdditiveMagmaTerm n)
+       (x2 : OpAdditiveMagmaTerm n) ->
+       P x1 ->
+       P x2 -> P (+OL x1 x2)) ->
+      (x : OpAdditiveMagmaTerm n) ->
+      P x
+    inductionOp _ p pv p+ol (v x1) =
+      pv x1
+    inductionOp _ p pv p+ol (+OL
+                             x1
+                             x2) =
+      p+ol _ _
+        (inductionOp _ p pv p+ol x1)
+        (inductionOp _ p pv p+ol x2)
+    inductionOpE :
+      (n : Nat) (A : Set)
+      (P : OpAdditiveMagmaTerm2 n A ->
+           Set) ->
+      ((fin : Fin n) -> P (v2 fin)) ->
+      ((x1 : A) -> P (sing2 x1)) ->
+      ((x1 : OpAdditiveMagmaTerm2 n A)
+       (x2 : OpAdditiveMagmaTerm2 n
+          A) ->
+       P x1 ->
+       P x2 -> P (+OL2 x1 x2)) ->
+      (x : OpAdditiveMagmaTerm2 n
+         A) -> P x
+    inductionOpE _ _ p pv2 psing2 p+ol2 (v2
+                                         x1) = pv2 x1
+    inductionOpE _ _ p pv2 psing2 p+ol2 (sing2
+                                         x1) = psing2 x1
+    inductionOpE _ _ p pv2 psing2 p+ol2 (+OL2
+                                         x1
+                                         x2) =
+      p+ol2 _ _
+        (inductionOpE _ _ p pv2 psing2
+           p+ol2
+           x1)
+        (inductionOpE _ _ p pv2 psing2
+           p+ol2
+           x2)
   
   module AdditiveMonoid where
     record AdditiveMonoid
@@ -756,6 +916,102 @@ module MathScheme where
         (evalOpE _ n Ad vars x2)
     evalOpE _ n Ad vars (0OL2) =
       0 Ad
+    inductionB :
+      (P : AdditiveMonoidTerm ->
+           Set) ->
+      ((x1 : AdditiveMonoidTerm)
+       (x2 : AdditiveMonoidTerm) ->
+       P x1 -> P x2 -> P (+L x1 x2)) ->
+      P 0L ->
+      (x : AdditiveMonoidTerm) -> P x
+    inductionB p p+l p0l (+L
+                          x1
+                          x2) =
+      p+l _ _
+        (inductionB p p+l p0l x1)
+        (inductionB p p+l p0l x2)
+    inductionB p p+l p0l (0L) = p0l
+    inductionCl :
+      (A : Set)
+      (P : ClAdditiveMonoidTerm A ->
+           Set) ->
+      ((x1 : A) -> P (sing x1)) ->
+      ((x1 : ClAdditiveMonoidTerm A)
+       (x2 : ClAdditiveMonoidTerm A) ->
+       P x1 ->
+       P x2 -> P (+Cl x1 x2)) ->
+      P 0Cl ->
+      (x : ClAdditiveMonoidTerm A) ->
+      P x
+    inductionCl _ p psing p+cl p0cl (sing
+                                     x1) = psing x1
+    inductionCl _ p psing p+cl p0cl (+Cl
+                                     x1
+                                     x2) =
+      p+cl _ _
+        (inductionCl _ p psing p+cl p0cl
+           x1)
+        (inductionCl _ p psing p+cl p0cl
+           x2)
+    inductionCl _ p psing p+cl p0cl (0Cl) =
+      p0cl
+    inductionOp :
+      (n : Nat)
+      (P : OpAdditiveMonoidTerm n ->
+           Set) ->
+      ((fin : Fin n) -> P (v fin)) ->
+      ((x1 : OpAdditiveMonoidTerm n)
+       (x2 : OpAdditiveMonoidTerm n) ->
+       P x1 ->
+       P x2 -> P (+OL x1 x2)) ->
+      P 0OL ->
+      (x : OpAdditiveMonoidTerm n) ->
+      P x
+    inductionOp _ p pv p+ol p0ol (v
+                                  x1) = pv x1
+    inductionOp _ p pv p+ol p0ol (+OL
+                                  x1
+                                  x2) =
+      p+ol _ _
+        (inductionOp _ p pv p+ol p0ol
+           x1)
+        (inductionOp _ p pv p+ol p0ol
+           x2)
+    inductionOp _ p pv p+ol p0ol (0OL) =
+      p0ol
+    inductionOpE :
+      (n : Nat) (A : Set)
+      (P : OpAdditiveMonoidTerm2 n
+             A -> Set) ->
+      ((fin : Fin n) -> P (v2 fin)) ->
+      ((x1 : A) -> P (sing2 x1)) ->
+      ((x1 : OpAdditiveMonoidTerm2 n
+          A)
+       (x2 : OpAdditiveMonoidTerm2 n
+          A) ->
+       P x1 ->
+       P x2 -> P (+OL2 x1 x2)) ->
+      P 0OL2 ->
+      (x : OpAdditiveMonoidTerm2 n
+         A) -> P x
+    inductionOpE _ _ p pv2 psing2 p+ol2 p0ol2 (v2
+                                               x1) = pv2 x1
+    inductionOpE _ _ p pv2 psing2 p+ol2 p0ol2 (sing2
+                                               x1) = psing2 x1
+    inductionOpE _ _ p pv2 psing2 p+ol2 p0ol2 (+OL2
+                                               x1
+                                               x2) =
+      p+ol2 _ _
+        (inductionOpE _ _ p pv2 psing2
+           p+ol2
+           p0ol2
+           x1)
+        (inductionOpE _ _ p pv2 psing2
+           p+ol2
+           p0ol2
+           x2)
+    inductionOpE _ _ p pv2 psing2 p+ol2 p0ol2 (0OL2) =
+      p0ol2
   
   module AdditivePointedMagma where
     record AdditivePointedMagma
@@ -936,6 +1192,111 @@ module MathScheme where
                          x2) =
       + Ad (evalOpE _ n Ad vars x1)
         (evalOpE _ n Ad vars x2)
+    inductionB :
+      (P : AdditivePointedMagmaTerm ->
+           Set) ->
+      P 0L ->
+      ((x1 : AdditivePointedMagmaTerm)
+       (x2 : AdditivePointedMagmaTerm) ->
+       P x1 -> P x2 -> P (+L x1 x2)) ->
+      (x : AdditivePointedMagmaTerm) ->
+      P x
+    inductionB p p0l p+l (0L) = p0l
+    inductionB p p0l p+l (+L
+                          x1
+                          x2) =
+      p+l _ _
+        (inductionB p p0l p+l x1)
+        (inductionB p p0l p+l x2)
+    inductionCl :
+      (A : Set)
+      (P : ClAdditivePointedMagmaTerm
+             A -> Set) ->
+      ((x1 : A) -> P (sing x1)) ->
+      P 0Cl ->
+      ((x1 : ClAdditivePointedMagmaTerm
+          A)
+       (x2 : ClAdditivePointedMagmaTerm
+          A) ->
+       P x1 ->
+       P x2 -> P (+Cl x1 x2)) ->
+      (x : ClAdditivePointedMagmaTerm
+         A) -> P x
+    inductionCl _ p psing p0cl p+cl (sing
+                                     x1) = psing x1
+    inductionCl _ p psing p0cl p+cl (0Cl) =
+      p0cl
+    inductionCl _ p psing p0cl p+cl (+Cl
+                                     x1
+                                     x2) =
+      p+cl _ _
+        (inductionCl _ p psing p0cl p+cl
+           x1)
+        (inductionCl _ p psing p0cl p+cl
+           x2)
+    inductionOp :
+      (n : Nat)
+      (P : OpAdditivePointedMagmaTerm
+             n -> Set) ->
+      ((fin : Fin n) -> P (v fin)) ->
+      P 0OL ->
+      ((x1 : OpAdditivePointedMagmaTerm
+          n)
+       (x2 : OpAdditivePointedMagmaTerm
+          n) ->
+       P x1 ->
+       P x2 -> P (+OL x1 x2)) ->
+      (x : OpAdditivePointedMagmaTerm
+         n) -> P x
+    inductionOp _ p pv p0ol p+ol (v
+                                  x1) = pv x1
+    inductionOp _ p pv p0ol p+ol (0OL) =
+      p0ol
+    inductionOp _ p pv p0ol p+ol (+OL
+                                  x1
+                                  x2) =
+      p+ol _ _
+        (inductionOp _ p pv p0ol p+ol
+           x1)
+        (inductionOp _ p pv p0ol p+ol
+           x2)
+    inductionOpE :
+      (n : Nat) (A : Set)
+      (P : OpAdditivePointedMagmaTerm2
+             n
+             A -> Set) ->
+      ((fin : Fin n) -> P (v2 fin)) ->
+      ((x1 : A) -> P (sing2 x1)) ->
+      P 0OL2 ->
+      ((x1 : OpAdditivePointedMagmaTerm2
+          n
+          A)
+       (x2 : OpAdditivePointedMagmaTerm2
+          n
+          A) ->
+       P x1 ->
+       P x2 -> P (+OL2 x1 x2)) ->
+      (x : OpAdditivePointedMagmaTerm2
+         n
+         A) -> P x
+    inductionOpE _ _ p pv2 psing2 p0ol2 p+ol2 (v2
+                                               x1) = pv2 x1
+    inductionOpE _ _ p pv2 psing2 p0ol2 p+ol2 (sing2
+                                               x1) = psing2 x1
+    inductionOpE _ _ p pv2 psing2 p0ol2 p+ol2 (0OL2) =
+      p0ol2
+    inductionOpE _ _ p pv2 psing2 p0ol2 p+ol2 (+OL2
+                                               x1
+                                               x2) =
+      p+ol2 _ _
+        (inductionOpE _ _ p pv2 psing2
+           p0ol2
+           p+ol2
+           x1)
+        (inductionOpE _ _ p pv2 psing2
+           p0ol2
+           p+ol2
+           x2)
   
   module AdditivePointedSemigroup where
     record AdditivePointedSemigroup
@@ -1149,6 +1510,111 @@ module MathScheme where
                          x2) =
       + Ad (evalOpE _ n Ad vars x1)
         (evalOpE _ n Ad vars x2)
+    inductionB :
+      (P : AdditivePointedSemigroupTerm ->
+           Set) ->
+      P 0L ->
+      ((x1 : AdditivePointedSemigroupTerm)
+       (x2 : AdditivePointedSemigroupTerm) ->
+       P x1 -> P x2 -> P (+L x1 x2)) ->
+      (x : AdditivePointedSemigroupTerm) ->
+      P x
+    inductionB p p0l p+l (0L) = p0l
+    inductionB p p0l p+l (+L
+                          x1
+                          x2) =
+      p+l _ _
+        (inductionB p p0l p+l x1)
+        (inductionB p p0l p+l x2)
+    inductionCl :
+      (A : Set)
+      (P : ClAdditivePointedSemigroupTerm
+             A -> Set) ->
+      ((x1 : A) -> P (sing x1)) ->
+      P 0Cl ->
+      ((x1 : ClAdditivePointedSemigroupTerm
+          A)
+       (x2 : ClAdditivePointedSemigroupTerm
+          A) ->
+       P x1 ->
+       P x2 -> P (+Cl x1 x2)) ->
+      (x : ClAdditivePointedSemigroupTerm
+         A) -> P x
+    inductionCl _ p psing p0cl p+cl (sing
+                                     x1) = psing x1
+    inductionCl _ p psing p0cl p+cl (0Cl) =
+      p0cl
+    inductionCl _ p psing p0cl p+cl (+Cl
+                                     x1
+                                     x2) =
+      p+cl _ _
+        (inductionCl _ p psing p0cl p+cl
+           x1)
+        (inductionCl _ p psing p0cl p+cl
+           x2)
+    inductionOp :
+      (n : Nat)
+      (P : OpAdditivePointedSemigroupTerm
+             n -> Set) ->
+      ((fin : Fin n) -> P (v fin)) ->
+      P 0OL ->
+      ((x1 : OpAdditivePointedSemigroupTerm
+          n)
+       (x2 : OpAdditivePointedSemigroupTerm
+          n) ->
+       P x1 ->
+       P x2 -> P (+OL x1 x2)) ->
+      (x : OpAdditivePointedSemigroupTerm
+         n) -> P x
+    inductionOp _ p pv p0ol p+ol (v
+                                  x1) = pv x1
+    inductionOp _ p pv p0ol p+ol (0OL) =
+      p0ol
+    inductionOp _ p pv p0ol p+ol (+OL
+                                  x1
+                                  x2) =
+      p+ol _ _
+        (inductionOp _ p pv p0ol p+ol
+           x1)
+        (inductionOp _ p pv p0ol p+ol
+           x2)
+    inductionOpE :
+      (n : Nat) (A : Set)
+      (P : OpAdditivePointedSemigroupTerm2
+             n
+             A -> Set) ->
+      ((fin : Fin n) -> P (v2 fin)) ->
+      ((x1 : A) -> P (sing2 x1)) ->
+      P 0OL2 ->
+      ((x1 : OpAdditivePointedSemigroupTerm2
+          n
+          A)
+       (x2 : OpAdditivePointedSemigroupTerm2
+          n
+          A) ->
+       P x1 ->
+       P x2 -> P (+OL2 x1 x2)) ->
+      (x : OpAdditivePointedSemigroupTerm2
+         n
+         A) -> P x
+    inductionOpE _ _ p pv2 psing2 p0ol2 p+ol2 (v2
+                                               x1) = pv2 x1
+    inductionOpE _ _ p pv2 psing2 p0ol2 p+ol2 (sing2
+                                               x1) = psing2 x1
+    inductionOpE _ _ p pv2 psing2 p0ol2 p+ol2 (0OL2) =
+      p0ol2
+    inductionOpE _ _ p pv2 psing2 p0ol2 p+ol2 (+OL2
+                                               x1
+                                               x2) =
+      p+ol2 _ _
+        (inductionOpE _ _ p pv2 psing2
+           p0ol2
+           p+ol2
+           x1)
+        (inductionOpE _ _ p pv2 psing2
+           p0ol2
+           p+ol2
+           x2)
   
   module AdditiveSemigroup where
     record AdditiveSemigroup
@@ -1310,6 +1776,88 @@ module MathScheme where
                          x2) =
       + Ad (evalOpE _ n Ad vars x1)
         (evalOpE _ n Ad vars x2)
+    inductionB :
+      (P : AdditiveSemigroupTerm ->
+           Set) ->
+      ((x1 : AdditiveSemigroupTerm)
+       (x2 : AdditiveSemigroupTerm) ->
+       P x1 -> P x2 -> P (+L x1 x2)) ->
+      (x : AdditiveSemigroupTerm) ->
+      P x
+    inductionB p p+l (+L x1 x2) =
+      p+l _ _ (inductionB p p+l x1)
+        (inductionB p p+l x2)
+    inductionCl :
+      (A : Set)
+      (P : ClAdditiveSemigroupTerm
+             A -> Set) ->
+      ((x1 : A) -> P (sing x1)) ->
+      ((x1 : ClAdditiveSemigroupTerm
+          A)
+       (x2 : ClAdditiveSemigroupTerm
+          A) ->
+       P x1 ->
+       P x2 -> P (+Cl x1 x2)) ->
+      (x : ClAdditiveSemigroupTerm
+         A) -> P x
+    inductionCl _ p psing p+cl (sing
+                                x1) = psing x1
+    inductionCl _ p psing p+cl (+Cl
+                                x1
+                                x2) =
+      p+cl _ _
+        (inductionCl _ p psing p+cl x1)
+        (inductionCl _ p psing p+cl x2)
+    inductionOp :
+      (n : Nat)
+      (P : OpAdditiveSemigroupTerm
+             n -> Set) ->
+      ((fin : Fin n) -> P (v fin)) ->
+      ((x1 : OpAdditiveSemigroupTerm
+          n)
+       (x2 : OpAdditiveSemigroupTerm
+          n) ->
+       P x1 ->
+       P x2 -> P (+OL x1 x2)) ->
+      (x : OpAdditiveSemigroupTerm
+         n) -> P x
+    inductionOp _ p pv p+ol (v x1) =
+      pv x1
+    inductionOp _ p pv p+ol (+OL
+                             x1
+                             x2) =
+      p+ol _ _
+        (inductionOp _ p pv p+ol x1)
+        (inductionOp _ p pv p+ol x2)
+    inductionOpE :
+      (n : Nat) (A : Set)
+      (P : OpAdditiveSemigroupTerm2 n
+             A -> Set) ->
+      ((fin : Fin n) -> P (v2 fin)) ->
+      ((x1 : A) -> P (sing2 x1)) ->
+      ((x1 : OpAdditiveSemigroupTerm2
+          n
+          A)
+       (x2 : OpAdditiveSemigroupTerm2 n
+          A) ->
+       P x1 ->
+       P x2 -> P (+OL2 x1 x2)) ->
+      (x : OpAdditiveSemigroupTerm2 n
+         A) -> P x
+    inductionOpE _ _ p pv2 psing2 p+ol2 (v2
+                                         x1) = pv2 x1
+    inductionOpE _ _ p pv2 psing2 p+ol2 (sing2
+                                         x1) = psing2 x1
+    inductionOpE _ _ p pv2 psing2 p+ol2 (+OL2
+                                         x1
+                                         x2) =
+      p+ol2 _ _
+        (inductionOpE _ _ p pv2 psing2
+           p+ol2
+           x1)
+        (inductionOpE _ _ p pv2 psing2
+           p+ol2
+           x2)
   
   module AdditiveUnital where
     record AdditiveUnital
@@ -1498,6 +2046,102 @@ module MathScheme where
                          x2) =
       + Ad (evalOpE _ n Ad vars x1)
         (evalOpE _ n Ad vars x2)
+    inductionB :
+      (P : AdditiveUnitalTerm ->
+           Set) ->
+      P 0L ->
+      ((x1 : AdditiveUnitalTerm)
+       (x2 : AdditiveUnitalTerm) ->
+       P x1 -> P x2 -> P (+L x1 x2)) ->
+      (x : AdditiveUnitalTerm) -> P x
+    inductionB p p0l p+l (0L) = p0l
+    inductionB p p0l p+l (+L
+                          x1
+                          x2) =
+      p+l _ _
+        (inductionB p p0l p+l x1)
+        (inductionB p p0l p+l x2)
+    inductionCl :
+      (A : Set)
+      (P : ClAdditiveUnitalTerm A ->
+           Set) ->
+      ((x1 : A) -> P (sing x1)) ->
+      P 0Cl ->
+      ((x1 : ClAdditiveUnitalTerm A)
+       (x2 : ClAdditiveUnitalTerm A) ->
+       P x1 ->
+       P x2 -> P (+Cl x1 x2)) ->
+      (x : ClAdditiveUnitalTerm A) ->
+      P x
+    inductionCl _ p psing p0cl p+cl (sing
+                                     x1) = psing x1
+    inductionCl _ p psing p0cl p+cl (0Cl) =
+      p0cl
+    inductionCl _ p psing p0cl p+cl (+Cl
+                                     x1
+                                     x2) =
+      p+cl _ _
+        (inductionCl _ p psing p0cl p+cl
+           x1)
+        (inductionCl _ p psing p0cl p+cl
+           x2)
+    inductionOp :
+      (n : Nat)
+      (P : OpAdditiveUnitalTerm n ->
+           Set) ->
+      ((fin : Fin n) -> P (v fin)) ->
+      P 0OL ->
+      ((x1 : OpAdditiveUnitalTerm n)
+       (x2 : OpAdditiveUnitalTerm n) ->
+       P x1 ->
+       P x2 -> P (+OL x1 x2)) ->
+      (x : OpAdditiveUnitalTerm n) ->
+      P x
+    inductionOp _ p pv p0ol p+ol (v
+                                  x1) = pv x1
+    inductionOp _ p pv p0ol p+ol (0OL) =
+      p0ol
+    inductionOp _ p pv p0ol p+ol (+OL
+                                  x1
+                                  x2) =
+      p+ol _ _
+        (inductionOp _ p pv p0ol p+ol
+           x1)
+        (inductionOp _ p pv p0ol p+ol
+           x2)
+    inductionOpE :
+      (n : Nat) (A : Set)
+      (P : OpAdditiveUnitalTerm2 n
+             A -> Set) ->
+      ((fin : Fin n) -> P (v2 fin)) ->
+      ((x1 : A) -> P (sing2 x1)) ->
+      P 0OL2 ->
+      ((x1 : OpAdditiveUnitalTerm2 n
+          A)
+       (x2 : OpAdditiveUnitalTerm2 n
+          A) ->
+       P x1 ->
+       P x2 -> P (+OL2 x1 x2)) ->
+      (x : OpAdditiveUnitalTerm2 n
+         A) -> P x
+    inductionOpE _ _ p pv2 psing2 p0ol2 p+ol2 (v2
+                                               x1) = pv2 x1
+    inductionOpE _ _ p pv2 psing2 p0ol2 p+ol2 (sing2
+                                               x1) = psing2 x1
+    inductionOpE _ _ p pv2 psing2 p0ol2 p+ol2 (0OL2) =
+      p0ol2
+    inductionOpE _ _ p pv2 psing2 p0ol2 p+ol2 (+OL2
+                                               x1
+                                               x2) =
+      p+ol2 _ _
+        (inductionOpE _ _ p pv2 psing2
+           p0ol2
+           p+ol2
+           x1)
+        (inductionOpE _ _ p pv2 psing2
+           p0ol2
+           p+ol2
+           x2)
   
   module Carrier where
     record Carrier
@@ -1584,6 +2228,34 @@ module MathScheme where
       lookup _ n x1 vars
     evalOpE _ n Ca vars (sing2 x1) =
       x1
+    inductionB :
+      (P : CarrierTerm -> Set)
+      (x : CarrierTerm) -> P x
+    inductionCl :
+      (A : Set)
+      (P : ClCarrierTerm A -> Set) ->
+      ((x1 : A) -> P (sing x1)) ->
+      (x : ClCarrierTerm A) -> P x
+    inductionCl _ p psing (sing
+                           x1) = psing x1
+    inductionOp :
+      (n : Nat)
+      (P : OpCarrierTerm n -> Set) ->
+      ((fin : Fin n) -> P (v fin)) ->
+      (x : OpCarrierTerm n) -> P x
+    inductionOp _ p pv (v x1) =
+      pv x1
+    inductionOpE :
+      (n : Nat) (A : Set)
+      (P : OpCarrierTerm2 n A ->
+           Set) ->
+      ((fin : Fin n) -> P (v2 fin)) ->
+      ((x1 : A) -> P (sing2 x1)) ->
+      (x : OpCarrierTerm2 n A) -> P x
+    inductionOpE _ _ p pv2 psing2 (v2
+                                   x1) = pv2 x1
+    inductionOpE _ _ p pv2 psing2 (sing2
+                                   x1) = psing2 x1
   
   module CommutativeMagma where
     record CommutativeMagma
@@ -1744,6 +2416,86 @@ module MathScheme where
                          x2) =
       op Co (evalOpE _ n Co vars x1)
         (evalOpE _ n Co vars x2)
+    inductionB :
+      (P : CommutativeMagmaTerm ->
+           Set) ->
+      ((x1 : CommutativeMagmaTerm)
+       (x2 : CommutativeMagmaTerm) ->
+       P x1 ->
+       P x2 -> P (opL x1 x2)) ->
+      (x : CommutativeMagmaTerm) ->
+      P x
+    inductionB p popl (opL x1 x2) =
+      popl _ _ (inductionB p popl x1)
+        (inductionB p popl x2)
+    inductionCl :
+      (A : Set)
+      (P : ClCommutativeMagmaTerm A ->
+           Set) ->
+      ((x1 : A) -> P (sing x1)) ->
+      ((x1 : ClCommutativeMagmaTerm A)
+       (x2 : ClCommutativeMagmaTerm
+          A) ->
+       P x1 ->
+       P x2 -> P (opCl x1 x2)) ->
+      (x : ClCommutativeMagmaTerm
+         A) -> P x
+    inductionCl _ p psing popcl (sing
+                                 x1) = psing x1
+    inductionCl _ p psing popcl (opCl
+                                 x1
+                                 x2) =
+      popcl _ _
+        (inductionCl _ p psing popcl x1)
+        (inductionCl _ p psing popcl x2)
+    inductionOp :
+      (n : Nat)
+      (P : OpCommutativeMagmaTerm n ->
+           Set) ->
+      ((fin : Fin n) -> P (v fin)) ->
+      ((x1 : OpCommutativeMagmaTerm n)
+       (x2 : OpCommutativeMagmaTerm
+          n) ->
+       P x1 ->
+       P x2 -> P (opOL x1 x2)) ->
+      (x : OpCommutativeMagmaTerm
+         n) -> P x
+    inductionOp _ p pv popol (v
+                              x1) = pv x1
+    inductionOp _ p pv popol (opOL
+                              x1
+                              x2) =
+      popol _ _
+        (inductionOp _ p pv popol x1)
+        (inductionOp _ p pv popol x2)
+    inductionOpE :
+      (n : Nat) (A : Set)
+      (P : OpCommutativeMagmaTerm2 n
+             A -> Set) ->
+      ((fin : Fin n) -> P (v2 fin)) ->
+      ((x1 : A) -> P (sing2 x1)) ->
+      ((x1 : OpCommutativeMagmaTerm2 n
+          A)
+       (x2 : OpCommutativeMagmaTerm2 n
+          A) ->
+       P x1 ->
+       P x2 -> P (opOL2 x1 x2)) ->
+      (x : OpCommutativeMagmaTerm2 n
+         A) -> P x
+    inductionOpE _ _ p pv2 psing2 popol2 (v2
+                                          x1) = pv2 x1
+    inductionOpE _ _ p pv2 psing2 popol2 (sing2
+                                          x1) = psing2 x1
+    inductionOpE _ _ p pv2 psing2 popol2 (opOL2
+                                          x1
+                                          x2) =
+      popol2 _ _
+        (inductionOpE _ _ p pv2 psing2
+           popol2
+           x1)
+        (inductionOpE _ _ p pv2 psing2
+           popol2
+           x2)
   
   module CommutativeMonoid where
     record CommutativeMonoid
@@ -1955,6 +2707,111 @@ module MathScheme where
         (evalOpE _ n Co vars x2)
     evalOpE _ n Co vars (eOL2) =
       e Co
+    inductionB :
+      (P : CommutativeMonoidTerm ->
+           Set) ->
+      ((x1 : CommutativeMonoidTerm)
+       (x2 : CommutativeMonoidTerm) ->
+       P x1 ->
+       P x2 -> P (opL x1 x2)) ->
+      P eL ->
+      (x : CommutativeMonoidTerm) ->
+      P x
+    inductionB p popl pel (opL
+                           x1
+                           x2) =
+      popl _ _
+        (inductionB p popl pel x1)
+        (inductionB p popl pel x2)
+    inductionB p popl pel (eL) = pel
+    inductionCl :
+      (A : Set)
+      (P : ClCommutativeMonoidTerm
+             A -> Set) ->
+      ((x1 : A) -> P (sing x1)) ->
+      ((x1 : ClCommutativeMonoidTerm
+          A)
+       (x2 : ClCommutativeMonoidTerm
+          A) ->
+       P x1 ->
+       P x2 -> P (opCl x1 x2)) ->
+      P eCl ->
+      (x : ClCommutativeMonoidTerm
+         A) -> P x
+    inductionCl _ p psing popcl pecl (sing
+                                      x1) = psing x1
+    inductionCl _ p psing popcl pecl (opCl
+                                      x1
+                                      x2) =
+      popcl _ _
+        (inductionCl _ p psing popcl
+           pecl
+           x1)
+        (inductionCl _ p psing popcl
+           pecl
+           x2)
+    inductionCl _ p psing popcl pecl (eCl) =
+      pecl
+    inductionOp :
+      (n : Nat)
+      (P : OpCommutativeMonoidTerm
+             n -> Set) ->
+      ((fin : Fin n) -> P (v fin)) ->
+      ((x1 : OpCommutativeMonoidTerm
+          n)
+       (x2 : OpCommutativeMonoidTerm
+          n) ->
+       P x1 ->
+       P x2 -> P (opOL x1 x2)) ->
+      P eOL ->
+      (x : OpCommutativeMonoidTerm
+         n) -> P x
+    inductionOp _ p pv popol peol (v
+                                   x1) = pv x1
+    inductionOp _ p pv popol peol (opOL
+                                   x1
+                                   x2) =
+      popol _ _
+        (inductionOp _ p pv popol peol
+           x1)
+        (inductionOp _ p pv popol peol
+           x2)
+    inductionOp _ p pv popol peol (eOL) =
+      peol
+    inductionOpE :
+      (n : Nat) (A : Set)
+      (P : OpCommutativeMonoidTerm2 n
+             A -> Set) ->
+      ((fin : Fin n) -> P (v2 fin)) ->
+      ((x1 : A) -> P (sing2 x1)) ->
+      ((x1 : OpCommutativeMonoidTerm2
+          n
+          A)
+       (x2 : OpCommutativeMonoidTerm2 n
+          A) ->
+       P x1 ->
+       P x2 -> P (opOL2 x1 x2)) ->
+      P eOL2 ->
+      (x : OpCommutativeMonoidTerm2 n
+         A) -> P x
+    inductionOpE _ _ p pv2 psing2 popol2 peol2 (v2
+                                                x1) = pv2 x1
+    inductionOpE _ _ p pv2 psing2 popol2 peol2 (sing2
+                                                x1) = psing2 x1
+    inductionOpE _ _ p pv2 psing2 popol2 peol2 (opOL2
+                                                x1
+                                                x2) =
+      popol2 _ _
+        (inductionOpE _ _ p pv2 psing2
+           popol2
+           peol2
+           x1)
+        (inductionOpE _ _ p pv2 psing2
+           popol2
+           peol2
+           x2)
+    inductionOpE _ _ p pv2 psing2 popol2 peol2 (eOL2) =
+      peol2
   
   module CommutativeSemigroup where
     record CommutativeSemigroup
@@ -2132,6 +2989,92 @@ module MathScheme where
                          x2) =
       op Co (evalOpE _ n Co vars x1)
         (evalOpE _ n Co vars x2)
+    inductionB :
+      (P : CommutativeSemigroupTerm ->
+           Set) ->
+      ((x1 : CommutativeSemigroupTerm)
+       (x2 : CommutativeSemigroupTerm) ->
+       P x1 ->
+       P x2 -> P (opL x1 x2)) ->
+      (x : CommutativeSemigroupTerm) ->
+      P x
+    inductionB p popl (opL x1 x2) =
+      popl _ _ (inductionB p popl x1)
+        (inductionB p popl x2)
+    inductionCl :
+      (A : Set)
+      (P : ClCommutativeSemigroupTerm
+             A -> Set) ->
+      ((x1 : A) -> P (sing x1)) ->
+      ((x1 : ClCommutativeSemigroupTerm
+          A)
+       (x2 : ClCommutativeSemigroupTerm
+          A) ->
+       P x1 ->
+       P x2 -> P (opCl x1 x2)) ->
+      (x : ClCommutativeSemigroupTerm
+         A) -> P x
+    inductionCl _ p psing popcl (sing
+                                 x1) = psing x1
+    inductionCl _ p psing popcl (opCl
+                                 x1
+                                 x2) =
+      popcl _ _
+        (inductionCl _ p psing popcl x1)
+        (inductionCl _ p psing popcl x2)
+    inductionOp :
+      (n : Nat)
+      (P : OpCommutativeSemigroupTerm
+             n -> Set) ->
+      ((fin : Fin n) -> P (v fin)) ->
+      ((x1 : OpCommutativeSemigroupTerm
+          n)
+       (x2 : OpCommutativeSemigroupTerm
+          n) ->
+       P x1 ->
+       P x2 -> P (opOL x1 x2)) ->
+      (x : OpCommutativeSemigroupTerm
+         n) -> P x
+    inductionOp _ p pv popol (v
+                              x1) = pv x1
+    inductionOp _ p pv popol (opOL
+                              x1
+                              x2) =
+      popol _ _
+        (inductionOp _ p pv popol x1)
+        (inductionOp _ p pv popol x2)
+    inductionOpE :
+      (n : Nat) (A : Set)
+      (P : OpCommutativeSemigroupTerm2
+             n
+             A -> Set) ->
+      ((fin : Fin n) -> P (v2 fin)) ->
+      ((x1 : A) -> P (sing2 x1)) ->
+      ((x1 : OpCommutativeSemigroupTerm2
+          n
+          A)
+       (x2 : OpCommutativeSemigroupTerm2
+          n
+          A) ->
+       P x1 ->
+       P x2 -> P (opOL2 x1 x2)) ->
+      (x : OpCommutativeSemigroupTerm2
+         n
+         A) -> P x
+    inductionOpE _ _ p pv2 psing2 popol2 (v2
+                                          x1) = pv2 x1
+    inductionOpE _ _ p pv2 psing2 popol2 (sing2
+                                          x1) = psing2 x1
+    inductionOpE _ _ p pv2 psing2 popol2 (opOL2
+                                          x1
+                                          x2) =
+      popol2 _ _
+        (inductionOpE _ _ p pv2 psing2
+           popol2
+           x1)
+        (inductionOpE _ _ p pv2 psing2
+           popol2
+           x2)
   
   module Empty where
     record Empty : Set where
@@ -2314,6 +3257,100 @@ module MathScheme where
                          x2) =
       op Le (evalOpE _ n Le vars x1)
         (evalOpE _ n Le vars x2)
+    inductionB :
+      (P : LeftUnitalTerm -> Set) ->
+      P eL ->
+      ((x1 : LeftUnitalTerm)
+       (x2 : LeftUnitalTerm) ->
+       P x1 ->
+       P x2 -> P (opL x1 x2)) ->
+      (x : LeftUnitalTerm) -> P x
+    inductionB p pel popl (eL) = pel
+    inductionB p pel popl (opL
+                           x1
+                           x2) =
+      popl _ _
+        (inductionB p pel popl x1)
+        (inductionB p pel popl x2)
+    inductionCl :
+      (A : Set)
+      (P : ClLeftUnitalTerm A ->
+           Set) ->
+      ((x1 : A) -> P (sing x1)) ->
+      P eCl ->
+      ((x1 : ClLeftUnitalTerm A)
+       (x2 : ClLeftUnitalTerm A) ->
+       P x1 ->
+       P x2 -> P (opCl x1 x2)) ->
+      (x : ClLeftUnitalTerm A) -> P x
+    inductionCl _ p psing pecl popcl (sing
+                                      x1) = psing x1
+    inductionCl _ p psing pecl popcl (eCl) =
+      pecl
+    inductionCl _ p psing pecl popcl (opCl
+                                      x1
+                                      x2) =
+      popcl _ _
+        (inductionCl _ p psing pecl
+           popcl
+           x1)
+        (inductionCl _ p psing pecl
+           popcl
+           x2)
+    inductionOp :
+      (n : Nat)
+      (P : OpLeftUnitalTerm n ->
+           Set) ->
+      ((fin : Fin n) -> P (v fin)) ->
+      P eOL ->
+      ((x1 : OpLeftUnitalTerm n)
+       (x2 : OpLeftUnitalTerm n) ->
+       P x1 ->
+       P x2 -> P (opOL x1 x2)) ->
+      (x : OpLeftUnitalTerm n) -> P x
+    inductionOp _ p pv peol popol (v
+                                   x1) = pv x1
+    inductionOp _ p pv peol popol (eOL) =
+      peol
+    inductionOp _ p pv peol popol (opOL
+                                   x1
+                                   x2) =
+      popol _ _
+        (inductionOp _ p pv peol popol
+           x1)
+        (inductionOp _ p pv peol popol
+           x2)
+    inductionOpE :
+      (n : Nat) (A : Set)
+      (P : OpLeftUnitalTerm2 n A ->
+           Set) ->
+      ((fin : Fin n) -> P (v2 fin)) ->
+      ((x1 : A) -> P (sing2 x1)) ->
+      P eOL2 ->
+      ((x1 : OpLeftUnitalTerm2 n A)
+       (x2 : OpLeftUnitalTerm2 n A) ->
+       P x1 ->
+       P x2 -> P (opOL2 x1 x2)) ->
+      (x : OpLeftUnitalTerm2 n A) ->
+      P x
+    inductionOpE _ _ p pv2 psing2 peol2 popol2 (v2
+                                                x1) = pv2 x1
+    inductionOpE _ _ p pv2 psing2 peol2 popol2 (sing2
+                                                x1) = psing2 x1
+    inductionOpE _ _ p pv2 psing2 peol2 popol2 (eOL2) =
+      peol2
+    inductionOpE _ _ p pv2 psing2 peol2 popol2 (opOL2
+                                                x1
+                                                x2) =
+      popol2 _ _
+        (inductionOpE _ _ p pv2 psing2
+           peol2
+           popol2
+           x1)
+        (inductionOpE _ _ p pv2 psing2
+           peol2
+           popol2
+           x2)
   
   module Magma where
     record Magma
@@ -2448,6 +3485,74 @@ module MathScheme where
                          x2) =
       op Ma (evalOpE _ n Ma vars x1)
         (evalOpE _ n Ma vars x2)
+    inductionB :
+      (P : MagmaTerm -> Set) ->
+      ((x1 : MagmaTerm)
+       (x2 : MagmaTerm) ->
+       P x1 ->
+       P x2 -> P (opL x1 x2)) ->
+      (x : MagmaTerm) -> P x
+    inductionB p popl (opL x1 x2) =
+      popl _ _ (inductionB p popl x1)
+        (inductionB p popl x2)
+    inductionCl :
+      (A : Set)
+      (P : ClMagmaTerm A -> Set) ->
+      ((x1 : A) -> P (sing x1)) ->
+      ((x1 : ClMagmaTerm A)
+       (x2 : ClMagmaTerm A) ->
+       P x1 ->
+       P x2 -> P (opCl x1 x2)) ->
+      (x : ClMagmaTerm A) -> P x
+    inductionCl _ p psing popcl (sing
+                                 x1) = psing x1
+    inductionCl _ p psing popcl (opCl
+                                 x1
+                                 x2) =
+      popcl _ _
+        (inductionCl _ p psing popcl x1)
+        (inductionCl _ p psing popcl x2)
+    inductionOp :
+      (n : Nat)
+      (P : OpMagmaTerm n -> Set) ->
+      ((fin : Fin n) -> P (v fin)) ->
+      ((x1 : OpMagmaTerm n)
+       (x2 : OpMagmaTerm n) ->
+       P x1 ->
+       P x2 -> P (opOL x1 x2)) ->
+      (x : OpMagmaTerm n) -> P x
+    inductionOp _ p pv popol (v
+                              x1) = pv x1
+    inductionOp _ p pv popol (opOL
+                              x1
+                              x2) =
+      popol _ _
+        (inductionOp _ p pv popol x1)
+        (inductionOp _ p pv popol x2)
+    inductionOpE :
+      (n : Nat) (A : Set)
+      (P : OpMagmaTerm2 n A -> Set) ->
+      ((fin : Fin n) -> P (v2 fin)) ->
+      ((x1 : A) -> P (sing2 x1)) ->
+      ((x1 : OpMagmaTerm2 n A)
+       (x2 : OpMagmaTerm2 n A) ->
+       P x1 ->
+       P x2 -> P (opOL2 x1 x2)) ->
+      (x : OpMagmaTerm2 n A) -> P x
+    inductionOpE _ _ p pv2 psing2 popol2 (v2
+                                          x1) = pv2 x1
+    inductionOpE _ _ p pv2 psing2 popol2 (sing2
+                                          x1) = psing2 x1
+    inductionOpE _ _ p pv2 psing2 popol2 (opOL2
+                                          x1
+                                          x2) =
+      popol2 _ _
+        (inductionOpE _ _ p pv2 psing2
+           popol2
+           x1)
+        (inductionOpE _ _ p pv2 psing2
+           popol2
+           x2)
   
   module Monoid where
     record Monoid
@@ -2632,6 +3737,97 @@ module MathScheme where
                          x2) =
       op Mo (evalOpE _ n Mo vars x1)
         (evalOpE _ n Mo vars x2)
+    inductionB :
+      (P : MonoidTerm -> Set) ->
+      P eL ->
+      ((x1 : MonoidTerm)
+       (x2 : MonoidTerm) ->
+       P x1 ->
+       P x2 -> P (opL x1 x2)) ->
+      (x : MonoidTerm) -> P x
+    inductionB p pel popl (eL) = pel
+    inductionB p pel popl (opL
+                           x1
+                           x2) =
+      popl _ _
+        (inductionB p pel popl x1)
+        (inductionB p pel popl x2)
+    inductionCl :
+      (A : Set)
+      (P : ClMonoidTerm A -> Set) ->
+      ((x1 : A) -> P (sing x1)) ->
+      P eCl ->
+      ((x1 : ClMonoidTerm A)
+       (x2 : ClMonoidTerm A) ->
+       P x1 ->
+       P x2 -> P (opCl x1 x2)) ->
+      (x : ClMonoidTerm A) -> P x
+    inductionCl _ p psing pecl popcl (sing
+                                      x1) = psing x1
+    inductionCl _ p psing pecl popcl (eCl) =
+      pecl
+    inductionCl _ p psing pecl popcl (opCl
+                                      x1
+                                      x2) =
+      popcl _ _
+        (inductionCl _ p psing pecl
+           popcl
+           x1)
+        (inductionCl _ p psing pecl
+           popcl
+           x2)
+    inductionOp :
+      (n : Nat)
+      (P : OpMonoidTerm n -> Set) ->
+      ((fin : Fin n) -> P (v fin)) ->
+      P eOL ->
+      ((x1 : OpMonoidTerm n)
+       (x2 : OpMonoidTerm n) ->
+       P x1 ->
+       P x2 -> P (opOL x1 x2)) ->
+      (x : OpMonoidTerm n) -> P x
+    inductionOp _ p pv peol popol (v
+                                   x1) = pv x1
+    inductionOp _ p pv peol popol (eOL) =
+      peol
+    inductionOp _ p pv peol popol (opOL
+                                   x1
+                                   x2) =
+      popol _ _
+        (inductionOp _ p pv peol popol
+           x1)
+        (inductionOp _ p pv peol popol
+           x2)
+    inductionOpE :
+      (n : Nat) (A : Set)
+      (P : OpMonoidTerm2 n A ->
+           Set) ->
+      ((fin : Fin n) -> P (v2 fin)) ->
+      ((x1 : A) -> P (sing2 x1)) ->
+      P eOL2 ->
+      ((x1 : OpMonoidTerm2 n A)
+       (x2 : OpMonoidTerm2 n A) ->
+       P x1 ->
+       P x2 -> P (opOL2 x1 x2)) ->
+      (x : OpMonoidTerm2 n A) -> P x
+    inductionOpE _ _ p pv2 psing2 peol2 popol2 (v2
+                                                x1) = pv2 x1
+    inductionOpE _ _ p pv2 psing2 peol2 popol2 (sing2
+                                                x1) = psing2 x1
+    inductionOpE _ _ p pv2 psing2 peol2 popol2 (eOL2) =
+      peol2
+    inductionOpE _ _ p pv2 psing2 peol2 popol2 (opOL2
+                                                x1
+                                                x2) =
+      popol2 _ _
+        (inductionOpE _ _ p pv2 psing2
+           peol2
+           popol2
+           x1)
+        (inductionOpE _ _ p pv2 psing2
+           peol2
+           popol2
+           x2)
   
   module Pointed where
     record Pointed
@@ -2733,6 +3929,44 @@ module MathScheme where
       x1
     evalOpE _ n Po vars (eOL2) =
       e Po
+    inductionB :
+      (P : PointedTerm -> Set) ->
+      P eL -> (x : PointedTerm) -> P x
+    inductionB p pel (eL) = pel
+    inductionCl :
+      (A : Set)
+      (P : ClPointedTerm A -> Set) ->
+      ((x1 : A) -> P (sing x1)) ->
+      P eCl ->
+      (x : ClPointedTerm A) -> P x
+    inductionCl _ p psing pecl (sing
+                                x1) = psing x1
+    inductionCl _ p psing pecl (eCl) =
+      pecl
+    inductionOp :
+      (n : Nat)
+      (P : OpPointedTerm n -> Set) ->
+      ((fin : Fin n) -> P (v fin)) ->
+      P eOL ->
+      (x : OpPointedTerm n) -> P x
+    inductionOp _ p pv peol (v x1) =
+      pv x1
+    inductionOp _ p pv peol (eOL) =
+      peol
+    inductionOpE :
+      (n : Nat) (A : Set)
+      (P : OpPointedTerm2 n A ->
+           Set) ->
+      ((fin : Fin n) -> P (v2 fin)) ->
+      ((x1 : A) -> P (sing2 x1)) ->
+      P eOL2 ->
+      (x : OpPointedTerm2 n A) -> P x
+    inductionOpE _ _ p pv2 psing2 peol2 (v2
+                                         x1) = pv2 x1
+    inductionOpE _ _ p pv2 psing2 peol2 (sing2
+                                         x1) = psing2 x1
+    inductionOpE _ _ p pv2 psing2 peol2 (eOL2) =
+      peol2
   
   module Pointed0Magma where
     record Pointed0Magma
@@ -2904,6 +4138,104 @@ module MathScheme where
                          x2) =
       op Po (evalOpE _ n Po vars x1)
         (evalOpE _ n Po vars x2)
+    inductionB :
+      (P : Pointed0MagmaTerm ->
+           Set) ->
+      P 0L ->
+      ((x1 : Pointed0MagmaTerm)
+       (x2 : Pointed0MagmaTerm) ->
+       P x1 ->
+       P x2 -> P (opL x1 x2)) ->
+      (x : Pointed0MagmaTerm) -> P x
+    inductionB p p0l popl (0L) = p0l
+    inductionB p p0l popl (opL
+                           x1
+                           x2) =
+      popl _ _
+        (inductionB p p0l popl x1)
+        (inductionB p p0l popl x2)
+    inductionCl :
+      (A : Set)
+      (P : ClPointed0MagmaTerm A ->
+           Set) ->
+      ((x1 : A) -> P (sing x1)) ->
+      P 0Cl ->
+      ((x1 : ClPointed0MagmaTerm A)
+       (x2 : ClPointed0MagmaTerm A) ->
+       P x1 ->
+       P x2 -> P (opCl x1 x2)) ->
+      (x : ClPointed0MagmaTerm A) ->
+      P x
+    inductionCl _ p psing p0cl popcl (sing
+                                      x1) = psing x1
+    inductionCl _ p psing p0cl popcl (0Cl) =
+      p0cl
+    inductionCl _ p psing p0cl popcl (opCl
+                                      x1
+                                      x2) =
+      popcl _ _
+        (inductionCl _ p psing p0cl
+           popcl
+           x1)
+        (inductionCl _ p psing p0cl
+           popcl
+           x2)
+    inductionOp :
+      (n : Nat)
+      (P : OpPointed0MagmaTerm n ->
+           Set) ->
+      ((fin : Fin n) -> P (v fin)) ->
+      P 0OL ->
+      ((x1 : OpPointed0MagmaTerm n)
+       (x2 : OpPointed0MagmaTerm n) ->
+       P x1 ->
+       P x2 -> P (opOL x1 x2)) ->
+      (x : OpPointed0MagmaTerm n) ->
+      P x
+    inductionOp _ p pv p0ol popol (v
+                                   x1) = pv x1
+    inductionOp _ p pv p0ol popol (0OL) =
+      p0ol
+    inductionOp _ p pv p0ol popol (opOL
+                                   x1
+                                   x2) =
+      popol _ _
+        (inductionOp _ p pv p0ol popol
+           x1)
+        (inductionOp _ p pv p0ol popol
+           x2)
+    inductionOpE :
+      (n : Nat) (A : Set)
+      (P : OpPointed0MagmaTerm2 n A ->
+           Set) ->
+      ((fin : Fin n) -> P (v2 fin)) ->
+      ((x1 : A) -> P (sing2 x1)) ->
+      P 0OL2 ->
+      ((x1 : OpPointed0MagmaTerm2 n A)
+       (x2 : OpPointed0MagmaTerm2 n
+          A) ->
+       P x1 ->
+       P x2 -> P (opOL2 x1 x2)) ->
+      (x : OpPointed0MagmaTerm2 n
+         A) -> P x
+    inductionOpE _ _ p pv2 psing2 p0ol2 popol2 (v2
+                                                x1) = pv2 x1
+    inductionOpE _ _ p pv2 psing2 p0ol2 popol2 (sing2
+                                                x1) = psing2 x1
+    inductionOpE _ _ p pv2 psing2 p0ol2 popol2 (0OL2) =
+      p0ol2
+    inductionOpE _ _ p pv2 psing2 p0ol2 popol2 (opOL2
+                                                x1
+                                                x2) =
+      popol2 _ _
+        (inductionOpE _ _ p pv2 psing2
+           p0ol2
+           popol2
+           x1)
+        (inductionOpE _ _ p pv2 psing2
+           p0ol2
+           popol2
+           x2)
   
   module PointedMagma where
     record PointedMagma
@@ -3074,6 +4406,103 @@ module MathScheme where
                          x2) =
       op Po (evalOpE _ n Po vars x1)
         (evalOpE _ n Po vars x2)
+    inductionB :
+      (P : PointedMagmaTerm -> Set) ->
+      P eL ->
+      ((x1 : PointedMagmaTerm)
+       (x2 : PointedMagmaTerm) ->
+       P x1 ->
+       P x2 -> P (opL x1 x2)) ->
+      (x : PointedMagmaTerm) -> P x
+    inductionB p pel popl (eL) = pel
+    inductionB p pel popl (opL
+                           x1
+                           x2) =
+      popl _ _
+        (inductionB p pel popl x1)
+        (inductionB p pel popl x2)
+    inductionCl :
+      (A : Set)
+      (P : ClPointedMagmaTerm A ->
+           Set) ->
+      ((x1 : A) -> P (sing x1)) ->
+      P eCl ->
+      ((x1 : ClPointedMagmaTerm A)
+       (x2 : ClPointedMagmaTerm A) ->
+       P x1 ->
+       P x2 -> P (opCl x1 x2)) ->
+      (x : ClPointedMagmaTerm A) ->
+      P x
+    inductionCl _ p psing pecl popcl (sing
+                                      x1) = psing x1
+    inductionCl _ p psing pecl popcl (eCl) =
+      pecl
+    inductionCl _ p psing pecl popcl (opCl
+                                      x1
+                                      x2) =
+      popcl _ _
+        (inductionCl _ p psing pecl
+           popcl
+           x1)
+        (inductionCl _ p psing pecl
+           popcl
+           x2)
+    inductionOp :
+      (n : Nat)
+      (P : OpPointedMagmaTerm n ->
+           Set) ->
+      ((fin : Fin n) -> P (v fin)) ->
+      P eOL ->
+      ((x1 : OpPointedMagmaTerm n)
+       (x2 : OpPointedMagmaTerm n) ->
+       P x1 ->
+       P x2 -> P (opOL x1 x2)) ->
+      (x : OpPointedMagmaTerm n) ->
+      P x
+    inductionOp _ p pv peol popol (v
+                                   x1) = pv x1
+    inductionOp _ p pv peol popol (eOL) =
+      peol
+    inductionOp _ p pv peol popol (opOL
+                                   x1
+                                   x2) =
+      popol _ _
+        (inductionOp _ p pv peol popol
+           x1)
+        (inductionOp _ p pv peol popol
+           x2)
+    inductionOpE :
+      (n : Nat) (A : Set)
+      (P : OpPointedMagmaTerm2 n A ->
+           Set) ->
+      ((fin : Fin n) -> P (v2 fin)) ->
+      ((x1 : A) -> P (sing2 x1)) ->
+      P eOL2 ->
+      ((x1 : OpPointedMagmaTerm2 n A)
+       (x2 : OpPointedMagmaTerm2 n
+          A) ->
+       P x1 ->
+       P x2 -> P (opOL2 x1 x2)) ->
+      (x : OpPointedMagmaTerm2 n A) ->
+      P x
+    inductionOpE _ _ p pv2 psing2 peol2 popol2 (v2
+                                                x1) = pv2 x1
+    inductionOpE _ _ p pv2 psing2 peol2 popol2 (sing2
+                                                x1) = psing2 x1
+    inductionOpE _ _ p pv2 psing2 peol2 popol2 (eOL2) =
+      peol2
+    inductionOpE _ _ p pv2 psing2 peol2 popol2 (opOL2
+                                                x1
+                                                x2) =
+      popol2 _ _
+        (inductionOpE _ _ p pv2 psing2
+           peol2
+           popol2
+           x1)
+        (inductionOpE _ _ p pv2 psing2
+           peol2
+           popol2
+           x2)
   
   module PointedOne where
     record PointedOne
@@ -3181,6 +4610,48 @@ module MathScheme where
       x1
     evalOpE _ n Po vars (1OL2) =
       1 Po
+    inductionB :
+      (P : PointedOneTerm -> Set) ->
+      P 1L ->
+      (x : PointedOneTerm) -> P x
+    inductionB p p1l (1L) = p1l
+    inductionCl :
+      (A : Set)
+      (P : ClPointedOneTerm A ->
+           Set) ->
+      ((x1 : A) -> P (sing x1)) ->
+      P 1Cl ->
+      (x : ClPointedOneTerm A) -> P x
+    inductionCl _ p psing p1cl (sing
+                                x1) = psing x1
+    inductionCl _ p psing p1cl (1Cl) =
+      p1cl
+    inductionOp :
+      (n : Nat)
+      (P : OpPointedOneTerm n ->
+           Set) ->
+      ((fin : Fin n) -> P (v fin)) ->
+      P 1OL ->
+      (x : OpPointedOneTerm n) -> P x
+    inductionOp _ p pv p1ol (v x1) =
+      pv x1
+    inductionOp _ p pv p1ol (1OL) =
+      p1ol
+    inductionOpE :
+      (n : Nat) (A : Set)
+      (P : OpPointedOneTerm2 n A ->
+           Set) ->
+      ((fin : Fin n) -> P (v2 fin)) ->
+      ((x1 : A) -> P (sing2 x1)) ->
+      P 1OL2 ->
+      (x : OpPointedOneTerm2 n A) ->
+      P x
+    inductionOpE _ _ p pv2 psing2 p1ol2 (v2
+                                         x1) = pv2 x1
+    inductionOpE _ _ p pv2 psing2 p1ol2 (sing2
+                                         x1) = psing2 x1
+    inductionOpE _ _ p pv2 psing2 p1ol2 (1OL2) =
+      p1ol2
   
   module PointedPlusMagma where
     record PointedPlusMagma
@@ -3351,6 +4822,105 @@ module MathScheme where
         (evalOpE _ n Po vars x2)
     evalOpE _ n Po vars (eOL2) =
       e Po
+    inductionB :
+      (P : PointedPlusMagmaTerm ->
+           Set) ->
+      ((x1 : PointedPlusMagmaTerm)
+       (x2 : PointedPlusMagmaTerm) ->
+       P x1 -> P x2 -> P (+L x1 x2)) ->
+      P eL ->
+      (x : PointedPlusMagmaTerm) ->
+      P x
+    inductionB p p+l pel (+L
+                          x1
+                          x2) =
+      p+l _ _
+        (inductionB p p+l pel x1)
+        (inductionB p p+l pel x2)
+    inductionB p p+l pel (eL) = pel
+    inductionCl :
+      (A : Set)
+      (P : ClPointedPlusMagmaTerm A ->
+           Set) ->
+      ((x1 : A) -> P (sing x1)) ->
+      ((x1 : ClPointedPlusMagmaTerm A)
+       (x2 : ClPointedPlusMagmaTerm
+          A) ->
+       P x1 ->
+       P x2 -> P (+Cl x1 x2)) ->
+      P eCl ->
+      (x : ClPointedPlusMagmaTerm
+         A) -> P x
+    inductionCl _ p psing p+cl pecl (sing
+                                     x1) = psing x1
+    inductionCl _ p psing p+cl pecl (+Cl
+                                     x1
+                                     x2) =
+      p+cl _ _
+        (inductionCl _ p psing p+cl pecl
+           x1)
+        (inductionCl _ p psing p+cl pecl
+           x2)
+    inductionCl _ p psing p+cl pecl (eCl) =
+      pecl
+    inductionOp :
+      (n : Nat)
+      (P : OpPointedPlusMagmaTerm n ->
+           Set) ->
+      ((fin : Fin n) -> P (v fin)) ->
+      ((x1 : OpPointedPlusMagmaTerm n)
+       (x2 : OpPointedPlusMagmaTerm
+          n) ->
+       P x1 ->
+       P x2 -> P (+OL x1 x2)) ->
+      P eOL ->
+      (x : OpPointedPlusMagmaTerm
+         n) -> P x
+    inductionOp _ p pv p+ol peol (v
+                                  x1) = pv x1
+    inductionOp _ p pv p+ol peol (+OL
+                                  x1
+                                  x2) =
+      p+ol _ _
+        (inductionOp _ p pv p+ol peol
+           x1)
+        (inductionOp _ p pv p+ol peol
+           x2)
+    inductionOp _ p pv p+ol peol (eOL) =
+      peol
+    inductionOpE :
+      (n : Nat) (A : Set)
+      (P : OpPointedPlusMagmaTerm2 n
+             A -> Set) ->
+      ((fin : Fin n) -> P (v2 fin)) ->
+      ((x1 : A) -> P (sing2 x1)) ->
+      ((x1 : OpPointedPlusMagmaTerm2 n
+          A)
+       (x2 : OpPointedPlusMagmaTerm2 n
+          A) ->
+       P x1 ->
+       P x2 -> P (+OL2 x1 x2)) ->
+      P eOL2 ->
+      (x : OpPointedPlusMagmaTerm2 n
+         A) -> P x
+    inductionOpE _ _ p pv2 psing2 p+ol2 peol2 (v2
+                                               x1) = pv2 x1
+    inductionOpE _ _ p pv2 psing2 p+ol2 peol2 (sing2
+                                               x1) = psing2 x1
+    inductionOpE _ _ p pv2 psing2 p+ol2 peol2 (+OL2
+                                               x1
+                                               x2) =
+      p+ol2 _ _
+        (inductionOpE _ _ p pv2 psing2
+           p+ol2
+           peol2
+           x1)
+        (inductionOpE _ _ p pv2 psing2
+           p+ol2
+           peol2
+           x2)
+    inductionOpE _ _ p pv2 psing2 p+ol2 peol2 (eOL2) =
+      peol2
   
   module PointedSemigroup where
     record PointedSemigroup
@@ -3533,6 +5103,108 @@ module MathScheme where
         (evalOpE _ n Po vars x2)
     evalOpE _ n Po vars (eOL2) =
       e Po
+    inductionB :
+      (P : PointedSemigroupTerm ->
+           Set) ->
+      ((x1 : PointedSemigroupTerm)
+       (x2 : PointedSemigroupTerm) ->
+       P x1 ->
+       P x2 -> P (opL x1 x2)) ->
+      P eL ->
+      (x : PointedSemigroupTerm) ->
+      P x
+    inductionB p popl pel (opL
+                           x1
+                           x2) =
+      popl _ _
+        (inductionB p popl pel x1)
+        (inductionB p popl pel x2)
+    inductionB p popl pel (eL) = pel
+    inductionCl :
+      (A : Set)
+      (P : ClPointedSemigroupTerm A ->
+           Set) ->
+      ((x1 : A) -> P (sing x1)) ->
+      ((x1 : ClPointedSemigroupTerm A)
+       (x2 : ClPointedSemigroupTerm
+          A) ->
+       P x1 ->
+       P x2 -> P (opCl x1 x2)) ->
+      P eCl ->
+      (x : ClPointedSemigroupTerm
+         A) -> P x
+    inductionCl _ p psing popcl pecl (sing
+                                      x1) = psing x1
+    inductionCl _ p psing popcl pecl (opCl
+                                      x1
+                                      x2) =
+      popcl _ _
+        (inductionCl _ p psing popcl
+           pecl
+           x1)
+        (inductionCl _ p psing popcl
+           pecl
+           x2)
+    inductionCl _ p psing popcl pecl (eCl) =
+      pecl
+    inductionOp :
+      (n : Nat)
+      (P : OpPointedSemigroupTerm n ->
+           Set) ->
+      ((fin : Fin n) -> P (v fin)) ->
+      ((x1 : OpPointedSemigroupTerm n)
+       (x2 : OpPointedSemigroupTerm
+          n) ->
+       P x1 ->
+       P x2 -> P (opOL x1 x2)) ->
+      P eOL ->
+      (x : OpPointedSemigroupTerm
+         n) -> P x
+    inductionOp _ p pv popol peol (v
+                                   x1) = pv x1
+    inductionOp _ p pv popol peol (opOL
+                                   x1
+                                   x2) =
+      popol _ _
+        (inductionOp _ p pv popol peol
+           x1)
+        (inductionOp _ p pv popol peol
+           x2)
+    inductionOp _ p pv popol peol (eOL) =
+      peol
+    inductionOpE :
+      (n : Nat) (A : Set)
+      (P : OpPointedSemigroupTerm2 n
+             A -> Set) ->
+      ((fin : Fin n) -> P (v2 fin)) ->
+      ((x1 : A) -> P (sing2 x1)) ->
+      ((x1 : OpPointedSemigroupTerm2 n
+          A)
+       (x2 : OpPointedSemigroupTerm2 n
+          A) ->
+       P x1 ->
+       P x2 -> P (opOL2 x1 x2)) ->
+      P eOL2 ->
+      (x : OpPointedSemigroupTerm2 n
+         A) -> P x
+    inductionOpE _ _ p pv2 psing2 popol2 peol2 (v2
+                                                x1) = pv2 x1
+    inductionOpE _ _ p pv2 psing2 popol2 peol2 (sing2
+                                                x1) = psing2 x1
+    inductionOpE _ _ p pv2 psing2 popol2 peol2 (opOL2
+                                                x1
+                                                x2) =
+      popol2 _ _
+        (inductionOpE _ _ p pv2 psing2
+           popol2
+           peol2
+           x1)
+        (inductionOpE _ _ p pv2 psing2
+           popol2
+           peol2
+           x2)
+    inductionOpE _ _ p pv2 psing2 popol2 peol2 (eOL2) =
+      peol2
   
   module PointedZero where
     record PointedZero
@@ -3642,6 +5314,48 @@ module MathScheme where
       x1
     evalOpE _ n Po vars (0OL2) =
       0 Po
+    inductionB :
+      (P : PointedZeroTerm -> Set) ->
+      P 0L ->
+      (x : PointedZeroTerm) -> P x
+    inductionB p p0l (0L) = p0l
+    inductionCl :
+      (A : Set)
+      (P : ClPointedZeroTerm A ->
+           Set) ->
+      ((x1 : A) -> P (sing x1)) ->
+      P 0Cl ->
+      (x : ClPointedZeroTerm A) -> P x
+    inductionCl _ p psing p0cl (sing
+                                x1) = psing x1
+    inductionCl _ p psing p0cl (0Cl) =
+      p0cl
+    inductionOp :
+      (n : Nat)
+      (P : OpPointedZeroTerm n ->
+           Set) ->
+      ((fin : Fin n) -> P (v fin)) ->
+      P 0OL ->
+      (x : OpPointedZeroTerm n) -> P x
+    inductionOp _ p pv p0ol (v x1) =
+      pv x1
+    inductionOp _ p pv p0ol (0OL) =
+      p0ol
+    inductionOpE :
+      (n : Nat) (A : Set)
+      (P : OpPointedZeroTerm2 n A ->
+           Set) ->
+      ((fin : Fin n) -> P (v2 fin)) ->
+      ((x1 : A) -> P (sing2 x1)) ->
+      P 0OL2 ->
+      (x : OpPointedZeroTerm2 n A) ->
+      P x
+    inductionOpE _ _ p pv2 psing2 p0ol2 (v2
+                                         x1) = pv2 x1
+    inductionOpE _ _ p pv2 psing2 p0ol2 (sing2
+                                         x1) = psing2 x1
+    inductionOpE _ _ p pv2 psing2 p0ol2 (0OL2) =
+      p0ol2
   
   module RightUnital where
     record RightUnital
@@ -3821,6 +5535,100 @@ module MathScheme where
                          x2) =
       op Ri (evalOpE _ n Ri vars x1)
         (evalOpE _ n Ri vars x2)
+    inductionB :
+      (P : RightUnitalTerm -> Set) ->
+      P eL ->
+      ((x1 : RightUnitalTerm)
+       (x2 : RightUnitalTerm) ->
+       P x1 ->
+       P x2 -> P (opL x1 x2)) ->
+      (x : RightUnitalTerm) -> P x
+    inductionB p pel popl (eL) = pel
+    inductionB p pel popl (opL
+                           x1
+                           x2) =
+      popl _ _
+        (inductionB p pel popl x1)
+        (inductionB p pel popl x2)
+    inductionCl :
+      (A : Set)
+      (P : ClRightUnitalTerm A ->
+           Set) ->
+      ((x1 : A) -> P (sing x1)) ->
+      P eCl ->
+      ((x1 : ClRightUnitalTerm A)
+       (x2 : ClRightUnitalTerm A) ->
+       P x1 ->
+       P x2 -> P (opCl x1 x2)) ->
+      (x : ClRightUnitalTerm A) -> P x
+    inductionCl _ p psing pecl popcl (sing
+                                      x1) = psing x1
+    inductionCl _ p psing pecl popcl (eCl) =
+      pecl
+    inductionCl _ p psing pecl popcl (opCl
+                                      x1
+                                      x2) =
+      popcl _ _
+        (inductionCl _ p psing pecl
+           popcl
+           x1)
+        (inductionCl _ p psing pecl
+           popcl
+           x2)
+    inductionOp :
+      (n : Nat)
+      (P : OpRightUnitalTerm n ->
+           Set) ->
+      ((fin : Fin n) -> P (v fin)) ->
+      P eOL ->
+      ((x1 : OpRightUnitalTerm n)
+       (x2 : OpRightUnitalTerm n) ->
+       P x1 ->
+       P x2 -> P (opOL x1 x2)) ->
+      (x : OpRightUnitalTerm n) -> P x
+    inductionOp _ p pv peol popol (v
+                                   x1) = pv x1
+    inductionOp _ p pv peol popol (eOL) =
+      peol
+    inductionOp _ p pv peol popol (opOL
+                                   x1
+                                   x2) =
+      popol _ _
+        (inductionOp _ p pv peol popol
+           x1)
+        (inductionOp _ p pv peol popol
+           x2)
+    inductionOpE :
+      (n : Nat) (A : Set)
+      (P : OpRightUnitalTerm2 n A ->
+           Set) ->
+      ((fin : Fin n) -> P (v2 fin)) ->
+      ((x1 : A) -> P (sing2 x1)) ->
+      P eOL2 ->
+      ((x1 : OpRightUnitalTerm2 n A)
+       (x2 : OpRightUnitalTerm2 n A) ->
+       P x1 ->
+       P x2 -> P (opOL2 x1 x2)) ->
+      (x : OpRightUnitalTerm2 n A) ->
+      P x
+    inductionOpE _ _ p pv2 psing2 peol2 popol2 (v2
+                                                x1) = pv2 x1
+    inductionOpE _ _ p pv2 psing2 peol2 popol2 (sing2
+                                                x1) = psing2 x1
+    inductionOpE _ _ p pv2 psing2 peol2 popol2 (eOL2) =
+      peol2
+    inductionOpE _ _ p pv2 psing2 peol2 popol2 (opOL2
+                                                x1
+                                                x2) =
+      popol2 _ _
+        (inductionOpE _ _ p pv2 psing2
+           peol2
+           popol2
+           x1)
+        (inductionOpE _ _ p pv2 psing2
+           peol2
+           popol2
+           x2)
   
   module Semigroup where
     record Semigroup
@@ -3974,6 +5782,78 @@ module MathScheme where
                          x2) =
       op Se (evalOpE _ n Se vars x1)
         (evalOpE _ n Se vars x2)
+    inductionB :
+      (P : SemigroupTerm -> Set) ->
+      ((x1 : SemigroupTerm)
+       (x2 : SemigroupTerm) ->
+       P x1 ->
+       P x2 -> P (opL x1 x2)) ->
+      (x : SemigroupTerm) -> P x
+    inductionB p popl (opL x1 x2) =
+      popl _ _ (inductionB p popl x1)
+        (inductionB p popl x2)
+    inductionCl :
+      (A : Set)
+      (P : ClSemigroupTerm A ->
+           Set) ->
+      ((x1 : A) -> P (sing x1)) ->
+      ((x1 : ClSemigroupTerm A)
+       (x2 : ClSemigroupTerm A) ->
+       P x1 ->
+       P x2 -> P (opCl x1 x2)) ->
+      (x : ClSemigroupTerm A) -> P x
+    inductionCl _ p psing popcl (sing
+                                 x1) = psing x1
+    inductionCl _ p psing popcl (opCl
+                                 x1
+                                 x2) =
+      popcl _ _
+        (inductionCl _ p psing popcl x1)
+        (inductionCl _ p psing popcl x2)
+    inductionOp :
+      (n : Nat)
+      (P : OpSemigroupTerm n ->
+           Set) ->
+      ((fin : Fin n) -> P (v fin)) ->
+      ((x1 : OpSemigroupTerm n)
+       (x2 : OpSemigroupTerm n) ->
+       P x1 ->
+       P x2 -> P (opOL x1 x2)) ->
+      (x : OpSemigroupTerm n) -> P x
+    inductionOp _ p pv popol (v
+                              x1) = pv x1
+    inductionOp _ p pv popol (opOL
+                              x1
+                              x2) =
+      popol _ _
+        (inductionOp _ p pv popol x1)
+        (inductionOp _ p pv popol x2)
+    inductionOpE :
+      (n : Nat) (A : Set)
+      (P : OpSemigroupTerm2 n A ->
+           Set) ->
+      ((fin : Fin n) -> P (v2 fin)) ->
+      ((x1 : A) -> P (sing2 x1)) ->
+      ((x1 : OpSemigroupTerm2 n A)
+       (x2 : OpSemigroupTerm2 n A) ->
+       P x1 ->
+       P x2 -> P (opOL2 x1 x2)) ->
+      (x : OpSemigroupTerm2 n A) ->
+      P x
+    inductionOpE _ _ p pv2 psing2 popol2 (v2
+                                          x1) = pv2 x1
+    inductionOpE _ _ p pv2 psing2 popol2 (sing2
+                                          x1) = psing2 x1
+    inductionOpE _ _ p pv2 psing2 popol2 (opOL2
+                                          x1
+                                          x2) =
+      popol2 _ _
+        (inductionOpE _ _ p pv2 psing2
+           popol2
+           x1)
+        (inductionOpE _ _ p pv2 psing2
+           popol2
+           x2)
   
   module Unital where
     record Unital
@@ -4149,4 +6029,95 @@ module MathScheme where
                          x2) =
       op Un (evalOpE _ n Un vars x1)
         (evalOpE _ n Un vars x2)
+    inductionB :
+      (P : UnitalTerm -> Set) ->
+      P eL ->
+      ((x1 : UnitalTerm)
+       (x2 : UnitalTerm) ->
+       P x1 ->
+       P x2 -> P (opL x1 x2)) ->
+      (x : UnitalTerm) -> P x
+    inductionB p pel popl (eL) = pel
+    inductionB p pel popl (opL
+                           x1
+                           x2) =
+      popl _ _
+        (inductionB p pel popl x1)
+        (inductionB p pel popl x2)
+    inductionCl :
+      (A : Set)
+      (P : ClUnitalTerm A -> Set) ->
+      ((x1 : A) -> P (sing x1)) ->
+      P eCl ->
+      ((x1 : ClUnitalTerm A)
+       (x2 : ClUnitalTerm A) ->
+       P x1 ->
+       P x2 -> P (opCl x1 x2)) ->
+      (x : ClUnitalTerm A) -> P x
+    inductionCl _ p psing pecl popcl (sing
+                                      x1) = psing x1
+    inductionCl _ p psing pecl popcl (eCl) =
+      pecl
+    inductionCl _ p psing pecl popcl (opCl
+                                      x1
+                                      x2) =
+      popcl _ _
+        (inductionCl _ p psing pecl
+           popcl
+           x1)
+        (inductionCl _ p psing pecl
+           popcl
+           x2)
+    inductionOp :
+      (n : Nat)
+      (P : OpUnitalTerm n -> Set) ->
+      ((fin : Fin n) -> P (v fin)) ->
+      P eOL ->
+      ((x1 : OpUnitalTerm n)
+       (x2 : OpUnitalTerm n) ->
+       P x1 ->
+       P x2 -> P (opOL x1 x2)) ->
+      (x : OpUnitalTerm n) -> P x
+    inductionOp _ p pv peol popol (v
+                                   x1) = pv x1
+    inductionOp _ p pv peol popol (eOL) =
+      peol
+    inductionOp _ p pv peol popol (opOL
+                                   x1
+                                   x2) =
+      popol _ _
+        (inductionOp _ p pv peol popol
+           x1)
+        (inductionOp _ p pv peol popol
+           x2)
+    inductionOpE :
+      (n : Nat) (A : Set)
+      (P : OpUnitalTerm2 n A ->
+           Set) ->
+      ((fin : Fin n) -> P (v2 fin)) ->
+      ((x1 : A) -> P (sing2 x1)) ->
+      P eOL2 ->
+      ((x1 : OpUnitalTerm2 n A)
+       (x2 : OpUnitalTerm2 n A) ->
+       P x1 ->
+       P x2 -> P (opOL2 x1 x2)) ->
+      (x : OpUnitalTerm2 n A) -> P x
+    inductionOpE _ _ p pv2 psing2 peol2 popol2 (v2
+                                                x1) = pv2 x1
+    inductionOpE _ _ p pv2 psing2 peol2 popol2 (sing2
+                                                x1) = psing2 x1
+    inductionOpE _ _ p pv2 psing2 peol2 popol2 (eOL2) =
+      peol2
+    inductionOpE _ _ p pv2 psing2 peol2 popol2 (opOL2
+                                                x1
+                                                x2) =
+      popol2 _ _
+        (inductionOpE _ _ p pv2 psing2
+           peol2
+           popol2
+           x1)
+        (inductionOpE _ _ p pv2 psing2
+           peol2
+           popol2
+           x2)
   

@@ -49,7 +49,8 @@ library
                      , Tog.Deriving.Utils.Variables
                      , Tog.Deriving.Utils.Types
                      , Tog.Deriving.Tagless
-                     , Tog.Deriving.Terms 
+                     , Tog.Deriving.Terms
+                     , Tog.Deriving.Induction 
                      
   other-modules:       Data.Collect
                      , Tog.Instrumentation.Conf

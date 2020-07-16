@@ -47,13 +47,7 @@ simplify (Constr _ e) =
        Just (mn,mx) ->
          Just (mkPattern mx,mkFunDef mn)
 
--- ---- to get around the hidden arguments problem ----------------- 
-
-underscorePattern :: Term -> [Pattern]
-underscorePattern Basic = []
-underscorePattern (Closed _) = [IdP $ mkQName "_"]
-underscorePattern (Open _) = [IdP $ mkQName "_"]
-underscorePattern (ExtOpen _ _) = take 2 $ repeat (IdP $ mkQName "_") 
+-- ---------------------------------------------------------------- 
 
 adjustFuncCalls :: Term -> Expr
 adjustFuncCalls Basic = App [mkArg $ simpFuncNm Basic]
@@ -61,8 +55,6 @@ adjustFuncCalls (Closed x) = App $ (mkArg $ simpFuncNm (Closed x)):(mkArg "_"):[
 adjustFuncCalls (Open x)   = App $ (mkArg $ simpFuncNm (Open x)):(mkArg "_"):[]
 adjustFuncCalls (ExtOpen x y) = App $ (mkArg $ simpFuncNm (ExtOpen x y)):(mkArg "_"):(mkArg "_"):[]
 
-
--- ---------------------------------------------------------------- 
 
 -- simplification rules 
 simpRules :: Term -> [Constr] -> [Decl]

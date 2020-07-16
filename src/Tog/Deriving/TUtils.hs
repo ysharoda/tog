@@ -26,6 +26,8 @@ module Tog.Deriving.TUtils
   , strToDecl
   , eqFunArgs
   , eqFunApp
+  , patternToExpr
+  , getPatternName
   ) where
 
 import Control.Lens ((^.))
@@ -165,3 +167,18 @@ eqFunApp :: Constr -> Expr
 eqFunApp (Constr nm (Fun e1 e2)) =
   App $ [mkArg (nm ^. name)] ++ eqFunArgs e1 ++ eqFunArgs e2
 eqFunApp _ = error "not a function"
+
+patternToExpr :: Pattern -> Expr
+patternToExpr (IdP qname) = Id qname
+patternToExpr (ConP qname ps) = App $ [Arg $ Id qname] ++ map (Arg . patternToExpr) ps
+patternToExpr _ = error "either empty or hidden pattern"
+
+getName :: QName -> String
+getName (NotQual (Name (_,n))) = n
+getName (Qual _ (Name (_,n))) = n 
+
+getPatternName :: Pattern -> Name_
+getPatternName (IdP qname) = getName qname
+getPatternName (ConP qname ps) = getName qname
+getPatternName _ = error "either empty or hidden pattern"
+

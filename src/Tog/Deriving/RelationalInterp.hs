@@ -6,8 +6,7 @@ module Tog.Deriving.RelationalInterp where
 import           Control.Lens ((^.))
 
 import           Tog.Raw.Abs 
-import           Tog.Deriving.TUtils
-import           Tog.Deriving.Utils (getBindingArgs) 
+import           Tog.Deriving.TUtils 
 import           Tog.Deriving.Types (Name_)
 import qualified Tog.Deriving.EqTheory  as Eq
 import           Tog.Deriving.Lenses   (name)

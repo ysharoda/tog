@@ -165,3 +165,18 @@ data MonTerm' (n : ℕ) (A : Set) : Set where
  op : MonTerm' n A -> MonTerm' n A -> MonTerm' n A 
 
 -} 
+
+-- extra utils functions
+-- ---- to get around the hidden arguments problem ----------------- 
+
+underscorePattern :: Term -> [Pattern]
+underscorePattern Basic = []
+underscorePattern (Closed _) = [IdP $ mkQName "_"]
+underscorePattern (Open _) = [IdP $ mkQName "_"]
+underscorePattern (ExtOpen _ _) = take 2 $ repeat (IdP $ mkQName "_") 
+
+underscoreArgs :: Term -> [Arg]
+underscoreArgs Basic = []
+underscoreArgs (Closed _) = [mkArg "_"] 
+underscoreArgs (Open _)   = [mkArg "_"]
+underscoreArgs (ExtOpen _ _) = [mkArg "_",mkArg "_"] 

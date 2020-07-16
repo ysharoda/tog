@@ -6,7 +6,9 @@ module Tog.Deriving.Utils.Bindings
    getOneBindNames,
    getBindingsNames,
    unionBindings,
-   getBindingArgs) where 
+   getBindingArgs,
+   explicitBind,
+   hiddenBind) where 
 
 import Tog.Raw.Abs
 
@@ -61,7 +63,15 @@ neutralizeBind b = gmap (\(Name ((_,_),n)) -> (Name ((0,0),n))) b
 
 alterBind :: Binding -> Binding
 alterBind (Bind as e) = HBind as e
-alterBind (HBind as e) = Bind as e 
+alterBind (HBind as e) = Bind as e
+
+explicitBind :: Binding -> Binding
+explicitBind (HBind as e) = Bind as e
+explicitBind x = x
+
+hiddenBind :: Binding -> Binding
+hiddenBind (Bind as e) = HBind as e
+hiddenBind x = x 
 
 -- Problem: Deciding whether an argument should be hidden 
 unionBindings :: [Binding] -> [Binding] -> [Binding]
@@ -76,4 +86,4 @@ unionBindings b1 b2 =
 
 getBindingArgs :: Binding -> [Arg]
 getBindingArgs (Bind as _) = as
-getBindingArgs (HBind as _) = as 
+getBindingArgs (HBind as _) = as

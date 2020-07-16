@@ -65,7 +65,12 @@ fapp (Constr n typ) =
 
 fappExpr :: FType -> Expr
 fappExpr c = getExpr $ fapp c
-
+{-  let (FApp b (App $ a:as)) = fapp c
+  in case b of
+    [Bind binds e] = App $ [a] ++ (take (length as) $ repeat (mkArg "_")) ++ as
+    
+  getExpr $ fapp c
+-}
 -- given an expression that is a function application (like op x y)
 -- it maps a unary function to every argument of the function (like: op (f x) (f y)) 
 functor :: Name_ -> Expr -> Expr
