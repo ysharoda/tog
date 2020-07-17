@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------
 -- Checking declarations
 ------------------------------------------------------------------------
--- Solved Metas: 36771
+-- Solved Metas: 48383
 -- Unsolved Metas: 0
 ------------------------------------------------------------------------
 -- Unsolved problems: 0
@@ -495,6 +495,102 @@ module MathScheme where
         (inductionOpE _ _ p pv2 psing2
            p+ol2
            x2)
+    +L' :
+      AdditiveCommutativeSemigroupTerm ->
+      AdditiveCommutativeSemigroupTerm ->
+      AdditiveCommutativeSemigroupTerm
+    +L' x1 x2 = +L x1 x2
+    stageB :
+      AdditiveCommutativeSemigroupTerm ->
+      Staged
+        AdditiveCommutativeSemigroupTerm
+    stageB (+L x1 x2) =
+      stage2 _ _ _ +L'
+        (codeLift2 _ _ _ +L')
+        (stageB x1)
+        (stageB x2)
+    +Cl' :
+      (A : Set) ->
+      ClAdditiveCommutativeSemigroupTerm
+        A ->
+      ClAdditiveCommutativeSemigroupTerm
+        A ->
+      ClAdditiveCommutativeSemigroupTerm
+        A
+    +Cl' _ x1 x2 = +Cl x1 x2
+    stageCl :
+      (A : Set) ->
+      ClAdditiveCommutativeSemigroupTerm
+        A ->
+      Staged
+        (ClAdditiveCommutativeSemigroupTerm
+           A)
+    stageCl _ (sing x1) =
+      Now (sing x1)
+    stageCl _ (+Cl x1 x2) =
+      stage2 _ _ _ (+Cl' _)
+        (codeLift2 _ _ _ (+Cl' _))
+        (stageCl _ x1)
+        (stageCl _ x2)
+    +OL' :
+      (n : Nat) ->
+      OpAdditiveCommutativeSemigroupTerm
+        n ->
+      OpAdditiveCommutativeSemigroupTerm
+        n ->
+      OpAdditiveCommutativeSemigroupTerm
+        n
+    +OL' _ x1 x2 = +OL x1 x2
+    stageOp :
+      (n : Nat) ->
+      OpAdditiveCommutativeSemigroupTerm
+        n ->
+      Staged
+        (OpAdditiveCommutativeSemigroupTerm
+           n)
+    stageOp _ (v x1) =
+      const _ (code _ (v x1))
+    stageOp _ (+OL x1 x2) =
+      stage2 _ _ _ (+OL' _)
+        (codeLift2 _ _ _ (+OL' _))
+        (stageOp _ x1)
+        (stageOp _ x2)
+    +OL2' :
+      (n : Nat) (A : Set) ->
+      OpAdditiveCommutativeSemigroupTerm2
+        n
+        A ->
+      OpAdditiveCommutativeSemigroupTerm2
+        n
+        A ->
+      OpAdditiveCommutativeSemigroupTerm2
+        n
+        A
+    +OL2' _ _ x1 x2 = +OL2 x1 x2
+    stageOpE :
+      (n : Nat) (A : Set) ->
+      OpAdditiveCommutativeSemigroupTerm2
+        n
+        A ->
+      Staged
+        (OpAdditiveCommutativeSemigroupTerm2
+           n
+           A)
+    stageOpE _ _ (sing2 x1) =
+      Now (sing2 x1)
+    stageOpE _ _ (v2 x1) =
+      const _ (code _ (v2 x1))
+    stageOpE _ _ (+OL2 x1 x2) =
+      stage2 _ _ _ (+OL2' _ _)
+        (codeLift2 _ _ _ (+OL2' _ _))
+        (stageOpE _ _ x1)
+        (stageOpE _ _ x2)
+    record AdditiveCommutativeSemigroupTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        +T : Repr A -> Repr A -> Repr A
   
   module AdditiveMagma where
     record AdditiveMagma
@@ -719,6 +815,79 @@ module MathScheme where
         (inductionOpE _ _ p pv2 psing2
            p+ol2
            x2)
+    +L' :
+      AdditiveMagmaTerm ->
+      AdditiveMagmaTerm ->
+      AdditiveMagmaTerm
+    +L' x1 x2 = +L x1 x2
+    stageB :
+      AdditiveMagmaTerm ->
+      Staged AdditiveMagmaTerm
+    stageB (+L x1 x2) =
+      stage2 _ _ _ +L'
+        (codeLift2 _ _ _ +L')
+        (stageB x1)
+        (stageB x2)
+    +Cl' :
+      (A : Set) ->
+      ClAdditiveMagmaTerm A ->
+      ClAdditiveMagmaTerm A ->
+      ClAdditiveMagmaTerm A
+    +Cl' _ x1 x2 = +Cl x1 x2
+    stageCl :
+      (A : Set) ->
+      ClAdditiveMagmaTerm A ->
+      Staged (ClAdditiveMagmaTerm A)
+    stageCl _ (sing x1) =
+      Now (sing x1)
+    stageCl _ (+Cl x1 x2) =
+      stage2 _ _ _ (+Cl' _)
+        (codeLift2 _ _ _ (+Cl' _))
+        (stageCl _ x1)
+        (stageCl _ x2)
+    +OL' :
+      (n : Nat) ->
+      OpAdditiveMagmaTerm n ->
+      OpAdditiveMagmaTerm n ->
+      OpAdditiveMagmaTerm n
+    +OL' _ x1 x2 = +OL x1 x2
+    stageOp :
+      (n : Nat) ->
+      OpAdditiveMagmaTerm n ->
+      Staged (OpAdditiveMagmaTerm n)
+    stageOp _ (v x1) =
+      const _ (code _ (v x1))
+    stageOp _ (+OL x1 x2) =
+      stage2 _ _ _ (+OL' _)
+        (codeLift2 _ _ _ (+OL' _))
+        (stageOp _ x1)
+        (stageOp _ x2)
+    +OL2' :
+      (n : Nat) (A : Set) ->
+      OpAdditiveMagmaTerm2 n A ->
+      OpAdditiveMagmaTerm2 n A ->
+      OpAdditiveMagmaTerm2 n A
+    +OL2' _ _ x1 x2 = +OL2 x1 x2
+    stageOpE :
+      (n : Nat) (A : Set) ->
+      OpAdditiveMagmaTerm2 n A ->
+      Staged
+        (OpAdditiveMagmaTerm2 n A)
+    stageOpE _ _ (sing2 x1) =
+      Now (sing2 x1)
+    stageOpE _ _ (v2 x1) =
+      const _ (code _ (v2 x1))
+    stageOpE _ _ (+OL2 x1 x2) =
+      stage2 _ _ _ (+OL2' _ _)
+        (codeLift2 _ _ _ (+OL2' _ _))
+        (stageOpE _ _ x1)
+        (stageOpE _ _ x2)
+    record AdditiveMagmaTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        +T : Repr A -> Repr A -> Repr A
   
   module AdditiveMonoid where
     record AdditiveMonoid
@@ -1012,6 +1181,98 @@ module MathScheme where
            x2)
     inductionOpE _ _ p pv2 psing2 p+ol2 p0ol2 (0OL2) =
       p0ol2
+    +L' :
+      AdditiveMonoidTerm ->
+      AdditiveMonoidTerm ->
+      AdditiveMonoidTerm
+    +L' x1 x2 = +L x1 x2
+    0L' : AdditiveMonoidTerm
+    0L' = 0L
+    stageB :
+      AdditiveMonoidTerm ->
+      Staged AdditiveMonoidTerm
+    stageB (+L x1 x2) =
+      stage2 _ _ _ +L'
+        (codeLift2 _ _ _ +L')
+        (stageB x1)
+        (stageB x2)
+    stageB (0L) = Now 0L
+    +Cl' :
+      (A : Set) ->
+      ClAdditiveMonoidTerm A ->
+      ClAdditiveMonoidTerm A ->
+      ClAdditiveMonoidTerm A
+    +Cl' _ x1 x2 = +Cl x1 x2
+    0Cl' :
+      (A : Set) ->
+      ClAdditiveMonoidTerm A
+    0Cl' _ = 0Cl
+    stageCl :
+      (A : Set) ->
+      ClAdditiveMonoidTerm A ->
+      Staged (ClAdditiveMonoidTerm A)
+    stageCl _ (sing x1) =
+      Now (sing x1)
+    stageCl _ (+Cl x1 x2) =
+      stage2 _ _ _ (+Cl' _)
+        (codeLift2 _ _ _ (+Cl' _))
+        (stageCl _ x1)
+        (stageCl _ x2)
+    stageCl _ (0Cl) = Now 0Cl
+    +OL' :
+      (n : Nat) ->
+      OpAdditiveMonoidTerm n ->
+      OpAdditiveMonoidTerm n ->
+      OpAdditiveMonoidTerm n
+    +OL' _ x1 x2 = +OL x1 x2
+    0OL' :
+      (n : Nat) ->
+      OpAdditiveMonoidTerm n
+    0OL' _ = 0OL
+    stageOp :
+      (n : Nat) ->
+      OpAdditiveMonoidTerm n ->
+      Staged (OpAdditiveMonoidTerm n)
+    stageOp _ (v x1) =
+      const _ (code _ (v x1))
+    stageOp _ (+OL x1 x2) =
+      stage2 _ _ _ (+OL' _)
+        (codeLift2 _ _ _ (+OL' _))
+        (stageOp _ x1)
+        (stageOp _ x2)
+    stageOp _ (0OL) = Now 0OL
+    +OL2' :
+      (n : Nat) (A : Set) ->
+      OpAdditiveMonoidTerm2 n A ->
+      OpAdditiveMonoidTerm2 n A ->
+      OpAdditiveMonoidTerm2 n A
+    +OL2' _ _ x1 x2 = +OL2 x1 x2
+    0OL2' :
+      (n : Nat) (A : Set) ->
+      OpAdditiveMonoidTerm2 n A
+    0OL2' _ _ = 0OL2
+    stageOpE :
+      (n : Nat) (A : Set) ->
+      OpAdditiveMonoidTerm2 n A ->
+      Staged
+        (OpAdditiveMonoidTerm2 n A)
+    stageOpE _ _ (sing2 x1) =
+      Now (sing2 x1)
+    stageOpE _ _ (v2 x1) =
+      const _ (code _ (v2 x1))
+    stageOpE _ _ (+OL2 x1 x2) =
+      stage2 _ _ _ (+OL2' _ _)
+        (codeLift2 _ _ _ (+OL2' _ _))
+        (stageOpE _ _ x1)
+        (stageOpE _ _ x2)
+    stageOpE _ _ (0OL2) = Now 0OL2
+    record AdditiveMonoidTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        +T : Repr A -> Repr A -> Repr A
+        0T : Repr A
   
   module AdditivePointedMagma where
     record AdditivePointedMagma
@@ -1297,6 +1558,104 @@ module MathScheme where
            p0ol2
            p+ol2
            x2)
+    0L' : AdditivePointedMagmaTerm
+    0L' = 0L
+    +L' :
+      AdditivePointedMagmaTerm ->
+      AdditivePointedMagmaTerm ->
+      AdditivePointedMagmaTerm
+    +L' x1 x2 = +L x1 x2
+    stageB :
+      AdditivePointedMagmaTerm ->
+      Staged AdditivePointedMagmaTerm
+    stageB (0L) = Now 0L
+    stageB (+L x1 x2) =
+      stage2 _ _ _ +L'
+        (codeLift2 _ _ _ +L')
+        (stageB x1)
+        (stageB x2)
+    0Cl' :
+      (A : Set) ->
+      ClAdditivePointedMagmaTerm A
+    0Cl' _ = 0Cl
+    +Cl' :
+      (A : Set) ->
+      ClAdditivePointedMagmaTerm A ->
+      ClAdditivePointedMagmaTerm A ->
+      ClAdditivePointedMagmaTerm A
+    +Cl' _ x1 x2 = +Cl x1 x2
+    stageCl :
+      (A : Set) ->
+      ClAdditivePointedMagmaTerm A ->
+      Staged
+        (ClAdditivePointedMagmaTerm A)
+    stageCl _ (sing x1) =
+      Now (sing x1)
+    stageCl _ (0Cl) = Now 0Cl
+    stageCl _ (+Cl x1 x2) =
+      stage2 _ _ _ (+Cl' _)
+        (codeLift2 _ _ _ (+Cl' _))
+        (stageCl _ x1)
+        (stageCl _ x2)
+    0OL' :
+      (n : Nat) ->
+      OpAdditivePointedMagmaTerm n
+    0OL' _ = 0OL
+    +OL' :
+      (n : Nat) ->
+      OpAdditivePointedMagmaTerm n ->
+      OpAdditivePointedMagmaTerm n ->
+      OpAdditivePointedMagmaTerm n
+    +OL' _ x1 x2 = +OL x1 x2
+    stageOp :
+      (n : Nat) ->
+      OpAdditivePointedMagmaTerm n ->
+      Staged
+        (OpAdditivePointedMagmaTerm n)
+    stageOp _ (v x1) =
+      const _ (code _ (v x1))
+    stageOp _ (0OL) = Now 0OL
+    stageOp _ (+OL x1 x2) =
+      stage2 _ _ _ (+OL' _)
+        (codeLift2 _ _ _ (+OL' _))
+        (stageOp _ x1)
+        (stageOp _ x2)
+    0OL2' :
+      (n : Nat) (A : Set) ->
+      OpAdditivePointedMagmaTerm2 n A
+    0OL2' _ _ = 0OL2
+    +OL2' :
+      (n : Nat) (A : Set) ->
+      OpAdditivePointedMagmaTerm2 n
+        A ->
+      OpAdditivePointedMagmaTerm2 n
+        A ->
+      OpAdditivePointedMagmaTerm2 n A
+    +OL2' _ _ x1 x2 = +OL2 x1 x2
+    stageOpE :
+      (n : Nat) (A : Set) ->
+      OpAdditivePointedMagmaTerm2 n
+        A ->
+      Staged
+        (OpAdditivePointedMagmaTerm2 n
+           A)
+    stageOpE _ _ (sing2 x1) =
+      Now (sing2 x1)
+    stageOpE _ _ (v2 x1) =
+      const _ (code _ (v2 x1))
+    stageOpE _ _ (0OL2) = Now 0OL2
+    stageOpE _ _ (+OL2 x1 x2) =
+      stage2 _ _ _ (+OL2' _ _)
+        (codeLift2 _ _ _ (+OL2' _ _))
+        (stageOpE _ _ x1)
+        (stageOpE _ _ x2)
+    record AdditivePointedMagmaTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        0T : Repr A
+        +T : Repr A -> Repr A -> Repr A
   
   module AdditivePointedSemigroup where
     record AdditivePointedSemigroup
@@ -1615,6 +1974,122 @@ module MathScheme where
            p0ol2
            p+ol2
            x2)
+    0L' :
+      AdditivePointedSemigroupTerm
+    0L' = 0L
+    +L' :
+      AdditivePointedSemigroupTerm ->
+      AdditivePointedSemigroupTerm ->
+      AdditivePointedSemigroupTerm
+    +L' x1 x2 = +L x1 x2
+    stageB :
+      AdditivePointedSemigroupTerm ->
+      Staged
+        AdditivePointedSemigroupTerm
+    stageB (0L) = Now 0L
+    stageB (+L x1 x2) =
+      stage2 _ _ _ +L'
+        (codeLift2 _ _ _ +L')
+        (stageB x1)
+        (stageB x2)
+    0Cl' :
+      (A : Set) ->
+      ClAdditivePointedSemigroupTerm A
+    0Cl' _ = 0Cl
+    +Cl' :
+      (A : Set) ->
+      ClAdditivePointedSemigroupTerm
+        A ->
+      ClAdditivePointedSemigroupTerm
+        A ->
+      ClAdditivePointedSemigroupTerm A
+    +Cl' _ x1 x2 = +Cl x1 x2
+    stageCl :
+      (A : Set) ->
+      ClAdditivePointedSemigroupTerm
+        A ->
+      Staged
+        (ClAdditivePointedSemigroupTerm
+           A)
+    stageCl _ (sing x1) =
+      Now (sing x1)
+    stageCl _ (0Cl) = Now 0Cl
+    stageCl _ (+Cl x1 x2) =
+      stage2 _ _ _ (+Cl' _)
+        (codeLift2 _ _ _ (+Cl' _))
+        (stageCl _ x1)
+        (stageCl _ x2)
+    0OL' :
+      (n : Nat) ->
+      OpAdditivePointedSemigroupTerm n
+    0OL' _ = 0OL
+    +OL' :
+      (n : Nat) ->
+      OpAdditivePointedSemigroupTerm
+        n ->
+      OpAdditivePointedSemigroupTerm
+        n ->
+      OpAdditivePointedSemigroupTerm n
+    +OL' _ x1 x2 = +OL x1 x2
+    stageOp :
+      (n : Nat) ->
+      OpAdditivePointedSemigroupTerm
+        n ->
+      Staged
+        (OpAdditivePointedSemigroupTerm
+           n)
+    stageOp _ (v x1) =
+      const _ (code _ (v x1))
+    stageOp _ (0OL) = Now 0OL
+    stageOp _ (+OL x1 x2) =
+      stage2 _ _ _ (+OL' _)
+        (codeLift2 _ _ _ (+OL' _))
+        (stageOp _ x1)
+        (stageOp _ x2)
+    0OL2' :
+      (n : Nat) (A : Set) ->
+      OpAdditivePointedSemigroupTerm2
+        n
+        A
+    0OL2' _ _ = 0OL2
+    +OL2' :
+      (n : Nat) (A : Set) ->
+      OpAdditivePointedSemigroupTerm2
+        n
+        A ->
+      OpAdditivePointedSemigroupTerm2
+        n
+        A ->
+      OpAdditivePointedSemigroupTerm2
+        n
+        A
+    +OL2' _ _ x1 x2 = +OL2 x1 x2
+    stageOpE :
+      (n : Nat) (A : Set) ->
+      OpAdditivePointedSemigroupTerm2
+        n
+        A ->
+      Staged
+        (OpAdditivePointedSemigroupTerm2
+           n
+           A)
+    stageOpE _ _ (sing2 x1) =
+      Now (sing2 x1)
+    stageOpE _ _ (v2 x1) =
+      const _ (code _ (v2 x1))
+    stageOpE _ _ (0OL2) = Now 0OL2
+    stageOpE _ _ (+OL2 x1 x2) =
+      stage2 _ _ _ (+OL2' _ _)
+        (codeLift2 _ _ _ (+OL2' _ _))
+        (stageOpE _ _ x1)
+        (stageOpE _ _ x2)
+    record AdditivePointedSemigroupTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        0T : Repr A
+        +T : Repr A -> Repr A -> Repr A
   
   module AdditiveSemigroup where
     record AdditiveSemigroup
@@ -1858,6 +2333,81 @@ module MathScheme where
         (inductionOpE _ _ p pv2 psing2
            p+ol2
            x2)
+    +L' :
+      AdditiveSemigroupTerm ->
+      AdditiveSemigroupTerm ->
+      AdditiveSemigroupTerm
+    +L' x1 x2 = +L x1 x2
+    stageB :
+      AdditiveSemigroupTerm ->
+      Staged AdditiveSemigroupTerm
+    stageB (+L x1 x2) =
+      stage2 _ _ _ +L'
+        (codeLift2 _ _ _ +L')
+        (stageB x1)
+        (stageB x2)
+    +Cl' :
+      (A : Set) ->
+      ClAdditiveSemigroupTerm A ->
+      ClAdditiveSemigroupTerm A ->
+      ClAdditiveSemigroupTerm A
+    +Cl' _ x1 x2 = +Cl x1 x2
+    stageCl :
+      (A : Set) ->
+      ClAdditiveSemigroupTerm A ->
+      Staged
+        (ClAdditiveSemigroupTerm A)
+    stageCl _ (sing x1) =
+      Now (sing x1)
+    stageCl _ (+Cl x1 x2) =
+      stage2 _ _ _ (+Cl' _)
+        (codeLift2 _ _ _ (+Cl' _))
+        (stageCl _ x1)
+        (stageCl _ x2)
+    +OL' :
+      (n : Nat) ->
+      OpAdditiveSemigroupTerm n ->
+      OpAdditiveSemigroupTerm n ->
+      OpAdditiveSemigroupTerm n
+    +OL' _ x1 x2 = +OL x1 x2
+    stageOp :
+      (n : Nat) ->
+      OpAdditiveSemigroupTerm n ->
+      Staged
+        (OpAdditiveSemigroupTerm n)
+    stageOp _ (v x1) =
+      const _ (code _ (v x1))
+    stageOp _ (+OL x1 x2) =
+      stage2 _ _ _ (+OL' _)
+        (codeLift2 _ _ _ (+OL' _))
+        (stageOp _ x1)
+        (stageOp _ x2)
+    +OL2' :
+      (n : Nat) (A : Set) ->
+      OpAdditiveSemigroupTerm2 n A ->
+      OpAdditiveSemigroupTerm2 n A ->
+      OpAdditiveSemigroupTerm2 n A
+    +OL2' _ _ x1 x2 = +OL2 x1 x2
+    stageOpE :
+      (n : Nat) (A : Set) ->
+      OpAdditiveSemigroupTerm2 n A ->
+      Staged
+        (OpAdditiveSemigroupTerm2 n A)
+    stageOpE _ _ (sing2 x1) =
+      Now (sing2 x1)
+    stageOpE _ _ (v2 x1) =
+      const _ (code _ (v2 x1))
+    stageOpE _ _ (+OL2 x1 x2) =
+      stage2 _ _ _ (+OL2' _ _)
+        (codeLift2 _ _ _ (+OL2' _ _))
+        (stageOpE _ _ x1)
+        (stageOpE _ _ x2)
+    record AdditiveSemigroupTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        +T : Repr A -> Repr A -> Repr A
   
   module AdditiveUnital where
     record AdditiveUnital
@@ -2142,6 +2692,98 @@ module MathScheme where
            p0ol2
            p+ol2
            x2)
+    0L' : AdditiveUnitalTerm
+    0L' = 0L
+    +L' :
+      AdditiveUnitalTerm ->
+      AdditiveUnitalTerm ->
+      AdditiveUnitalTerm
+    +L' x1 x2 = +L x1 x2
+    stageB :
+      AdditiveUnitalTerm ->
+      Staged AdditiveUnitalTerm
+    stageB (0L) = Now 0L
+    stageB (+L x1 x2) =
+      stage2 _ _ _ +L'
+        (codeLift2 _ _ _ +L')
+        (stageB x1)
+        (stageB x2)
+    0Cl' :
+      (A : Set) ->
+      ClAdditiveUnitalTerm A
+    0Cl' _ = 0Cl
+    +Cl' :
+      (A : Set) ->
+      ClAdditiveUnitalTerm A ->
+      ClAdditiveUnitalTerm A ->
+      ClAdditiveUnitalTerm A
+    +Cl' _ x1 x2 = +Cl x1 x2
+    stageCl :
+      (A : Set) ->
+      ClAdditiveUnitalTerm A ->
+      Staged (ClAdditiveUnitalTerm A)
+    stageCl _ (sing x1) =
+      Now (sing x1)
+    stageCl _ (0Cl) = Now 0Cl
+    stageCl _ (+Cl x1 x2) =
+      stage2 _ _ _ (+Cl' _)
+        (codeLift2 _ _ _ (+Cl' _))
+        (stageCl _ x1)
+        (stageCl _ x2)
+    0OL' :
+      (n : Nat) ->
+      OpAdditiveUnitalTerm n
+    0OL' _ = 0OL
+    +OL' :
+      (n : Nat) ->
+      OpAdditiveUnitalTerm n ->
+      OpAdditiveUnitalTerm n ->
+      OpAdditiveUnitalTerm n
+    +OL' _ x1 x2 = +OL x1 x2
+    stageOp :
+      (n : Nat) ->
+      OpAdditiveUnitalTerm n ->
+      Staged (OpAdditiveUnitalTerm n)
+    stageOp _ (v x1) =
+      const _ (code _ (v x1))
+    stageOp _ (0OL) = Now 0OL
+    stageOp _ (+OL x1 x2) =
+      stage2 _ _ _ (+OL' _)
+        (codeLift2 _ _ _ (+OL' _))
+        (stageOp _ x1)
+        (stageOp _ x2)
+    0OL2' :
+      (n : Nat) (A : Set) ->
+      OpAdditiveUnitalTerm2 n A
+    0OL2' _ _ = 0OL2
+    +OL2' :
+      (n : Nat) (A : Set) ->
+      OpAdditiveUnitalTerm2 n A ->
+      OpAdditiveUnitalTerm2 n A ->
+      OpAdditiveUnitalTerm2 n A
+    +OL2' _ _ x1 x2 = +OL2 x1 x2
+    stageOpE :
+      (n : Nat) (A : Set) ->
+      OpAdditiveUnitalTerm2 n A ->
+      Staged
+        (OpAdditiveUnitalTerm2 n A)
+    stageOpE _ _ (sing2 x1) =
+      Now (sing2 x1)
+    stageOpE _ _ (v2 x1) =
+      const _ (code _ (v2 x1))
+    stageOpE _ _ (0OL2) = Now 0OL2
+    stageOpE _ _ (+OL2 x1 x2) =
+      stage2 _ _ _ (+OL2' _ _)
+        (codeLift2 _ _ _ (+OL2' _ _))
+        (stageOpE _ _ x1)
+        (stageOpE _ _ x2)
+    record AdditiveUnitalTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        0T : Repr A
+        +T : Repr A -> Repr A -> Repr A
   
   module Carrier where
     record Carrier
@@ -2256,6 +2898,35 @@ module MathScheme where
                                    x1) = pv2 x1
     inductionOpE _ _ p pv2 psing2 (sing2
                                    x1) = psing2 x1
+    stageB :
+      CarrierTerm ->
+      Staged CarrierTerm
+    stageCl :
+      (A : Set) ->
+      ClCarrierTerm A ->
+      Staged (ClCarrierTerm A)
+    stageCl _ (sing x1) =
+      Now (sing x1)
+    stageOp :
+      (n : Nat) ->
+      OpCarrierTerm n ->
+      Staged (OpCarrierTerm n)
+    stageOp _ (v x1) =
+      const _ (code _ (v x1))
+    stageOpE :
+      (n : Nat) (A : Set) ->
+      OpCarrierTerm2 n A ->
+      Staged (OpCarrierTerm2 n A)
+    stageOpE _ _ (sing2 x1) =
+      Now (sing2 x1)
+    stageOpE _ _ (v2 x1) =
+      const _ (code _ (v2 x1))
+    record CarrierTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        
   
   module CommutativeMagma where
     record CommutativeMagma
@@ -2496,6 +3167,81 @@ module MathScheme where
         (inductionOpE _ _ p pv2 psing2
            popol2
            x2)
+    opL' :
+      CommutativeMagmaTerm ->
+      CommutativeMagmaTerm ->
+      CommutativeMagmaTerm
+    opL' x1 x2 = opL x1 x2
+    stageB :
+      CommutativeMagmaTerm ->
+      Staged CommutativeMagmaTerm
+    stageB (opL x1 x2) =
+      stage2 _ _ _ opL'
+        (codeLift2 _ _ _ opL')
+        (stageB x1)
+        (stageB x2)
+    opCl' :
+      (A : Set) ->
+      ClCommutativeMagmaTerm A ->
+      ClCommutativeMagmaTerm A ->
+      ClCommutativeMagmaTerm A
+    opCl' _ x1 x2 = opCl x1 x2
+    stageCl :
+      (A : Set) ->
+      ClCommutativeMagmaTerm A ->
+      Staged
+        (ClCommutativeMagmaTerm A)
+    stageCl _ (sing x1) =
+      Now (sing x1)
+    stageCl _ (opCl x1 x2) =
+      stage2 _ _ _ (opCl' _)
+        (codeLift2 _ _ _ (opCl' _))
+        (stageCl _ x1)
+        (stageCl _ x2)
+    opOL' :
+      (n : Nat) ->
+      OpCommutativeMagmaTerm n ->
+      OpCommutativeMagmaTerm n ->
+      OpCommutativeMagmaTerm n
+    opOL' _ x1 x2 = opOL x1 x2
+    stageOp :
+      (n : Nat) ->
+      OpCommutativeMagmaTerm n ->
+      Staged
+        (OpCommutativeMagmaTerm n)
+    stageOp _ (v x1) =
+      const _ (code _ (v x1))
+    stageOp _ (opOL x1 x2) =
+      stage2 _ _ _ (opOL' _)
+        (codeLift2 _ _ _ (opOL' _))
+        (stageOp _ x1)
+        (stageOp _ x2)
+    opOL2' :
+      (n : Nat) (A : Set) ->
+      OpCommutativeMagmaTerm2 n A ->
+      OpCommutativeMagmaTerm2 n A ->
+      OpCommutativeMagmaTerm2 n A
+    opOL2' _ _ x1 x2 = opOL2 x1 x2
+    stageOpE :
+      (n : Nat) (A : Set) ->
+      OpCommutativeMagmaTerm2 n A ->
+      Staged
+        (OpCommutativeMagmaTerm2 n A)
+    stageOpE _ _ (sing2 x1) =
+      Now (sing2 x1)
+    stageOpE _ _ (v2 x1) =
+      const _ (code _ (v2 x1))
+    stageOpE _ _ (opOL2 x1 x2) =
+      stage2 _ _ _ (opOL2' _ _)
+        (codeLift2 _ _ _ (opOL2' _ _))
+        (stageOpE _ _ x1)
+        (stageOpE _ _ x2)
+    record CommutativeMagmaTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        opT : Repr A -> Repr A -> Repr A
   
   module CommutativeMonoid where
     record CommutativeMonoid
@@ -2812,6 +3558,100 @@ module MathScheme where
            x2)
     inductionOpE _ _ p pv2 psing2 popol2 peol2 (eOL2) =
       peol2
+    opL' :
+      CommutativeMonoidTerm ->
+      CommutativeMonoidTerm ->
+      CommutativeMonoidTerm
+    opL' x1 x2 = opL x1 x2
+    eL' : CommutativeMonoidTerm
+    eL' = eL
+    stageB :
+      CommutativeMonoidTerm ->
+      Staged CommutativeMonoidTerm
+    stageB (opL x1 x2) =
+      stage2 _ _ _ opL'
+        (codeLift2 _ _ _ opL')
+        (stageB x1)
+        (stageB x2)
+    stageB (eL) = Now eL
+    opCl' :
+      (A : Set) ->
+      ClCommutativeMonoidTerm A ->
+      ClCommutativeMonoidTerm A ->
+      ClCommutativeMonoidTerm A
+    opCl' _ x1 x2 = opCl x1 x2
+    eCl' :
+      (A : Set) ->
+      ClCommutativeMonoidTerm A
+    eCl' _ = eCl
+    stageCl :
+      (A : Set) ->
+      ClCommutativeMonoidTerm A ->
+      Staged
+        (ClCommutativeMonoidTerm A)
+    stageCl _ (sing x1) =
+      Now (sing x1)
+    stageCl _ (opCl x1 x2) =
+      stage2 _ _ _ (opCl' _)
+        (codeLift2 _ _ _ (opCl' _))
+        (stageCl _ x1)
+        (stageCl _ x2)
+    stageCl _ (eCl) = Now eCl
+    opOL' :
+      (n : Nat) ->
+      OpCommutativeMonoidTerm n ->
+      OpCommutativeMonoidTerm n ->
+      OpCommutativeMonoidTerm n
+    opOL' _ x1 x2 = opOL x1 x2
+    eOL' :
+      (n : Nat) ->
+      OpCommutativeMonoidTerm n
+    eOL' _ = eOL
+    stageOp :
+      (n : Nat) ->
+      OpCommutativeMonoidTerm n ->
+      Staged
+        (OpCommutativeMonoidTerm n)
+    stageOp _ (v x1) =
+      const _ (code _ (v x1))
+    stageOp _ (opOL x1 x2) =
+      stage2 _ _ _ (opOL' _)
+        (codeLift2 _ _ _ (opOL' _))
+        (stageOp _ x1)
+        (stageOp _ x2)
+    stageOp _ (eOL) = Now eOL
+    opOL2' :
+      (n : Nat) (A : Set) ->
+      OpCommutativeMonoidTerm2 n A ->
+      OpCommutativeMonoidTerm2 n A ->
+      OpCommutativeMonoidTerm2 n A
+    opOL2' _ _ x1 x2 = opOL2 x1 x2
+    eOL2' :
+      (n : Nat) (A : Set) ->
+      OpCommutativeMonoidTerm2 n A
+    eOL2' _ _ = eOL2
+    stageOpE :
+      (n : Nat) (A : Set) ->
+      OpCommutativeMonoidTerm2 n A ->
+      Staged
+        (OpCommutativeMonoidTerm2 n A)
+    stageOpE _ _ (sing2 x1) =
+      Now (sing2 x1)
+    stageOpE _ _ (v2 x1) =
+      const _ (code _ (v2 x1))
+    stageOpE _ _ (opOL2 x1 x2) =
+      stage2 _ _ _ (opOL2' _ _)
+        (codeLift2 _ _ _ (opOL2' _ _))
+        (stageOpE _ _ x1)
+        (stageOpE _ _ x2)
+    stageOpE _ _ (eOL2) = Now eOL2
+    record CommutativeMonoidTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        opT : Repr A -> Repr A -> Repr A
+        eT : Repr A
   
   module CommutativeSemigroup where
     record CommutativeSemigroup
@@ -3075,6 +3915,85 @@ module MathScheme where
         (inductionOpE _ _ p pv2 psing2
            popol2
            x2)
+    opL' :
+      CommutativeSemigroupTerm ->
+      CommutativeSemigroupTerm ->
+      CommutativeSemigroupTerm
+    opL' x1 x2 = opL x1 x2
+    stageB :
+      CommutativeSemigroupTerm ->
+      Staged CommutativeSemigroupTerm
+    stageB (opL x1 x2) =
+      stage2 _ _ _ opL'
+        (codeLift2 _ _ _ opL')
+        (stageB x1)
+        (stageB x2)
+    opCl' :
+      (A : Set) ->
+      ClCommutativeSemigroupTerm A ->
+      ClCommutativeSemigroupTerm A ->
+      ClCommutativeSemigroupTerm A
+    opCl' _ x1 x2 = opCl x1 x2
+    stageCl :
+      (A : Set) ->
+      ClCommutativeSemigroupTerm A ->
+      Staged
+        (ClCommutativeSemigroupTerm A)
+    stageCl _ (sing x1) =
+      Now (sing x1)
+    stageCl _ (opCl x1 x2) =
+      stage2 _ _ _ (opCl' _)
+        (codeLift2 _ _ _ (opCl' _))
+        (stageCl _ x1)
+        (stageCl _ x2)
+    opOL' :
+      (n : Nat) ->
+      OpCommutativeSemigroupTerm n ->
+      OpCommutativeSemigroupTerm n ->
+      OpCommutativeSemigroupTerm n
+    opOL' _ x1 x2 = opOL x1 x2
+    stageOp :
+      (n : Nat) ->
+      OpCommutativeSemigroupTerm n ->
+      Staged
+        (OpCommutativeSemigroupTerm n)
+    stageOp _ (v x1) =
+      const _ (code _ (v x1))
+    stageOp _ (opOL x1 x2) =
+      stage2 _ _ _ (opOL' _)
+        (codeLift2 _ _ _ (opOL' _))
+        (stageOp _ x1)
+        (stageOp _ x2)
+    opOL2' :
+      (n : Nat) (A : Set) ->
+      OpCommutativeSemigroupTerm2 n
+        A ->
+      OpCommutativeSemigroupTerm2 n
+        A ->
+      OpCommutativeSemigroupTerm2 n A
+    opOL2' _ _ x1 x2 = opOL2 x1 x2
+    stageOpE :
+      (n : Nat) (A : Set) ->
+      OpCommutativeSemigroupTerm2 n
+        A ->
+      Staged
+        (OpCommutativeSemigroupTerm2 n
+           A)
+    stageOpE _ _ (sing2 x1) =
+      Now (sing2 x1)
+    stageOpE _ _ (v2 x1) =
+      const _ (code _ (v2 x1))
+    stageOpE _ _ (opOL2 x1 x2) =
+      stage2 _ _ _ (opOL2' _ _)
+        (codeLift2 _ _ _ (opOL2' _ _))
+        (stageOpE _ _ x1)
+        (stageOpE _ _ x2)
+    record CommutativeSemigroupTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        opT : Repr A -> Repr A -> Repr A
   
   module Empty where
     record Empty : Set where
@@ -3351,6 +4270,94 @@ module MathScheme where
            peol2
            popol2
            x2)
+    eL' : LeftUnitalTerm
+    eL' = eL
+    opL' :
+      LeftUnitalTerm ->
+      LeftUnitalTerm -> LeftUnitalTerm
+    opL' x1 x2 = opL x1 x2
+    stageB :
+      LeftUnitalTerm ->
+      Staged LeftUnitalTerm
+    stageB (eL) = Now eL
+    stageB (opL x1 x2) =
+      stage2 _ _ _ opL'
+        (codeLift2 _ _ _ opL')
+        (stageB x1)
+        (stageB x2)
+    eCl' :
+      (A : Set) -> ClLeftUnitalTerm A
+    eCl' _ = eCl
+    opCl' :
+      (A : Set) ->
+      ClLeftUnitalTerm A ->
+      ClLeftUnitalTerm A ->
+      ClLeftUnitalTerm A
+    opCl' _ x1 x2 = opCl x1 x2
+    stageCl :
+      (A : Set) ->
+      ClLeftUnitalTerm A ->
+      Staged (ClLeftUnitalTerm A)
+    stageCl _ (sing x1) =
+      Now (sing x1)
+    stageCl _ (eCl) = Now eCl
+    stageCl _ (opCl x1 x2) =
+      stage2 _ _ _ (opCl' _)
+        (codeLift2 _ _ _ (opCl' _))
+        (stageCl _ x1)
+        (stageCl _ x2)
+    eOL' :
+      (n : Nat) -> OpLeftUnitalTerm n
+    eOL' _ = eOL
+    opOL' :
+      (n : Nat) ->
+      OpLeftUnitalTerm n ->
+      OpLeftUnitalTerm n ->
+      OpLeftUnitalTerm n
+    opOL' _ x1 x2 = opOL x1 x2
+    stageOp :
+      (n : Nat) ->
+      OpLeftUnitalTerm n ->
+      Staged (OpLeftUnitalTerm n)
+    stageOp _ (v x1) =
+      const _ (code _ (v x1))
+    stageOp _ (eOL) = Now eOL
+    stageOp _ (opOL x1 x2) =
+      stage2 _ _ _ (opOL' _)
+        (codeLift2 _ _ _ (opOL' _))
+        (stageOp _ x1)
+        (stageOp _ x2)
+    eOL2' :
+      (n : Nat) (A : Set) ->
+      OpLeftUnitalTerm2 n A
+    eOL2' _ _ = eOL2
+    opOL2' :
+      (n : Nat) (A : Set) ->
+      OpLeftUnitalTerm2 n A ->
+      OpLeftUnitalTerm2 n A ->
+      OpLeftUnitalTerm2 n A
+    opOL2' _ _ x1 x2 = opOL2 x1 x2
+    stageOpE :
+      (n : Nat) (A : Set) ->
+      OpLeftUnitalTerm2 n A ->
+      Staged (OpLeftUnitalTerm2 n A)
+    stageOpE _ _ (sing2 x1) =
+      Now (sing2 x1)
+    stageOpE _ _ (v2 x1) =
+      const _ (code _ (v2 x1))
+    stageOpE _ _ (eOL2) = Now eOL2
+    stageOpE _ _ (opOL2 x1 x2) =
+      stage2 _ _ _ (opOL2' _ _)
+        (codeLift2 _ _ _ (opOL2' _ _))
+        (stageOpE _ _ x1)
+        (stageOpE _ _ x2)
+    record LeftUnitalTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        eT : Repr A
+        opT : Repr A -> Repr A -> Repr A
   
   module Magma where
     record Magma
@@ -3553,6 +4560,74 @@ module MathScheme where
         (inductionOpE _ _ p pv2 psing2
            popol2
            x2)
+    opL' :
+      MagmaTerm ->
+      MagmaTerm -> MagmaTerm
+    opL' x1 x2 = opL x1 x2
+    stageB :
+      MagmaTerm -> Staged MagmaTerm
+    stageB (opL x1 x2) =
+      stage2 _ _ _ opL'
+        (codeLift2 _ _ _ opL')
+        (stageB x1)
+        (stageB x2)
+    opCl' :
+      (A : Set) ->
+      ClMagmaTerm A ->
+      ClMagmaTerm A -> ClMagmaTerm A
+    opCl' _ x1 x2 = opCl x1 x2
+    stageCl :
+      (A : Set) ->
+      ClMagmaTerm A ->
+      Staged (ClMagmaTerm A)
+    stageCl _ (sing x1) =
+      Now (sing x1)
+    stageCl _ (opCl x1 x2) =
+      stage2 _ _ _ (opCl' _)
+        (codeLift2 _ _ _ (opCl' _))
+        (stageCl _ x1)
+        (stageCl _ x2)
+    opOL' :
+      (n : Nat) ->
+      OpMagmaTerm n ->
+      OpMagmaTerm n -> OpMagmaTerm n
+    opOL' _ x1 x2 = opOL x1 x2
+    stageOp :
+      (n : Nat) ->
+      OpMagmaTerm n ->
+      Staged (OpMagmaTerm n)
+    stageOp _ (v x1) =
+      const _ (code _ (v x1))
+    stageOp _ (opOL x1 x2) =
+      stage2 _ _ _ (opOL' _)
+        (codeLift2 _ _ _ (opOL' _))
+        (stageOp _ x1)
+        (stageOp _ x2)
+    opOL2' :
+      (n : Nat) (A : Set) ->
+      OpMagmaTerm2 n A ->
+      OpMagmaTerm2 n A ->
+      OpMagmaTerm2 n A
+    opOL2' _ _ x1 x2 = opOL2 x1 x2
+    stageOpE :
+      (n : Nat) (A : Set) ->
+      OpMagmaTerm2 n A ->
+      Staged (OpMagmaTerm2 n A)
+    stageOpE _ _ (sing2 x1) =
+      Now (sing2 x1)
+    stageOpE _ _ (v2 x1) =
+      const _ (code _ (v2 x1))
+    stageOpE _ _ (opOL2 x1 x2) =
+      stage2 _ _ _ (opOL2' _ _)
+        (codeLift2 _ _ _ (opOL2' _ _))
+        (stageOpE _ _ x1)
+        (stageOpE _ _ x2)
+    record MagmaTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        opT : Repr A -> Repr A -> Repr A
   
   module Monoid where
     record Monoid
@@ -3828,6 +4903,91 @@ module MathScheme where
            peol2
            popol2
            x2)
+    eL' : MonoidTerm
+    eL' = eL
+    opL' :
+      MonoidTerm ->
+      MonoidTerm -> MonoidTerm
+    opL' x1 x2 = opL x1 x2
+    stageB :
+      MonoidTerm -> Staged MonoidTerm
+    stageB (eL) = Now eL
+    stageB (opL x1 x2) =
+      stage2 _ _ _ opL'
+        (codeLift2 _ _ _ opL')
+        (stageB x1)
+        (stageB x2)
+    eCl' :
+      (A : Set) -> ClMonoidTerm A
+    eCl' _ = eCl
+    opCl' :
+      (A : Set) ->
+      ClMonoidTerm A ->
+      ClMonoidTerm A -> ClMonoidTerm A
+    opCl' _ x1 x2 = opCl x1 x2
+    stageCl :
+      (A : Set) ->
+      ClMonoidTerm A ->
+      Staged (ClMonoidTerm A)
+    stageCl _ (sing x1) =
+      Now (sing x1)
+    stageCl _ (eCl) = Now eCl
+    stageCl _ (opCl x1 x2) =
+      stage2 _ _ _ (opCl' _)
+        (codeLift2 _ _ _ (opCl' _))
+        (stageCl _ x1)
+        (stageCl _ x2)
+    eOL' :
+      (n : Nat) -> OpMonoidTerm n
+    eOL' _ = eOL
+    opOL' :
+      (n : Nat) ->
+      OpMonoidTerm n ->
+      OpMonoidTerm n -> OpMonoidTerm n
+    opOL' _ x1 x2 = opOL x1 x2
+    stageOp :
+      (n : Nat) ->
+      OpMonoidTerm n ->
+      Staged (OpMonoidTerm n)
+    stageOp _ (v x1) =
+      const _ (code _ (v x1))
+    stageOp _ (eOL) = Now eOL
+    stageOp _ (opOL x1 x2) =
+      stage2 _ _ _ (opOL' _)
+        (codeLift2 _ _ _ (opOL' _))
+        (stageOp _ x1)
+        (stageOp _ x2)
+    eOL2' :
+      (n : Nat) (A : Set) ->
+      OpMonoidTerm2 n A
+    eOL2' _ _ = eOL2
+    opOL2' :
+      (n : Nat) (A : Set) ->
+      OpMonoidTerm2 n A ->
+      OpMonoidTerm2 n A ->
+      OpMonoidTerm2 n A
+    opOL2' _ _ x1 x2 = opOL2 x1 x2
+    stageOpE :
+      (n : Nat) (A : Set) ->
+      OpMonoidTerm2 n A ->
+      Staged (OpMonoidTerm2 n A)
+    stageOpE _ _ (sing2 x1) =
+      Now (sing2 x1)
+    stageOpE _ _ (v2 x1) =
+      const _ (code _ (v2 x1))
+    stageOpE _ _ (eOL2) = Now eOL2
+    stageOpE _ _ (opOL2 x1 x2) =
+      stage2 _ _ _ (opOL2' _ _)
+        (codeLift2 _ _ _ (opOL2' _ _))
+        (stageOpE _ _ x1)
+        (stageOpE _ _ x2)
+    record MonoidTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        eT : Repr A
+        opT : Repr A -> Repr A -> Repr A
   
   module Pointed where
     record Pointed
@@ -3967,6 +5127,51 @@ module MathScheme where
                                          x1) = psing2 x1
     inductionOpE _ _ p pv2 psing2 peol2 (eOL2) =
       peol2
+    eL' : PointedTerm
+    eL' = eL
+    stageB :
+      PointedTerm ->
+      Staged PointedTerm
+    stageB (eL) = Now eL
+    eCl' :
+      (A : Set) -> ClPointedTerm A
+    eCl' _ = eCl
+    stageCl :
+      (A : Set) ->
+      ClPointedTerm A ->
+      Staged (ClPointedTerm A)
+    stageCl _ (sing x1) =
+      Now (sing x1)
+    stageCl _ (eCl) = Now eCl
+    eOL' :
+      (n : Nat) -> OpPointedTerm n
+    eOL' _ = eOL
+    stageOp :
+      (n : Nat) ->
+      OpPointedTerm n ->
+      Staged (OpPointedTerm n)
+    stageOp _ (v x1) =
+      const _ (code _ (v x1))
+    stageOp _ (eOL) = Now eOL
+    eOL2' :
+      (n : Nat) (A : Set) ->
+      OpPointedTerm2 n A
+    eOL2' _ _ = eOL2
+    stageOpE :
+      (n : Nat) (A : Set) ->
+      OpPointedTerm2 n A ->
+      Staged (OpPointedTerm2 n A)
+    stageOpE _ _ (sing2 x1) =
+      Now (sing2 x1)
+    stageOpE _ _ (v2 x1) =
+      const _ (code _ (v2 x1))
+    stageOpE _ _ (eOL2) = Now eOL2
+    record PointedTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        eT : Repr A
   
   module Pointed0Magma where
     record Pointed0Magma
@@ -4236,6 +5441,98 @@ module MathScheme where
            p0ol2
            popol2
            x2)
+    0L' : Pointed0MagmaTerm
+    0L' = 0L
+    opL' :
+      Pointed0MagmaTerm ->
+      Pointed0MagmaTerm ->
+      Pointed0MagmaTerm
+    opL' x1 x2 = opL x1 x2
+    stageB :
+      Pointed0MagmaTerm ->
+      Staged Pointed0MagmaTerm
+    stageB (0L) = Now 0L
+    stageB (opL x1 x2) =
+      stage2 _ _ _ opL'
+        (codeLift2 _ _ _ opL')
+        (stageB x1)
+        (stageB x2)
+    0Cl' :
+      (A : Set) ->
+      ClPointed0MagmaTerm A
+    0Cl' _ = 0Cl
+    opCl' :
+      (A : Set) ->
+      ClPointed0MagmaTerm A ->
+      ClPointed0MagmaTerm A ->
+      ClPointed0MagmaTerm A
+    opCl' _ x1 x2 = opCl x1 x2
+    stageCl :
+      (A : Set) ->
+      ClPointed0MagmaTerm A ->
+      Staged (ClPointed0MagmaTerm A)
+    stageCl _ (sing x1) =
+      Now (sing x1)
+    stageCl _ (0Cl) = Now 0Cl
+    stageCl _ (opCl x1 x2) =
+      stage2 _ _ _ (opCl' _)
+        (codeLift2 _ _ _ (opCl' _))
+        (stageCl _ x1)
+        (stageCl _ x2)
+    0OL' :
+      (n : Nat) ->
+      OpPointed0MagmaTerm n
+    0OL' _ = 0OL
+    opOL' :
+      (n : Nat) ->
+      OpPointed0MagmaTerm n ->
+      OpPointed0MagmaTerm n ->
+      OpPointed0MagmaTerm n
+    opOL' _ x1 x2 = opOL x1 x2
+    stageOp :
+      (n : Nat) ->
+      OpPointed0MagmaTerm n ->
+      Staged (OpPointed0MagmaTerm n)
+    stageOp _ (v x1) =
+      const _ (code _ (v x1))
+    stageOp _ (0OL) = Now 0OL
+    stageOp _ (opOL x1 x2) =
+      stage2 _ _ _ (opOL' _)
+        (codeLift2 _ _ _ (opOL' _))
+        (stageOp _ x1)
+        (stageOp _ x2)
+    0OL2' :
+      (n : Nat) (A : Set) ->
+      OpPointed0MagmaTerm2 n A
+    0OL2' _ _ = 0OL2
+    opOL2' :
+      (n : Nat) (A : Set) ->
+      OpPointed0MagmaTerm2 n A ->
+      OpPointed0MagmaTerm2 n A ->
+      OpPointed0MagmaTerm2 n A
+    opOL2' _ _ x1 x2 = opOL2 x1 x2
+    stageOpE :
+      (n : Nat) (A : Set) ->
+      OpPointed0MagmaTerm2 n A ->
+      Staged
+        (OpPointed0MagmaTerm2 n A)
+    stageOpE _ _ (sing2 x1) =
+      Now (sing2 x1)
+    stageOpE _ _ (v2 x1) =
+      const _ (code _ (v2 x1))
+    stageOpE _ _ (0OL2) = Now 0OL2
+    stageOpE _ _ (opOL2 x1 x2) =
+      stage2 _ _ _ (opOL2' _ _)
+        (codeLift2 _ _ _ (opOL2' _ _))
+        (stageOpE _ _ x1)
+        (stageOpE _ _ x2)
+    record Pointed0MagmaTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        0T : Repr A
+        opT : Repr A -> Repr A -> Repr A
   
   module PointedMagma where
     record PointedMagma
@@ -4503,6 +5800,97 @@ module MathScheme where
            peol2
            popol2
            x2)
+    eL' : PointedMagmaTerm
+    eL' = eL
+    opL' :
+      PointedMagmaTerm ->
+      PointedMagmaTerm ->
+      PointedMagmaTerm
+    opL' x1 x2 = opL x1 x2
+    stageB :
+      PointedMagmaTerm ->
+      Staged PointedMagmaTerm
+    stageB (eL) = Now eL
+    stageB (opL x1 x2) =
+      stage2 _ _ _ opL'
+        (codeLift2 _ _ _ opL')
+        (stageB x1)
+        (stageB x2)
+    eCl' :
+      (A : Set) ->
+      ClPointedMagmaTerm A
+    eCl' _ = eCl
+    opCl' :
+      (A : Set) ->
+      ClPointedMagmaTerm A ->
+      ClPointedMagmaTerm A ->
+      ClPointedMagmaTerm A
+    opCl' _ x1 x2 = opCl x1 x2
+    stageCl :
+      (A : Set) ->
+      ClPointedMagmaTerm A ->
+      Staged (ClPointedMagmaTerm A)
+    stageCl _ (sing x1) =
+      Now (sing x1)
+    stageCl _ (eCl) = Now eCl
+    stageCl _ (opCl x1 x2) =
+      stage2 _ _ _ (opCl' _)
+        (codeLift2 _ _ _ (opCl' _))
+        (stageCl _ x1)
+        (stageCl _ x2)
+    eOL' :
+      (n : Nat) ->
+      OpPointedMagmaTerm n
+    eOL' _ = eOL
+    opOL' :
+      (n : Nat) ->
+      OpPointedMagmaTerm n ->
+      OpPointedMagmaTerm n ->
+      OpPointedMagmaTerm n
+    opOL' _ x1 x2 = opOL x1 x2
+    stageOp :
+      (n : Nat) ->
+      OpPointedMagmaTerm n ->
+      Staged (OpPointedMagmaTerm n)
+    stageOp _ (v x1) =
+      const _ (code _ (v x1))
+    stageOp _ (eOL) = Now eOL
+    stageOp _ (opOL x1 x2) =
+      stage2 _ _ _ (opOL' _)
+        (codeLift2 _ _ _ (opOL' _))
+        (stageOp _ x1)
+        (stageOp _ x2)
+    eOL2' :
+      (n : Nat) (A : Set) ->
+      OpPointedMagmaTerm2 n A
+    eOL2' _ _ = eOL2
+    opOL2' :
+      (n : Nat) (A : Set) ->
+      OpPointedMagmaTerm2 n A ->
+      OpPointedMagmaTerm2 n A ->
+      OpPointedMagmaTerm2 n A
+    opOL2' _ _ x1 x2 = opOL2 x1 x2
+    stageOpE :
+      (n : Nat) (A : Set) ->
+      OpPointedMagmaTerm2 n A ->
+      Staged (OpPointedMagmaTerm2 n A)
+    stageOpE _ _ (sing2 x1) =
+      Now (sing2 x1)
+    stageOpE _ _ (v2 x1) =
+      const _ (code _ (v2 x1))
+    stageOpE _ _ (eOL2) = Now eOL2
+    stageOpE _ _ (opOL2 x1 x2) =
+      stage2 _ _ _ (opOL2' _ _)
+        (codeLift2 _ _ _ (opOL2' _ _))
+        (stageOpE _ _ x1)
+        (stageOpE _ _ x2)
+    record PointedMagmaTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        eT : Repr A
+        opT : Repr A -> Repr A -> Repr A
   
   module PointedOne where
     record PointedOne
@@ -4652,6 +6040,51 @@ module MathScheme where
                                          x1) = psing2 x1
     inductionOpE _ _ p pv2 psing2 p1ol2 (1OL2) =
       p1ol2
+    1L' : PointedOneTerm
+    1L' = 1L
+    stageB :
+      PointedOneTerm ->
+      Staged PointedOneTerm
+    stageB (1L) = Now 1L
+    1Cl' :
+      (A : Set) -> ClPointedOneTerm A
+    1Cl' _ = 1Cl
+    stageCl :
+      (A : Set) ->
+      ClPointedOneTerm A ->
+      Staged (ClPointedOneTerm A)
+    stageCl _ (sing x1) =
+      Now (sing x1)
+    stageCl _ (1Cl) = Now 1Cl
+    1OL' :
+      (n : Nat) -> OpPointedOneTerm n
+    1OL' _ = 1OL
+    stageOp :
+      (n : Nat) ->
+      OpPointedOneTerm n ->
+      Staged (OpPointedOneTerm n)
+    stageOp _ (v x1) =
+      const _ (code _ (v x1))
+    stageOp _ (1OL) = Now 1OL
+    1OL2' :
+      (n : Nat) (A : Set) ->
+      OpPointedOneTerm2 n A
+    1OL2' _ _ = 1OL2
+    stageOpE :
+      (n : Nat) (A : Set) ->
+      OpPointedOneTerm2 n A ->
+      Staged (OpPointedOneTerm2 n A)
+    stageOpE _ _ (sing2 x1) =
+      Now (sing2 x1)
+    stageOpE _ _ (v2 x1) =
+      const _ (code _ (v2 x1))
+    stageOpE _ _ (1OL2) = Now 1OL2
+    record PointedOneTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        1T : Repr A
   
   module PointedPlusMagma where
     record PointedPlusMagma
@@ -4921,6 +6354,100 @@ module MathScheme where
            x2)
     inductionOpE _ _ p pv2 psing2 p+ol2 peol2 (eOL2) =
       peol2
+    +L' :
+      PointedPlusMagmaTerm ->
+      PointedPlusMagmaTerm ->
+      PointedPlusMagmaTerm
+    +L' x1 x2 = +L x1 x2
+    eL' : PointedPlusMagmaTerm
+    eL' = eL
+    stageB :
+      PointedPlusMagmaTerm ->
+      Staged PointedPlusMagmaTerm
+    stageB (+L x1 x2) =
+      stage2 _ _ _ +L'
+        (codeLift2 _ _ _ +L')
+        (stageB x1)
+        (stageB x2)
+    stageB (eL) = Now eL
+    +Cl' :
+      (A : Set) ->
+      ClPointedPlusMagmaTerm A ->
+      ClPointedPlusMagmaTerm A ->
+      ClPointedPlusMagmaTerm A
+    +Cl' _ x1 x2 = +Cl x1 x2
+    eCl' :
+      (A : Set) ->
+      ClPointedPlusMagmaTerm A
+    eCl' _ = eCl
+    stageCl :
+      (A : Set) ->
+      ClPointedPlusMagmaTerm A ->
+      Staged
+        (ClPointedPlusMagmaTerm A)
+    stageCl _ (sing x1) =
+      Now (sing x1)
+    stageCl _ (+Cl x1 x2) =
+      stage2 _ _ _ (+Cl' _)
+        (codeLift2 _ _ _ (+Cl' _))
+        (stageCl _ x1)
+        (stageCl _ x2)
+    stageCl _ (eCl) = Now eCl
+    +OL' :
+      (n : Nat) ->
+      OpPointedPlusMagmaTerm n ->
+      OpPointedPlusMagmaTerm n ->
+      OpPointedPlusMagmaTerm n
+    +OL' _ x1 x2 = +OL x1 x2
+    eOL' :
+      (n : Nat) ->
+      OpPointedPlusMagmaTerm n
+    eOL' _ = eOL
+    stageOp :
+      (n : Nat) ->
+      OpPointedPlusMagmaTerm n ->
+      Staged
+        (OpPointedPlusMagmaTerm n)
+    stageOp _ (v x1) =
+      const _ (code _ (v x1))
+    stageOp _ (+OL x1 x2) =
+      stage2 _ _ _ (+OL' _)
+        (codeLift2 _ _ _ (+OL' _))
+        (stageOp _ x1)
+        (stageOp _ x2)
+    stageOp _ (eOL) = Now eOL
+    +OL2' :
+      (n : Nat) (A : Set) ->
+      OpPointedPlusMagmaTerm2 n A ->
+      OpPointedPlusMagmaTerm2 n A ->
+      OpPointedPlusMagmaTerm2 n A
+    +OL2' _ _ x1 x2 = +OL2 x1 x2
+    eOL2' :
+      (n : Nat) (A : Set) ->
+      OpPointedPlusMagmaTerm2 n A
+    eOL2' _ _ = eOL2
+    stageOpE :
+      (n : Nat) (A : Set) ->
+      OpPointedPlusMagmaTerm2 n A ->
+      Staged
+        (OpPointedPlusMagmaTerm2 n A)
+    stageOpE _ _ (sing2 x1) =
+      Now (sing2 x1)
+    stageOpE _ _ (v2 x1) =
+      const _ (code _ (v2 x1))
+    stageOpE _ _ (+OL2 x1 x2) =
+      stage2 _ _ _ (+OL2' _ _)
+        (codeLift2 _ _ _ (+OL2' _ _))
+        (stageOpE _ _ x1)
+        (stageOpE _ _ x2)
+    stageOpE _ _ (eOL2) = Now eOL2
+    record PointedPlusMagmaTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        +T : Repr A -> Repr A -> Repr A
+        eT : Repr A
   
   module PointedSemigroup where
     record PointedSemigroup
@@ -5205,6 +6732,100 @@ module MathScheme where
            x2)
     inductionOpE _ _ p pv2 psing2 popol2 peol2 (eOL2) =
       peol2
+    opL' :
+      PointedSemigroupTerm ->
+      PointedSemigroupTerm ->
+      PointedSemigroupTerm
+    opL' x1 x2 = opL x1 x2
+    eL' : PointedSemigroupTerm
+    eL' = eL
+    stageB :
+      PointedSemigroupTerm ->
+      Staged PointedSemigroupTerm
+    stageB (opL x1 x2) =
+      stage2 _ _ _ opL'
+        (codeLift2 _ _ _ opL')
+        (stageB x1)
+        (stageB x2)
+    stageB (eL) = Now eL
+    opCl' :
+      (A : Set) ->
+      ClPointedSemigroupTerm A ->
+      ClPointedSemigroupTerm A ->
+      ClPointedSemigroupTerm A
+    opCl' _ x1 x2 = opCl x1 x2
+    eCl' :
+      (A : Set) ->
+      ClPointedSemigroupTerm A
+    eCl' _ = eCl
+    stageCl :
+      (A : Set) ->
+      ClPointedSemigroupTerm A ->
+      Staged
+        (ClPointedSemigroupTerm A)
+    stageCl _ (sing x1) =
+      Now (sing x1)
+    stageCl _ (opCl x1 x2) =
+      stage2 _ _ _ (opCl' _)
+        (codeLift2 _ _ _ (opCl' _))
+        (stageCl _ x1)
+        (stageCl _ x2)
+    stageCl _ (eCl) = Now eCl
+    opOL' :
+      (n : Nat) ->
+      OpPointedSemigroupTerm n ->
+      OpPointedSemigroupTerm n ->
+      OpPointedSemigroupTerm n
+    opOL' _ x1 x2 = opOL x1 x2
+    eOL' :
+      (n : Nat) ->
+      OpPointedSemigroupTerm n
+    eOL' _ = eOL
+    stageOp :
+      (n : Nat) ->
+      OpPointedSemigroupTerm n ->
+      Staged
+        (OpPointedSemigroupTerm n)
+    stageOp _ (v x1) =
+      const _ (code _ (v x1))
+    stageOp _ (opOL x1 x2) =
+      stage2 _ _ _ (opOL' _)
+        (codeLift2 _ _ _ (opOL' _))
+        (stageOp _ x1)
+        (stageOp _ x2)
+    stageOp _ (eOL) = Now eOL
+    opOL2' :
+      (n : Nat) (A : Set) ->
+      OpPointedSemigroupTerm2 n A ->
+      OpPointedSemigroupTerm2 n A ->
+      OpPointedSemigroupTerm2 n A
+    opOL2' _ _ x1 x2 = opOL2 x1 x2
+    eOL2' :
+      (n : Nat) (A : Set) ->
+      OpPointedSemigroupTerm2 n A
+    eOL2' _ _ = eOL2
+    stageOpE :
+      (n : Nat) (A : Set) ->
+      OpPointedSemigroupTerm2 n A ->
+      Staged
+        (OpPointedSemigroupTerm2 n A)
+    stageOpE _ _ (sing2 x1) =
+      Now (sing2 x1)
+    stageOpE _ _ (v2 x1) =
+      const _ (code _ (v2 x1))
+    stageOpE _ _ (opOL2 x1 x2) =
+      stage2 _ _ _ (opOL2' _ _)
+        (codeLift2 _ _ _ (opOL2' _ _))
+        (stageOpE _ _ x1)
+        (stageOpE _ _ x2)
+    stageOpE _ _ (eOL2) = Now eOL2
+    record PointedSemigroupTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        opT : Repr A -> Repr A -> Repr A
+        eT : Repr A
   
   module PointedZero where
     record PointedZero
@@ -5356,6 +6977,51 @@ module MathScheme where
                                          x1) = psing2 x1
     inductionOpE _ _ p pv2 psing2 p0ol2 (0OL2) =
       p0ol2
+    0L' : PointedZeroTerm
+    0L' = 0L
+    stageB :
+      PointedZeroTerm ->
+      Staged PointedZeroTerm
+    stageB (0L) = Now 0L
+    0Cl' :
+      (A : Set) -> ClPointedZeroTerm A
+    0Cl' _ = 0Cl
+    stageCl :
+      (A : Set) ->
+      ClPointedZeroTerm A ->
+      Staged (ClPointedZeroTerm A)
+    stageCl _ (sing x1) =
+      Now (sing x1)
+    stageCl _ (0Cl) = Now 0Cl
+    0OL' :
+      (n : Nat) -> OpPointedZeroTerm n
+    0OL' _ = 0OL
+    stageOp :
+      (n : Nat) ->
+      OpPointedZeroTerm n ->
+      Staged (OpPointedZeroTerm n)
+    stageOp _ (v x1) =
+      const _ (code _ (v x1))
+    stageOp _ (0OL) = Now 0OL
+    0OL2' :
+      (n : Nat) (A : Set) ->
+      OpPointedZeroTerm2 n A
+    0OL2' _ _ = 0OL2
+    stageOpE :
+      (n : Nat) (A : Set) ->
+      OpPointedZeroTerm2 n A ->
+      Staged (OpPointedZeroTerm2 n A)
+    stageOpE _ _ (sing2 x1) =
+      Now (sing2 x1)
+    stageOpE _ _ (v2 x1) =
+      const _ (code _ (v2 x1))
+    stageOpE _ _ (0OL2) = Now 0OL2
+    record PointedZeroTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        0T : Repr A
   
   module RightUnital where
     record RightUnital
@@ -5629,6 +7295,95 @@ module MathScheme where
            peol2
            popol2
            x2)
+    eL' : RightUnitalTerm
+    eL' = eL
+    opL' :
+      RightUnitalTerm ->
+      RightUnitalTerm ->
+      RightUnitalTerm
+    opL' x1 x2 = opL x1 x2
+    stageB :
+      RightUnitalTerm ->
+      Staged RightUnitalTerm
+    stageB (eL) = Now eL
+    stageB (opL x1 x2) =
+      stage2 _ _ _ opL'
+        (codeLift2 _ _ _ opL')
+        (stageB x1)
+        (stageB x2)
+    eCl' :
+      (A : Set) -> ClRightUnitalTerm A
+    eCl' _ = eCl
+    opCl' :
+      (A : Set) ->
+      ClRightUnitalTerm A ->
+      ClRightUnitalTerm A ->
+      ClRightUnitalTerm A
+    opCl' _ x1 x2 = opCl x1 x2
+    stageCl :
+      (A : Set) ->
+      ClRightUnitalTerm A ->
+      Staged (ClRightUnitalTerm A)
+    stageCl _ (sing x1) =
+      Now (sing x1)
+    stageCl _ (eCl) = Now eCl
+    stageCl _ (opCl x1 x2) =
+      stage2 _ _ _ (opCl' _)
+        (codeLift2 _ _ _ (opCl' _))
+        (stageCl _ x1)
+        (stageCl _ x2)
+    eOL' :
+      (n : Nat) -> OpRightUnitalTerm n
+    eOL' _ = eOL
+    opOL' :
+      (n : Nat) ->
+      OpRightUnitalTerm n ->
+      OpRightUnitalTerm n ->
+      OpRightUnitalTerm n
+    opOL' _ x1 x2 = opOL x1 x2
+    stageOp :
+      (n : Nat) ->
+      OpRightUnitalTerm n ->
+      Staged (OpRightUnitalTerm n)
+    stageOp _ (v x1) =
+      const _ (code _ (v x1))
+    stageOp _ (eOL) = Now eOL
+    stageOp _ (opOL x1 x2) =
+      stage2 _ _ _ (opOL' _)
+        (codeLift2 _ _ _ (opOL' _))
+        (stageOp _ x1)
+        (stageOp _ x2)
+    eOL2' :
+      (n : Nat) (A : Set) ->
+      OpRightUnitalTerm2 n A
+    eOL2' _ _ = eOL2
+    opOL2' :
+      (n : Nat) (A : Set) ->
+      OpRightUnitalTerm2 n A ->
+      OpRightUnitalTerm2 n A ->
+      OpRightUnitalTerm2 n A
+    opOL2' _ _ x1 x2 = opOL2 x1 x2
+    stageOpE :
+      (n : Nat) (A : Set) ->
+      OpRightUnitalTerm2 n A ->
+      Staged (OpRightUnitalTerm2 n A)
+    stageOpE _ _ (sing2 x1) =
+      Now (sing2 x1)
+    stageOpE _ _ (v2 x1) =
+      const _ (code _ (v2 x1))
+    stageOpE _ _ (eOL2) = Now eOL2
+    stageOpE _ _ (opOL2 x1 x2) =
+      stage2 _ _ _ (opOL2' _ _)
+        (codeLift2 _ _ _ (opOL2' _ _))
+        (stageOpE _ _ x1)
+        (stageOpE _ _ x2)
+    record RightUnitalTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        eT : Repr A
+        opT : Repr A -> Repr A -> Repr A
   
   module Semigroup where
     record Semigroup
@@ -5854,6 +7609,77 @@ module MathScheme where
         (inductionOpE _ _ p pv2 psing2
            popol2
            x2)
+    opL' :
+      SemigroupTerm ->
+      SemigroupTerm -> SemigroupTerm
+    opL' x1 x2 = opL x1 x2
+    stageB :
+      SemigroupTerm ->
+      Staged SemigroupTerm
+    stageB (opL x1 x2) =
+      stage2 _ _ _ opL'
+        (codeLift2 _ _ _ opL')
+        (stageB x1)
+        (stageB x2)
+    opCl' :
+      (A : Set) ->
+      ClSemigroupTerm A ->
+      ClSemigroupTerm A ->
+      ClSemigroupTerm A
+    opCl' _ x1 x2 = opCl x1 x2
+    stageCl :
+      (A : Set) ->
+      ClSemigroupTerm A ->
+      Staged (ClSemigroupTerm A)
+    stageCl _ (sing x1) =
+      Now (sing x1)
+    stageCl _ (opCl x1 x2) =
+      stage2 _ _ _ (opCl' _)
+        (codeLift2 _ _ _ (opCl' _))
+        (stageCl _ x1)
+        (stageCl _ x2)
+    opOL' :
+      (n : Nat) ->
+      OpSemigroupTerm n ->
+      OpSemigroupTerm n ->
+      OpSemigroupTerm n
+    opOL' _ x1 x2 = opOL x1 x2
+    stageOp :
+      (n : Nat) ->
+      OpSemigroupTerm n ->
+      Staged (OpSemigroupTerm n)
+    stageOp _ (v x1) =
+      const _ (code _ (v x1))
+    stageOp _ (opOL x1 x2) =
+      stage2 _ _ _ (opOL' _)
+        (codeLift2 _ _ _ (opOL' _))
+        (stageOp _ x1)
+        (stageOp _ x2)
+    opOL2' :
+      (n : Nat) (A : Set) ->
+      OpSemigroupTerm2 n A ->
+      OpSemigroupTerm2 n A ->
+      OpSemigroupTerm2 n A
+    opOL2' _ _ x1 x2 = opOL2 x1 x2
+    stageOpE :
+      (n : Nat) (A : Set) ->
+      OpSemigroupTerm2 n A ->
+      Staged (OpSemigroupTerm2 n A)
+    stageOpE _ _ (sing2 x1) =
+      Now (sing2 x1)
+    stageOpE _ _ (v2 x1) =
+      const _ (code _ (v2 x1))
+    stageOpE _ _ (opOL2 x1 x2) =
+      stage2 _ _ _ (opOL2' _ _)
+        (codeLift2 _ _ _ (opOL2' _ _))
+        (stageOpE _ _ x1)
+        (stageOpE _ _ x2)
+    record SemigroupTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        opT : Repr A -> Repr A -> Repr A
   
   module Unital where
     record Unital
@@ -6120,4 +7946,89 @@ module MathScheme where
            peol2
            popol2
            x2)
+    eL' : UnitalTerm
+    eL' = eL
+    opL' :
+      UnitalTerm ->
+      UnitalTerm -> UnitalTerm
+    opL' x1 x2 = opL x1 x2
+    stageB :
+      UnitalTerm -> Staged UnitalTerm
+    stageB (eL) = Now eL
+    stageB (opL x1 x2) =
+      stage2 _ _ _ opL'
+        (codeLift2 _ _ _ opL')
+        (stageB x1)
+        (stageB x2)
+    eCl' :
+      (A : Set) -> ClUnitalTerm A
+    eCl' _ = eCl
+    opCl' :
+      (A : Set) ->
+      ClUnitalTerm A ->
+      ClUnitalTerm A -> ClUnitalTerm A
+    opCl' _ x1 x2 = opCl x1 x2
+    stageCl :
+      (A : Set) ->
+      ClUnitalTerm A ->
+      Staged (ClUnitalTerm A)
+    stageCl _ (sing x1) =
+      Now (sing x1)
+    stageCl _ (eCl) = Now eCl
+    stageCl _ (opCl x1 x2) =
+      stage2 _ _ _ (opCl' _)
+        (codeLift2 _ _ _ (opCl' _))
+        (stageCl _ x1)
+        (stageCl _ x2)
+    eOL' :
+      (n : Nat) -> OpUnitalTerm n
+    eOL' _ = eOL
+    opOL' :
+      (n : Nat) ->
+      OpUnitalTerm n ->
+      OpUnitalTerm n -> OpUnitalTerm n
+    opOL' _ x1 x2 = opOL x1 x2
+    stageOp :
+      (n : Nat) ->
+      OpUnitalTerm n ->
+      Staged (OpUnitalTerm n)
+    stageOp _ (v x1) =
+      const _ (code _ (v x1))
+    stageOp _ (eOL) = Now eOL
+    stageOp _ (opOL x1 x2) =
+      stage2 _ _ _ (opOL' _)
+        (codeLift2 _ _ _ (opOL' _))
+        (stageOp _ x1)
+        (stageOp _ x2)
+    eOL2' :
+      (n : Nat) (A : Set) ->
+      OpUnitalTerm2 n A
+    eOL2' _ _ = eOL2
+    opOL2' :
+      (n : Nat) (A : Set) ->
+      OpUnitalTerm2 n A ->
+      OpUnitalTerm2 n A ->
+      OpUnitalTerm2 n A
+    opOL2' _ _ x1 x2 = opOL2 x1 x2
+    stageOpE :
+      (n : Nat) (A : Set) ->
+      OpUnitalTerm2 n A ->
+      Staged (OpUnitalTerm2 n A)
+    stageOpE _ _ (sing2 x1) =
+      Now (sing2 x1)
+    stageOpE _ _ (v2 x1) =
+      const _ (code _ (v2 x1))
+    stageOpE _ _ (eOL2) = Now eOL2
+    stageOpE _ _ (opOL2 x1 x2) =
+      stage2 _ _ _ (opOL2' _ _)
+        (codeLift2 _ _ _ (opOL2' _ _))
+        (stageOpE _ _ x1)
+        (stageOpE _ _ x2)
+    record UnitalTagless
+      (A : Set) (Repr : Set -> Set) :
+      Set where
+      constructor tagless
+      field
+        eT : Repr A
+        opT : Repr A -> Repr A -> Repr A
   

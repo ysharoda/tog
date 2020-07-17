@@ -32,6 +32,9 @@ getTermType (TermLang ty _ _ _) = ty
 getTermConstructors :: TermLang -> [Constr]
 getTermConstructors (TermLang _ _ _ cs) = cs
 
+getLangName :: TermLang -> Name_
+getLangName (TermLang _ n _ _) = n 
+
 -- step1: rename all constrs of the thoery
 v1,v2, sing, sing2 :: String
 v1 = "v"

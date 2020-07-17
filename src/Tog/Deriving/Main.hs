@@ -18,12 +18,11 @@ import           Tog.Deriving.TUtils  (mkName, setType,strToDecl)
 import           Tog.Deriving.RelationalInterp
 import           Tog.Deriving.Terms
 import           Tog.Deriving.Evaluator
---import           Tog.Deriving.OpenTermEvaluator
 import           Tog.Deriving.TogPrelude (prelude)
 import           Tog.Deriving.Simplifier
 import           Tog.Deriving.Induction 
 import           Tog.Deriving.StagedTerms
---import           Tog.Deriving.Tagless 
+import           Tog.Deriving.Tagless 
 
 processDefs :: [Language] -> Module
 processDefs = processModule . defsToModule
@@ -36,7 +35,7 @@ processModule (Module n p (Decl_ decls)) =
    Module n p $ Decl_ $
      (prodType : map strToDecl prelude) 
       ++ map genEverything decls   
-processModule _ = error $ "Unparsed theory expressions exists" 
+processModule _ = error "Unparsed theory expressions exists" 
 
 leverageThry :: Eq.EqTheory -> [Decl]
 leverageThry thry =
@@ -50,18 +49,16 @@ leverageThry thry =
      evaluators = evalFuncs thry trmLangs
      inductions = inductionFuncs trmLangs
      stagedTLs = stagedFuncs trmLangs
- --    tagless = taglessRep thry  
- in [sigs, prodthry, hom, relInterp] ++ temLangsDecls ++ simplifiers ++ evaluators ++ inductions ++ stagedTLs
+     tagless = taglessRep thry  
+ in [sigs, prodthry, hom, relInterp] ++ temLangsDecls ++
+    simplifiers ++ evaluators ++ inductions ++ stagedTLs ++ [tagless] 
     
     --[trmlang, openTrmLang] ++ evalTrmLang ++ evalOpenTrmLang ++ simplifier ++
     --stagedClosedTerms ++ stagedOpenTerms ++ [tagless] 
 
 genEverything :: InnerModule -> InnerModule
 genEverything m@(Module_ (Module n p (Decl_ decls))) =
-  Module_ (Module n p (Decl_ $
-    -- [strToDecl "open NatNum ; open Prelude ; "] ++ 
-    decls ++
-    (concatMap leverageThry $ getEqTheories m)))
+  Module_ $ Module n p (Decl_ $ decls ++ (concatMap leverageThry $ getEqTheories m)) 
 genEverything x = x  
 
 {- ------- Filtering the EqTheories ------------ -} 
@@ -104,58 +101,3 @@ createModules theories =
       modules = Map.mapWithKey recordToModule records 
   in Module mathscheme NoParams $ Decl_ $ Map.elems modules 
 
-{-
-[TypeSig (Sig (Name ((1,20),"inductionOpE")) (Pi (Tel [Bind [Arg (Id (NotQual (Name ((1,20),"n"))))] (App [Arg (Id (NotQual (Name ((1,20),"Nat"))))]),Bind [Arg (Id (NotQual (Name ((1,20),"A"))))] (App [Arg (Id (NotQual (Name ((1,20),"Set"))))]),Bind [Arg (Id (NotQual (Name ((1,20),"P"))))] (Fun (App [Arg (Id (NotQual (Name ((1,20),"OpMonoidTerm2")))),Arg (Id (NotQual (Name ((1,20),"n")))),Arg (Id (NotQual (Name ((1,20),"A"))))]) (App [Arg (Id (NotQual (Name ((1,20),"Set"))))]))]) (Fun (Pi (Tel [HBind [Arg (Id (NotQual (Name ((1,20),"x1"))))] (App [Arg (Id (NotQual (Name ((1,20),"A"))))])]) (App [Arg (Id (NotQual (Name ((1,20),"P")))),Arg (App [Arg (Id (NotQual (Name ((1,20),"sing2")))),Arg (Id (NotQual (Name ((1,20),"x1"))))])])) (Fun (Pi (Tel [HBind [Arg (Id (NotQual (Name ((1,20),"fin"))))] (App [Arg (Id (NotQual (Name ((1,20),"Fin")))),Arg (Id (NotQual (Name ((1,20),"n"))))])]) (App [Arg (Id (NotQual (Name ((1,20),"P")))),Arg (App [Arg (Id (NotQual (Name ((1,20),"v2")))),Arg (Id (NotQual (Name ((1,20),"fin"))))])])) (Fun (App [Arg (Id (NotQual (Name ((1,20),"P")))),Arg (App [Arg (Id (NotQual (Name ((1,20),"eOL2"))))])]) (Fun (Pi (Tel [HBind [Arg (Id (NotQual (Name ((1,20),"x1")))),Arg (Id (NotQual (Name ((1,20),"x2"))))] (App [Arg (App [Arg (Id (NotQual (Name ((1,20),"OpMonoidTerm2")))),Arg (Id (NotQual (Name ((1,20),"n")))),Arg (Id (NotQual (Name ((1,20),"A"))))])])]) (Fun (App [Arg (Id (NotQual (Name ((1,20),"P")))),Arg (Id (NotQual (Name ((1,20),"x1"))))]) (Fun (App [Arg (Id (NotQual (Name ((1,20),"P")))),Arg (Id (NotQual (Name ((1,20),"x2"))))]) (App [Arg (Id (NotQual (Name ((1,20),"P")))),Arg (App [Arg (Id (NotQual (Name ((1,20),"opOL2")))),Arg (Id (NotQual (Name ((1,20),"x1")))),Arg (Id (NotQual (Name ((1,20),"x2"))))])])))) (Pi (Tel [Bind [Arg (Id (NotQual (Name ((1,20),"x"))))] (App [Arg (Id (NotQual (Name ((1,20),"OpMonoidTerm2")))),Arg (Id (NotQual (Name ((1,20),"n")))),Arg (Id (NotQual (Name ((1,20),"A"))))])]) (App [Arg (Id (NotQual (Name ((1,20),"P")))),Arg (App [Arg (Id (NotQual (Name ((1,20),"x"))))])])))))))),
-
-
- FunDef (Name ((1,20),"inductionOpE"))
-  [IdP (NotQual (Name ((1,20),"p"))),
-   IdP (NotQual (Name ((1,20),"pv2"))),
-   IdP (NotQual (Name ((1,20),"psing2"))),
-   IdP (NotQual (Name ((1,20),"peol2"))),
-   IdP (NotQual (Name ((1,20),"popol2"))),
-   ConP (NotQual (Name ((1,20),"v2"))) [IdP (NotQual (Name ((1,20),"x1")))]]
-  (FunDefBody (Id (NotQual (Name ((1,20),"pv2")))) NoWhere),
-
- FunDef (Name ((1,20),"inductionOpE"))
- [IdP (NotQual (Name ((1,20),"p"))),
-  IdP (NotQual (Name ((1,20),"pv2"))),
-  IdP (NotQual (Name ((1,20),"psing2"))),
-  IdP (NotQual (Name ((1,20),"peol2"))),
-  IdP (NotQual (Name ((1,20),"popol2"))),
-  ConP (NotQual (Name ((1,20),"sing2"))) [IdP (NotQual (Name ((1,20),"x1")))]]
-  (FunDefBody (Id (NotQual (Name ((1,20),"psing2")))) NoWhere),
-
- FunDef (Name ((1,20),"inductionOpE"))
- [IdP (NotQual (Name ((1,20),"p"))),
-  IdP (NotQual (Name ((1,20),"pv2"))),
-  IdP (NotQual (Name ((1,20),"psing2"))),
-  IdP (NotQual (Name ((1,20),"peol2"))),
-  IdP (NotQual (Name ((1,20),"popol2"))),
-  IdP (NotQual (Name ((1,20),"eOL2")))]
-  (FunDefBody (Id (NotQual (Name ((1,20),"peol2")))) NoWhere),
-
- FunDef (Name ((1,20),"inductionOpE"))
- [IdP (NotQual (Name ((1,20),"p"))),
-  IdP (NotQual (Name ((1,20),"pv2"))),
-  IdP (NotQual (Name ((1,20),"psing2"))),
-  IdP (NotQual (Name ((1,20),"peol2"))),
-  IdP (NotQual (Name ((1,20),"popol2"))),
-  ConP (NotQual (Name ((1,20),"opOL2"))) [IdP (NotQual (Name ((1,20),"x1"))),IdP (NotQual (Name ((1,20),"x2")))]]
-  (FunDefBody
-   (App [Arg (Id (NotQual (Name ((1,20),"opOL2")))),
-         Arg (App [Arg (Id (NotQual (Name ((1,20),"inductionOpE")))),
-                   Arg (Id (NotQual (Name ((1,20),"P")))),
-                   Arg (Id (NotQual (Name ((1,20),"pv2")))),
-                   Arg (Id (NotQual (Name ((1,20),"psing2"))))
-                  ,Arg (Id (NotQual (Name ((1,20),"peol2")))),
-                   Arg (Id (NotQual (Name ((1,20),"popol2")))),
-                   Arg (Id (NotQual (Name ((1,20),"x1"))))]),
-          Arg (App [Arg (Id (NotQual (Name ((1,20),"inductionOpE")))),
-                    Arg (Id (NotQual (Name ((1,20),"P")))),
-                    Arg (Id (NotQual (Name ((1,20),"pv2")))),
-                    Arg (Id (NotQual (Name ((1,20),"psing2")))),
-                    Arg (Id (NotQual (Name ((1,20),"peol2")))),
-                    Arg (Id (NotQual (Name ((1,20),"popol2")))),
-                    Arg (Id (NotQual (Name ((1,20),"x2"))))])]) NoWhere)]
--}

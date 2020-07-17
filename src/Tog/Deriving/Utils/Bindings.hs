@@ -21,7 +21,7 @@ import Tog.Deriving.Types (gmap)
 mkBindExpr :: PConstr -> PConstr -> (Name_,Int) -> [Expr]
 mkBindExpr carrier (PConstr _ typ _) (instName,index) =
   let argNm = mkPExpr carrier (instName,index)
-  in take (exprArity typ) $ repeat argNm 
+  in replicate (exprArity typ) argNm 
     
 mkBindVars :: PConstr -> Char -> [Arg]
 mkBindVars (PConstr _ typ _) sym = map mkArg $ genVarsWSymb sym $ exprArity typ

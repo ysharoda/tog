@@ -69,15 +69,15 @@ typeSingleton constantConstrName =
 
 -- given an expression e, construct P e 
 applyPred :: Expr -> Expr
-applyPred (App [a]) = App $ (mkArg predicateName) : [a]
-applyPred (App as) = App $ (mkArg predicateName) : [Arg $ App as]
-applyPred (Id (NotQual x)) = App $ (mkArg predicateName) : [mkArg $ x ^. name]
+applyPred (App [a]) = App $ mkArg predicateName : [a]
+applyPred (App as) = App $ mkArg predicateName : [Arg $ App as]
+applyPred (Id (NotQual x)) = App $ mkArg predicateName : [mkArg $ x ^. name]
 applyPred _ = error "not a valid function application"
 
 -- given a binding (\x1 x2 -> op x1 x2), construct [P x1, P x2] 
 applyPredToBindings :: Binding -> [Expr]
 applyPredToBindings (Bind as _) =
-  map (\a -> App $ (mkArg predicateName) : [a]) as 
+  map (\a -> App $ mkArg predicateName : [a]) as 
 applyPredToBindings (HBind as e) =
   applyPredToBindings (Bind as e) 
   
@@ -87,9 +87,9 @@ typeFun :: Constr -> Expr
 typeFun constr =
  let (FApp b fexpr) = fapp constr
      binds = map explicitBind b
- in if binds == [] then applyPred fexpr
+ in if null binds then applyPred fexpr
     else Pi (Tel binds) $
-         curryExpr $ (concatMap applyPredToBindings binds) ++ [applyPred fexpr]
+         curryExpr $ concatMap applyPredToBindings binds ++ [applyPred fexpr]
 {-
 inductionOpE : {A : Set} {n : ℕ} → (P : MonTerm' n A → Set) →
           ({fin : Fin n} → P (v fin)) →
@@ -107,10 +107,10 @@ typeSig tl =
  in Sig (mkName $ inducFuncNm $ getTermType tl) $ 
     Pi (Tel $ binds ++ [Bind [mkArg predicateName] (Fun texpr setTypeExpr)]) $
       case getTermType tl of
-        Basic -> curryExpr $ (map typeFun fdecls) ++ [predApp]
-        Closed _ -> curryExpr $ (typeSingleton sing) : (map typeFun fdecls) ++ [predApp]
-        Open _ -> curryExpr $ (typeVar v1) : (map typeFun fdecls) ++ [predApp]
-        ExtOpen _ _ -> curryExpr $ (typeVar v2) : (typeSingleton sing2) : (map typeFun fdecls) ++ [predApp]
+        Basic -> curryExpr $ map typeFun fdecls ++ [predApp]
+        Closed _ -> curryExpr $ typeSingleton sing : map typeFun fdecls ++ [predApp]
+        Open _ -> curryExpr $ typeVar v1 : map typeFun fdecls ++ [predApp]
+        ExtOpen _ _ -> curryExpr $ typeVar v2 : typeSingleton sing2 : map typeFun fdecls ++ [predApp]
 
       {-
 fdecl :: Constr -> (Pattern, FunDefBody)
@@ -129,13 +129,15 @@ patternName n = map toLower (predicateName ++ n)
 -- the patterns for one function declaration 
 patterns :: [Constr] -> [Pattern] 
 patterns cs =
-  [IdP $ mkQName predicateVar] ++ map (IdP . mkQName . patternName . getConstrName) cs
+  IdP (mkQName predicateVar) : map (IdP . mkQName . patternName . getConstrName) cs
 
 -- the expression to be passed over in recursive calls 
 recExpr :: Term -> [Constr] -> Expr 
 recExpr term cs =
  App $
-   [mkArg $ inducFuncNm term] ++ underscoreArgs term ++ (map mkArg $ [predicateVar] ++ (map (patternName . getConstrName) cs)) 
+   [mkArg $ inducFuncNm term] ++
+   underscoreArgs term ++
+   (map mkArg $ predicateVar : map (patternName . getConstrName) cs) 
   
 -- tog does not allow hidden arguments within the a type expression. For example, we cannot have the binding for x1 and x2 in the following definitions to be hidden. This means that we cannot have x1 and x2 be hidden as follows 
 -- induction : ... -> ({x1 x2 : A} -> P x1 -> P x2 -> P (op x1 x2)) -> ..
@@ -143,7 +145,7 @@ recExpr term cs =
 adjustFuncCalls :: Int -> Expr -> Expr
 -- the given expression here is always a function application
 adjustFuncCalls _ (Id x) = Id x
-adjustFuncCalls n (App (a:as)) = App $ a : (take n $ repeat (mkArg "_")) ++ as 
+adjustFuncCalls n (App (a:as)) = App $ a : replicate n (mkArg "_") ++ as 
 adjustFuncCalls _ _ = error "not a function application" 
 
   
@@ -156,7 +158,7 @@ oneInducDef tl =
      check c = (getConstrName c == v1 || getConstrName c == v2 || getConstrName c == sing || getConstrName c == sing2)
      constrFunc index c@(Constr _ e) =
        let pName = getPatternName $ constrPatterns !! index
-           newConstr = Constr (mkName $ pName) e 
+           newConstr = Constr (mkName pName) e 
        in if check c || farity e == 0 then fappExpr newConstr
           else adjustFuncCalls (farity e) $ functor' (recExpr ttyp tconstrs) (fappExpr newConstr)
      mkDecl i c =
