@@ -50,7 +50,8 @@ library
                      , Tog.Deriving.Utils.Types
                      , Tog.Deriving.Tagless
                      , Tog.Deriving.Terms
-                     , Tog.Deriving.Induction 
+                     , Tog.Deriving.Induction
+                     , Tog.Deriving.StagedTerms 
                      
   other-modules:       Data.Collect
                      , Tog.Instrumentation.Conf

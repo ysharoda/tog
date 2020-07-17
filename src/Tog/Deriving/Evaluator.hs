@@ -58,7 +58,7 @@ ftype thry termlang =
    sortExpr = projectConstr thry ""  (thry ^. sort)
    trmTy = getTermType termlang
  in Sig (mkName $ evalFuncName trmTy) $
-   if (newBinds == []) then Fun tinst (Fun linst sortExpr)
+   if null newBinds then Fun tinst (Fun linst sortExpr)
    else Pi (Tel newBinds) $
          Fun tinst $
             case trmTy of
@@ -70,7 +70,7 @@ ftype thry termlang =
 cpattern :: Name_ -> Name_ -> Term -> Constr -> [Pattern]
 cpattern tinstName envName term c =
  let base = [IdP $ mkQName tinstName, mkPattern c]
-     extBase i = (IdP $ mkQName i) : (IdP $ mkQName tinstName) : (IdP $ mkQName envName) : mkPattern c : []
+     extBase i = [IdP $ mkQName i, IdP $ mkQName tinstName, IdP $ mkQName envName, mkPattern c]
  in case term of
     Basic -> base 
     (Closed _) -> base
@@ -110,14 +110,15 @@ oneEvalFunc eq termLang@(TermLang term _ _ constrs) =
       funcs = eq ^. funcTypes 
   in 
   [TypeSig $ ftype eq termLang] ++
-     (if vs == [] then [] 
-      else [FunDef (mkName $ evalFuncName term) (concatMap (cpattern instName envName term) vs) (lookup' "n" envName)]) ++ 
-     (if constants == [] then []
-      else [FunDef (mkName $ evalFuncName term) (concatMap (cpattern instName envName term) constants) constFunc]) ++ 
+     [FunDef (mkName $ evalFuncName term)
+         (concatMap (cpattern instName envName term) vs)
+         (lookup' "n" envName) | not (null vs)] ++ 
+     [FunDef (mkName $ evalFuncName term)
+         (concatMap (cpattern instName envName term) constants)
+         constFunc | not (null constants)] ++ 
      zipWith (FunDef (mkName $ evalFuncName term))
              (map (cpattern instName envName term) fdecls)
              (map (funcDef eq instName envName term) funcs)
 
 evalFuncs :: EqTheory -> [TermLang] -> [Decl]
-evalFuncs eq tlangs =
-  concatMap (oneEvalFunc eq) tlangs 
+evalFuncs eq = concatMap (oneEvalFunc eq) 

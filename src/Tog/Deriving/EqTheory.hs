@@ -27,8 +27,6 @@ import Tog.Deriving.Utils.Functions
 import Tog.Deriving.Utils.QualDecls
 import Tog.Deriving.Lenses (name)
 
-import Control.Lens ((^.))
-
 -- uni sorted equational theory
 -- the waist determines how many parameters we have in the theory, 
 -- like in Musa's work
@@ -56,7 +54,7 @@ params :: EqTheory -> Params
 params = mkParams . map fldsToBinding . args
 
 isArg :: EqTheory -> Constr -> Bool
-isArg t c = elem c (args t)
+isArg t c = c `elem` args t
 
 toDecl :: (Name_ -> Name_) -> EqTheory -> Decl
 toDecl ren t =
@@ -74,11 +72,11 @@ eqApp :: EqTheory -> Maybe Int -> ([Binding],Expr)
 eqApp thry Nothing =
   let binds  = map fldsToHiddenBinds (args thry)
       bnames = getBindingsNames binds
-  in (binds, App $ (mkArg $ thry ^. thyName) : map mkArg bnames)
+  in (binds, App $ mkArg (thry ^. thyName) : map mkArg bnames)
 eqApp thry (Just i) =
   let binds  = indexBindings True i $ map fldsToHiddenBinds (args thry)
       bnames = getBindingsNames binds
-  in (binds, App $ (mkArg $ thry ^. thyName) : map mkArg bnames)   
+  in (binds, App $ mkArg (thry ^. thyName) : map mkArg bnames)   
   
 
 -- Given a theory, the name of an instance of the theory, and a constr,
@@ -86,7 +84,7 @@ eqApp thry (Just i) =
 -- for example (op) or (op M1) 
 projectConstr :: EqTheory -> String -> Constr -> Expr 
 projectConstr thry instName c@(Constr n _)  =
-  if (isArg thry c) then App [mkArg (n ^. name)]
+  if isArg thry c then App [mkArg (n ^. name)]
   else App [mkArg (n ^. name),mkArg instName]
 
 applyProjConstr :: EqTheory -> String -> Constr -> Expr

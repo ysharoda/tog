@@ -12,7 +12,7 @@ import Tog.Deriving.Types    (gmap)
 import Tog.Deriving.Lenses   (name)
 
 ren :: Name -> Name
-ren n = mkName $ if (nam == "Set") then nam else nam ++ "S"
+ren n = mkName $ if nam == "Set" then nam else nam ++ "S"
   where nam = n^.name
 
 signature_ :: Eq.EqTheory -> Eq.EqTheory

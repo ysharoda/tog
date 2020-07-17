@@ -43,8 +43,8 @@ mkParam2 (Constr inm _) vars1 vars2 inst1 inst2 func =
   let iTyp = mkArg $ inm ^. name
       fnm1 = mkPExpr func (inst1,1)
       fnm2 = mkPExpr func (inst2,2)
-      farg1 = App $ [Arg fnm1] ++ vars1
-      farg2 = App $ [Arg fnm2] ++ vars2
+      farg1 = App $ Arg fnm1 : vars1
+      farg2 = App $ Arg fnm2 : vars2
    in App [iTyp,Arg farg1,Arg farg2]     
 
 {- ------------- generate the interpretation declaration ---------- -}
@@ -55,7 +55,7 @@ oneInterp interpFunc carrier inst1 inst2 fsym@(PConstr nm _ _) =
       [args1,args2] = map (concatMap getBindingArgs) [binds1,binds2] 
   in Constr (mkName $ "interp-" ++ nm) $ 
    Pi (Tel $ binds1 ++ binds2) $ 
-     mkFunc $ (mkParam1 interpFunc args1 args2) ++  [mkParam2 interpFunc args1 args2 (inst1) (inst2) fsym]
+     mkFunc $ mkParam1 interpFunc args1 args2 ++  [mkParam2 interpFunc args1 args2 inst1 inst2 fsym]
 
 {- -------- The RelationalInterp record -------------- -}
 
@@ -67,6 +67,6 @@ relationalInterp t =
       interpTyp = mkTwoParamsType psort n1 n2 
       newDecls = map (oneInterp interpTyp psort n1 n2) pfuncs
   in Record (mkName nm)
-      (mkParams $ (map (recordParams Bind) (Eq.args t)) ++ [i1,i2])
+      (mkParams $ map (recordParams Bind) (Eq.args t) ++ [i1,i2])
       (RecordDeclDef setType (mkName $ nm ++ "C")
           (Fields $ interpTyp : newDecls))

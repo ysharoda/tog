@@ -24,10 +24,10 @@ mapping eq =
 taglessRep :: EqTheory -> Decl 
 taglessRep eq =
  let carrierNm = getConstrName (eq ^. sort)
-     fdecls = (foldren eq $ Map.toList $ mapping eq) ^. funcTypes
+     fdecls = foldren eq (Map.toList $ mapping eq) ^. funcTypes
  in Record (mkName $ taglessName eq)
-  (ParamDecl [Bind [mkArg carrierNm] (setTypeAsId),
+  (ParamDecl [Bind [mkArg carrierNm] setTypeAsId,
               Bind [mkArg reprTypeName] $ Fun (App [mkArg "Set"]) (App [mkArg "Set"])]) $ 
-  RecordDeclDef (setType) (mkName "tagless") $
+  RecordDeclDef setType (mkName "tagless") $
    Fields $ map (liftConstr reprTypeName) fdecls
 

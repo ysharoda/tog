@@ -16,7 +16,7 @@ import           Tog.Deriving.Lenses   (name)
 productThry :: Eq.EqTheory -> Eq.EqTheory
 productThry t =
   let -- apply renames to avoid the shadowing problem of Tog
-      ren x = if (x^.name == "Set") then x else over name (++"P") x
+      ren x = if x^.name == "Set" then x else over name (++"P") x
       t' = gmap ren t
       srt = t' ^. Eq.sort
       mkProd = productField $ getConstrName srt
@@ -40,7 +40,7 @@ prodTyp nm = let n = mkArg nm in App [mkArg "Prod", n, n]
 productField :: Name_ -> Constr -> Constr
 productField origSort constr =
   let adjustSort arg@(App [Arg (Id (NotQual (Name (_,srt))))]) =
-        if (srt == origSort) then prodTyp srt else arg
+        if srt == origSort then prodTyp srt else arg
       adjustSort x = x  
   in gmap adjustSort constr
 
