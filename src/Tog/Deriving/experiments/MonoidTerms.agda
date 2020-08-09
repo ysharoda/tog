@@ -131,3 +131,25 @@ data MagmaTerm' (A : Set) : Set where
 inductionM' : {A : Set} → (P : MagmaTerm' A → Set) → ({x : A} → P (singleton x)) → ({x y : MagmaTerm' A} → P x → P y → P (op x y)) → ((x : MagmaTerm' A) → P x)
 inductionM' p psing f (singleton e) = psing {e}
 inductionM' p psing f (op e1 e2) = f (inductionM' p psing f e1) (inductionM' p psing f e2)
+
+-- open term language 
+data MonTerm' (n : ℕ) (A : Set) : Set where 
+ singleton : A -> MonTerm' n A
+ v : (Fin n) -> MonTerm' n A
+ e : MonTerm' n A
+ op : MonTerm' n A -> MonTerm' n A -> MonTerm' n A 
+
+inductionOpE : {A : Set} {n : ℕ} → (P : MonTerm' n A → Set) →
+          ({fin : Fin n} → P (v fin)) →
+          ({x : A} → P (singleton x)) →
+          (P e) → 
+          ({x y : MonTerm' n A} → P x → P y → P (op x y)) → ((x : MonTerm' n A) → P x)
+inductionOpE p _ ps _ _ (singleton x) = ps
+inductionOpE p pv _ _ _ (v x) = pv
+inductionOpE p _ _ pe _ e = pe
+inductionOpE p pv ps pe pbin (op t t₁) =
+  pbin (inductionOpE p pv ps pe pbin t) (inductionOpE p pv ps pe pbin t₁)
+
+  
+
+
