@@ -14,7 +14,7 @@ import           Tog.Deriving.ProductTheory
 import           Tog.Deriving.Signature 
 import           Tog.Deriving.TypeConversions
 import           Tog.Deriving.Types
-import           Tog.Deriving.TUtils  (mkName, setType,strToDecl)
+import           Tog.Deriving.TUtils  (mkName, setType,strToDecl, constrToBinding)
 import           Tog.Deriving.RelationalInterp
 import           Tog.Deriving.Terms
 import           Tog.Deriving.Evaluator
@@ -88,8 +88,10 @@ mathscheme :: Name
 mathscheme = mkName "MathScheme" 
 
 theoryToRecord :: Name_ -> GTheory -> Decl 
-theoryToRecord n (GTheory ps fs) =
-  Record (mkName n) ps (RecordDeclDef setType (mkName $ n++"C") fs)  
+theoryToRecord n (GTheory ds wst) =
+  Record (mkName n) prms (RecordDeclDef setType (mkName $ n++"C") fields)
+  where prms = if wst == 0 || null ds then NoParams else ParamDecl $ map constrToBinding (take wst ds)
+        fields = let flds = (drop wst ds) in if null flds then NoFields else Fields flds 
 
 recordToModule :: Name_ -> Decl -> Decl
 recordToModule n record =

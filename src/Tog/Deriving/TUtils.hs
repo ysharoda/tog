@@ -28,6 +28,8 @@ module Tog.Deriving.TUtils
   , eqFunApp
   , patternToExpr
   , getPatternName
+  , constrToBinding
+  , constrToHBinding
   ) where
 
 import Control.Lens ((^.))
@@ -182,3 +184,8 @@ getPatternName (IdP qname) = getName qname
 getPatternName (ConP qname _) = getName qname
 getPatternName _ = error "either empty or hidden pattern"
 
+constrToBinding :: Constr -> Binding 
+constrToBinding (Constr n e) = Bind [mkArg $ n ^. name] e 
+
+constrToHBinding :: Constr -> Binding 
+constrToHBinding (Constr n e) = HBind [mkArg $ n ^. name] e 

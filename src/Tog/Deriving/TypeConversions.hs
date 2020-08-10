@@ -11,7 +11,7 @@ import           Tog.Deriving.TUtils
 import           Tog.Deriving.Utils 
 import           Tog.Raw.Abs           as Abs
 
-data TRecord = TRecord Name Params RecordBody
+data TRecord = TRecord Name Params RecordBody deriving Show 
 
 recordToEqTheory :: TRecord -> Eq.EqTheory
 recordToEqTheory record@(TRecord nm params _) =
@@ -25,7 +25,7 @@ getRecordSort :: TRecord -> Constr
 getRecordSort record =
   let sort = getRecordComps isSort record
   in if (sort == [])
-     then error $ "Cannot determine the sort"
+     then error $ show record -- "Cannot determine the sort"
      else if (length sort > 1)
      then error $ "Theory has more than one sort"
      else head sort 

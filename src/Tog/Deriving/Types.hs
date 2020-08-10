@@ -28,8 +28,8 @@ gmap r x = Generics.everywhere (Generics.mkT r) x
 
 -- Eq is needed in building 'pushout' below
 data GTheory = GTheory {
-    params :: Params,
-    fields :: Fields }
+    declarations :: [Constr],
+    waist        :: Int }
   deriving (Show, Eq, Generics.Typeable, Generics.Data)
 
 data GView   = GView {

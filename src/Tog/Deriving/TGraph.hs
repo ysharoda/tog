@@ -17,11 +17,12 @@ import qualified Data.List.NonEmpty as NE
 import Control.Lens (over, (^.))
 
 import           Tog.Raw.Abs
-import           Tog.Deriving.Utils
+
 import           Tog.Deriving.TUtils
 import           Tog.Deriving.Types
-
 type RenameFunc = Name_ -> Name_
+
+
 
 {- ------------------- Build the Graph  ----------------- -}
   
@@ -51,19 +52,20 @@ computeExtend newDecls srcThry =
   GView srcThry (extThry newDecls srcThry) (validateRen srcThry Map.empty)
             
 extThry :: [Constr] -> GTheory -> GTheory 
-extThry newConstrs thry =
+extThry newConstrs thry@(GTheory constrs wst) =
   if List.intersect newConstrNames (symbols thry) == []
-  then GTheory (newParams (params thry)) $ newFields (fields thry) -- TODO: Decl added to param?
+  then GTheory (constrs ++ newConstrs) wst
+  -- (newParams (params thry)) $ newFields (fields thry) -- TODO: Decl added to param?
   else error $ "Cannot create theory "
   where newConstrNames = map getConstrName newConstrs
-        sorts = filter (\(Constr _ e) -> isSort e) newConstrs
+ {-     sorts = filter (\(Constr _ e) -> isSort e) newConstrs
         notSorts = newConstrs List.\\ sorts
         newParams NoParams = if sorts == [] then NoParams else ParamDecl $ map fldsToBinding sorts
         newParams (ParamDecl ps) = ParamDecl (ps ++ map fldsToBinding sorts)
         newParams _ = NoParams 
         newFields NoFields = if (notSorts == []) then NoFields else Fields newConstrs
         newFields (Fields fs) = Fields (fs ++ notSorts)
-
+-}
 -- ----------- Arrow -------------
 addArrow :: Name_ -> GView -> TGraph -> TGraph
 addArrow nm arrow =
@@ -105,9 +107,7 @@ createDiamond left right =
      lThry = applyCompositeRename lt lp lren
      rThry = applyCompositeRename rt rp rren
      srcMapped = applyCompositeRename commonSrc lp lren
-     newThry =
-       GTheory (ParamDecl $ disjointUnion3 (getParams $ params srcMapped) (getParams $ params lThry) (getParams $ params rThry))
-               (Fields    $ disjointUnion3 (getFields $ fields srcMapped) (getFields $ fields lThry) (getFields $ fields rThry))
+     newThry = GTheory (disjointUnion3 (declarations srcMapped) (declarations lThry) (declarations rThry)) (waist srcMapped)
      allMaps qp = composeMaps $ (map (\(GView _ _ m) -> m) $ NE.toList $ path qp) ++ [ren qp]
      lView = GView lt newThry $ validateRen lt (allMaps left)
      rView = GView rt newThry $ validateRen rt (allMaps right)
@@ -151,9 +151,9 @@ qpathTarget :: QPath -> GTheory
 qpathTarget = target . NE.last . path
 
 renameThy :: GTheory -> Rename -> GTheory
-renameThy thry m =
-  GTheory (gmap (mapAsFunc m) (params thry)) 
-          (gmap (mapAsFunc m) (fields thry))
+renameThy (GTheory constrs wst) m =
+  GTheory (gmap (mapAsFunc m) constrs) wst
+         -- (gmap (mapAsFunc m) (fields thry))
 
 applyCompositeRename :: GTheory -> Path -> Rename -> GTheory
 applyCompositeRename thry pth rena =
@@ -206,18 +206,16 @@ mapAsFunc :: Rename -> RenameFunc
 mapAsFunc r = \x -> Map.findWithDefault x x r
 
 {- ------------------------------------------------ -} 
-
+{-
 getArgs :: Params -> [Arg]
 getArgs NoParams = []
 getArgs (ParamDef _) = [] 
 getArgs (ParamDecl binds) = concatMap getBindingArgs binds
-
+-}
 symbols :: GTheory -> [Name_]
 symbols thry =
-  let 
-    argNames   = Generics.everything (++) (Generics.mkQ [] (\(Id (NotQual (Name (_,n)))) -> [n])) (getArgs $ params thry)
-    fieldNames = Generics.listify (\(Constr (Name (_, _)) _) -> True) thry
-  in argNames ++ map getConstrName fieldNames
+  let declNames = Generics.listify (\(Constr (Name (_, _)) _) -> True) thry
+  in map getConstrName declNames
 
 checkGuards :: QPath -> QPath -> Bool
 checkGuards qpath1 qpath2 =

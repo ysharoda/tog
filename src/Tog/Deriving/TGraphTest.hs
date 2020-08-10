@@ -8,40 +8,42 @@ import qualified Data.Map            as Map
 import           Control.Lens ((^.), makeLenses, over)
 
 import           Tog.Deriving.Lenses (name)
-import           Tog.Deriving.TUtils (mkField)
 import           Tog.Deriving.Types
 import           Tog.Deriving.TGraph
 import           Tog.Raw.Abs         as Abs
 
-data Graph = Graph {
+data Library = Library {
   _graph   :: TGraph,
   _renames :: Map.Map Name_ Rename }
 
-makeLenses ''Graph
+makeLenses ''Library
 
-initGraph :: Graph 
-initGraph = Graph emptyTG (Map.empty) 
+initLibrary :: Library 
+initLibrary = Library emptyTG (Map.empty)
 
-computeGraph :: [Abs.Language] ->  Graph 
+waistNm :: Int 
+waistNm = 1 
+
+computeGraph :: [Abs.Language] ->  Library 
 computeGraph = foldl add initGraph
 
-add :: Graph -> Abs.Language -> Graph
+add :: Library -> Abs.Language -> Library
 add g (TheoryC nm clist)  = theory  nm clist g
 add g (MappingC nm vlist) = renList nm vlist g
 add g (ModExprC nm mexps) = modExpr nm mexps g
 
-theory :: Name -> [Abs.Constr] -> Graph -> Graph
+theory :: Name -> [Abs.Constr] -> Library -> Library
 theory nm cList = over graph (over nodes (Map.insert (nm^.name) newThry))
-  where newThry  = GTheory NoParams $ mkField cList
+  where newThry  = GTheory cList waistNm 
 
-renList :: Name -> Rens -> Graph -> Graph
+renList :: Name -> Rens -> Library -> Library
 renList nm rens gs = 
   over renames (Map.insert (nm^.name) (rensToRename gs rens)) gs
 
-getTheory :: Graph -> Name -> GTheory
+getTheory :: Library -> Name -> GTheory
 getTheory gs n = lookupName (n^.name) (gs^.graph)
 
-modExpr :: Name -> Abs.ModExpr -> Graph -> Graph
+modExpr :: Name -> Abs.ModExpr -> Library -> Library
 modExpr nam mexpr gs =
   let n = nam^.name
       look = getTheory gs
@@ -78,7 +80,7 @@ modExpr nam mexpr gs =
     Arrow src dest maps ->
      over graph (addArrow n $ GView (look src) (look dest) (rens maps)) gs 
 
-rensToRename :: Graph -> Rens -> Rename
+rensToRename :: Library -> Rens -> Rename
 rensToRename gs (NameRens n) = (gs^.renames) Map.! (n^.name)
 rensToRename _  NoRens = Map.empty
 rensToRename _ (Rens rlist) = Map.fromList $ map (\(RenPair x y) -> (x^.name,y^.name)) rlist
