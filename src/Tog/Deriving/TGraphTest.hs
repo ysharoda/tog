@@ -25,7 +25,7 @@ waistNm :: Int
 waistNm = 1 
 
 computeGraph :: [Abs.Language] ->  Library 
-computeGraph = foldl add initGraph
+computeGraph = foldl add initLibrary
 
 add :: Library -> Abs.Language -> Library
 add g (TheoryC nm clist)  = theory  nm clist g
