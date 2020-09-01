@@ -3,7 +3,7 @@ module Tog.Deriving.Types
   ( Name_ , Path
   , Rename
   , gmap -- generic map
-  , GTheory(..)
+  , GTheory(..), declarations, waist
   , GView(..)
   , QPath(..)
   , TGraph, nodes, edges, emptyTG
@@ -20,7 +20,6 @@ import           Tog.Raw.Abs
 import           Tog.DerivingInsts ()  -- for instances of Tog AST
 
 type Name_ = String
-type Path  = NE.NonEmpty GView
 type Rename = Map.Map Name_ Name_
 
 gmap :: (Generics.Typeable a, Generics.Data b) => (a -> a) -> b -> b
@@ -28,15 +27,19 @@ gmap r x = Generics.everywhere (Generics.mkT r) x
 
 -- Eq is needed in building 'pushout' below
 data GTheory = GTheory {
-    declarations :: [Constr],
-    waist        :: Int }
+    _declarations :: [Constr],
+    _waist        :: Int }
   deriving (Show, Eq, Generics.Typeable, Generics.Data)
+
+makeLenses ''GTheory 
 
 data GView   = GView {
     source  :: GTheory,
     target  :: GTheory,
     rename :: Rename }  
   deriving (Generics.Typeable, Generics.Data)
+
+type Path  = NE.NonEmpty GView
 
 data QPath = QPath { -- Qualified path, i.e. a path with a rename
     path :: Path,

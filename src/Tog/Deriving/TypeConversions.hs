@@ -21,6 +21,12 @@ recordToEqTheory record@(TRecord nm params _) =
    (getRecordComps isAxiom record)
    (paramsNum params)
 
+{-
+gTheoryToEqTheory :: Name_ -> GTheory -> Eq.EqTheory
+gTheoryToEqTheory nm gtheories =
+ Eq.build nm
+    (getRecordComps isSort (gtheories) 
+-}
 getRecordSort :: TRecord -> Constr
 getRecordSort record =
   let sort = getRecordComps isSort record
