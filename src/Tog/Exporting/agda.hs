@@ -1,3 +1,5 @@
+ {-# LANGUAGE UnicodeSyntax #-}
+
 module Agda where
 
 import Tog.Raw.Abs
@@ -97,7 +99,8 @@ lambda = "\\"
 lambdaArrow = "->"
 pi_representation = "->"
 fun_sep = "->"
-equality_symbol = "=="
+equality_import = "import Relation.Binary.PropositionalEquality" 
+equality_symbol = "≡"
 record_keyword = "record"
 record_beforeDecls = "where" 
 record_constructor = "constructor"
