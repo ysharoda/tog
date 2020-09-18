@@ -7,8 +7,6 @@ import Tog.Deriving.TUtils (getArgExpr)
 
 import Control.Lens ((^.))
 import Text.PrettyPrint.Leijen
-import GHC.IO.Handle
-import System.IO
 
 class PrintAgda a where
   printAgda :: a -> Doc 
@@ -36,9 +34,12 @@ instance PrintAgda Binding where
       Bind  _ _ -> parens $ binding b
       HBind _ _ -> braces $ binding b 
 
+instance PrintAgda [Binding] where
+  printAgda bindsList =
+    encloseSep empty empty (text pi_representation) $ map printAgda bindsList
+
 instance PrintAgda Telescope where
-  printAgda (Tel binds) =
-    encloseSep empty empty (text pi_representation) $ map printAgda binds
+  printAgda (Tel binds) = printAgda binds 
 
 instance PrintAgda Expr where
   printAgda (Lam names expr) =
@@ -55,14 +56,49 @@ instance PrintAgda Expr where
   printAgda (App args) =
     let pr = foldr (<+>) empty (map printAgda args)
     in if length args == 1 then pr else parens pr     
-  printAgda (Id qname) = printAgda qname 
-  
+  printAgda (Id qname) = printAgda qname
+
+instance PrintAgda Fields where
+  printAgda NoFields = empty
+  printAgda (Fields constrs) = vsep $ map printAgda constrs
+
+instance PrintAgda Params where
+  printAgda (ParamDecl binds) = printAgda binds
+  printAgda _ = empty 
+
+instance PrintAgda RecordBody where
+  printAgda (RecordDecl typ) = recordHeader typ 
+  printAgda (RecordDef typ flds) = recordHeader typ <$$> recordFields flds 
+  printAgda (RecordDeclDef typ constructor flds) =
+    recordHeader typ <$$> recordConstructor constructor <$$> recordFields flds
+
+instance PrintAgda Decl where
+  printAgda (Record nm params body) =
+    (text record_keyword) <+> printAgda nm <+> printAgda params <+> printAgda body
+  printAgda _ = empty 
+
+-- Utils functions --
+-- nm is the type "Set" 
+recordHeader :: Name -> Doc
+recordHeader nm = text ofType <+> printAgda nm <+> text record_beforeDecls
+
+-- nm is the constructor name 
+recordConstructor :: Name -> Doc
+recordConstructor nm = indent 2 $ text record_constructor <+> printAgda nm
+
+recordFields :: Fields -> Doc
+recordFields flds = indent 2 $ text record_beforeFlds <$$> (indent 2 $ printAgda flds)
+    
 
 -- the config that needs to be imported --
-ofType, lambda, lambdaArrow, pi_representation, fun_sep, equality_symbol :: String 
+ofType, lambda, lambdaArrow, pi_representation, fun_sep, equality_symbol, record_keyword, record_beforeDecls, record_constructor, record_beforeFlds :: String 
 ofType = ":"
 lambda = "\\"
 lambdaArrow = "->"
 pi_representation = "->"
 fun_sep = "->"
-equality_symbol = "==" 
+equality_symbol = "=="
+record_keyword = "record"
+record_beforeDecls = "where" 
+record_constructor = "constructor"
+record_beforeFlds = "fields" 
