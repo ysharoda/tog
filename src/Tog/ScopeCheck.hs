@@ -228,6 +228,7 @@ import qualified Tog.PrettyPrint          as PP
 import           Tog.PrettyPrint          (render, Pretty(..), (<+>), ($$), (//>))
 
 import           Tog.Deriving.Main        (processDefs)
+import           Tog.Exporting.Agda 
 
 #include "impossible.h"
 
@@ -516,15 +517,13 @@ scopeCheckModule (C.Module (C.Name ((l, c), s)) pars (C.Decl_ ds)) =
 scopeCheckModule (C.Module _ _ (C.Lang_ defs)) =
   scopeCheckModule $ processDefs defs
 
-{-
 test file = do 
  s <- readFile file
  case parseModule s of
    Left err -> putStrLn $ render err
    Right (C.Module _ _ (C.Lang_ defs)) -> 
-     let thrs = createModules $ graphNodes $ computeGraph defs
-     in putStrLn $ show $ processModule thrs  
--}
+     PP.putDoc $ printAgda $ processDefs defs
+
 {- -------- for testing ------- -}
 
 -- Useful for debugging.
