@@ -94,11 +94,14 @@ theoryToRecord :: Name_ -> GTheory -> Decl
 theoryToRecord n (GTheory ds wst) =
   Record (mkName n) prms (RecordDeclDef setType (mkName $ n++"C") fields)
   where prms = if wst == 0 || null ds then NoParams else ParamDecl $ map constrToBinding (take wst ds)
-        fields = let flds = (drop wst ds) in if null flds then NoFields else Fields flds 
+        fields = let flds = (drop wst ds) in if null flds then NoFields else Fields flds
+
+openRecord :: Decl -> Decl
+openRecord (Record nm _ _) = Abs.Open $ (Abs.NotQual nm)  
 
 recordToModule :: Name_ -> Decl -> Decl
 recordToModule n record =
-  Module_ $ Module (mkName n) NoParams $ Decl_ [record] 
+  Module_ $ Module (mkName n) NoParams $ Decl_ [record,openRecord record] 
 
 createModules :: Map.Map Name_ GTheory -> Abs.Module
 createModules theories =

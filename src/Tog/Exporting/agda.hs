@@ -114,8 +114,8 @@ instance PrintAgda Decl where
   printAgda (Data nm params body) =
     (text type_keyword) <+> printAgda nm <+> printAgda params <+> printAgda body  
   printAgda (Record nm params body) =
-    (text record_keyword) <+> printAgda nm <+> printAgda params <+> printAgda body <$$>
-    (text open) <+> printAgda nm -- have to open every record type to be able to access those of the type of the theory. 
+    (text record_keyword) <+> printAgda nm <+> printAgda params <+> printAgda body 
+  --  (text open) <+> printAgda nm -- have to open every record type to be able to access those of the type of the theory. 
   printAgda (Open imp) = text open <+> printAgda imp
   printAgda (Import imp) = text import_ <+> printAgda imp
   printAgda (OpenImport imp) = text open_import <+> printAgda imp
