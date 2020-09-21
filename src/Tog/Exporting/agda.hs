@@ -9,6 +9,7 @@ import Tog.Deriving.TUtils (getArgExpr)
 
 import Control.Lens ((^.))
 import Text.PrettyPrint.Leijen as PP 
+import Data.Generics hiding (Constr, empty) 
 
 class PrintAgda a where
   printAgda :: a -> Doc 
@@ -73,11 +74,12 @@ instance PrintAgda Params where
   printAgda (ParamDecl binds) = printAgda binds
   printAgda _ = empty 
 
+-- instead of sending the typ to recordHeader, we send the fields to check for the universe. 
 instance PrintAgda RecordBody where
-  printAgda (RecordDecl typ) = recordHeader typ 
-  printAgda (RecordDef typ flds) = recordHeader typ PP.<$> recordFields flds 
+  printAgda (RecordDecl typ) = recordHeader Nothing -- typ 
+  printAgda (RecordDef typ flds) = recordHeader (Just flds) PP.<$> recordFields flds 
   printAgda (RecordDeclDef typ constructor flds) =
-    recordHeader typ PP.<$> recordConstructor constructor PP.<$> recordFields flds
+    recordHeader (Just flds) PP.<$> recordConstructor constructor PP.<$> recordFields flds
 
 instance PrintAgda DataBody where
   printAgda (DataDecl nm) = dataHeader nm 
@@ -122,6 +124,12 @@ instance PrintAgda Decl where
   printAgda (Module_ m) = printAgda m 
   printAgda _ = empty
 
+universeLevel :: Fields -> Doc
+universeLevel flds =
+  text $
+  if elem "Set" $ everything (++) (mkQ [] (\(Name (_,x)) → [x])) flds 
+  then "Set₁" else "Set" 
+
 instance PrintAgda DeclOrLE where
   printAgda (Decl_ decls) = vsep $ map printAgda decls
   printAgda (Lang_ _) = error "theory expressions not accepted by Agda" 
@@ -137,8 +145,11 @@ emptyTel :: Telescope -> Bool
 emptyTel (Tel b) = null b 
 
 -- nm is the type "Set" 
-recordHeader :: Name -> Doc
-recordHeader nm = text ofType <+> printAgda nm <+> text record_beforeDecls
+recordHeader :: Maybe Fields -> Doc
+recordHeader flds = text ofType <+> universe <+> text record_beforeDecls
+  where universe = case flds of
+          Nothing -> text "Set"
+          Just fs -> universeLevel fs 
 
 -- nm is the constructor name 
 recordConstructor :: Name -> Doc
