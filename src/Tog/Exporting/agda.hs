@@ -50,10 +50,11 @@ instance PrintAgda Telescope where
 
 instance PrintAgda Expr where
   printAgda (Lam names expr) =
-    text lambda <+>
-    foldr (<+>) empty (map printAgda names) <+> 
-    text lambdaArrow <+>
-    printAgda expr
+    parens $
+     text lambda <+>
+     foldr (<+>) empty (map printAgda names) <+> 
+     text lambdaArrow <+>
+     printAgda expr
   printAgda (Pi tel expr) =
     printAgda tel <+> (if emptyTel tel then empty else text pi_representation) <+> printAgda expr
   printAgda (Fun e1 e2) =
