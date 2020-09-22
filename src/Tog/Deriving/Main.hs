@@ -35,8 +35,8 @@ defsToModule = createModules . view (graph . nodes) . computeGraph
 processModule :: Module -> Module
 processModule (Module n p (Decl_ decls)) =
    Module n p $ Decl_ $
-     -- (prodType : map strToDecl prelude) ++ 
-      prodType : map genEverything decls   
+      (prodType : map strToDecl prelude)
+      ++ map genEverything decls   
 processModule _ = error "Unparsed theory expressions exists" 
 
 leverageThry :: Eq.EqTheory -> [Decl]
@@ -45,16 +45,15 @@ leverageThry thry =
      prodthry = (prodTheoryToDecl . productThry) thry
      hom = homomorphism thry
      relInterp = relationalInterp thry
-          {-
      trmLangs = termLangs thry
      temLangsDecls = termLangsToDecls trmLangs
      simplifiers = simplifyFuncs thry trmLangs
      evaluators = evalFuncs thry trmLangs
      inductions = inductionFuncs trmLangs
      stagedTLs = stagedFuncs trmLangs
-     tagless = taglessRep thry  -}
- in [sigs, prodthry, hom, relInterp] -- ++ temLangsDecls 
-   -- ++ simplifiers ++ evaluators ++ inductions ++ stagedTLs ++ [tagless] 
+     tagless = taglessRep thry 
+ in [sigs, prodthry, hom, relInterp] ++ temLangsDecls 
+    ++ simplifiers ++ evaluators ++ inductions  ++ stagedTLs ++ [tagless] 
     
     --[trmlang, openTrmLang] ++ evalTrmLang ++ evalOpenTrmLang ++ simplifier ++
     --stagedClosedTerms ++ stagedOpenTerms ++ [tagless] 

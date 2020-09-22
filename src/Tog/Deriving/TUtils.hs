@@ -15,6 +15,7 @@ module Tog.Deriving.TUtils
   , genVars
   , genVarsWSymb
   , getArgName
+  , getArgExpr
   , exprArity
   , mkArg
   , mkArg' 
@@ -30,6 +31,7 @@ module Tog.Deriving.TUtils
   , getPatternName
   , constrToBinding
   , constrToHBinding
+  , getName 
   ) where
 
 import Control.Lens ((^.))
@@ -76,6 +78,10 @@ getConstrName (Constr n _) = n ^. name
 getArgName :: Arg -> Name_
 getArgName (Arg (Id (NotQual (Name (_,n))))) = n
 getArgName _ = error "Not an identifier"
+
+getArgExpr :: Arg -> Expr
+getArgExpr (Arg  e) = e
+getArgExpr (HArg e) = e
 
 qualDecl :: Name_ -> Name_ -> Expr
 qualDecl declName instName = App [mkArg declName, mkArg instName]

@@ -522,7 +522,7 @@ test file = do
  case parseModule s of
    Left err -> putStrLn $ render err
    Right (C.Module _ _ (C.Lang_ defs)) -> 
-     PP.putDoc $ printAgda $ processDefs defs
+     PP.putDoc $ exportAgda $ processDefs defs
 
 {- -------- for testing ------- -}
 

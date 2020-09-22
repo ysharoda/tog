@@ -5,9 +5,10 @@ module Tog.Exporting.Agda where
 import Tog.Raw.Abs
 import Tog.Deriving.Lenses (name)
 import Tog.Deriving.Utils.Bindings (getBindingArgs, getBindingExpr)
-import Tog.Deriving.TUtils (getArgExpr) 
+import Tog.Deriving.TUtils (getArgExpr, getArgName, getName) 
 
 import Control.Lens ((^.))
+import Tog.Deriving.Lenses (name)
 import Text.PrettyPrint.Leijen as PP 
 import Data.Generics hiding (Constr, empty) 
 
@@ -37,6 +38,11 @@ instance PrintAgda Binding where
       Bind  _ _ -> parens $ binding b
       HBind _ _ -> braces $ binding b 
 
+hasPi :: [Expr] -> Bool 
+hasPi [] = False 
+hasPi ((Pi _ _):xs) = True
+hasPi (_:xs) = hasPi xs 
+
 instance PrintAgda [Binding] where
   printAgda bindsList =
    foldr (<+>) empty $ map printAgda bindsList 
@@ -56,14 +62,15 @@ instance PrintAgda Expr where
      text lambdaArrow <+>
      printAgda expr
   printAgda (Pi tel expr) =
-    printAgda tel <+> (if emptyTel tel then empty else text pi_representation) <+> printAgda expr
+    parens $ printAgda tel <+> (if emptyTel tel then empty else text pi_representation) <+> printAgda expr
   printAgda (Fun e1 e2) =
-    printAgda e1 <+> text fun_sep <+> printAgda e2
+    parens $ printAgda e1 <+> text fun_sep <+> printAgda e2
   printAgda (Eq e1 e2) = -- might need to have a bracket here 
     printAgda e1 <+> text equality_symbol <+> printAgda e2
  -- printAgda (App (Arg ((App [ident,qual]):xs))) = -- the case of a qualified function name 
   printAgda (App args) =
-    let pr = foldr (<+>) empty (map printAgda args)
+    let (App newargs) = callLookup (App args) 
+        pr = foldr (<+>) empty (map printAgda $ newargs)
     in if length args == 1 then pr else parens pr     
   printAgda (Id qname) = printAgda qname
 
@@ -185,4 +192,99 @@ open = "open"
 open_import = "open import"
 import_ = "import"
 module_ = "module"
-module_beforeDecls = "where" 
+module_beforeDecls = "where"   
+
+{- handling imports -}
+{-
+An import replaces one or more of the prelude functions and might have an effect on how the function is called, we handle this here 
+-}
+
+-- the input to the exporter is a list of decls that start with some prelude functions. Some systems might have imports to replace these functions. This would be specified as follows
+
+includeJ, includeSubst, includeSym, includeCong, includeTrans, includeUnit, includeEmptyT, includeNat, includePred, includeIsZero, includeZeroNotSuc, includeLemma, includeSucInj, includeFin, includeVec, includeLookup:: Bool
+includeJ = False
+includeSubst = False
+includeSym = False
+includeCong = False
+includeTrans = False
+includeUnit = False
+includeEmptyT = False
+includeNat = False
+includePred = False
+includeIsZero = False
+includeZeroNotSuc = False
+includeLemma = False
+includeSucInj = False
+includeFin = False
+includeVec = False
+includeLookup = False
+
+imports :: [Doc]
+imports =
+  map text ["open import Agda.Builtin.Equality",
+            "open import Agda.Builtin.Nat",
+            "open import Data.Fin", 
+            "open import Data.Vec"]
+
+{-
+replaceUnit, replacEmpty, replaceNat, replaceFin, replaceVec :: Maybe Doc 
+replaceUnit = Nothing
+replacEmpty = Nothing
+replaceNat = Nothing
+replaceFin = Nothing
+replaceVec = Nothing
+replaceLookup = Nothing -} 
+-- from all the prelude, we only call lookup, Staged and Code.
+
+callLookup :: Expr -> Expr
+callLookup a@(App [nm,a1,a2,a3]) =
+  if (getArgName nm == "lookup") then App [nm,a3,a2] else a
+callLookup e = e 
+
+removeDecl :: String -> [Decl] -> [Decl]
+removeDecl _ [] = [] 
+removeDecl declNm (d:ds) =
+  let headNm = 
+        case d of
+          TypeSig (Sig nm _) -> nm ^. name
+          FunDef nm _ _ -> nm ^. name
+          Data nm _ _ -> nm ^. name
+          Record nm _ _ -> nm ^. name
+          Open qnm -> getName qnm 
+          OpenImport (ImportNoArgs qnm) -> getName qnm
+          OpenImport (ImportArgs qnm _) -> getName qnm
+          Import (ImportNoArgs qnm) -> getName qnm
+          Import (ImportArgs qnm _) -> getName qnm
+          _ -> "" 
+  in if (headNm == declNm) then removeDecl declNm ds else d : removeDecl declNm ds
+
+filterOneDecl :: Bool -> String -> [Decl] -> [Decl]
+filterOneDecl bool str ds = if bool then ds else removeDecl str ds
+  
+filterDecls ::[Decl] -> [Decl]
+filterDecls ds = 
+  filterOneDecl includeJ "J" $
+  filterOneDecl includeSubst "subst" $
+  filterOneDecl includeSym "sym" $
+  filterOneDecl includeCong "cong" $
+  filterOneDecl includeTrans "trans" $
+  filterOneDecl includeUnit "Unit" $ 
+  filterOneDecl includeEmptyT "EmptyT" $
+  filterOneDecl includeNat "Nat" $
+  filterOneDecl includePred "pred" $
+  filterOneDecl includeIsZero "IsZero" $
+  filterOneDecl includeZeroNotSuc "zeroNOTsuc" $
+  filterOneDecl includeLemma "lemma" $
+  filterOneDecl includeSucInj "sucInj" $
+  filterOneDecl includeFin "Fin" $ 
+  filterOneDecl includeVec "Vec" $
+  filterOneDecl includeLookup "lookup" ds 
+ 
+exportAgda :: Module -> Doc
+exportAgda (Module nm params (Decl_ decls)) =
+   text module_ <+>
+   printAgda nm <+>
+   printAgda params <+>
+   text module_beforeDecls PP.<$>
+   (indent 2 $
+     (vsep $ imports ++ map printAgda (filterDecls decls)))
