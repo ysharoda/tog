@@ -99,6 +99,7 @@ constFunc =
     FunDefBody (App [mkArg "x1"]) NoWhere
 
 oneEvalFunc :: EqTheory -> TermLang -> [Decl]
+oneEvalFunc _ (TermLang _ _ _ []) = []
 oneEvalFunc eq termLang@(TermLang term _ _ constrs) =
   let instName= twoCharName (eq ^. thyName) 0 
       envName = "vars"

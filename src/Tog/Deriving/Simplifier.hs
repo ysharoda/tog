@@ -93,6 +93,7 @@ simplifyOpExt :: {A : Term} {n : Nat} -> MonTerm n A -> MonTerm n A
 -} 
 
 oneSimpFunc :: EqTheory -> TermLang -> [Decl]
+oneSimpFunc _ (TermLang _ _ _ []) = []
 oneSimpFunc thry termLang@(TermLang term _ _ constrs) =
  let axms = map (foldrenConstrs (Map.toList $ mapping thry term)) (thry ^. axioms) 
      check c = (getConstrName c == v1 || getConstrName c == v2 || getConstrName c == sing || getConstrName c == sing2)

@@ -150,6 +150,7 @@ adjustFuncCalls _ _ = error "not a function application"
 
   
 oneInducDef :: TermLang -> [Decl]
+oneInducDef (TermLang _ _ _ []) = []
 oneInducDef tl =
  let tconstrs = getTermConstructors tl
   --   constantDecl = filter (getConstrName c == sing || getConstrName c == sing2) constructors
