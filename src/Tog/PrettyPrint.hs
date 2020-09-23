@@ -33,7 +33,7 @@ render x = defaultShow 0 x ""
 
 renderPretty :: Pretty a => Int -> a -> String
 renderPretty width_ x =
-  displayS (PP.renderPretty 0.7 width_ (pretty x)) ""
+  displayS (PP.renderPretty 1.0 width_ (pretty x)) ""
 
 renderCompact :: Pretty a => a -> String
 renderCompact x = displayS (PP.renderCompact (pretty x)) ""
@@ -72,7 +72,7 @@ x // y = x <> group (line <> y)
 x //> y = x <> group (nest 2 (line <> y))
 
 defaultShow :: Pretty a => Int -> a -> ShowS
-defaultShow p = displayS . PP.renderPretty 0.7 80 . prettyPrec p
+defaultShow p = displayS . PP.renderPretty 1.0 500 . prettyPrec p
 
 condParens :: Bool -> Doc -> Doc
 condParens True  = parens
@@ -103,7 +103,7 @@ instance Pretty Doc where
   pretty        = id
 
 instance Pretty () where
-  pretty ()     = text "()"
+  pretty ()     = parens empty 
 
 instance Pretty Bool where
   pretty b      = bool b
@@ -145,11 +145,11 @@ instance (Pretty v) => Pretty (Set.Set v) where
 
 prettyApp :: Pretty a => Int -> Doc -> [a] -> Doc
 prettyApp _ h []   = h
-prettyApp p h args0 = condParens (p > 3) $ h <> nest 2 (group (prettyArgs (reverse args0)))
+prettyApp p h args0 = condParens (p > 3) $ h <> nest 2 (group (prettyArgs (reverse args0))) -- (group (prettyArgs (reverse args0)))
   where
     prettyArgs []           = empty
-    prettyArgs [arg]        = line <> prettyPrec 4 arg
-    prettyArgs (arg : args) = group (prettyArgs args) $$ prettyPrec 4 arg
+   -- prettyArgs [arg]        = fill 1 $ prettyPrec 4 arg -- line <> prettyPrec 4 arg
+    prettyArgs (arg : args) = (prettyArgs args) <+> prettyPrec 4 arg -- group (prettyArgs args) $$ prettyPrec 4 arg
 
 hang :: Natural -> Doc -> Doc
 hang n d = PP.hang (fromIntegral n) d

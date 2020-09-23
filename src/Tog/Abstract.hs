@@ -5,8 +5,9 @@
 module Tog.Abstract where
 
 import           Tog.Prelude
-import           Tog.PrettyPrint
+import           Tog.PrettyPrint as TPP
 import           Tog.Names
+import           Text.PrettyPrint.Leijen as PP
 
 -- * Abstract syntax.
 ------------------------------------------------------------------------
@@ -166,78 +167,117 @@ instance Show Head    where showsPrec = defaultShow
 instance Show Pattern where showsPrec = defaultShow
 instance Show Module  where showsPrec = defaultShow
 
-instance Pretty Module where
+instance TPP.Pretty Module where
   pretty (Module name pars exports decls) =
     let parsDoc =
-          let ds = [parens (pretty n <+> ":" <+> pretty ty) | (n, ty) <- pars]
-          in if null ds then [] else [mconcat ds]
-    in hsep ([text "module", pretty name] ++ parsDoc ++ ["where"]) $$>
-       vcat (map pretty decls)
+          let ds = [PP.parens (TPP.pretty n <+> colon <+> TPP.pretty ty) | (n, ty) <- pars]
+          in if null ds then empty else foldr (<+>) empty ds 
+    in (text "module" <+> TPP.pretty name <+> parsDoc <+> text "where") <$$>
+       (vcat (map TPP.pretty decls))
 
-instance Pretty TypeSig where
+instance TPP.Pretty TypeSig where
   pretty (Sig x e) =
-    pretty x <+> text ":" //> pretty e
+    TPP.pretty x <+> colon <+> TPP.pretty e
 
-instance Pretty Decl where
+instance TPP.Pretty Decl where
   pretty d = case d of
     TypeSig sig ->
-      pretty sig
+      TPP.pretty sig
     Postulate sig ->
-      text "postulate" $$> pretty sig
+      text "postulate" $$> TPP.pretty sig
     Data sig ->
-      text "data" $$> pretty sig
+      text "data" <+> TPP.pretty sig
     Record sig ->
-      text "record" $$> pretty sig
+      text "record" <+> TPP.pretty sig
     FunDef f clauses ->
       vcat $ map (prettyClause f) clauses
     DataDef d xs cs ->
-      hsep (text "data" : pretty d : map pretty xs ++ [text "where"]) $$>
-      vcat (map pretty cs)
+      (text "data" <+> TPP.pretty d <+> (foldr (<+>) empty $ map TPP.pretty xs) <+> text "where") <$$>
+      (vcat (map TPP.pretty cs))
     RecDef r xs con fs ->
-      hsep (text "record" : pretty r : map pretty xs ++ [text "where"]) $$>
-      text "constructor" <+> pretty con $$
-      text "field" $$>
-      vcat (map pretty fs)
+      (text "record" <+> TPP.pretty r <+> (foldr (<+>) empty $ map TPP.pretty xs) <+> text "where") <$$>
+      text "constructor" <+> TPP.pretty con <$$>
+      text "field" <$$>
+      vcat (map TPP.pretty fs)
     Module_ m ->
-      pretty m
+      TPP.pretty m
     Open m ->
-      hsep [text "open", pretty m]
+      text "open" <+> TPP.pretty m
     Import m args ->
-      hsep (text "import" : pretty m : map (prettyPrec 4) args)
+      text "import" <+> TPP.pretty m <+> (foldr (<+>) empty $ map (prettyPrec 4) args)
     where
       prettyClause f (Clause ps (ClauseBody e [])) =
-        group (hsep (pretty f : map pretty ps ++ ["="]) //> pretty e)
+        group (hsep (TPP.pretty f : map TPP.pretty ps ++ ["="]) <+> TPP.pretty e)
       prettyClause f (Clause ps (ClauseBody e wheres)) =
-        group (hsep (pretty f : map pretty ps ++ ["="]) //> pretty e) $$
-        indent 2 ("where" $$ indent 2 (vcat (map pretty wheres)))
+        group (hsep (TPP.pretty f : map TPP.pretty ps ++ ["="]) <+> TPP.pretty e) $$
+        PP.indent 2 ("where" $$ PP.indent 2 (vcat (map TPP.pretty wheres)))
       prettyClause f (Clause ps ClauseNoBody) =
-        group (hsep (pretty f : map pretty ps))
+        group (hsep (TPP.pretty f : map TPP.pretty ps))
 
-instance Pretty ClauseBody where
+instance TPP.Pretty ClauseBody where
   pretty cb = case cb of
     ClauseNoBody -> "<no body>"
-    ClauseBody t wheres -> pretty t $$ indent 2 ("where" $$ indent 2 (vcat (map pretty wheres)))
+    ClauseBody t wheres -> TPP.pretty t $$ PP.indent 2 ("where" $$ PP.indent 2 (vcat (map TPP.pretty wheres)))
 
-instance Pretty Head where
+instance TPP.Pretty Head where
   pretty h = case h of
-    Var x       -> pretty x
-    Def f       -> pretty f
+    Var x       -> TPP.pretty x
+    Def f       -> TPP.pretty f
     J _         -> text "J"
 
-instance Pretty Pattern where
+instance TPP.Pretty Pattern where
   pretty e = case e of
     WildP _   -> text "_"
-    VarP x    -> pretty x
-    ConP c es -> parens $ sep $ pretty c : map pretty es
+    VarP x    -> TPP.pretty x
+    ConP c es -> PP.parens $ foldr (<+>) empty $ TPP.pretty c : map TPP.pretty es
     EmptyP _  -> text "()"
 
 -- Pretty printing terms
 ------------------------------------------------------------------------
 
-instance Pretty Elim where
+instance TPP.Pretty Elim where
   prettyPrec p (Apply e) = condParens (p > 0) $ "$" <+> prettyPrec p e
-  prettyPrec _ (Proj x)  = "." <> pretty x
+  prettyPrec _ (Proj x)  = "." <+> TPP.pretty x
 
+instance TPP.Pretty Expr where
+  prettyPrec p e = case e of
+    Set _       -> text "Set"
+    Meta _      -> text "_"
+    Equal (Meta _) x y ->
+      condParens (p > 2) $
+        prettyPrec 3 x <+> text "==" <+> prettyPrec 2 y
+    Equal a x y -> prettyApp p (text "_==_") [a, x, y]
+    Fun a b ->
+      condParens (p > 0) $ 
+        prettyPrec 1 a <+> text "->" <+> TPP.pretty b
+    Pi{} ->
+      condParens (p > 0) $ align $
+        prettyTel tel <+> text "->" <+> TPP.pretty b
+      where
+        (tel, b) = piView e
+        piView (Pi x a b) = ((x, a) :) *** id $ piView b
+        piView a          = ([], a)
+    Lam{} ->
+      condParens (p > 0) $
+      text "\\ " <+> hsep (map TPP.pretty xs) <+> text "->" <+> TPP.pretty b
+      where
+        (xs, b) = lamView e
+        lamView (Lam x b) = (x :) *** id $ lamView b
+        lamView e         = ([], e)
+    App{} -> prettyApp p (TPP.pretty h) es
+      where
+        (h, es) = appView e
+        appView (App h es) = buildApp h [] es
+        appView e = error $ "impossible: pretty application"
+
+        buildApp :: Head -> [Expr] -> [Elim] -> (Head, [Expr])
+        buildApp h es0 (Apply e : es1) = buildApp h (es0 ++ [e]) es1
+        buildApp h es0 (Proj f  : es1) = buildApp (Def f) [App h $ map Apply es0] es1
+        buildApp h es []               = (h, es)
+    Refl{} -> text "refl"
+    Con c args -> prettyApp p (TPP.pretty c) args
+
+{-
 instance Pretty Expr where
   prettyPrec p e = case e of
     Set _       -> text "Set"
@@ -275,35 +315,34 @@ instance Pretty Expr where
         buildApp h es []               = (h, es)
     Refl{} -> text "refl"
     Con c args -> prettyApp p (pretty c) args
+-} 
 
 prettyTel :: [(Name, Expr)] -> Doc
 prettyTel = group . prs . reverse
   where
     prs []       = empty
     prs [b]      = pr b
-    prs (b : bs) = group (prs bs) $$ pr b
-
+    prs (b : bs) = (prs bs) <+> pr b
 --    pr (x, e@(Pi )) = braces (pretty x <+> text ":" <+> pretty e)
-    pr (x, e) = parens (pretty x <+> text ":" <+> pretty e)
+    pr (x, e) = PP.parens (TPP.pretty x <+> colon <+> TPP.pretty e)
 
 -- Printing declarations as it would be written by the user 
 ------------------------------------------------------------------------
 
-class Pretty a => MorePretty a where
+class TPP.Pretty a => MorePretty a where
   morePretty :: a -> Doc
---  morePretty = pretty
 
 instance MorePretty Module where
   morePretty (Module name pars exports decls) =
     let parsDoc =
-          let ds = [parens (morePretty n <+> ":" <+> morePretty ty) | (n, ty) <- pars]
-          in if null ds then [] else [mconcat ds]
-    in hsep ([text "module", morePretty name] ++ parsDoc ++ ["where"]) $$>
-       vcat (map morePretty decls)
+          let ds = [PP.parens (morePretty n <+> colon <+> morePretty ty) | (n, ty) <- pars]
+          in if null ds then empty else foldr (<+>) empty ds 
+    in (text "module" <+> morePretty name <+> parsDoc <+> text "where") PP.<$$>
+       (PP.indent 2 (vcat (map morePretty decls))) 
 
 instance MorePretty TypeSig where
   morePretty (Sig n e) =
-   morePretty n <+> text ":" //> pretty e
+   morePretty n <+> text ":" <+> TPP.pretty e
 
 instance MorePretty Name where
   morePretty (Name _ str) = text str  
@@ -319,35 +358,35 @@ instance MorePretty Head where
 
 instance MorePretty Expr where
 --  morePretty (App head elim) = morePretty head <> morePretty elim 
-  morePretty = pretty
+  morePretty = TPP.pretty
 
 instance MorePretty Elim where
   morePretty (Proj x) = morePretty x
-  morePretty elim = pretty elim 
+  morePretty elim = TPP.pretty elim 
   
 instance MorePretty Decl where  
   morePretty d = case d of
     Record ts -> text "record" <+> headerTypeSig ts <+> text "where"
     RecDef r xs con fs ->
-      indent 2 $ 
-      align (vsep [text "constructor" <+> morePretty con, text "field"]) $$>
-      vcat (map morePretty fs)
+      PP.indent 2 $ 
+      (align (vsep [text "constructor" <+> morePretty con, text "field"])) PP.<$$>
+      (PP.indent 2 $ PP.vsep (map morePretty fs))
     Data ts -> text "data" <+> headerTypeSig ts <+> text "where"
     DataDef qn ns tys ->
-      indent 2 $
+      PP.indent 2 $
       vcat (map morePretty tys) 
     Module_ m -> morePretty m
-    Import _ _ -> "" 
-    _ -> pretty d
+    Import _ _ -> empty  
+    _ -> TPP.pretty d
    where
     headerTypeExpr e = case e of
      Pi{} -> 
-       align $ prettyTel tel <+> text ":" // pretty b
+       prettyTel tel <+> colon <+> TPP.pretty b
       where
         (tel, b) = piView e
         piView (Pi x a b) = ((x, a) :) *** id $ piView b
         piView a          = ([], a)
-     _ -> ":" <+> pretty e 
+     _ -> colon <+> TPP.pretty e 
     headerTypeSig (Sig n e) =
-      morePretty n //> headerTypeExpr e
+      morePretty n <+> headerTypeExpr e
 
