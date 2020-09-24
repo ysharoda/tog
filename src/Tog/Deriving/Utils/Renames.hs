@@ -6,7 +6,7 @@ import Tog.Deriving.TUtils (mkName,getConstrName)
 import Tog.Deriving.EqTheory
 import Tog.Deriving.Types (gmap)
 
-import Control.Lens ((^.))
+import Control.Lens ((^.),over)
 
 -- renames sn to newName and adds suffix "L" to all other names. 
 ren :: String -> (String,String) -> Name -> Name
@@ -30,3 +30,6 @@ foldrenConstrs ::  [(String,String)] -> Constr -> Constr
 foldrenConstrs [] c = c
 foldrenConstrs ((old,new):rens) c =
   foldrenConstrs rens (gmap (\x -> if x == old then new else x) c)
+
+simpleRen :: String -> Name -> Name
+simpleRen suff nm = if nm^.name == "Set" then nm else over name (++suff) nm

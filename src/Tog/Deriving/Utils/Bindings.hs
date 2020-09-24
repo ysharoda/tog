@@ -7,6 +7,7 @@ module Tog.Deriving.Utils.Bindings
    getBindingsNames,
    unionBindings,
    getBindingArgs,
+   getBindingExpr,
    explicitBind,
    hiddenBind) where 
 
@@ -87,3 +88,7 @@ unionBindings b1 b2 =
 getBindingArgs :: Binding -> [Arg]
 getBindingArgs (Bind as _) = as
 getBindingArgs (HBind as _) = as
+
+getBindingExpr :: Binding -> Expr
+getBindingExpr (Bind  _ expr) = expr
+getBindingExpr (HBind _ expr) = expr
