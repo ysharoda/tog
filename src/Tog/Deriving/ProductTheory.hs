@@ -4,27 +4,26 @@ module Tog.Deriving.ProductTheory
   , productThry
   ) where
 
-import           Control.Lens ((^.), over)
+import           Control.Lens ((^.), over, set)
 
 import           Tog.Raw.Abs
 import           Tog.Deriving.TUtils
 import           Tog.Deriving.Types (gmap, Name_)
 import qualified Tog.Deriving.EqTheory as Eq
-import           Tog.Deriving.Lenses   (name)
+import           Tog.Deriving.Utils.Renames (simpleRen)
 
 -- There is no need for a new data-structure!
 productThry :: Eq.EqTheory -> Eq.EqTheory
 productThry t =
   let -- apply renames to avoid the shadowing problem of Tog
-      ren x = if x^.name == "Set" then x else over name (++"P") x
-      t' = gmap ren t
-      srt = t' ^. Eq.sort
-      mkProd = productField $ getConstrName srt
+      -- ren x = if x^.name == "Set" then x else over name (++"P") x
+      t' = gmap (simpleRen "P") t
+      mkProd = productField $ getConstrName (t' ^. Eq.sort)
   in 
-  over Eq.thyName (++ "Prod") $
-  over Eq.funcTypes (map mkProd) $
-  over Eq.axioms (map mkProd)
-  t'
+   set  Eq.thyName ("Product") $
+   over Eq.funcTypes (map mkProd) $
+   over Eq.axioms (map mkProd)
+   t'
 
 -- prod type declaration 
 -- data Prod (A : Set) (B : Set) : Set

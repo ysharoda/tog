@@ -53,7 +53,7 @@ genEq homFunc args inst1 inst2 pconstr =
 
 homomorphism :: Eq.EqTheory -> Decl
 homomorphism t =
-  let nm = t ^. Eq.thyName ++ "Hom"
+  let nm = "Hom" -- t ^. Eq.thyName ++ "Hom"
       (psort,pfuncs,_) = Eq.mkPConstrs t
       ((i1, n1), (i2, n2)) = createThryInsts t
       a = Eq.args t 

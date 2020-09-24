@@ -11,7 +11,7 @@ import Tog.Deriving.Lenses (name)
 import Control.Lens ((^.))
 
 taglessName :: EqTheory -> Name_
-taglessName eq = (eq ^. thyName) ++ "Tagless"
+taglessName eq = "Tagless"
 
 reprTypeName :: String 
 reprTypeName = "Repr"
