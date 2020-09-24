@@ -1,7 +1,8 @@
 entrypoints Module;
 entrypoints Expr;
 entrypoints Language;
-entrypoints Rens; 
+entrypoints Rens;
+entrypoints Decl; 
 
 layout "where";
 layout "field";
@@ -16,7 +17,7 @@ separator Language ";";
 separator Decl ";";
 
 TheoryC.  Language ::= "Theory" Name "=" "{" [Constr] "}";
-MappingC. Language ::= "Map" Name "=" Rens;
+MappingC. Language ::= "Map" Name "=" "{" [RenPair] "}";
 ModExprC. Language ::= Name "=" ModExpr; 
 
 position token Name ((((letter | '_') (letter | digit | '-' | '\'' | '_')*) | '+' | '*' | '|' | '<' | '>' | '=' | '\\' | '/' | '@' | digit)+) ;
