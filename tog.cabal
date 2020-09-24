@@ -36,14 +36,13 @@ library
                      , Tog.Deriving.Signature 
                      , Tog.Deriving.Types 
                      , Tog.Deriving.Lenses 
-                     , Tog.Deriving.Debug
                      , Tog.Deriving.RelationalInterp
-		     , Tog.Deriving.Utils.Bindings
-		     , Tog.Deriving.Utils.Parameters
-		     , Tog.Deriving.Utils.QualDecls
+                     , Tog.Deriving.Utils.Bindings
+                     , Tog.Deriving.Utils.Parameters
+                     , Tog.Deriving.Utils.QualDecls
                      , Tog.Deriving.Utils.Renames
-		     , Tog.Deriving.Evaluator
-		     , Tog.Deriving.TogPrelude
+                     , Tog.Deriving.Evaluator
+                     , Tog.Deriving.TogPrelude
                      , Tog.Deriving.Utils.Functions
                      , Tog.Deriving.Simplifier
                      , Tog.Deriving.Utils.Variables
@@ -51,7 +50,8 @@ library
                      , Tog.Deriving.Tagless
                      , Tog.Deriving.Terms
                      , Tog.Deriving.Induction
-                     , Tog.Deriving.StagedTerms 
+                     , Tog.Deriving.StagedTerms
+                     , Tog.Exporting.Agda 
                      
   other-modules:       Data.Collect
                      , Tog.Instrumentation.Conf

@@ -23,8 +23,7 @@ import           Tog.Deriving.Simplifier
 import           Tog.Deriving.Induction 
 import           Tog.Deriving.StagedTerms
 import           Tog.Deriving.Tagless
-import           Tog.Exporting.Agda
-import Text.PrettyPrint.Leijen
+
 
 processDefs :: [Language] -> Module
 processDefs = processModule . defsToModule
@@ -94,13 +93,15 @@ theoryToRecord n (GTheory ds wst) =
   Record (mkName n) prms (RecordDeclDef setType (mkName $ n++"C") fields)
   where prms = if wst == 0 || null ds then NoParams else ParamDecl $ map constrToBinding (take wst ds)
         fields = let flds = (drop wst ds) in if null flds then NoFields else Fields flds
-
+{- -- Tog does not allow opening records, only modules. 
 openRecord :: Decl -> Decl
-openRecord (Record nm _ _) = Abs.Open $ (Abs.NotQual nm)  
+openRecord (Record nm _ _) = Abs.Open $ (Abs.NotQual nm)
+openRecord decl = decl
+-}
 
 recordToModule :: Name_ -> Decl -> Decl
 recordToModule n record =
-  Module_ $ Module (mkName n) NoParams $ Decl_ [record,openRecord record] 
+  Module_ $ Module (mkName n) NoParams $ Decl_ [record] -- ,openRecord record] 
 
 createModules :: Map.Map Name_ GTheory -> Abs.Module
 createModules theories =
