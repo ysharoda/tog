@@ -1,15 +1,21 @@
 module Tog.Deriving.TogPrelude (prelude) where
 
-import Data.List 
-
 prelude :: [String] 
 prelude =
-   nat ++
+   prod ++ nat ++
    fin ++ pred' ++ vec ++ unit ++ empty ++
    subst ++ sym ++ cong ++
    isZero ++ zeroNotSuc ++ 
    trans ++ lemma ++ sucInj ++ lookup' ++
    codeModule ++ stagingModule
+
+prod :: [String]
+prod =
+ ("record Prod (A B : Set): Set where {" ++
+   "constructor prodC ;" ++
+   "field { " ++ 
+     "fst : A ; " ++
+     "snd : B } }") : [] 
 
 nat :: [String]
 nat =

@@ -34,7 +34,7 @@ defsToModule = createModules . view (graph . nodes) . computeGraph
 processModule :: Module -> Module
 processModule (Module n p (Decl_ decls)) =
    Module n p $ Decl_ $
-      (prodType : map strToDecl prelude)
+      (map strToDecl prelude)
       ++ map genEverything decls   
 processModule _ = error "Unparsed theory expressions exists" 
 

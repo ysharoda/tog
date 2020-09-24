@@ -1,6 +1,5 @@
 module Tog.Deriving.ProductTheory
-  ( prodType
-  , prodTheoryToDecl
+  ( prodTheoryToDecl
   , productThry
   ) where
 
@@ -25,6 +24,7 @@ productThry t =
    over Eq.axioms (map mkProd)
    t'
 
+{-
 -- prod type declaration 
 -- data Prod (A : Set) (B : Set) : Set
 prodType :: Decl 
@@ -32,7 +32,7 @@ prodType =
   Data (mkName "Prod")
   (ParamDecl [Bind [mkArg "A", mkArg "B"] $ notQualDecl "Set"])
   (DataDeclDef setType [])  
-
+-}
 prodTyp :: Name_ -> Expr
 prodTyp nm = let n = mkArg nm in App [mkArg "Prod", n, n]
 
