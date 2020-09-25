@@ -10,8 +10,9 @@ import Tog.Deriving.TUtils (getArgExpr, getArgName, getName)
 import Control.Lens ((^.))
 import Text.PrettyPrint.Leijen as PP 
 import Data.Generics hiding (Constr, empty)
-import Data.List (concat)
-import Data.List.Split (splitOn) 
+import Data.List (concat, dropWhileEnd, takeWhile)
+import Data.List.Split (splitOn)
+import Data.Char (toUpper) 
 
 -- from out experience, it is useful to have a boolean variable needed in different places for different purposes. In some places it may not be needed, so it can be ignored 
 class PrintAgda a where
@@ -296,12 +297,18 @@ filterDecls ds =
   filterOneDecl includeVec "Vec" $
   filterOneDecl includeLookup "lookup" ds 
  
-exportAgda :: Module -> Doc
-exportAgda (Module nm params (Decl_ decls)) =
+exportAgda :: String → Module -> Doc
+exportAgda moduleName (Module nm params (Decl_ decls)) =
+ let dropLast [] = [] 
+     dropLast [x] = []
+     dropLast (x:xs) = x : dropLast xs 
+     tempName = last $ splitOn "/" $ concat $ dropLast $ splitOn "." moduleName 
+     name = (toUpper $ head tempName) : tail tempName
+ in 
    text module_ <+>
-   printAgda nm <+>
+   printAgda (Name ((0,0),name)) <+>
    printAgda params <+>
    text module_beforeDecls PP.<$>
    (indent 2 $
      (vsep $ imports ++ map printAgda (filterDecls decls)))
-exportAgda _ = error "toplevel needs to be a module" 
+exportAgda _ _ = error "toplevel needs to be a module" 
