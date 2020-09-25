@@ -9,7 +9,9 @@ import Tog.Deriving.TUtils (getArgExpr, getArgName, getName)
 
 import Control.Lens ((^.))
 import Text.PrettyPrint.Leijen as PP 
-import Data.Generics hiding (Constr, empty) 
+import Data.Generics hiding (Constr, empty)
+import Data.List (concat)
+import Data.List.Split (splitOn) 
 
 -- from out experience, it is useful to have a boolean variable needed in different places for different purposes. In some places it may not be needed, so it can be ignored 
 class PrintAgda a where
@@ -17,7 +19,7 @@ class PrintAgda a where
 
 instance PrintAgda Name where
   printAgda nm =
-    text (nm ^. name)
+    text $ replace (nm ^. name)
 
 instance PrintAgda QName where
   printAgda (Qual qn n) = printAgda qn <> dot <> printAgda n
@@ -246,7 +248,14 @@ replaceLookup = Nothing -}
 callLookup :: Expr -> Expr
 callLookup a@(App [nm,_,a2,a3]) =
   if (getArgName nm == "lookup") then App [nm,a3,a2] else a
-callLookup e = e 
+callLookup e = e
+
+replace :: String -> String
+replace nm =
+  let pieces = splitOn "_" nm
+      cond = \x → if (x == "0" || x == "1") then x ++ "ᵢ" else x
+      postProcess lst = (head lst) : (map ("_"++) $ tail lst)
+  in concat $ postProcess $ map cond pieces 
 
 removeDecl :: String -> [Decl] -> [Decl]
 removeDecl _ [] = [] 
