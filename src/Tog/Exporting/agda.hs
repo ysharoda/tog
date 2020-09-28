@@ -153,7 +153,12 @@ instance PrintAgda Module where
 
 -- Utils functions --
 addOpenDecl :: Module -> Module 
-addOpenDecl (Module nm params (Decl_ (x:xs))) = Module nm params (Decl_ (x : (Open $ NotQual nm) : xs))
+addOpenDecl (Module nm params (Decl_ (x:xs))) =
+  Module nm params (Decl_ (imprts ++ ((head rest) : (Open $ NotQual nm) : (tail rest)))) 
+  where (imprts,rest) = ([i | i <- (x:xs), isImport i], [d | d <- (x:xs), not (isImport d)])
+        isImport (Import _) = True
+        isImport (OpenImport _) = True
+        isImport _ = False 
 addOpenDecl m = m
     
 emptyTel :: Telescope -> Bool
@@ -236,6 +241,12 @@ imports =
             "open import Data.Fin", 
             "open import Data.Vec"]
 
+importNames :: [String]
+importNames =
+  ["Agda.Builtin.Equality",
+   "Agda.Builtin.Nat",
+   "Data.Fin", 
+   "Data.Vec"]
 {-
 replaceUnit, replacEmpty, replaceNat, replaceFin, replaceVec :: Maybe Doc 
 replaceUnit = Nothing

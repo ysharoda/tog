@@ -136,7 +136,6 @@ run =
 
 codeModule :: [String]
 codeModule =
-  ["module Code where "] ++
   wrap ++ stage ++ codeRep ++
   uncode ++ code ++ run 
   
@@ -200,8 +199,6 @@ codeLift2 =
 
 stagingModule :: [String]
 stagingModule =
-  ["module Staging where "] ++
-  ["open Code"] ++ 
   choice ++ comp ++ staged ++
   expr ++ const' ++
   stage0 ++ stage1 ++ stage2 ++ codeLift1 ++ codeLift2  

@@ -228,9 +228,6 @@ import qualified Tog.PrettyPrint          as PP
 import           Tog.PrettyPrint          (render, Pretty(..), (<+>), ($$), (//>))
 
 import           Tog.Deriving.Main        (processDefs)
-import           Tog.Exporting.Agda
-import           System.IO (openFile, IOMode(WriteMode), hClose)
-import           Text.PrettyPrint.Leijen (hPutDoc) 
 
 #include "impossible.h"
 
@@ -517,16 +514,7 @@ scopeCheckModule (C.Module (C.Name ((l, c), s)) pars (C.Decl_ ds)) =
   where
     q = QName (Name (SrcLoc l c) s) []
 scopeCheckModule (C.Module _ _ (C.Lang_ defs)) =
-  scopeCheckModule $ processDefs defs
-
-test outputFile file = do 
- s <- readFile file
- handle <- openFile outputFile WriteMode 
- case parseModule s of
-   Left err -> putStrLn $ render err
-   Right (C.Module _ _ (C.Lang_ defs)) -> 
-     hPutDoc handle (exportAgda outputFile $ processDefs defs)
- hClose handle     
+  scopeCheckModule $ processDefs defs    
 
 {- -------- for testing ------- -}
 
