@@ -1,4 +1,5 @@
-module Unital  where
+
+ module Unital  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -10,48 +11,101 @@ module Unital  where
       e : A 
       op : (A  → (A  → A ))
       lunit_e : ({x  : A }  → (op e x ) ≡ x )
-      runit_e : ({x  : A }  → (op x e ) ≡ x )
+      runit_e : ({x  : A }  → (op x e ) ≡ x ) 
+  
   open Unital
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       eS : AS 
-      opS : (AS  → (AS  → AS ))
+      opS : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       eP : (Prod AP AP )
       opP : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
       lunit_eP : ({xP  : (Prod AP AP )}  → (opP eP xP ) ≡ xP )
-      runit_eP : ({xP  : (Prod AP AP )}  → (opP xP eP ) ≡ xP )
+      runit_eP : ({xP  : (Prod AP AP )}  → (opP xP eP ) ≡ xP ) 
+  
   record Hom (A1 A2  : Set ) (Un1  : (Unital A1 )) (Un2  : (Unital A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-e : (  (hom (e Un1 )  ) ≡ (e Un2 ) )
-      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Un1 ) x1 x2 ) ) ≡ ((op Un2 ) (hom x1 ) (hom x2 ) ))
+      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Un1 ) x1 x2 ) ) ≡ ((op Un2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Un1  : (Unital A1 )) (Un2  : (Unital A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-e : (  (interp (e Un1 )  (e Un2 )  ))
-      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Un1 ) x1 x2 ) ((op Un2 ) y1 y2 ) ))))
+      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Un1 ) x1 x2 ) ((op Un2 ) y1 y2 ) )))) 
+  
   data UnitalTerm  : Set where
     eL : UnitalTerm  
-    opL : (UnitalTerm   → (UnitalTerm   → UnitalTerm  ))
+    opL : (UnitalTerm   → (UnitalTerm   → UnitalTerm  )) 
+  
   data ClUnitalTerm (A  : Set )  : Set where
     sing : (A  → (ClUnitalTerm A ) )
     eCl : (ClUnitalTerm A ) 
-    opCl : ((ClUnitalTerm A )  → ((ClUnitalTerm A )  → (ClUnitalTerm A ) ))
+    opCl : ((ClUnitalTerm A )  → ((ClUnitalTerm A )  → (ClUnitalTerm A ) )) 
+  
   data OpUnitalTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpUnitalTerm n ) )
     eOL : (OpUnitalTerm n ) 
-    opOL : ((OpUnitalTerm n )  → ((OpUnitalTerm n )  → (OpUnitalTerm n ) ))
+    opOL : ((OpUnitalTerm n )  → ((OpUnitalTerm n )  → (OpUnitalTerm n ) )) 
+  
   data OpUnitalTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpUnitalTerm2 n A ) )
     sing2 : (A  → (OpUnitalTerm2 n A ) )
     eOL2 : (OpUnitalTerm2 n A ) 
-    opOL2 : ((OpUnitalTerm2 n A )  → ((OpUnitalTerm2 n A )  → (OpUnitalTerm2 n A ) ))
+    opOL2 : ((OpUnitalTerm2 n A )  → ((OpUnitalTerm2 n A )  → (OpUnitalTerm2 n A ) )) 
+  
+  simplifyB : (UnitalTerm  → UnitalTerm )
+  simplifyB (opL eL x )  = x 
+  
+  simplifyB (opL x eL )  = x 
+  
+  simplifyB eL  = eL 
+  
+  simplifyB (opL x1 x2 )  = (opL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClUnitalTerm A ) → (ClUnitalTerm A )))
+  simplifyCl _ (opCl eCl x )  = x 
+  
+  simplifyCl _ (opCl x eCl )  = x 
+  
+  simplifyCl _ eCl  = eCl 
+  
+  simplifyCl _ (opCl x1 x2 )  = (opCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpUnitalTerm n ) → (OpUnitalTerm n )))
+  simplifyOp _ (opOL eOL x )  = x 
+  
+  simplifyOp _ (opOL x eOL )  = x 
+  
+  simplifyOp _ eOL  = eOL 
+  
+  simplifyOp _ (opOL x1 x2 )  = (opOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpUnitalTerm2 n A ) → (OpUnitalTerm2 n A )))
+  simplifyOpE _ _ (opOL2 eOL2 x )  = x 
+  
+  simplifyOpE _ _ (opOL2 x eOL2 )  = x 
+  
+  simplifyOpE _ _ eOL2  = eOL2 
+  
+  simplifyOpE _ _ (opOL2 x1 x2 )  = (opOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((Unital A ) → (UnitalTerm  → A )))
   evalB Un eL  = (e Un ) 
   
@@ -164,4 +218,5 @@ module Unital  where
     constructor tagless
     field
       eT : (Repr A ) 
-      opT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      opT : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

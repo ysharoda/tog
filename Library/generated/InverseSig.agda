@@ -1,4 +1,5 @@
-module InverseSig  where
+
+ module InverseSig  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -9,54 +10,99 @@ module InverseSig  where
     field
       inv : (A  → A )
       e : A 
-      op : (A  → (A  → A ))
+      op : (A  → (A  → A )) 
+  
   open InverseSig
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       invS : (AS  → AS )
       eS : AS 
-      opS : (AS  → (AS  → AS ))
+      opS : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       invP : ((Prod AP AP ) → (Prod AP AP ))
       eP : (Prod AP AP )
-      opP : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
+      opP : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP ))) 
+  
   record Hom (A1 A2  : Set ) (In1  : (InverseSig A1 )) (In2  : (InverseSig A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-inv : ({x1  : A1}  → (hom ((inv In1 ) x1 ) ) ≡ ((inv In2 ) (hom x1 ) ))
       pres-e : (  (hom (e In1 )  ) ≡ (e In2 ) )
-      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op In1 ) x1 x2 ) ) ≡ ((op In2 ) (hom x1 ) (hom x2 ) ))
+      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op In1 ) x1 x2 ) ) ≡ ((op In2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (In1  : (InverseSig A1 )) (In2  : (InverseSig A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-inv : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((inv In1 ) x1 ) ((inv In2 ) y1 ) )))
       interp-e : (  (interp (e In1 )  (e In2 )  ))
-      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op In1 ) x1 x2 ) ((op In2 ) y1 y2 ) ))))
+      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op In1 ) x1 x2 ) ((op In2 ) y1 y2 ) )))) 
+  
   data InverseSigTerm  : Set where
     invL : (InverseSigTerm   → InverseSigTerm  )
     eL : InverseSigTerm  
-    opL : (InverseSigTerm   → (InverseSigTerm   → InverseSigTerm  ))
+    opL : (InverseSigTerm   → (InverseSigTerm   → InverseSigTerm  )) 
+  
   data ClInverseSigTerm (A  : Set )  : Set where
     sing : (A  → (ClInverseSigTerm A ) )
     invCl : ((ClInverseSigTerm A )  → (ClInverseSigTerm A ) )
     eCl : (ClInverseSigTerm A ) 
-    opCl : ((ClInverseSigTerm A )  → ((ClInverseSigTerm A )  → (ClInverseSigTerm A ) ))
+    opCl : ((ClInverseSigTerm A )  → ((ClInverseSigTerm A )  → (ClInverseSigTerm A ) )) 
+  
   data OpInverseSigTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpInverseSigTerm n ) )
     invOL : ((OpInverseSigTerm n )  → (OpInverseSigTerm n ) )
     eOL : (OpInverseSigTerm n ) 
-    opOL : ((OpInverseSigTerm n )  → ((OpInverseSigTerm n )  → (OpInverseSigTerm n ) ))
+    opOL : ((OpInverseSigTerm n )  → ((OpInverseSigTerm n )  → (OpInverseSigTerm n ) )) 
+  
   data OpInverseSigTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpInverseSigTerm2 n A ) )
     sing2 : (A  → (OpInverseSigTerm2 n A ) )
     invOL2 : ((OpInverseSigTerm2 n A )  → (OpInverseSigTerm2 n A ) )
     eOL2 : (OpInverseSigTerm2 n A ) 
-    opOL2 : ((OpInverseSigTerm2 n A )  → ((OpInverseSigTerm2 n A )  → (OpInverseSigTerm2 n A ) ))
+    opOL2 : ((OpInverseSigTerm2 n A )  → ((OpInverseSigTerm2 n A )  → (OpInverseSigTerm2 n A ) )) 
+  
+  simplifyB : (InverseSigTerm  → InverseSigTerm )
+  simplifyB (invL x1 )  = (invL (simplifyB x1 ) )
+  
+  simplifyB eL  = eL 
+  
+  simplifyB (opL x1 x2 )  = (opL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClInverseSigTerm A ) → (ClInverseSigTerm A )))
+  simplifyCl _ (invCl x1 )  = (invCl (simplifyCl _ x1 ) )
+  
+  simplifyCl _ eCl  = eCl 
+  
+  simplifyCl _ (opCl x1 x2 )  = (opCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpInverseSigTerm n ) → (OpInverseSigTerm n )))
+  simplifyOp _ (invOL x1 )  = (invOL (simplifyOp _ x1 ) )
+  
+  simplifyOp _ eOL  = eOL 
+  
+  simplifyOp _ (opOL x1 x2 )  = (opOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpInverseSigTerm2 n A ) → (OpInverseSigTerm2 n A )))
+  simplifyOpE _ _ (invOL2 x1 )  = (invOL2 (simplifyOpE _ _ x1 ) )
+  
+  simplifyOpE _ _ eOL2  = eOL2 
+  
+  simplifyOpE _ _ (opOL2 x1 x2 )  = (opOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((InverseSig A ) → (InverseSigTerm  → A )))
   evalB In (invL x1 )  = ((inv In ) (evalB In x1 ) )
   
@@ -206,4 +252,5 @@ module InverseSig  where
     field
       invT : ((Repr A )  → (Repr A ) )
       eT : (Repr A ) 
-      opT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      opT : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

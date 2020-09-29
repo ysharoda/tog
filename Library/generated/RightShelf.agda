@@ -1,4 +1,5 @@
-module RightShelf  where
+
+ module RightShelf  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -8,39 +9,68 @@ module RightShelf  where
     constructor RightShelfC
     field
       <| : (A  → (A  → A ))
-      rightDistributive : ({x y z  : A }  → (<| (<| y z ) x ) ≡ (<| (<| y x ) (<| z x ) ))
+      rightDistributive : ({x y z  : A }  → (<| (<| y z ) x ) ≡ (<| (<| y x ) (<| z x ) )) 
+  
   open RightShelf
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
-      <|S : (AS  → (AS  → AS ))
+      <|S : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       <|P : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
-      rightDistributiveP : ({xP yP zP  : (Prod AP AP )}  → (<|P (<|P yP zP ) xP ) ≡ (<|P (<|P yP xP ) (<|P zP xP ) ))
+      rightDistributiveP : ({xP yP zP  : (Prod AP AP )}  → (<|P (<|P yP zP ) xP ) ≡ (<|P (<|P yP xP ) (<|P zP xP ) )) 
+  
   record Hom (A1 A2  : Set ) (Ri1  : (RightShelf A1 )) (Ri2  : (RightShelf A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
-      pres-<| : ({x1  : A1} {x2  : A1}  → (hom ((<| Ri1 ) x1 x2 ) ) ≡ ((<| Ri2 ) (hom x1 ) (hom x2 ) ))
+      pres-<| : ({x1  : A1} {x2  : A1}  → (hom ((<| Ri1 ) x1 x2 ) ) ≡ ((<| Ri2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Ri1  : (RightShelf A1 )) (Ri2  : (RightShelf A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
-      interp-<| : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((<| Ri1 ) x1 x2 ) ((<| Ri2 ) y1 y2 ) ))))
+      interp-<| : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((<| Ri1 ) x1 x2 ) ((<| Ri2 ) y1 y2 ) )))) 
+  
   data RightShelfTerm  : Set where
-    <|L : (RightShelfTerm   → (RightShelfTerm   → RightShelfTerm  ))
+    <|L : (RightShelfTerm   → (RightShelfTerm   → RightShelfTerm  )) 
+  
   data ClRightShelfTerm (A  : Set )  : Set where
     sing : (A  → (ClRightShelfTerm A ) )
-    <|Cl : ((ClRightShelfTerm A )  → ((ClRightShelfTerm A )  → (ClRightShelfTerm A ) ))
+    <|Cl : ((ClRightShelfTerm A )  → ((ClRightShelfTerm A )  → (ClRightShelfTerm A ) )) 
+  
   data OpRightShelfTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpRightShelfTerm n ) )
-    <|OL : ((OpRightShelfTerm n )  → ((OpRightShelfTerm n )  → (OpRightShelfTerm n ) ))
+    <|OL : ((OpRightShelfTerm n )  → ((OpRightShelfTerm n )  → (OpRightShelfTerm n ) )) 
+  
   data OpRightShelfTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpRightShelfTerm2 n A ) )
     sing2 : (A  → (OpRightShelfTerm2 n A ) )
-    <|OL2 : ((OpRightShelfTerm2 n A )  → ((OpRightShelfTerm2 n A )  → (OpRightShelfTerm2 n A ) ))
+    <|OL2 : ((OpRightShelfTerm2 n A )  → ((OpRightShelfTerm2 n A )  → (OpRightShelfTerm2 n A ) )) 
+  
+  simplifyB : (RightShelfTerm  → RightShelfTerm )
+  simplifyB (<|L x1 x2 )  = (<|L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClRightShelfTerm A ) → (ClRightShelfTerm A )))
+  simplifyCl _ (<|Cl x1 x2 )  = (<|Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpRightShelfTerm n ) → (OpRightShelfTerm n )))
+  simplifyOp _ (<|OL x1 x2 )  = (<|OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpRightShelfTerm2 n A ) → (OpRightShelfTerm2 n A )))
+  simplifyOpE _ _ (<|OL2 x1 x2 )  = (<|OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((RightShelf A ) → (RightShelfTerm  → A )))
   evalB Ri (<|L x1 x2 )  = ((<| Ri ) (evalB Ri x1 ) (evalB Ri x2 ) )
   
@@ -116,4 +146,5 @@ module RightShelf  where
   record Tagless (A  : Set) (Repr  : (Set  → Set ))  : Set where
     constructor tagless
     field
-      <|T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      <|T : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

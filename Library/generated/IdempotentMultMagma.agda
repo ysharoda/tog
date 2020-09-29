@@ -1,4 +1,5 @@
-module IdempotentMultMagma  where
+
+ module IdempotentMultMagma  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -8,39 +9,68 @@ module IdempotentMultMagma  where
     constructor IdempotentMultMagmaC
     field
       * : (A  → (A  → A ))
-      idempotent_* : ({x  : A }  → (* x x ) ≡ x )
+      idempotent_* : ({x  : A }  → (* x x ) ≡ x ) 
+  
   open IdempotentMultMagma
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
-      *S : (AS  → (AS  → AS ))
+      *S : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       *P : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
-      idempotent_*P : ({xP  : (Prod AP AP )}  → (*P xP xP ) ≡ xP )
+      idempotent_*P : ({xP  : (Prod AP AP )}  → (*P xP xP ) ≡ xP ) 
+  
   record Hom (A1 A2  : Set ) (Id1  : (IdempotentMultMagma A1 )) (Id2  : (IdempotentMultMagma A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
-      pres-* : ({x1  : A1} {x2  : A1}  → (hom ((* Id1 ) x1 x2 ) ) ≡ ((* Id2 ) (hom x1 ) (hom x2 ) ))
+      pres-* : ({x1  : A1} {x2  : A1}  → (hom ((* Id1 ) x1 x2 ) ) ≡ ((* Id2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Id1  : (IdempotentMultMagma A1 )) (Id2  : (IdempotentMultMagma A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
-      interp-* : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((* Id1 ) x1 x2 ) ((* Id2 ) y1 y2 ) ))))
+      interp-* : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((* Id1 ) x1 x2 ) ((* Id2 ) y1 y2 ) )))) 
+  
   data IdempotentMultMagmaTerm  : Set where
-    *L : (IdempotentMultMagmaTerm   → (IdempotentMultMagmaTerm   → IdempotentMultMagmaTerm  ))
+    *L : (IdempotentMultMagmaTerm   → (IdempotentMultMagmaTerm   → IdempotentMultMagmaTerm  )) 
+  
   data ClIdempotentMultMagmaTerm (A  : Set )  : Set where
     sing : (A  → (ClIdempotentMultMagmaTerm A ) )
-    *Cl : ((ClIdempotentMultMagmaTerm A )  → ((ClIdempotentMultMagmaTerm A )  → (ClIdempotentMultMagmaTerm A ) ))
+    *Cl : ((ClIdempotentMultMagmaTerm A )  → ((ClIdempotentMultMagmaTerm A )  → (ClIdempotentMultMagmaTerm A ) )) 
+  
   data OpIdempotentMultMagmaTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpIdempotentMultMagmaTerm n ) )
-    *OL : ((OpIdempotentMultMagmaTerm n )  → ((OpIdempotentMultMagmaTerm n )  → (OpIdempotentMultMagmaTerm n ) ))
+    *OL : ((OpIdempotentMultMagmaTerm n )  → ((OpIdempotentMultMagmaTerm n )  → (OpIdempotentMultMagmaTerm n ) )) 
+  
   data OpIdempotentMultMagmaTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpIdempotentMultMagmaTerm2 n A ) )
     sing2 : (A  → (OpIdempotentMultMagmaTerm2 n A ) )
-    *OL2 : ((OpIdempotentMultMagmaTerm2 n A )  → ((OpIdempotentMultMagmaTerm2 n A )  → (OpIdempotentMultMagmaTerm2 n A ) ))
+    *OL2 : ((OpIdempotentMultMagmaTerm2 n A )  → ((OpIdempotentMultMagmaTerm2 n A )  → (OpIdempotentMultMagmaTerm2 n A ) )) 
+  
+  simplifyB : (IdempotentMultMagmaTerm  → IdempotentMultMagmaTerm )
+  simplifyB (*L x1 x2 )  = (*L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClIdempotentMultMagmaTerm A ) → (ClIdempotentMultMagmaTerm A )))
+  simplifyCl _ (*Cl x1 x2 )  = (*Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpIdempotentMultMagmaTerm n ) → (OpIdempotentMultMagmaTerm n )))
+  simplifyOp _ (*OL x1 x2 )  = (*OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpIdempotentMultMagmaTerm2 n A ) → (OpIdempotentMultMagmaTerm2 n A )))
+  simplifyOpE _ _ (*OL2 x1 x2 )  = (*OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((IdempotentMultMagma A ) → (IdempotentMultMagmaTerm  → A )))
   evalB Id (*L x1 x2 )  = ((* Id ) (evalB Id x1 ) (evalB Id x2 ) )
   
@@ -116,4 +146,5 @@ module IdempotentMultMagma  where
   record Tagless (A  : Set) (Repr  : (Set  → Set ))  : Set where
     constructor tagless
     field
-      *T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      *T : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

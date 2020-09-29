@@ -1,4 +1,5 @@
-module RingoidWithAddAntiDistrib  where
+
+ module RingoidWithAddAntiDistrib  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -12,14 +13,16 @@ module RingoidWithAddAntiDistrib  where
       antidis_prim_+ : ({x y  : A }  → (prim (+ x y ) ) ≡ (+ (prim y ) (prim x ) ))
       * : (A  → (A  → A ))
       leftDistributive_*_+ : ({x y z  : A }  → (* x (+ y z ) ) ≡ (+ (* x y ) (* x z ) ))
-      rightDistributive_*_+ : ({x y z  : A }  → (* (+ y z ) x ) ≡ (+ (* y x ) (* z x ) ))
+      rightDistributive_*_+ : ({x y z  : A }  → (* (+ y z ) x ) ≡ (+ (* y x ) (* z x ) )) 
+  
   open RingoidWithAddAntiDistrib
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       +S : (AS  → (AS  → AS ))
       primS : (AS  → AS )
-      *S : (AS  → (AS  → AS ))
+      *S : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
@@ -28,41 +31,92 @@ module RingoidWithAddAntiDistrib  where
       *P : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
       antidis_prim_+P : ({xP yP  : (Prod AP AP )}  → (primP (+P xP yP ) ) ≡ (+P (primP yP ) (primP xP ) ))
       leftDistributive_*_+P : ({xP yP zP  : (Prod AP AP )}  → (*P xP (+P yP zP ) ) ≡ (+P (*P xP yP ) (*P xP zP ) ))
-      rightDistributive_*_+P : ({xP yP zP  : (Prod AP AP )}  → (*P (+P yP zP ) xP ) ≡ (+P (*P yP xP ) (*P zP xP ) ))
+      rightDistributive_*_+P : ({xP yP zP  : (Prod AP AP )}  → (*P (+P yP zP ) xP ) ≡ (+P (*P yP xP ) (*P zP xP ) )) 
+  
   record Hom (A1 A2  : Set ) (Ri1  : (RingoidWithAddAntiDistrib A1 )) (Ri2  : (RingoidWithAddAntiDistrib A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-+ : ({x1  : A1} {x2  : A1}  → (hom ((+ Ri1 ) x1 x2 ) ) ≡ ((+ Ri2 ) (hom x1 ) (hom x2 ) ))
       pres-prim : ({x1  : A1}  → (hom ((prim Ri1 ) x1 ) ) ≡ ((prim Ri2 ) (hom x1 ) ))
-      pres-* : ({x1  : A1} {x2  : A1}  → (hom ((* Ri1 ) x1 x2 ) ) ≡ ((* Ri2 ) (hom x1 ) (hom x2 ) ))
+      pres-* : ({x1  : A1} {x2  : A1}  → (hom ((* Ri1 ) x1 x2 ) ) ≡ ((* Ri2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Ri1  : (RingoidWithAddAntiDistrib A1 )) (Ri2  : (RingoidWithAddAntiDistrib A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-+ : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((+ Ri1 ) x1 x2 ) ((+ Ri2 ) y1 y2 ) ))))
       interp-prim : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((prim Ri1 ) x1 ) ((prim Ri2 ) y1 ) )))
-      interp-* : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((* Ri1 ) x1 x2 ) ((* Ri2 ) y1 y2 ) ))))
+      interp-* : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((* Ri1 ) x1 x2 ) ((* Ri2 ) y1 y2 ) )))) 
+  
   data RingoidWithAddAntiDistribTerm  : Set where
     +L : (RingoidWithAddAntiDistribTerm   → (RingoidWithAddAntiDistribTerm   → RingoidWithAddAntiDistribTerm  ))
     primL : (RingoidWithAddAntiDistribTerm   → RingoidWithAddAntiDistribTerm  )
-    *L : (RingoidWithAddAntiDistribTerm   → (RingoidWithAddAntiDistribTerm   → RingoidWithAddAntiDistribTerm  ))
+    *L : (RingoidWithAddAntiDistribTerm   → (RingoidWithAddAntiDistribTerm   → RingoidWithAddAntiDistribTerm  )) 
+  
   data ClRingoidWithAddAntiDistribTerm (A  : Set )  : Set where
     sing : (A  → (ClRingoidWithAddAntiDistribTerm A ) )
     +Cl : ((ClRingoidWithAddAntiDistribTerm A )  → ((ClRingoidWithAddAntiDistribTerm A )  → (ClRingoidWithAddAntiDistribTerm A ) ))
     primCl : ((ClRingoidWithAddAntiDistribTerm A )  → (ClRingoidWithAddAntiDistribTerm A ) )
-    *Cl : ((ClRingoidWithAddAntiDistribTerm A )  → ((ClRingoidWithAddAntiDistribTerm A )  → (ClRingoidWithAddAntiDistribTerm A ) ))
+    *Cl : ((ClRingoidWithAddAntiDistribTerm A )  → ((ClRingoidWithAddAntiDistribTerm A )  → (ClRingoidWithAddAntiDistribTerm A ) )) 
+  
   data OpRingoidWithAddAntiDistribTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpRingoidWithAddAntiDistribTerm n ) )
     +OL : ((OpRingoidWithAddAntiDistribTerm n )  → ((OpRingoidWithAddAntiDistribTerm n )  → (OpRingoidWithAddAntiDistribTerm n ) ))
     primOL : ((OpRingoidWithAddAntiDistribTerm n )  → (OpRingoidWithAddAntiDistribTerm n ) )
-    *OL : ((OpRingoidWithAddAntiDistribTerm n )  → ((OpRingoidWithAddAntiDistribTerm n )  → (OpRingoidWithAddAntiDistribTerm n ) ))
+    *OL : ((OpRingoidWithAddAntiDistribTerm n )  → ((OpRingoidWithAddAntiDistribTerm n )  → (OpRingoidWithAddAntiDistribTerm n ) )) 
+  
   data OpRingoidWithAddAntiDistribTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpRingoidWithAddAntiDistribTerm2 n A ) )
     sing2 : (A  → (OpRingoidWithAddAntiDistribTerm2 n A ) )
     +OL2 : ((OpRingoidWithAddAntiDistribTerm2 n A )  → ((OpRingoidWithAddAntiDistribTerm2 n A )  → (OpRingoidWithAddAntiDistribTerm2 n A ) ))
     primOL2 : ((OpRingoidWithAddAntiDistribTerm2 n A )  → (OpRingoidWithAddAntiDistribTerm2 n A ) )
-    *OL2 : ((OpRingoidWithAddAntiDistribTerm2 n A )  → ((OpRingoidWithAddAntiDistribTerm2 n A )  → (OpRingoidWithAddAntiDistribTerm2 n A ) ))
+    *OL2 : ((OpRingoidWithAddAntiDistribTerm2 n A )  → ((OpRingoidWithAddAntiDistribTerm2 n A )  → (OpRingoidWithAddAntiDistribTerm2 n A ) )) 
+  
+  simplifyB : (RingoidWithAddAntiDistribTerm  → RingoidWithAddAntiDistribTerm )
+  simplifyB (+L (primL y ) (primL x ) )  = (primL (+L x y ) )
+  
+  simplifyB (+L x1 x2 )  = (+L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB (primL x1 )  = (primL (simplifyB x1 ) )
+  
+  simplifyB (*L x1 x2 )  = (*L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClRingoidWithAddAntiDistribTerm A ) → (ClRingoidWithAddAntiDistribTerm A )))
+  simplifyCl _ (+Cl (primCl y ) (primCl x ) )  = (primCl (+Cl x y ) )
+  
+  simplifyCl _ (+Cl x1 x2 )  = (+Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (primCl x1 )  = (primCl (simplifyCl _ x1 ) )
+  
+  simplifyCl _ (*Cl x1 x2 )  = (*Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpRingoidWithAddAntiDistribTerm n ) → (OpRingoidWithAddAntiDistribTerm n )))
+  simplifyOp _ (+OL (primOL y ) (primOL x ) )  = (primOL (+OL x y ) )
+  
+  simplifyOp _ (+OL x1 x2 )  = (+OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (primOL x1 )  = (primOL (simplifyOp _ x1 ) )
+  
+  simplifyOp _ (*OL x1 x2 )  = (*OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpRingoidWithAddAntiDistribTerm2 n A ) → (OpRingoidWithAddAntiDistribTerm2 n A )))
+  simplifyOpE _ _ (+OL2 (primOL2 y ) (primOL2 x ) )  = (primOL2 (+OL2 x y ) )
+  
+  simplifyOpE _ _ (+OL2 x1 x2 )  = (+OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (primOL2 x1 )  = (primOL2 (simplifyOpE _ _ x1 ) )
+  
+  simplifyOpE _ _ (*OL2 x1 x2 )  = (*OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((RingoidWithAddAntiDistrib A ) → (RingoidWithAddAntiDistribTerm  → A )))
   evalB Ri (+L x1 x2 )  = ((+ Ri ) (evalB Ri x1 ) (evalB Ri x2 ) )
   
@@ -212,4 +266,5 @@ module RingoidWithAddAntiDistrib  where
     field
       +T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
       primT : ((Repr A )  → (Repr A ) )
-      *T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      *T : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

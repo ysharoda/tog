@@ -1,4 +1,5 @@
-module CancellativeMagma  where
+
+ module CancellativeMagma  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -9,40 +10,69 @@ module CancellativeMagma  where
     field
       op : (A  → (A  → A ))
       leftCancellative : ({x y z  : A }  → ((op z x ) ≡ (op z y ) → x  ≡ y ))
-      rightCancellative : ({x y z  : A }  → ((op x z ) ≡ (op y z ) → x  ≡ y ))
+      rightCancellative : ({x y z  : A }  → ((op x z ) ≡ (op y z ) → x  ≡ y )) 
+  
   open CancellativeMagma
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
-      opS : (AS  → (AS  → AS ))
+      opS : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       opP : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
       leftCancellativeP : ({xP yP zP  : (Prod AP AP )}  → ((opP zP xP ) ≡ (opP zP yP ) → xP  ≡ yP ))
-      rightCancellativeP : ({xP yP zP  : (Prod AP AP )}  → ((opP xP zP ) ≡ (opP yP zP ) → xP  ≡ yP ))
+      rightCancellativeP : ({xP yP zP  : (Prod AP AP )}  → ((opP xP zP ) ≡ (opP yP zP ) → xP  ≡ yP )) 
+  
   record Hom (A1 A2  : Set ) (Ca1  : (CancellativeMagma A1 )) (Ca2  : (CancellativeMagma A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
-      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Ca1 ) x1 x2 ) ) ≡ ((op Ca2 ) (hom x1 ) (hom x2 ) ))
+      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Ca1 ) x1 x2 ) ) ≡ ((op Ca2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Ca1  : (CancellativeMagma A1 )) (Ca2  : (CancellativeMagma A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
-      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Ca1 ) x1 x2 ) ((op Ca2 ) y1 y2 ) ))))
+      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Ca1 ) x1 x2 ) ((op Ca2 ) y1 y2 ) )))) 
+  
   data CancellativeMagmaTerm  : Set where
-    opL : (CancellativeMagmaTerm   → (CancellativeMagmaTerm   → CancellativeMagmaTerm  ))
+    opL : (CancellativeMagmaTerm   → (CancellativeMagmaTerm   → CancellativeMagmaTerm  )) 
+  
   data ClCancellativeMagmaTerm (A  : Set )  : Set where
     sing : (A  → (ClCancellativeMagmaTerm A ) )
-    opCl : ((ClCancellativeMagmaTerm A )  → ((ClCancellativeMagmaTerm A )  → (ClCancellativeMagmaTerm A ) ))
+    opCl : ((ClCancellativeMagmaTerm A )  → ((ClCancellativeMagmaTerm A )  → (ClCancellativeMagmaTerm A ) )) 
+  
   data OpCancellativeMagmaTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpCancellativeMagmaTerm n ) )
-    opOL : ((OpCancellativeMagmaTerm n )  → ((OpCancellativeMagmaTerm n )  → (OpCancellativeMagmaTerm n ) ))
+    opOL : ((OpCancellativeMagmaTerm n )  → ((OpCancellativeMagmaTerm n )  → (OpCancellativeMagmaTerm n ) )) 
+  
   data OpCancellativeMagmaTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpCancellativeMagmaTerm2 n A ) )
     sing2 : (A  → (OpCancellativeMagmaTerm2 n A ) )
-    opOL2 : ((OpCancellativeMagmaTerm2 n A )  → ((OpCancellativeMagmaTerm2 n A )  → (OpCancellativeMagmaTerm2 n A ) ))
+    opOL2 : ((OpCancellativeMagmaTerm2 n A )  → ((OpCancellativeMagmaTerm2 n A )  → (OpCancellativeMagmaTerm2 n A ) )) 
+  
+  simplifyB : (CancellativeMagmaTerm  → CancellativeMagmaTerm )
+  simplifyB (opL x1 x2 )  = (opL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClCancellativeMagmaTerm A ) → (ClCancellativeMagmaTerm A )))
+  simplifyCl _ (opCl x1 x2 )  = (opCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpCancellativeMagmaTerm n ) → (OpCancellativeMagmaTerm n )))
+  simplifyOp _ (opOL x1 x2 )  = (opOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpCancellativeMagmaTerm2 n A ) → (OpCancellativeMagmaTerm2 n A )))
+  simplifyOpE _ _ (opOL2 x1 x2 )  = (opOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((CancellativeMagma A ) → (CancellativeMagmaTerm  → A )))
   evalB Ca (opL x1 x2 )  = ((op Ca ) (evalB Ca x1 ) (evalB Ca x2 ) )
   
@@ -118,4 +148,5 @@ module CancellativeMagma  where
   record Tagless (A  : Set) (Repr  : (Set  → Set ))  : Set where
     constructor tagless
     field
-      opT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      opT : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

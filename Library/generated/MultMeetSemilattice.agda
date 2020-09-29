@@ -1,4 +1,5 @@
-module MultMeetSemilattice  where
+
+ module MultMeetSemilattice  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -10,41 +11,70 @@ module MultMeetSemilattice  where
       * : (A  → (A  → A ))
       commutative_* : ({x y  : A }  → (* x y ) ≡ (* y x ))
       associative_* : ({x y z  : A }  → (* (* x y ) z ) ≡ (* x (* y z ) ))
-      idempotent_* : ({x  : A }  → (* x x ) ≡ x )
+      idempotent_* : ({x  : A }  → (* x x ) ≡ x ) 
+  
   open MultMeetSemilattice
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
-      *S : (AS  → (AS  → AS ))
+      *S : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       *P : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
       commutative_*P : ({xP yP  : (Prod AP AP )}  → (*P xP yP ) ≡ (*P yP xP ))
       associative_*P : ({xP yP zP  : (Prod AP AP )}  → (*P (*P xP yP ) zP ) ≡ (*P xP (*P yP zP ) ))
-      idempotent_*P : ({xP  : (Prod AP AP )}  → (*P xP xP ) ≡ xP )
+      idempotent_*P : ({xP  : (Prod AP AP )}  → (*P xP xP ) ≡ xP ) 
+  
   record Hom (A1 A2  : Set ) (Mu1  : (MultMeetSemilattice A1 )) (Mu2  : (MultMeetSemilattice A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
-      pres-* : ({x1  : A1} {x2  : A1}  → (hom ((* Mu1 ) x1 x2 ) ) ≡ ((* Mu2 ) (hom x1 ) (hom x2 ) ))
+      pres-* : ({x1  : A1} {x2  : A1}  → (hom ((* Mu1 ) x1 x2 ) ) ≡ ((* Mu2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Mu1  : (MultMeetSemilattice A1 )) (Mu2  : (MultMeetSemilattice A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
-      interp-* : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((* Mu1 ) x1 x2 ) ((* Mu2 ) y1 y2 ) ))))
+      interp-* : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((* Mu1 ) x1 x2 ) ((* Mu2 ) y1 y2 ) )))) 
+  
   data MultMeetSemilatticeTerm  : Set where
-    *L : (MultMeetSemilatticeTerm   → (MultMeetSemilatticeTerm   → MultMeetSemilatticeTerm  ))
+    *L : (MultMeetSemilatticeTerm   → (MultMeetSemilatticeTerm   → MultMeetSemilatticeTerm  )) 
+  
   data ClMultMeetSemilatticeTerm (A  : Set )  : Set where
     sing : (A  → (ClMultMeetSemilatticeTerm A ) )
-    *Cl : ((ClMultMeetSemilatticeTerm A )  → ((ClMultMeetSemilatticeTerm A )  → (ClMultMeetSemilatticeTerm A ) ))
+    *Cl : ((ClMultMeetSemilatticeTerm A )  → ((ClMultMeetSemilatticeTerm A )  → (ClMultMeetSemilatticeTerm A ) )) 
+  
   data OpMultMeetSemilatticeTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpMultMeetSemilatticeTerm n ) )
-    *OL : ((OpMultMeetSemilatticeTerm n )  → ((OpMultMeetSemilatticeTerm n )  → (OpMultMeetSemilatticeTerm n ) ))
+    *OL : ((OpMultMeetSemilatticeTerm n )  → ((OpMultMeetSemilatticeTerm n )  → (OpMultMeetSemilatticeTerm n ) )) 
+  
   data OpMultMeetSemilatticeTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpMultMeetSemilatticeTerm2 n A ) )
     sing2 : (A  → (OpMultMeetSemilatticeTerm2 n A ) )
-    *OL2 : ((OpMultMeetSemilatticeTerm2 n A )  → ((OpMultMeetSemilatticeTerm2 n A )  → (OpMultMeetSemilatticeTerm2 n A ) ))
+    *OL2 : ((OpMultMeetSemilatticeTerm2 n A )  → ((OpMultMeetSemilatticeTerm2 n A )  → (OpMultMeetSemilatticeTerm2 n A ) )) 
+  
+  simplifyB : (MultMeetSemilatticeTerm  → MultMeetSemilatticeTerm )
+  simplifyB (*L x1 x2 )  = (*L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClMultMeetSemilatticeTerm A ) → (ClMultMeetSemilatticeTerm A )))
+  simplifyCl _ (*Cl x1 x2 )  = (*Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpMultMeetSemilatticeTerm n ) → (OpMultMeetSemilatticeTerm n )))
+  simplifyOp _ (*OL x1 x2 )  = (*OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpMultMeetSemilatticeTerm2 n A ) → (OpMultMeetSemilatticeTerm2 n A )))
+  simplifyOpE _ _ (*OL2 x1 x2 )  = (*OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((MultMeetSemilattice A ) → (MultMeetSemilatticeTerm  → A )))
   evalB Mu (*L x1 x2 )  = ((* Mu ) (evalB Mu x1 ) (evalB Mu x2 ) )
   
@@ -120,4 +150,5 @@ module MultMeetSemilattice  where
   record Tagless (A  : Set) (Repr  : (Set  → Set ))  : Set where
     constructor tagless
     field
-      *T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      *T : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

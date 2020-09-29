@@ -1,4 +1,5 @@
-module NonassociativeRing  where
+
+ module NonassociativeRing  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -18,7 +19,8 @@ module NonassociativeRing  where
       rightInverse_inv_op_1ᵢ : ({x  : A }  → (* (inv x ) x ) ≡ 1ᵢ )
       commutative_* : ({x y  : A }  → (* x y ) ≡ (* y x ))
       leftDistributive_*_+ : ({x y z  : A }  → (* x (+ y z ) ) ≡ (+ (* x y ) (* x z ) ))
-      rightDistributive_*_+ : ({x y z  : A }  → (* (+ y z ) x ) ≡ (+ (* y x ) (* z x ) ))
+      rightDistributive_*_+ : ({x y z  : A }  → (* (+ y z ) x ) ≡ (+ (* y x ) (* z x ) )) 
+  
   open NonassociativeRing
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
@@ -26,7 +28,8 @@ module NonassociativeRing  where
       *S : (AS  → (AS  → AS ))
       +S : (AS  → (AS  → AS ))
       1S : AS 
-      invS : (AS  → AS )
+      invS : (AS  → AS ) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
@@ -41,7 +44,8 @@ module NonassociativeRing  where
       rightInverse_inv_op_1P : ({xP  : (Prod AP AP )}  → (*P (invP xP ) xP ) ≡ 1P )
       commutative_*P : ({xP yP  : (Prod AP AP )}  → (*P xP yP ) ≡ (*P yP xP ))
       leftDistributive_*_+P : ({xP yP zP  : (Prod AP AP )}  → (*P xP (+P yP zP ) ) ≡ (+P (*P xP yP ) (*P xP zP ) ))
-      rightDistributive_*_+P : ({xP yP zP  : (Prod AP AP )}  → (*P (+P yP zP ) xP ) ≡ (+P (*P yP xP ) (*P zP xP ) ))
+      rightDistributive_*_+P : ({xP yP zP  : (Prod AP AP )}  → (*P (+P yP zP ) xP ) ≡ (+P (*P yP xP ) (*P zP xP ) )) 
+  
   record Hom (A1 A2  : Set ) (No1  : (NonassociativeRing A1 )) (No2  : (NonassociativeRing A2 ))  : Set where
     constructor HomC
     field
@@ -49,7 +53,8 @@ module NonassociativeRing  where
       pres-* : ({x1  : A1} {x2  : A1}  → (hom ((* No1 ) x1 x2 ) ) ≡ ((* No2 ) (hom x1 ) (hom x2 ) ))
       pres-+ : ({x1  : A1} {x2  : A1}  → (hom ((+ No1 ) x1 x2 ) ) ≡ ((+ No2 ) (hom x1 ) (hom x2 ) ))
       pres-1 : (  (hom (1ᵢ No1 )  ) ≡ (1ᵢ No2 ) )
-      pres-inv : ({x1  : A1}  → (hom ((inv No1 ) x1 ) ) ≡ ((inv No2 ) (hom x1 ) ))
+      pres-inv : ({x1  : A1}  → (hom ((inv No1 ) x1 ) ) ≡ ((inv No2 ) (hom x1 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (No1  : (NonassociativeRing A1 )) (No2  : (NonassociativeRing A2 ))  : Set₁ where
     constructor RelInterpC
     field
@@ -57,31 +62,96 @@ module NonassociativeRing  where
       interp-* : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((* No1 ) x1 x2 ) ((* No2 ) y1 y2 ) ))))
       interp-+ : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((+ No1 ) x1 x2 ) ((+ No2 ) y1 y2 ) ))))
       interp-1 : (  (interp (1ᵢ No1 )  (1ᵢ No2 )  ))
-      interp-inv : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((inv No1 ) x1 ) ((inv No2 ) y1 ) )))
+      interp-inv : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((inv No1 ) x1 ) ((inv No2 ) y1 ) ))) 
+  
   data NonassociativeRingTerm  : Set where
     *L : (NonassociativeRingTerm   → (NonassociativeRingTerm   → NonassociativeRingTerm  ))
     +L : (NonassociativeRingTerm   → (NonassociativeRingTerm   → NonassociativeRingTerm  ))
     1L : NonassociativeRingTerm  
-    invL : (NonassociativeRingTerm   → NonassociativeRingTerm  )
+    invL : (NonassociativeRingTerm   → NonassociativeRingTerm  ) 
+  
   data ClNonassociativeRingTerm (A  : Set )  : Set where
     sing : (A  → (ClNonassociativeRingTerm A ) )
     *Cl : ((ClNonassociativeRingTerm A )  → ((ClNonassociativeRingTerm A )  → (ClNonassociativeRingTerm A ) ))
     +Cl : ((ClNonassociativeRingTerm A )  → ((ClNonassociativeRingTerm A )  → (ClNonassociativeRingTerm A ) ))
     1Cl : (ClNonassociativeRingTerm A ) 
-    invCl : ((ClNonassociativeRingTerm A )  → (ClNonassociativeRingTerm A ) )
+    invCl : ((ClNonassociativeRingTerm A )  → (ClNonassociativeRingTerm A ) ) 
+  
   data OpNonassociativeRingTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpNonassociativeRingTerm n ) )
     *OL : ((OpNonassociativeRingTerm n )  → ((OpNonassociativeRingTerm n )  → (OpNonassociativeRingTerm n ) ))
     +OL : ((OpNonassociativeRingTerm n )  → ((OpNonassociativeRingTerm n )  → (OpNonassociativeRingTerm n ) ))
     1OL : (OpNonassociativeRingTerm n ) 
-    invOL : ((OpNonassociativeRingTerm n )  → (OpNonassociativeRingTerm n ) )
+    invOL : ((OpNonassociativeRingTerm n )  → (OpNonassociativeRingTerm n ) ) 
+  
   data OpNonassociativeRingTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpNonassociativeRingTerm2 n A ) )
     sing2 : (A  → (OpNonassociativeRingTerm2 n A ) )
     *OL2 : ((OpNonassociativeRingTerm2 n A )  → ((OpNonassociativeRingTerm2 n A )  → (OpNonassociativeRingTerm2 n A ) ))
     +OL2 : ((OpNonassociativeRingTerm2 n A )  → ((OpNonassociativeRingTerm2 n A )  → (OpNonassociativeRingTerm2 n A ) ))
     1OL2 : (OpNonassociativeRingTerm2 n A ) 
-    invOL2 : ((OpNonassociativeRingTerm2 n A )  → (OpNonassociativeRingTerm2 n A ) )
+    invOL2 : ((OpNonassociativeRingTerm2 n A )  → (OpNonassociativeRingTerm2 n A ) ) 
+  
+  simplifyB : (NonassociativeRingTerm  → NonassociativeRingTerm )
+  simplifyB (*L 1L x )  = x 
+  
+  simplifyB (*L x 1L )  = x 
+  
+  simplifyB (*L x1 x2 )  = (*L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB (+L x1 x2 )  = (+L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB 1L  = 1L 
+  
+  simplifyB (invL x1 )  = (invL (simplifyB x1 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClNonassociativeRingTerm A ) → (ClNonassociativeRingTerm A )))
+  simplifyCl _ (*Cl 1Cl x )  = x 
+  
+  simplifyCl _ (*Cl x 1Cl )  = x 
+  
+  simplifyCl _ (*Cl x1 x2 )  = (*Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (+Cl x1 x2 )  = (+Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ 1Cl  = 1Cl 
+  
+  simplifyCl _ (invCl x1 )  = (invCl (simplifyCl _ x1 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpNonassociativeRingTerm n ) → (OpNonassociativeRingTerm n )))
+  simplifyOp _ (*OL 1OL x )  = x 
+  
+  simplifyOp _ (*OL x 1OL )  = x 
+  
+  simplifyOp _ (*OL x1 x2 )  = (*OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (+OL x1 x2 )  = (+OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ 1OL  = 1OL 
+  
+  simplifyOp _ (invOL x1 )  = (invOL (simplifyOp _ x1 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpNonassociativeRingTerm2 n A ) → (OpNonassociativeRingTerm2 n A )))
+  simplifyOpE _ _ (*OL2 1OL2 x )  = x 
+  
+  simplifyOpE _ _ (*OL2 x 1OL2 )  = x 
+  
+  simplifyOpE _ _ (*OL2 x1 x2 )  = (*OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (+OL2 x1 x2 )  = (+OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ 1OL2  = 1OL2 
+  
+  simplifyOpE _ _ (invOL2 x1 )  = (invOL2 (simplifyOpE _ _ x1 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((NonassociativeRing A ) → (NonassociativeRingTerm  → A )))
   evalB No (*L x1 x2 )  = ((* No ) (evalB No x1 ) (evalB No x2 ) )
   
@@ -268,4 +338,5 @@ module NonassociativeRing  where
       *T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
       +T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
       1T : (Repr A ) 
-      invT : ((Repr A )  → (Repr A ) )
+      invT : ((Repr A )  → (Repr A ) ) 
+   

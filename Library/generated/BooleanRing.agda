@@ -1,4 +1,5 @@
-module BooleanRing  where
+
+ module BooleanRing  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -26,7 +27,8 @@ module BooleanRing  where
       rightInverse_inv_op_0ᵢ : ({x  : A }  → (+ (neg x ) x ) ≡ 0ᵢ )
       leftZero_op_0ᵢ : ({x  : A }  → (* 0ᵢ x ) ≡ 0ᵢ )
       rightZero_op_0ᵢ : ({x  : A }  → (* x 0ᵢ ) ≡ 0ᵢ )
-      idempotent_* : ({x  : A }  → (* x x ) ≡ x )
+      idempotent_* : ({x  : A }  → (* x x ) ≡ x ) 
+  
   open BooleanRing
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
@@ -35,7 +37,8 @@ module BooleanRing  where
       1S : AS 
       +S : (AS  → (AS  → AS ))
       0S : AS 
-      negS : (AS  → AS )
+      negS : (AS  → AS ) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
@@ -58,7 +61,8 @@ module BooleanRing  where
       rightInverse_inv_op_0P : ({xP  : (Prod AP AP )}  → (+P (negP xP ) xP ) ≡ 0P )
       leftZero_op_0P : ({xP  : (Prod AP AP )}  → (*P 0P xP ) ≡ 0P )
       rightZero_op_0P : ({xP  : (Prod AP AP )}  → (*P xP 0P ) ≡ 0P )
-      idempotent_*P : ({xP  : (Prod AP AP )}  → (*P xP xP ) ≡ xP )
+      idempotent_*P : ({xP  : (Prod AP AP )}  → (*P xP xP ) ≡ xP ) 
+  
   record Hom (A1 A2  : Set ) (Bo1  : (BooleanRing A1 )) (Bo2  : (BooleanRing A2 ))  : Set where
     constructor HomC
     field
@@ -67,7 +71,8 @@ module BooleanRing  where
       pres-1 : (  (hom (1ᵢ Bo1 )  ) ≡ (1ᵢ Bo2 ) )
       pres-+ : ({x1  : A1} {x2  : A1}  → (hom ((+ Bo1 ) x1 x2 ) ) ≡ ((+ Bo2 ) (hom x1 ) (hom x2 ) ))
       pres-0 : (  (hom (0ᵢ Bo1 )  ) ≡ (0ᵢ Bo2 ) )
-      pres-neg : ({x1  : A1}  → (hom ((neg Bo1 ) x1 ) ) ≡ ((neg Bo2 ) (hom x1 ) ))
+      pres-neg : ({x1  : A1}  → (hom ((neg Bo1 ) x1 ) ) ≡ ((neg Bo2 ) (hom x1 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Bo1  : (BooleanRing A1 )) (Bo2  : (BooleanRing A2 ))  : Set₁ where
     constructor RelInterpC
     field
@@ -76,27 +81,31 @@ module BooleanRing  where
       interp-1 : (  (interp (1ᵢ Bo1 )  (1ᵢ Bo2 )  ))
       interp-+ : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((+ Bo1 ) x1 x2 ) ((+ Bo2 ) y1 y2 ) ))))
       interp-0 : (  (interp (0ᵢ Bo1 )  (0ᵢ Bo2 )  ))
-      interp-neg : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((neg Bo1 ) x1 ) ((neg Bo2 ) y1 ) )))
+      interp-neg : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((neg Bo1 ) x1 ) ((neg Bo2 ) y1 ) ))) 
+  
   data BooleanRingTerm  : Set where
     *L : (BooleanRingTerm   → (BooleanRingTerm   → BooleanRingTerm  ))
     1L : BooleanRingTerm  
     +L : (BooleanRingTerm   → (BooleanRingTerm   → BooleanRingTerm  ))
     0L : BooleanRingTerm  
-    negL : (BooleanRingTerm   → BooleanRingTerm  )
+    negL : (BooleanRingTerm   → BooleanRingTerm  ) 
+  
   data ClBooleanRingTerm (A  : Set )  : Set where
     sing : (A  → (ClBooleanRingTerm A ) )
     *Cl : ((ClBooleanRingTerm A )  → ((ClBooleanRingTerm A )  → (ClBooleanRingTerm A ) ))
     1Cl : (ClBooleanRingTerm A ) 
     +Cl : ((ClBooleanRingTerm A )  → ((ClBooleanRingTerm A )  → (ClBooleanRingTerm A ) ))
     0Cl : (ClBooleanRingTerm A ) 
-    negCl : ((ClBooleanRingTerm A )  → (ClBooleanRingTerm A ) )
+    negCl : ((ClBooleanRingTerm A )  → (ClBooleanRingTerm A ) ) 
+  
   data OpBooleanRingTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpBooleanRingTerm n ) )
     *OL : ((OpBooleanRingTerm n )  → ((OpBooleanRingTerm n )  → (OpBooleanRingTerm n ) ))
     1OL : (OpBooleanRingTerm n ) 
     +OL : ((OpBooleanRingTerm n )  → ((OpBooleanRingTerm n )  → (OpBooleanRingTerm n ) ))
     0OL : (OpBooleanRingTerm n ) 
-    negOL : ((OpBooleanRingTerm n )  → (OpBooleanRingTerm n ) )
+    negOL : ((OpBooleanRingTerm n )  → (OpBooleanRingTerm n ) ) 
+  
   data OpBooleanRingTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpBooleanRingTerm2 n A ) )
     sing2 : (A  → (OpBooleanRingTerm2 n A ) )
@@ -104,7 +113,92 @@ module BooleanRing  where
     1OL2 : (OpBooleanRingTerm2 n A ) 
     +OL2 : ((OpBooleanRingTerm2 n A )  → ((OpBooleanRingTerm2 n A )  → (OpBooleanRingTerm2 n A ) ))
     0OL2 : (OpBooleanRingTerm2 n A ) 
-    negOL2 : ((OpBooleanRingTerm2 n A )  → (OpBooleanRingTerm2 n A ) )
+    negOL2 : ((OpBooleanRingTerm2 n A )  → (OpBooleanRingTerm2 n A ) ) 
+  
+  simplifyB : (BooleanRingTerm  → BooleanRingTerm )
+  simplifyB (*L 1L x )  = x 
+  
+  simplifyB (*L x 1L )  = x 
+  
+  simplifyB (+L 0L x )  = x 
+  
+  simplifyB (+L x 0L )  = x 
+  
+  simplifyB (*L x1 x2 )  = (*L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB 1L  = 1L 
+  
+  simplifyB (+L x1 x2 )  = (+L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB 0L  = 0L 
+  
+  simplifyB (negL x1 )  = (negL (simplifyB x1 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClBooleanRingTerm A ) → (ClBooleanRingTerm A )))
+  simplifyCl _ (*Cl 1Cl x )  = x 
+  
+  simplifyCl _ (*Cl x 1Cl )  = x 
+  
+  simplifyCl _ (+Cl 0Cl x )  = x 
+  
+  simplifyCl _ (+Cl x 0Cl )  = x 
+  
+  simplifyCl _ (*Cl x1 x2 )  = (*Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ 1Cl  = 1Cl 
+  
+  simplifyCl _ (+Cl x1 x2 )  = (+Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ 0Cl  = 0Cl 
+  
+  simplifyCl _ (negCl x1 )  = (negCl (simplifyCl _ x1 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpBooleanRingTerm n ) → (OpBooleanRingTerm n )))
+  simplifyOp _ (*OL 1OL x )  = x 
+  
+  simplifyOp _ (*OL x 1OL )  = x 
+  
+  simplifyOp _ (+OL 0OL x )  = x 
+  
+  simplifyOp _ (+OL x 0OL )  = x 
+  
+  simplifyOp _ (*OL x1 x2 )  = (*OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ 1OL  = 1OL 
+  
+  simplifyOp _ (+OL x1 x2 )  = (+OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ 0OL  = 0OL 
+  
+  simplifyOp _ (negOL x1 )  = (negOL (simplifyOp _ x1 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpBooleanRingTerm2 n A ) → (OpBooleanRingTerm2 n A )))
+  simplifyOpE _ _ (*OL2 1OL2 x )  = x 
+  
+  simplifyOpE _ _ (*OL2 x 1OL2 )  = x 
+  
+  simplifyOpE _ _ (+OL2 0OL2 x )  = x 
+  
+  simplifyOpE _ _ (+OL2 x 0OL2 )  = x 
+  
+  simplifyOpE _ _ (*OL2 x1 x2 )  = (*OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ 1OL2  = 1OL2 
+  
+  simplifyOpE _ _ (+OL2 x1 x2 )  = (+OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ 0OL2  = 0OL2 
+  
+  simplifyOpE _ _ (negOL2 x1 )  = (negOL2 (simplifyOpE _ _ x1 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((BooleanRing A ) → (BooleanRingTerm  → A )))
   evalB Bo (*L x1 x2 )  = ((* Bo ) (evalB Bo x1 ) (evalB Bo x2 ) )
   
@@ -328,4 +422,5 @@ module BooleanRing  where
       1T : (Repr A ) 
       +T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
       0T : (Repr A ) 
-      negT : ((Repr A )  → (Repr A ) )
+      negT : ((Repr A )  → (Repr A ) ) 
+   

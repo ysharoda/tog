@@ -1,4 +1,5 @@
-module RightInverseMagma  where
+
+ module RightInverseMagma  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -7,38 +8,67 @@ module RightInverseMagma  where
   record RightInverseMagma (A  : Set )  : Set where
     constructor RightInverseMagmaC
     field
-      rinv : (A  → (A  → A ))
+      rinv : (A  → (A  → A )) 
+  
   open RightInverseMagma
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
-      rinvS : (AS  → (AS  → AS ))
+      rinvS : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
-      rinvP : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
+      rinvP : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP ))) 
+  
   record Hom (A1 A2  : Set ) (Ri1  : (RightInverseMagma A1 )) (Ri2  : (RightInverseMagma A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
-      pres-rinv : ({x1  : A1} {x2  : A1}  → (hom ((rinv Ri1 ) x1 x2 ) ) ≡ ((rinv Ri2 ) (hom x1 ) (hom x2 ) ))
+      pres-rinv : ({x1  : A1} {x2  : A1}  → (hom ((rinv Ri1 ) x1 x2 ) ) ≡ ((rinv Ri2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Ri1  : (RightInverseMagma A1 )) (Ri2  : (RightInverseMagma A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
-      interp-rinv : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((rinv Ri1 ) x1 x2 ) ((rinv Ri2 ) y1 y2 ) ))))
+      interp-rinv : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((rinv Ri1 ) x1 x2 ) ((rinv Ri2 ) y1 y2 ) )))) 
+  
   data RightInverseMagmaTerm  : Set where
-    rinvL : (RightInverseMagmaTerm   → (RightInverseMagmaTerm   → RightInverseMagmaTerm  ))
+    rinvL : (RightInverseMagmaTerm   → (RightInverseMagmaTerm   → RightInverseMagmaTerm  )) 
+  
   data ClRightInverseMagmaTerm (A  : Set )  : Set where
     sing : (A  → (ClRightInverseMagmaTerm A ) )
-    rinvCl : ((ClRightInverseMagmaTerm A )  → ((ClRightInverseMagmaTerm A )  → (ClRightInverseMagmaTerm A ) ))
+    rinvCl : ((ClRightInverseMagmaTerm A )  → ((ClRightInverseMagmaTerm A )  → (ClRightInverseMagmaTerm A ) )) 
+  
   data OpRightInverseMagmaTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpRightInverseMagmaTerm n ) )
-    rinvOL : ((OpRightInverseMagmaTerm n )  → ((OpRightInverseMagmaTerm n )  → (OpRightInverseMagmaTerm n ) ))
+    rinvOL : ((OpRightInverseMagmaTerm n )  → ((OpRightInverseMagmaTerm n )  → (OpRightInverseMagmaTerm n ) )) 
+  
   data OpRightInverseMagmaTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpRightInverseMagmaTerm2 n A ) )
     sing2 : (A  → (OpRightInverseMagmaTerm2 n A ) )
-    rinvOL2 : ((OpRightInverseMagmaTerm2 n A )  → ((OpRightInverseMagmaTerm2 n A )  → (OpRightInverseMagmaTerm2 n A ) ))
+    rinvOL2 : ((OpRightInverseMagmaTerm2 n A )  → ((OpRightInverseMagmaTerm2 n A )  → (OpRightInverseMagmaTerm2 n A ) )) 
+  
+  simplifyB : (RightInverseMagmaTerm  → RightInverseMagmaTerm )
+  simplifyB (rinvL x1 x2 )  = (rinvL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClRightInverseMagmaTerm A ) → (ClRightInverseMagmaTerm A )))
+  simplifyCl _ (rinvCl x1 x2 )  = (rinvCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpRightInverseMagmaTerm n ) → (OpRightInverseMagmaTerm n )))
+  simplifyOp _ (rinvOL x1 x2 )  = (rinvOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpRightInverseMagmaTerm2 n A ) → (OpRightInverseMagmaTerm2 n A )))
+  simplifyOpE _ _ (rinvOL2 x1 x2 )  = (rinvOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((RightInverseMagma A ) → (RightInverseMagmaTerm  → A )))
   evalB Ri (rinvL x1 x2 )  = ((rinv Ri ) (evalB Ri x1 ) (evalB Ri x2 ) )
   
@@ -114,4 +144,5 @@ module RightInverseMagma  where
   record Tagless (A  : Set) (Repr  : (Set  → Set ))  : Set where
     constructor tagless
     field
-      rinvT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      rinvT : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

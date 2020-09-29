@@ -1,4 +1,5 @@
-module UnaryDistributes  where
+
+ module UnaryDistributes  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -9,47 +10,92 @@ module UnaryDistributes  where
     field
       prim : (A  → A )
       op : (A  → (A  → A ))
-      distribute_prim_op : ({x y  : A }  → (prim (op x y ) ) ≡ (op (prim x ) (prim y ) ))
+      distribute_prim_op : ({x y  : A }  → (prim (op x y ) ) ≡ (op (prim x ) (prim y ) )) 
+  
   open UnaryDistributes
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       primS : (AS  → AS )
-      opS : (AS  → (AS  → AS ))
+      opS : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       primP : ((Prod AP AP ) → (Prod AP AP ))
       opP : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
-      distribute_prim_opP : ({xP yP  : (Prod AP AP )}  → (primP (opP xP yP ) ) ≡ (opP (primP xP ) (primP yP ) ))
+      distribute_prim_opP : ({xP yP  : (Prod AP AP )}  → (primP (opP xP yP ) ) ≡ (opP (primP xP ) (primP yP ) )) 
+  
   record Hom (A1 A2  : Set ) (Un1  : (UnaryDistributes A1 )) (Un2  : (UnaryDistributes A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-prim : ({x1  : A1}  → (hom ((prim Un1 ) x1 ) ) ≡ ((prim Un2 ) (hom x1 ) ))
-      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Un1 ) x1 x2 ) ) ≡ ((op Un2 ) (hom x1 ) (hom x2 ) ))
+      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Un1 ) x1 x2 ) ) ≡ ((op Un2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Un1  : (UnaryDistributes A1 )) (Un2  : (UnaryDistributes A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-prim : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((prim Un1 ) x1 ) ((prim Un2 ) y1 ) )))
-      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Un1 ) x1 x2 ) ((op Un2 ) y1 y2 ) ))))
+      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Un1 ) x1 x2 ) ((op Un2 ) y1 y2 ) )))) 
+  
   data UnaryDistributesTerm  : Set where
     primL : (UnaryDistributesTerm   → UnaryDistributesTerm  )
-    opL : (UnaryDistributesTerm   → (UnaryDistributesTerm   → UnaryDistributesTerm  ))
+    opL : (UnaryDistributesTerm   → (UnaryDistributesTerm   → UnaryDistributesTerm  )) 
+  
   data ClUnaryDistributesTerm (A  : Set )  : Set where
     sing : (A  → (ClUnaryDistributesTerm A ) )
     primCl : ((ClUnaryDistributesTerm A )  → (ClUnaryDistributesTerm A ) )
-    opCl : ((ClUnaryDistributesTerm A )  → ((ClUnaryDistributesTerm A )  → (ClUnaryDistributesTerm A ) ))
+    opCl : ((ClUnaryDistributesTerm A )  → ((ClUnaryDistributesTerm A )  → (ClUnaryDistributesTerm A ) )) 
+  
   data OpUnaryDistributesTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpUnaryDistributesTerm n ) )
     primOL : ((OpUnaryDistributesTerm n )  → (OpUnaryDistributesTerm n ) )
-    opOL : ((OpUnaryDistributesTerm n )  → ((OpUnaryDistributesTerm n )  → (OpUnaryDistributesTerm n ) ))
+    opOL : ((OpUnaryDistributesTerm n )  → ((OpUnaryDistributesTerm n )  → (OpUnaryDistributesTerm n ) )) 
+  
   data OpUnaryDistributesTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpUnaryDistributesTerm2 n A ) )
     sing2 : (A  → (OpUnaryDistributesTerm2 n A ) )
     primOL2 : ((OpUnaryDistributesTerm2 n A )  → (OpUnaryDistributesTerm2 n A ) )
-    opOL2 : ((OpUnaryDistributesTerm2 n A )  → ((OpUnaryDistributesTerm2 n A )  → (OpUnaryDistributesTerm2 n A ) ))
+    opOL2 : ((OpUnaryDistributesTerm2 n A )  → ((OpUnaryDistributesTerm2 n A )  → (OpUnaryDistributesTerm2 n A ) )) 
+  
+  simplifyB : (UnaryDistributesTerm  → UnaryDistributesTerm )
+  simplifyB (opL (primL x ) (primL y ) )  = (primL (opL x y ) )
+  
+  simplifyB (primL x1 )  = (primL (simplifyB x1 ) )
+  
+  simplifyB (opL x1 x2 )  = (opL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClUnaryDistributesTerm A ) → (ClUnaryDistributesTerm A )))
+  simplifyCl _ (opCl (primCl x ) (primCl y ) )  = (primCl (opCl x y ) )
+  
+  simplifyCl _ (primCl x1 )  = (primCl (simplifyCl _ x1 ) )
+  
+  simplifyCl _ (opCl x1 x2 )  = (opCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpUnaryDistributesTerm n ) → (OpUnaryDistributesTerm n )))
+  simplifyOp _ (opOL (primOL x ) (primOL y ) )  = (primOL (opOL x y ) )
+  
+  simplifyOp _ (primOL x1 )  = (primOL (simplifyOp _ x1 ) )
+  
+  simplifyOp _ (opOL x1 x2 )  = (opOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpUnaryDistributesTerm2 n A ) → (OpUnaryDistributesTerm2 n A )))
+  simplifyOpE _ _ (opOL2 (primOL2 x ) (primOL2 y ) )  = (primOL2 (opOL2 x y ) )
+  
+  simplifyOpE _ _ (primOL2 x1 )  = (primOL2 (simplifyOpE _ _ x1 ) )
+  
+  simplifyOpE _ _ (opOL2 x1 x2 )  = (opOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((UnaryDistributes A ) → (UnaryDistributesTerm  → A )))
   evalB Un (primL x1 )  = ((prim Un ) (evalB Un x1 ) )
   
@@ -162,4 +208,5 @@ module UnaryDistributes  where
     constructor tagless
     field
       primT : ((Repr A )  → (Repr A ) )
-      opT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      opT : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

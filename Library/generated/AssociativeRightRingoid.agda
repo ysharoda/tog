@@ -1,4 +1,5 @@
-module AssociativeRightRingoid  where
+
+ module AssociativeRightRingoid  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -10,48 +11,85 @@ module AssociativeRightRingoid  where
       * : (A  → (A  → A ))
       associative_* : ({x y z  : A }  → (* (* x y ) z ) ≡ (* x (* y z ) ))
       + : (A  → (A  → A ))
-      rightDistributive_*_+ : ({x y z  : A }  → (* (+ y z ) x ) ≡ (+ (* y x ) (* z x ) ))
+      rightDistributive_*_+ : ({x y z  : A }  → (* (+ y z ) x ) ≡ (+ (* y x ) (* z x ) )) 
+  
   open AssociativeRightRingoid
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       *S : (AS  → (AS  → AS ))
-      +S : (AS  → (AS  → AS ))
+      +S : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       *P : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
       +P : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
       associative_*P : ({xP yP zP  : (Prod AP AP )}  → (*P (*P xP yP ) zP ) ≡ (*P xP (*P yP zP ) ))
-      rightDistributive_*_+P : ({xP yP zP  : (Prod AP AP )}  → (*P (+P yP zP ) xP ) ≡ (+P (*P yP xP ) (*P zP xP ) ))
+      rightDistributive_*_+P : ({xP yP zP  : (Prod AP AP )}  → (*P (+P yP zP ) xP ) ≡ (+P (*P yP xP ) (*P zP xP ) )) 
+  
   record Hom (A1 A2  : Set ) (As1  : (AssociativeRightRingoid A1 )) (As2  : (AssociativeRightRingoid A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-* : ({x1  : A1} {x2  : A1}  → (hom ((* As1 ) x1 x2 ) ) ≡ ((* As2 ) (hom x1 ) (hom x2 ) ))
-      pres-+ : ({x1  : A1} {x2  : A1}  → (hom ((+ As1 ) x1 x2 ) ) ≡ ((+ As2 ) (hom x1 ) (hom x2 ) ))
+      pres-+ : ({x1  : A1} {x2  : A1}  → (hom ((+ As1 ) x1 x2 ) ) ≡ ((+ As2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (As1  : (AssociativeRightRingoid A1 )) (As2  : (AssociativeRightRingoid A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-* : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((* As1 ) x1 x2 ) ((* As2 ) y1 y2 ) ))))
-      interp-+ : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((+ As1 ) x1 x2 ) ((+ As2 ) y1 y2 ) ))))
+      interp-+ : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((+ As1 ) x1 x2 ) ((+ As2 ) y1 y2 ) )))) 
+  
   data AssociativeRightRingoidTerm  : Set where
     *L : (AssociativeRightRingoidTerm   → (AssociativeRightRingoidTerm   → AssociativeRightRingoidTerm  ))
-    +L : (AssociativeRightRingoidTerm   → (AssociativeRightRingoidTerm   → AssociativeRightRingoidTerm  ))
+    +L : (AssociativeRightRingoidTerm   → (AssociativeRightRingoidTerm   → AssociativeRightRingoidTerm  )) 
+  
   data ClAssociativeRightRingoidTerm (A  : Set )  : Set where
     sing : (A  → (ClAssociativeRightRingoidTerm A ) )
     *Cl : ((ClAssociativeRightRingoidTerm A )  → ((ClAssociativeRightRingoidTerm A )  → (ClAssociativeRightRingoidTerm A ) ))
-    +Cl : ((ClAssociativeRightRingoidTerm A )  → ((ClAssociativeRightRingoidTerm A )  → (ClAssociativeRightRingoidTerm A ) ))
+    +Cl : ((ClAssociativeRightRingoidTerm A )  → ((ClAssociativeRightRingoidTerm A )  → (ClAssociativeRightRingoidTerm A ) )) 
+  
   data OpAssociativeRightRingoidTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpAssociativeRightRingoidTerm n ) )
     *OL : ((OpAssociativeRightRingoidTerm n )  → ((OpAssociativeRightRingoidTerm n )  → (OpAssociativeRightRingoidTerm n ) ))
-    +OL : ((OpAssociativeRightRingoidTerm n )  → ((OpAssociativeRightRingoidTerm n )  → (OpAssociativeRightRingoidTerm n ) ))
+    +OL : ((OpAssociativeRightRingoidTerm n )  → ((OpAssociativeRightRingoidTerm n )  → (OpAssociativeRightRingoidTerm n ) )) 
+  
   data OpAssociativeRightRingoidTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpAssociativeRightRingoidTerm2 n A ) )
     sing2 : (A  → (OpAssociativeRightRingoidTerm2 n A ) )
     *OL2 : ((OpAssociativeRightRingoidTerm2 n A )  → ((OpAssociativeRightRingoidTerm2 n A )  → (OpAssociativeRightRingoidTerm2 n A ) ))
-    +OL2 : ((OpAssociativeRightRingoidTerm2 n A )  → ((OpAssociativeRightRingoidTerm2 n A )  → (OpAssociativeRightRingoidTerm2 n A ) ))
+    +OL2 : ((OpAssociativeRightRingoidTerm2 n A )  → ((OpAssociativeRightRingoidTerm2 n A )  → (OpAssociativeRightRingoidTerm2 n A ) )) 
+  
+  simplifyB : (AssociativeRightRingoidTerm  → AssociativeRightRingoidTerm )
+  simplifyB (*L x1 x2 )  = (*L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB (+L x1 x2 )  = (+L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClAssociativeRightRingoidTerm A ) → (ClAssociativeRightRingoidTerm A )))
+  simplifyCl _ (*Cl x1 x2 )  = (*Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (+Cl x1 x2 )  = (+Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpAssociativeRightRingoidTerm n ) → (OpAssociativeRightRingoidTerm n )))
+  simplifyOp _ (*OL x1 x2 )  = (*OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (+OL x1 x2 )  = (+OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpAssociativeRightRingoidTerm2 n A ) → (OpAssociativeRightRingoidTerm2 n A )))
+  simplifyOpE _ _ (*OL2 x1 x2 )  = (*OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (+OL2 x1 x2 )  = (+OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((AssociativeRightRingoid A ) → (AssociativeRightRingoidTerm  → A )))
   evalB As (*L x1 x2 )  = ((* As ) (evalB As x1 ) (evalB As x2 ) )
   
@@ -164,4 +202,5 @@ module AssociativeRightRingoid  where
     constructor tagless
     field
       *T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
-      +T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      +T : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

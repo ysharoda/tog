@@ -1,4 +1,5 @@
-module IdempotentSemiring  where
+
+ module IdempotentSemiring  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -22,7 +23,8 @@ module IdempotentSemiring  where
       rightDistributive_*_+ : ({x y z  : A }  → (* (+ y z ) x ) ≡ (+ (* y x ) (* z x ) ))
       leftZero_op_0ᵢ : ({x  : A }  → (* 0ᵢ x ) ≡ 0ᵢ )
       rightZero_op_0ᵢ : ({x  : A }  → (* x 0ᵢ ) ≡ 0ᵢ )
-      idempotent_+ : ({x  : A }  → (+ x x ) ≡ x )
+      idempotent_+ : ({x  : A }  → (+ x x ) ≡ x ) 
+  
   open IdempotentSemiring
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
@@ -30,7 +32,8 @@ module IdempotentSemiring  where
       +S : (AS  → (AS  → AS ))
       0S : AS 
       *S : (AS  → (AS  → AS ))
-      1S : AS 
+      1S : AS  
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
@@ -49,7 +52,8 @@ module IdempotentSemiring  where
       rightDistributive_*_+P : ({xP yP zP  : (Prod AP AP )}  → (*P (+P yP zP ) xP ) ≡ (+P (*P yP xP ) (*P zP xP ) ))
       leftZero_op_0P : ({xP  : (Prod AP AP )}  → (*P 0P xP ) ≡ 0P )
       rightZero_op_0P : ({xP  : (Prod AP AP )}  → (*P xP 0P ) ≡ 0P )
-      idempotent_+P : ({xP  : (Prod AP AP )}  → (+P xP xP ) ≡ xP )
+      idempotent_+P : ({xP  : (Prod AP AP )}  → (+P xP xP ) ≡ xP ) 
+  
   record Hom (A1 A2  : Set ) (Id1  : (IdempotentSemiring A1 )) (Id2  : (IdempotentSemiring A2 ))  : Set where
     constructor HomC
     field
@@ -57,7 +61,8 @@ module IdempotentSemiring  where
       pres-+ : ({x1  : A1} {x2  : A1}  → (hom ((+ Id1 ) x1 x2 ) ) ≡ ((+ Id2 ) (hom x1 ) (hom x2 ) ))
       pres-0 : (  (hom (0ᵢ Id1 )  ) ≡ (0ᵢ Id2 ) )
       pres-* : ({x1  : A1} {x2  : A1}  → (hom ((* Id1 ) x1 x2 ) ) ≡ ((* Id2 ) (hom x1 ) (hom x2 ) ))
-      pres-1 : (  (hom (1ᵢ Id1 )  ) ≡ (1ᵢ Id2 ) )
+      pres-1 : (  (hom (1ᵢ Id1 )  ) ≡ (1ᵢ Id2 ) ) 
+  
   record RelInterp (A1 A2  : Set ) (Id1  : (IdempotentSemiring A1 )) (Id2  : (IdempotentSemiring A2 ))  : Set₁ where
     constructor RelInterpC
     field
@@ -65,31 +70,112 @@ module IdempotentSemiring  where
       interp-+ : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((+ Id1 ) x1 x2 ) ((+ Id2 ) y1 y2 ) ))))
       interp-0 : (  (interp (0ᵢ Id1 )  (0ᵢ Id2 )  ))
       interp-* : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((* Id1 ) x1 x2 ) ((* Id2 ) y1 y2 ) ))))
-      interp-1 : (  (interp (1ᵢ Id1 )  (1ᵢ Id2 )  ))
+      interp-1 : (  (interp (1ᵢ Id1 )  (1ᵢ Id2 )  )) 
+  
   data IdempotentSemiringTerm  : Set where
     +L : (IdempotentSemiringTerm   → (IdempotentSemiringTerm   → IdempotentSemiringTerm  ))
     0L : IdempotentSemiringTerm  
     *L : (IdempotentSemiringTerm   → (IdempotentSemiringTerm   → IdempotentSemiringTerm  ))
-    1L : IdempotentSemiringTerm  
+    1L : IdempotentSemiringTerm   
+  
   data ClIdempotentSemiringTerm (A  : Set )  : Set where
     sing : (A  → (ClIdempotentSemiringTerm A ) )
     +Cl : ((ClIdempotentSemiringTerm A )  → ((ClIdempotentSemiringTerm A )  → (ClIdempotentSemiringTerm A ) ))
     0Cl : (ClIdempotentSemiringTerm A ) 
     *Cl : ((ClIdempotentSemiringTerm A )  → ((ClIdempotentSemiringTerm A )  → (ClIdempotentSemiringTerm A ) ))
-    1Cl : (ClIdempotentSemiringTerm A ) 
+    1Cl : (ClIdempotentSemiringTerm A )  
+  
   data OpIdempotentSemiringTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpIdempotentSemiringTerm n ) )
     +OL : ((OpIdempotentSemiringTerm n )  → ((OpIdempotentSemiringTerm n )  → (OpIdempotentSemiringTerm n ) ))
     0OL : (OpIdempotentSemiringTerm n ) 
     *OL : ((OpIdempotentSemiringTerm n )  → ((OpIdempotentSemiringTerm n )  → (OpIdempotentSemiringTerm n ) ))
-    1OL : (OpIdempotentSemiringTerm n ) 
+    1OL : (OpIdempotentSemiringTerm n )  
+  
   data OpIdempotentSemiringTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpIdempotentSemiringTerm2 n A ) )
     sing2 : (A  → (OpIdempotentSemiringTerm2 n A ) )
     +OL2 : ((OpIdempotentSemiringTerm2 n A )  → ((OpIdempotentSemiringTerm2 n A )  → (OpIdempotentSemiringTerm2 n A ) ))
     0OL2 : (OpIdempotentSemiringTerm2 n A ) 
     *OL2 : ((OpIdempotentSemiringTerm2 n A )  → ((OpIdempotentSemiringTerm2 n A )  → (OpIdempotentSemiringTerm2 n A ) ))
-    1OL2 : (OpIdempotentSemiringTerm2 n A ) 
+    1OL2 : (OpIdempotentSemiringTerm2 n A )  
+  
+  simplifyB : (IdempotentSemiringTerm  → IdempotentSemiringTerm )
+  simplifyB (*L 1L x )  = x 
+  
+  simplifyB (*L x 1L )  = x 
+  
+  simplifyB (+L 0L x )  = x 
+  
+  simplifyB (+L x 0L )  = x 
+  
+  simplifyB (+L x1 x2 )  = (+L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB 0L  = 0L 
+  
+  simplifyB (*L x1 x2 )  = (*L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB 1L  = 1L 
+  
+  simplifyCl : ((A  : Set )  → ((ClIdempotentSemiringTerm A ) → (ClIdempotentSemiringTerm A )))
+  simplifyCl _ (*Cl 1Cl x )  = x 
+  
+  simplifyCl _ (*Cl x 1Cl )  = x 
+  
+  simplifyCl _ (+Cl 0Cl x )  = x 
+  
+  simplifyCl _ (+Cl x 0Cl )  = x 
+  
+  simplifyCl _ (+Cl x1 x2 )  = (+Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ 0Cl  = 0Cl 
+  
+  simplifyCl _ (*Cl x1 x2 )  = (*Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ 1Cl  = 1Cl 
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpIdempotentSemiringTerm n ) → (OpIdempotentSemiringTerm n )))
+  simplifyOp _ (*OL 1OL x )  = x 
+  
+  simplifyOp _ (*OL x 1OL )  = x 
+  
+  simplifyOp _ (+OL 0OL x )  = x 
+  
+  simplifyOp _ (+OL x 0OL )  = x 
+  
+  simplifyOp _ (+OL x1 x2 )  = (+OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ 0OL  = 0OL 
+  
+  simplifyOp _ (*OL x1 x2 )  = (*OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ 1OL  = 1OL 
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpIdempotentSemiringTerm2 n A ) → (OpIdempotentSemiringTerm2 n A )))
+  simplifyOpE _ _ (*OL2 1OL2 x )  = x 
+  
+  simplifyOpE _ _ (*OL2 x 1OL2 )  = x 
+  
+  simplifyOpE _ _ (+OL2 0OL2 x )  = x 
+  
+  simplifyOpE _ _ (+OL2 x 0OL2 )  = x 
+  
+  simplifyOpE _ _ (+OL2 x1 x2 )  = (+OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ 0OL2  = 0OL2 
+  
+  simplifyOpE _ _ (*OL2 x1 x2 )  = (*OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ 1OL2  = 1OL2 
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((IdempotentSemiring A ) → (IdempotentSemiringTerm  → A )))
   evalB Id (+L x1 x2 )  = ((+ Id ) (evalB Id x1 ) (evalB Id x2 ) )
   
@@ -276,4 +362,5 @@ module IdempotentSemiring  where
       +T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
       0T : (Repr A ) 
       *T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
-      1T : (Repr A ) 
+      1T : (Repr A )  
+   

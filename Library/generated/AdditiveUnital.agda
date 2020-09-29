@@ -1,4 +1,5 @@
-module AdditiveUnital  where
+
+ module AdditiveUnital  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -10,48 +11,101 @@ module AdditiveUnital  where
       0ᵢ : A 
       + : (A  → (A  → A ))
       lunit_0ᵢ : ({x  : A }  → (+ 0ᵢ x ) ≡ x )
-      runit_0ᵢ : ({x  : A }  → (+ x 0ᵢ ) ≡ x )
+      runit_0ᵢ : ({x  : A }  → (+ x 0ᵢ ) ≡ x ) 
+  
   open AdditiveUnital
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       0S : AS 
-      +S : (AS  → (AS  → AS ))
+      +S : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       0P : (Prod AP AP )
       +P : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
       lunit_0P : ({xP  : (Prod AP AP )}  → (+P 0P xP ) ≡ xP )
-      runit_0P : ({xP  : (Prod AP AP )}  → (+P xP 0P ) ≡ xP )
+      runit_0P : ({xP  : (Prod AP AP )}  → (+P xP 0P ) ≡ xP ) 
+  
   record Hom (A1 A2  : Set ) (Ad1  : (AdditiveUnital A1 )) (Ad2  : (AdditiveUnital A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-0 : (  (hom (0ᵢ Ad1 )  ) ≡ (0ᵢ Ad2 ) )
-      pres-+ : ({x1  : A1} {x2  : A1}  → (hom ((+ Ad1 ) x1 x2 ) ) ≡ ((+ Ad2 ) (hom x1 ) (hom x2 ) ))
+      pres-+ : ({x1  : A1} {x2  : A1}  → (hom ((+ Ad1 ) x1 x2 ) ) ≡ ((+ Ad2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Ad1  : (AdditiveUnital A1 )) (Ad2  : (AdditiveUnital A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-0 : (  (interp (0ᵢ Ad1 )  (0ᵢ Ad2 )  ))
-      interp-+ : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((+ Ad1 ) x1 x2 ) ((+ Ad2 ) y1 y2 ) ))))
+      interp-+ : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((+ Ad1 ) x1 x2 ) ((+ Ad2 ) y1 y2 ) )))) 
+  
   data AdditiveUnitalTerm  : Set where
     0L : AdditiveUnitalTerm  
-    +L : (AdditiveUnitalTerm   → (AdditiveUnitalTerm   → AdditiveUnitalTerm  ))
+    +L : (AdditiveUnitalTerm   → (AdditiveUnitalTerm   → AdditiveUnitalTerm  )) 
+  
   data ClAdditiveUnitalTerm (A  : Set )  : Set where
     sing : (A  → (ClAdditiveUnitalTerm A ) )
     0Cl : (ClAdditiveUnitalTerm A ) 
-    +Cl : ((ClAdditiveUnitalTerm A )  → ((ClAdditiveUnitalTerm A )  → (ClAdditiveUnitalTerm A ) ))
+    +Cl : ((ClAdditiveUnitalTerm A )  → ((ClAdditiveUnitalTerm A )  → (ClAdditiveUnitalTerm A ) )) 
+  
   data OpAdditiveUnitalTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpAdditiveUnitalTerm n ) )
     0OL : (OpAdditiveUnitalTerm n ) 
-    +OL : ((OpAdditiveUnitalTerm n )  → ((OpAdditiveUnitalTerm n )  → (OpAdditiveUnitalTerm n ) ))
+    +OL : ((OpAdditiveUnitalTerm n )  → ((OpAdditiveUnitalTerm n )  → (OpAdditiveUnitalTerm n ) )) 
+  
   data OpAdditiveUnitalTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpAdditiveUnitalTerm2 n A ) )
     sing2 : (A  → (OpAdditiveUnitalTerm2 n A ) )
     0OL2 : (OpAdditiveUnitalTerm2 n A ) 
-    +OL2 : ((OpAdditiveUnitalTerm2 n A )  → ((OpAdditiveUnitalTerm2 n A )  → (OpAdditiveUnitalTerm2 n A ) ))
+    +OL2 : ((OpAdditiveUnitalTerm2 n A )  → ((OpAdditiveUnitalTerm2 n A )  → (OpAdditiveUnitalTerm2 n A ) )) 
+  
+  simplifyB : (AdditiveUnitalTerm  → AdditiveUnitalTerm )
+  simplifyB (+L 0L x )  = x 
+  
+  simplifyB (+L x 0L )  = x 
+  
+  simplifyB 0L  = 0L 
+  
+  simplifyB (+L x1 x2 )  = (+L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClAdditiveUnitalTerm A ) → (ClAdditiveUnitalTerm A )))
+  simplifyCl _ (+Cl 0Cl x )  = x 
+  
+  simplifyCl _ (+Cl x 0Cl )  = x 
+  
+  simplifyCl _ 0Cl  = 0Cl 
+  
+  simplifyCl _ (+Cl x1 x2 )  = (+Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpAdditiveUnitalTerm n ) → (OpAdditiveUnitalTerm n )))
+  simplifyOp _ (+OL 0OL x )  = x 
+  
+  simplifyOp _ (+OL x 0OL )  = x 
+  
+  simplifyOp _ 0OL  = 0OL 
+  
+  simplifyOp _ (+OL x1 x2 )  = (+OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpAdditiveUnitalTerm2 n A ) → (OpAdditiveUnitalTerm2 n A )))
+  simplifyOpE _ _ (+OL2 0OL2 x )  = x 
+  
+  simplifyOpE _ _ (+OL2 x 0OL2 )  = x 
+  
+  simplifyOpE _ _ 0OL2  = 0OL2 
+  
+  simplifyOpE _ _ (+OL2 x1 x2 )  = (+OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((AdditiveUnital A ) → (AdditiveUnitalTerm  → A )))
   evalB Ad 0L  = (0ᵢ Ad ) 
   
@@ -164,4 +218,5 @@ module AdditiveUnital  where
     constructor tagless
     field
       0T : (Repr A ) 
-      +T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      +T : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

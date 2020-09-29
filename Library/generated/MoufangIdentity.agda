@@ -1,4 +1,5 @@
-module MoufangIdentity  where
+
+ module MoufangIdentity  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -8,39 +9,68 @@ module MoufangIdentity  where
     constructor MoufangIdentityC
     field
       op : (A  → (A  → A ))
-      moufangId : ({x y z  : A }  → (op (op z x ) (op y z ) ) ≡ (op (op z (op x y ) ) z ))
+      moufangId : ({x y z  : A }  → (op (op z x ) (op y z ) ) ≡ (op (op z (op x y ) ) z )) 
+  
   open MoufangIdentity
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
-      opS : (AS  → (AS  → AS ))
+      opS : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       opP : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
-      moufangIdP : ({xP yP zP  : (Prod AP AP )}  → (opP (opP zP xP ) (opP yP zP ) ) ≡ (opP (opP zP (opP xP yP ) ) zP ))
+      moufangIdP : ({xP yP zP  : (Prod AP AP )}  → (opP (opP zP xP ) (opP yP zP ) ) ≡ (opP (opP zP (opP xP yP ) ) zP )) 
+  
   record Hom (A1 A2  : Set ) (Mo1  : (MoufangIdentity A1 )) (Mo2  : (MoufangIdentity A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
-      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Mo1 ) x1 x2 ) ) ≡ ((op Mo2 ) (hom x1 ) (hom x2 ) ))
+      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Mo1 ) x1 x2 ) ) ≡ ((op Mo2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Mo1  : (MoufangIdentity A1 )) (Mo2  : (MoufangIdentity A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
-      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Mo1 ) x1 x2 ) ((op Mo2 ) y1 y2 ) ))))
+      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Mo1 ) x1 x2 ) ((op Mo2 ) y1 y2 ) )))) 
+  
   data MoufangIdentityTerm  : Set where
-    opL : (MoufangIdentityTerm   → (MoufangIdentityTerm   → MoufangIdentityTerm  ))
+    opL : (MoufangIdentityTerm   → (MoufangIdentityTerm   → MoufangIdentityTerm  )) 
+  
   data ClMoufangIdentityTerm (A  : Set )  : Set where
     sing : (A  → (ClMoufangIdentityTerm A ) )
-    opCl : ((ClMoufangIdentityTerm A )  → ((ClMoufangIdentityTerm A )  → (ClMoufangIdentityTerm A ) ))
+    opCl : ((ClMoufangIdentityTerm A )  → ((ClMoufangIdentityTerm A )  → (ClMoufangIdentityTerm A ) )) 
+  
   data OpMoufangIdentityTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpMoufangIdentityTerm n ) )
-    opOL : ((OpMoufangIdentityTerm n )  → ((OpMoufangIdentityTerm n )  → (OpMoufangIdentityTerm n ) ))
+    opOL : ((OpMoufangIdentityTerm n )  → ((OpMoufangIdentityTerm n )  → (OpMoufangIdentityTerm n ) )) 
+  
   data OpMoufangIdentityTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpMoufangIdentityTerm2 n A ) )
     sing2 : (A  → (OpMoufangIdentityTerm2 n A ) )
-    opOL2 : ((OpMoufangIdentityTerm2 n A )  → ((OpMoufangIdentityTerm2 n A )  → (OpMoufangIdentityTerm2 n A ) ))
+    opOL2 : ((OpMoufangIdentityTerm2 n A )  → ((OpMoufangIdentityTerm2 n A )  → (OpMoufangIdentityTerm2 n A ) )) 
+  
+  simplifyB : (MoufangIdentityTerm  → MoufangIdentityTerm )
+  simplifyB (opL x1 x2 )  = (opL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClMoufangIdentityTerm A ) → (ClMoufangIdentityTerm A )))
+  simplifyCl _ (opCl x1 x2 )  = (opCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpMoufangIdentityTerm n ) → (OpMoufangIdentityTerm n )))
+  simplifyOp _ (opOL x1 x2 )  = (opOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpMoufangIdentityTerm2 n A ) → (OpMoufangIdentityTerm2 n A )))
+  simplifyOpE _ _ (opOL2 x1 x2 )  = (opOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((MoufangIdentity A ) → (MoufangIdentityTerm  → A )))
   evalB Mo (opL x1 x2 )  = ((op Mo ) (evalB Mo x1 ) (evalB Mo x2 ) )
   
@@ -116,4 +146,5 @@ module MoufangIdentity  where
   record Tagless (A  : Set) (Repr  : (Set  → Set ))  : Set where
     constructor tagless
     field
-      opT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      opT : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

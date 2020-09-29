@@ -1,4 +1,5 @@
-module RegularSemigroup  where
+
+ module RegularSemigroup  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -10,48 +11,85 @@ module RegularSemigroup  where
       op : (A  → (A  → A ))
       associative_op : ({x y z  : A }  → (op (op x y ) z ) ≡ (op x (op y z ) ))
       inv : (A  → A )
-      quasiInverse_inv_op_e : ({x  : A }  → (op (op x (inv x ) ) x ) ≡ x )
+      quasiInverse_inv_op_e : ({x  : A }  → (op (op x (inv x ) ) x ) ≡ x ) 
+  
   open RegularSemigroup
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       opS : (AS  → (AS  → AS ))
-      invS : (AS  → AS )
+      invS : (AS  → AS ) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       opP : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
       invP : ((Prod AP AP ) → (Prod AP AP ))
       associative_opP : ({xP yP zP  : (Prod AP AP )}  → (opP (opP xP yP ) zP ) ≡ (opP xP (opP yP zP ) ))
-      quasiInverse_inv_op_eP : ({xP  : (Prod AP AP )}  → (opP (opP xP (invP xP ) ) xP ) ≡ xP )
+      quasiInverse_inv_op_eP : ({xP  : (Prod AP AP )}  → (opP (opP xP (invP xP ) ) xP ) ≡ xP ) 
+  
   record Hom (A1 A2  : Set ) (Re1  : (RegularSemigroup A1 )) (Re2  : (RegularSemigroup A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Re1 ) x1 x2 ) ) ≡ ((op Re2 ) (hom x1 ) (hom x2 ) ))
-      pres-inv : ({x1  : A1}  → (hom ((inv Re1 ) x1 ) ) ≡ ((inv Re2 ) (hom x1 ) ))
+      pres-inv : ({x1  : A1}  → (hom ((inv Re1 ) x1 ) ) ≡ ((inv Re2 ) (hom x1 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Re1  : (RegularSemigroup A1 )) (Re2  : (RegularSemigroup A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Re1 ) x1 x2 ) ((op Re2 ) y1 y2 ) ))))
-      interp-inv : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((inv Re1 ) x1 ) ((inv Re2 ) y1 ) )))
+      interp-inv : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((inv Re1 ) x1 ) ((inv Re2 ) y1 ) ))) 
+  
   data RegularSemigroupTerm  : Set where
     opL : (RegularSemigroupTerm   → (RegularSemigroupTerm   → RegularSemigroupTerm  ))
-    invL : (RegularSemigroupTerm   → RegularSemigroupTerm  )
+    invL : (RegularSemigroupTerm   → RegularSemigroupTerm  ) 
+  
   data ClRegularSemigroupTerm (A  : Set )  : Set where
     sing : (A  → (ClRegularSemigroupTerm A ) )
     opCl : ((ClRegularSemigroupTerm A )  → ((ClRegularSemigroupTerm A )  → (ClRegularSemigroupTerm A ) ))
-    invCl : ((ClRegularSemigroupTerm A )  → (ClRegularSemigroupTerm A ) )
+    invCl : ((ClRegularSemigroupTerm A )  → (ClRegularSemigroupTerm A ) ) 
+  
   data OpRegularSemigroupTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpRegularSemigroupTerm n ) )
     opOL : ((OpRegularSemigroupTerm n )  → ((OpRegularSemigroupTerm n )  → (OpRegularSemigroupTerm n ) ))
-    invOL : ((OpRegularSemigroupTerm n )  → (OpRegularSemigroupTerm n ) )
+    invOL : ((OpRegularSemigroupTerm n )  → (OpRegularSemigroupTerm n ) ) 
+  
   data OpRegularSemigroupTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpRegularSemigroupTerm2 n A ) )
     sing2 : (A  → (OpRegularSemigroupTerm2 n A ) )
     opOL2 : ((OpRegularSemigroupTerm2 n A )  → ((OpRegularSemigroupTerm2 n A )  → (OpRegularSemigroupTerm2 n A ) ))
-    invOL2 : ((OpRegularSemigroupTerm2 n A )  → (OpRegularSemigroupTerm2 n A ) )
+    invOL2 : ((OpRegularSemigroupTerm2 n A )  → (OpRegularSemigroupTerm2 n A ) ) 
+  
+  simplifyB : (RegularSemigroupTerm  → RegularSemigroupTerm )
+  simplifyB (opL x1 x2 )  = (opL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB (invL x1 )  = (invL (simplifyB x1 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClRegularSemigroupTerm A ) → (ClRegularSemigroupTerm A )))
+  simplifyCl _ (opCl x1 x2 )  = (opCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (invCl x1 )  = (invCl (simplifyCl _ x1 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpRegularSemigroupTerm n ) → (OpRegularSemigroupTerm n )))
+  simplifyOp _ (opOL x1 x2 )  = (opOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (invOL x1 )  = (invOL (simplifyOp _ x1 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpRegularSemigroupTerm2 n A ) → (OpRegularSemigroupTerm2 n A )))
+  simplifyOpE _ _ (opOL2 x1 x2 )  = (opOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (invOL2 x1 )  = (invOL2 (simplifyOpE _ _ x1 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((RegularSemigroup A ) → (RegularSemigroupTerm  → A )))
   evalB Re (opL x1 x2 )  = ((op Re ) (evalB Re x1 ) (evalB Re x2 ) )
   
@@ -164,4 +202,5 @@ module RegularSemigroup  where
     constructor tagless
     field
       opT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
-      invT : ((Repr A )  → (Repr A ) )
+      invT : ((Repr A )  → (Repr A ) ) 
+   

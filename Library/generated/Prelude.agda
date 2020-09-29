@@ -7,12 +7,15 @@ record Prod (A B  : Set )  : Set where
   constructor prodC
   field
     fst : A 
-    snd : B 
+    snd : B  
+
 data Wrap (A  : Set )  : Set where
-  Q : (A  → (Wrap A ))
+  Q : (A  → (Wrap A )) 
+
 data Stage  : Set where
   s0 : Stage 
-  s1 : Stage 
+  s1 : Stage  
+
 CodeRep : ((A  : Set ) (s  : Stage )  → Set )
 CodeRep A s0  = A 
 
@@ -29,12 +32,15 @@ run (Q x )  = x
 
 data Choice  : Set where
   Expr : Choice 
-  Const : Choice 
+  Const : Choice  
+
 data Comp (A  : Set ) (s  : Stage )  : Set where
-  Computation : (Choice  → ((CodeRep A s ) → (Comp A s )))
+  Computation : (Choice  → ((CodeRep A s ) → (Comp A s ))) 
+
 data Staged (A  : Set )  : Set where
   Now : (A  → (Staged A ))
-  Later : ((Comp A s1 ) → (Staged A ))
+  Later : ((Comp A s1 ) → (Staged A )) 
+
 expr : ({A  : Set }  → ((CodeRep A s1 ) → (Staged A )))
 expr x  = (Later (Computation Expr x ) )
 

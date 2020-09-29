@@ -1,4 +1,5 @@
-module AddGroup_RingoidSig  where
+
+ module AddGroup_RingoidSig  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -15,7 +16,8 @@ module AddGroup_RingoidSig  where
       neg : (A  → A )
       leftInverse_inv_op_0ᵢ : ({x  : A }  → (+ x (neg x ) ) ≡ 0ᵢ )
       rightInverse_inv_op_0ᵢ : ({x  : A }  → (+ (neg x ) x ) ≡ 0ᵢ )
-      * : (A  → (A  → A ))
+      * : (A  → (A  → A )) 
+  
   open AddGroup_RingoidSig
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
@@ -23,7 +25,8 @@ module AddGroup_RingoidSig  where
       +S : (AS  → (AS  → AS ))
       0S : AS 
       negS : (AS  → AS )
-      *S : (AS  → (AS  → AS ))
+      *S : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
@@ -35,7 +38,8 @@ module AddGroup_RingoidSig  where
       runit_0P : ({xP  : (Prod AP AP )}  → (+P xP 0P ) ≡ xP )
       associative_+P : ({xP yP zP  : (Prod AP AP )}  → (+P (+P xP yP ) zP ) ≡ (+P xP (+P yP zP ) ))
       leftInverse_inv_op_0P : ({xP  : (Prod AP AP )}  → (+P xP (negP xP ) ) ≡ 0P )
-      rightInverse_inv_op_0P : ({xP  : (Prod AP AP )}  → (+P (negP xP ) xP ) ≡ 0P )
+      rightInverse_inv_op_0P : ({xP  : (Prod AP AP )}  → (+P (negP xP ) xP ) ≡ 0P ) 
+  
   record Hom (A1 A2  : Set ) (Ad1  : (AddGroup_RingoidSig A1 )) (Ad2  : (AddGroup_RingoidSig A2 ))  : Set where
     constructor HomC
     field
@@ -43,7 +47,8 @@ module AddGroup_RingoidSig  where
       pres-+ : ({x1  : A1} {x2  : A1}  → (hom ((+ Ad1 ) x1 x2 ) ) ≡ ((+ Ad2 ) (hom x1 ) (hom x2 ) ))
       pres-0 : (  (hom (0ᵢ Ad1 )  ) ≡ (0ᵢ Ad2 ) )
       pres-neg : ({x1  : A1}  → (hom ((neg Ad1 ) x1 ) ) ≡ ((neg Ad2 ) (hom x1 ) ))
-      pres-* : ({x1  : A1} {x2  : A1}  → (hom ((* Ad1 ) x1 x2 ) ) ≡ ((* Ad2 ) (hom x1 ) (hom x2 ) ))
+      pres-* : ({x1  : A1} {x2  : A1}  → (hom ((* Ad1 ) x1 x2 ) ) ≡ ((* Ad2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Ad1  : (AddGroup_RingoidSig A1 )) (Ad2  : (AddGroup_RingoidSig A2 ))  : Set₁ where
     constructor RelInterpC
     field
@@ -51,31 +56,96 @@ module AddGroup_RingoidSig  where
       interp-+ : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((+ Ad1 ) x1 x2 ) ((+ Ad2 ) y1 y2 ) ))))
       interp-0 : (  (interp (0ᵢ Ad1 )  (0ᵢ Ad2 )  ))
       interp-neg : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((neg Ad1 ) x1 ) ((neg Ad2 ) y1 ) )))
-      interp-* : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((* Ad1 ) x1 x2 ) ((* Ad2 ) y1 y2 ) ))))
+      interp-* : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((* Ad1 ) x1 x2 ) ((* Ad2 ) y1 y2 ) )))) 
+  
   data AddGroup_RingoidSigTerm  : Set where
     +L : (AddGroup_RingoidSigTerm   → (AddGroup_RingoidSigTerm   → AddGroup_RingoidSigTerm  ))
     0L : AddGroup_RingoidSigTerm  
     negL : (AddGroup_RingoidSigTerm   → AddGroup_RingoidSigTerm  )
-    *L : (AddGroup_RingoidSigTerm   → (AddGroup_RingoidSigTerm   → AddGroup_RingoidSigTerm  ))
+    *L : (AddGroup_RingoidSigTerm   → (AddGroup_RingoidSigTerm   → AddGroup_RingoidSigTerm  )) 
+  
   data ClAddGroup_RingoidSigTerm (A  : Set )  : Set where
     sing : (A  → (ClAddGroup_RingoidSigTerm A ) )
     +Cl : ((ClAddGroup_RingoidSigTerm A )  → ((ClAddGroup_RingoidSigTerm A )  → (ClAddGroup_RingoidSigTerm A ) ))
     0Cl : (ClAddGroup_RingoidSigTerm A ) 
     negCl : ((ClAddGroup_RingoidSigTerm A )  → (ClAddGroup_RingoidSigTerm A ) )
-    *Cl : ((ClAddGroup_RingoidSigTerm A )  → ((ClAddGroup_RingoidSigTerm A )  → (ClAddGroup_RingoidSigTerm A ) ))
+    *Cl : ((ClAddGroup_RingoidSigTerm A )  → ((ClAddGroup_RingoidSigTerm A )  → (ClAddGroup_RingoidSigTerm A ) )) 
+  
   data OpAddGroup_RingoidSigTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpAddGroup_RingoidSigTerm n ) )
     +OL : ((OpAddGroup_RingoidSigTerm n )  → ((OpAddGroup_RingoidSigTerm n )  → (OpAddGroup_RingoidSigTerm n ) ))
     0OL : (OpAddGroup_RingoidSigTerm n ) 
     negOL : ((OpAddGroup_RingoidSigTerm n )  → (OpAddGroup_RingoidSigTerm n ) )
-    *OL : ((OpAddGroup_RingoidSigTerm n )  → ((OpAddGroup_RingoidSigTerm n )  → (OpAddGroup_RingoidSigTerm n ) ))
+    *OL : ((OpAddGroup_RingoidSigTerm n )  → ((OpAddGroup_RingoidSigTerm n )  → (OpAddGroup_RingoidSigTerm n ) )) 
+  
   data OpAddGroup_RingoidSigTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpAddGroup_RingoidSigTerm2 n A ) )
     sing2 : (A  → (OpAddGroup_RingoidSigTerm2 n A ) )
     +OL2 : ((OpAddGroup_RingoidSigTerm2 n A )  → ((OpAddGroup_RingoidSigTerm2 n A )  → (OpAddGroup_RingoidSigTerm2 n A ) ))
     0OL2 : (OpAddGroup_RingoidSigTerm2 n A ) 
     negOL2 : ((OpAddGroup_RingoidSigTerm2 n A )  → (OpAddGroup_RingoidSigTerm2 n A ) )
-    *OL2 : ((OpAddGroup_RingoidSigTerm2 n A )  → ((OpAddGroup_RingoidSigTerm2 n A )  → (OpAddGroup_RingoidSigTerm2 n A ) ))
+    *OL2 : ((OpAddGroup_RingoidSigTerm2 n A )  → ((OpAddGroup_RingoidSigTerm2 n A )  → (OpAddGroup_RingoidSigTerm2 n A ) )) 
+  
+  simplifyB : (AddGroup_RingoidSigTerm  → AddGroup_RingoidSigTerm )
+  simplifyB (+L 0L x )  = x 
+  
+  simplifyB (+L x 0L )  = x 
+  
+  simplifyB (+L x1 x2 )  = (+L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB 0L  = 0L 
+  
+  simplifyB (negL x1 )  = (negL (simplifyB x1 ) )
+  
+  simplifyB (*L x1 x2 )  = (*L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClAddGroup_RingoidSigTerm A ) → (ClAddGroup_RingoidSigTerm A )))
+  simplifyCl _ (+Cl 0Cl x )  = x 
+  
+  simplifyCl _ (+Cl x 0Cl )  = x 
+  
+  simplifyCl _ (+Cl x1 x2 )  = (+Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ 0Cl  = 0Cl 
+  
+  simplifyCl _ (negCl x1 )  = (negCl (simplifyCl _ x1 ) )
+  
+  simplifyCl _ (*Cl x1 x2 )  = (*Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpAddGroup_RingoidSigTerm n ) → (OpAddGroup_RingoidSigTerm n )))
+  simplifyOp _ (+OL 0OL x )  = x 
+  
+  simplifyOp _ (+OL x 0OL )  = x 
+  
+  simplifyOp _ (+OL x1 x2 )  = (+OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ 0OL  = 0OL 
+  
+  simplifyOp _ (negOL x1 )  = (negOL (simplifyOp _ x1 ) )
+  
+  simplifyOp _ (*OL x1 x2 )  = (*OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpAddGroup_RingoidSigTerm2 n A ) → (OpAddGroup_RingoidSigTerm2 n A )))
+  simplifyOpE _ _ (+OL2 0OL2 x )  = x 
+  
+  simplifyOpE _ _ (+OL2 x 0OL2 )  = x 
+  
+  simplifyOpE _ _ (+OL2 x1 x2 )  = (+OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ 0OL2  = 0OL2 
+  
+  simplifyOpE _ _ (negOL2 x1 )  = (negOL2 (simplifyOpE _ _ x1 ) )
+  
+  simplifyOpE _ _ (*OL2 x1 x2 )  = (*OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((AddGroup_RingoidSig A ) → (AddGroup_RingoidSigTerm  → A )))
   evalB Ad (+L x1 x2 )  = ((+ Ad ) (evalB Ad x1 ) (evalB Ad x2 ) )
   
@@ -262,4 +332,5 @@ module AddGroup_RingoidSig  where
       +T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
       0T : (Repr A ) 
       negT : ((Repr A )  → (Repr A ) )
-      *T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      *T : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

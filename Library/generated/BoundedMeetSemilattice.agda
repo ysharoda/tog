@@ -1,4 +1,5 @@
-module BoundedMeetSemilattice  where
+
+ module BoundedMeetSemilattice  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -13,13 +14,15 @@ module BoundedMeetSemilattice  where
       1ᵢ : A 
       lunit_1ᵢ : ({x  : A }  → (* 1ᵢ x ) ≡ x )
       runit_1ᵢ : ({x  : A }  → (* x 1ᵢ ) ≡ x )
-      idempotent_* : ({x  : A }  → (* x x ) ≡ x )
+      idempotent_* : ({x  : A }  → (* x x ) ≡ x ) 
+  
   open BoundedMeetSemilattice
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       *S : (AS  → (AS  → AS ))
-      1S : AS 
+      1S : AS  
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
@@ -29,35 +32,86 @@ module BoundedMeetSemilattice  where
       associative_*P : ({xP yP zP  : (Prod AP AP )}  → (*P (*P xP yP ) zP ) ≡ (*P xP (*P yP zP ) ))
       lunit_1P : ({xP  : (Prod AP AP )}  → (*P 1P xP ) ≡ xP )
       runit_1P : ({xP  : (Prod AP AP )}  → (*P xP 1P ) ≡ xP )
-      idempotent_*P : ({xP  : (Prod AP AP )}  → (*P xP xP ) ≡ xP )
+      idempotent_*P : ({xP  : (Prod AP AP )}  → (*P xP xP ) ≡ xP ) 
+  
   record Hom (A1 A2  : Set ) (Bo1  : (BoundedMeetSemilattice A1 )) (Bo2  : (BoundedMeetSemilattice A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-* : ({x1  : A1} {x2  : A1}  → (hom ((* Bo1 ) x1 x2 ) ) ≡ ((* Bo2 ) (hom x1 ) (hom x2 ) ))
-      pres-1 : (  (hom (1ᵢ Bo1 )  ) ≡ (1ᵢ Bo2 ) )
+      pres-1 : (  (hom (1ᵢ Bo1 )  ) ≡ (1ᵢ Bo2 ) ) 
+  
   record RelInterp (A1 A2  : Set ) (Bo1  : (BoundedMeetSemilattice A1 )) (Bo2  : (BoundedMeetSemilattice A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-* : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((* Bo1 ) x1 x2 ) ((* Bo2 ) y1 y2 ) ))))
-      interp-1 : (  (interp (1ᵢ Bo1 )  (1ᵢ Bo2 )  ))
+      interp-1 : (  (interp (1ᵢ Bo1 )  (1ᵢ Bo2 )  )) 
+  
   data BoundedMeetSemilatticeTerm  : Set where
     *L : (BoundedMeetSemilatticeTerm   → (BoundedMeetSemilatticeTerm   → BoundedMeetSemilatticeTerm  ))
-    1L : BoundedMeetSemilatticeTerm  
+    1L : BoundedMeetSemilatticeTerm   
+  
   data ClBoundedMeetSemilatticeTerm (A  : Set )  : Set where
     sing : (A  → (ClBoundedMeetSemilatticeTerm A ) )
     *Cl : ((ClBoundedMeetSemilatticeTerm A )  → ((ClBoundedMeetSemilatticeTerm A )  → (ClBoundedMeetSemilatticeTerm A ) ))
-    1Cl : (ClBoundedMeetSemilatticeTerm A ) 
+    1Cl : (ClBoundedMeetSemilatticeTerm A )  
+  
   data OpBoundedMeetSemilatticeTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpBoundedMeetSemilatticeTerm n ) )
     *OL : ((OpBoundedMeetSemilatticeTerm n )  → ((OpBoundedMeetSemilatticeTerm n )  → (OpBoundedMeetSemilatticeTerm n ) ))
-    1OL : (OpBoundedMeetSemilatticeTerm n ) 
+    1OL : (OpBoundedMeetSemilatticeTerm n )  
+  
   data OpBoundedMeetSemilatticeTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpBoundedMeetSemilatticeTerm2 n A ) )
     sing2 : (A  → (OpBoundedMeetSemilatticeTerm2 n A ) )
     *OL2 : ((OpBoundedMeetSemilatticeTerm2 n A )  → ((OpBoundedMeetSemilatticeTerm2 n A )  → (OpBoundedMeetSemilatticeTerm2 n A ) ))
-    1OL2 : (OpBoundedMeetSemilatticeTerm2 n A ) 
+    1OL2 : (OpBoundedMeetSemilatticeTerm2 n A )  
+  
+  simplifyB : (BoundedMeetSemilatticeTerm  → BoundedMeetSemilatticeTerm )
+  simplifyB (*L 1L x )  = x 
+  
+  simplifyB (*L x 1L )  = x 
+  
+  simplifyB (*L x1 x2 )  = (*L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB 1L  = 1L 
+  
+  simplifyCl : ((A  : Set )  → ((ClBoundedMeetSemilatticeTerm A ) → (ClBoundedMeetSemilatticeTerm A )))
+  simplifyCl _ (*Cl 1Cl x )  = x 
+  
+  simplifyCl _ (*Cl x 1Cl )  = x 
+  
+  simplifyCl _ (*Cl x1 x2 )  = (*Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ 1Cl  = 1Cl 
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpBoundedMeetSemilatticeTerm n ) → (OpBoundedMeetSemilatticeTerm n )))
+  simplifyOp _ (*OL 1OL x )  = x 
+  
+  simplifyOp _ (*OL x 1OL )  = x 
+  
+  simplifyOp _ (*OL x1 x2 )  = (*OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ 1OL  = 1OL 
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpBoundedMeetSemilatticeTerm2 n A ) → (OpBoundedMeetSemilatticeTerm2 n A )))
+  simplifyOpE _ _ (*OL2 1OL2 x )  = x 
+  
+  simplifyOpE _ _ (*OL2 x 1OL2 )  = x 
+  
+  simplifyOpE _ _ (*OL2 x1 x2 )  = (*OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ 1OL2  = 1OL2 
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((BoundedMeetSemilattice A ) → (BoundedMeetSemilatticeTerm  → A )))
   evalB Bo (*L x1 x2 )  = ((* Bo ) (evalB Bo x1 ) (evalB Bo x2 ) )
   
@@ -170,4 +224,5 @@ module BoundedMeetSemilattice  where
     constructor tagless
     field
       *T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
-      1T : (Repr A ) 
+      1T : (Repr A )  
+   

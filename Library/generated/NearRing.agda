@@ -1,4 +1,5 @@
-module NearRing  where
+
+ module NearRing  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -17,7 +18,8 @@ module NearRing  where
       leftInverse_inv_op_0ᵢ : ({x  : A }  → (+ x (neg x ) ) ≡ 0ᵢ )
       rightInverse_inv_op_0ᵢ : ({x  : A }  → (+ (neg x ) x ) ≡ 0ᵢ )
       associative_* : ({x y z  : A }  → (* (* x y ) z ) ≡ (* x (* y z ) ))
-      rightDistributive_*_+ : ({x y z  : A }  → (* (+ y z ) x ) ≡ (+ (* y x ) (* z x ) ))
+      rightDistributive_*_+ : ({x y z  : A }  → (* (+ y z ) x ) ≡ (+ (* y x ) (* z x ) )) 
+  
   open NearRing
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
@@ -25,7 +27,8 @@ module NearRing  where
       *S : (AS  → (AS  → AS ))
       +S : (AS  → (AS  → AS ))
       0S : AS 
-      negS : (AS  → AS )
+      negS : (AS  → AS ) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
@@ -39,7 +42,8 @@ module NearRing  where
       leftInverse_inv_op_0P : ({xP  : (Prod AP AP )}  → (+P xP (negP xP ) ) ≡ 0P )
       rightInverse_inv_op_0P : ({xP  : (Prod AP AP )}  → (+P (negP xP ) xP ) ≡ 0P )
       associative_*P : ({xP yP zP  : (Prod AP AP )}  → (*P (*P xP yP ) zP ) ≡ (*P xP (*P yP zP ) ))
-      rightDistributive_*_+P : ({xP yP zP  : (Prod AP AP )}  → (*P (+P yP zP ) xP ) ≡ (+P (*P yP xP ) (*P zP xP ) ))
+      rightDistributive_*_+P : ({xP yP zP  : (Prod AP AP )}  → (*P (+P yP zP ) xP ) ≡ (+P (*P yP xP ) (*P zP xP ) )) 
+  
   record Hom (A1 A2  : Set ) (Ne1  : (NearRing A1 )) (Ne2  : (NearRing A2 ))  : Set where
     constructor HomC
     field
@@ -47,7 +51,8 @@ module NearRing  where
       pres-* : ({x1  : A1} {x2  : A1}  → (hom ((* Ne1 ) x1 x2 ) ) ≡ ((* Ne2 ) (hom x1 ) (hom x2 ) ))
       pres-+ : ({x1  : A1} {x2  : A1}  → (hom ((+ Ne1 ) x1 x2 ) ) ≡ ((+ Ne2 ) (hom x1 ) (hom x2 ) ))
       pres-0 : (  (hom (0ᵢ Ne1 )  ) ≡ (0ᵢ Ne2 ) )
-      pres-neg : ({x1  : A1}  → (hom ((neg Ne1 ) x1 ) ) ≡ ((neg Ne2 ) (hom x1 ) ))
+      pres-neg : ({x1  : A1}  → (hom ((neg Ne1 ) x1 ) ) ≡ ((neg Ne2 ) (hom x1 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Ne1  : (NearRing A1 )) (Ne2  : (NearRing A2 ))  : Set₁ where
     constructor RelInterpC
     field
@@ -55,31 +60,96 @@ module NearRing  where
       interp-* : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((* Ne1 ) x1 x2 ) ((* Ne2 ) y1 y2 ) ))))
       interp-+ : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((+ Ne1 ) x1 x2 ) ((+ Ne2 ) y1 y2 ) ))))
       interp-0 : (  (interp (0ᵢ Ne1 )  (0ᵢ Ne2 )  ))
-      interp-neg : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((neg Ne1 ) x1 ) ((neg Ne2 ) y1 ) )))
+      interp-neg : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((neg Ne1 ) x1 ) ((neg Ne2 ) y1 ) ))) 
+  
   data NearRingTerm  : Set where
     *L : (NearRingTerm   → (NearRingTerm   → NearRingTerm  ))
     +L : (NearRingTerm   → (NearRingTerm   → NearRingTerm  ))
     0L : NearRingTerm  
-    negL : (NearRingTerm   → NearRingTerm  )
+    negL : (NearRingTerm   → NearRingTerm  ) 
+  
   data ClNearRingTerm (A  : Set )  : Set where
     sing : (A  → (ClNearRingTerm A ) )
     *Cl : ((ClNearRingTerm A )  → ((ClNearRingTerm A )  → (ClNearRingTerm A ) ))
     +Cl : ((ClNearRingTerm A )  → ((ClNearRingTerm A )  → (ClNearRingTerm A ) ))
     0Cl : (ClNearRingTerm A ) 
-    negCl : ((ClNearRingTerm A )  → (ClNearRingTerm A ) )
+    negCl : ((ClNearRingTerm A )  → (ClNearRingTerm A ) ) 
+  
   data OpNearRingTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpNearRingTerm n ) )
     *OL : ((OpNearRingTerm n )  → ((OpNearRingTerm n )  → (OpNearRingTerm n ) ))
     +OL : ((OpNearRingTerm n )  → ((OpNearRingTerm n )  → (OpNearRingTerm n ) ))
     0OL : (OpNearRingTerm n ) 
-    negOL : ((OpNearRingTerm n )  → (OpNearRingTerm n ) )
+    negOL : ((OpNearRingTerm n )  → (OpNearRingTerm n ) ) 
+  
   data OpNearRingTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpNearRingTerm2 n A ) )
     sing2 : (A  → (OpNearRingTerm2 n A ) )
     *OL2 : ((OpNearRingTerm2 n A )  → ((OpNearRingTerm2 n A )  → (OpNearRingTerm2 n A ) ))
     +OL2 : ((OpNearRingTerm2 n A )  → ((OpNearRingTerm2 n A )  → (OpNearRingTerm2 n A ) ))
     0OL2 : (OpNearRingTerm2 n A ) 
-    negOL2 : ((OpNearRingTerm2 n A )  → (OpNearRingTerm2 n A ) )
+    negOL2 : ((OpNearRingTerm2 n A )  → (OpNearRingTerm2 n A ) ) 
+  
+  simplifyB : (NearRingTerm  → NearRingTerm )
+  simplifyB (+L 0L x )  = x 
+  
+  simplifyB (+L x 0L )  = x 
+  
+  simplifyB (*L x1 x2 )  = (*L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB (+L x1 x2 )  = (+L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB 0L  = 0L 
+  
+  simplifyB (negL x1 )  = (negL (simplifyB x1 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClNearRingTerm A ) → (ClNearRingTerm A )))
+  simplifyCl _ (+Cl 0Cl x )  = x 
+  
+  simplifyCl _ (+Cl x 0Cl )  = x 
+  
+  simplifyCl _ (*Cl x1 x2 )  = (*Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (+Cl x1 x2 )  = (+Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ 0Cl  = 0Cl 
+  
+  simplifyCl _ (negCl x1 )  = (negCl (simplifyCl _ x1 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpNearRingTerm n ) → (OpNearRingTerm n )))
+  simplifyOp _ (+OL 0OL x )  = x 
+  
+  simplifyOp _ (+OL x 0OL )  = x 
+  
+  simplifyOp _ (*OL x1 x2 )  = (*OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (+OL x1 x2 )  = (+OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ 0OL  = 0OL 
+  
+  simplifyOp _ (negOL x1 )  = (negOL (simplifyOp _ x1 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpNearRingTerm2 n A ) → (OpNearRingTerm2 n A )))
+  simplifyOpE _ _ (+OL2 0OL2 x )  = x 
+  
+  simplifyOpE _ _ (+OL2 x 0OL2 )  = x 
+  
+  simplifyOpE _ _ (*OL2 x1 x2 )  = (*OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (+OL2 x1 x2 )  = (+OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ 0OL2  = 0OL2 
+  
+  simplifyOpE _ _ (negOL2 x1 )  = (negOL2 (simplifyOpE _ _ x1 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((NearRing A ) → (NearRingTerm  → A )))
   evalB Ne (*L x1 x2 )  = ((* Ne ) (evalB Ne x1 ) (evalB Ne x2 ) )
   
@@ -266,4 +336,5 @@ module NearRing  where
       *T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
       +T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
       0T : (Repr A ) 
-      negT : ((Repr A )  → (Repr A ) )
+      negT : ((Repr A )  → (Repr A ) ) 
+   

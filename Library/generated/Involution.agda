@@ -1,4 +1,5 @@
-module Involution  where
+
+ module Involution  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -8,39 +9,75 @@ module Involution  where
     constructor InvolutionC
     field
       prim : (A  → A )
-      involutive_prim : ({x  : A }  → (prim (prim x ) ) ≡ x )
+      involutive_prim : ({x  : A }  → (prim (prim x ) ) ≡ x ) 
+  
   open Involution
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
-      primS : (AS  → AS )
+      primS : (AS  → AS ) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       primP : ((Prod AP AP ) → (Prod AP AP ))
-      involutive_primP : ({xP  : (Prod AP AP )}  → (primP (primP xP ) ) ≡ xP )
+      involutive_primP : ({xP  : (Prod AP AP )}  → (primP (primP xP ) ) ≡ xP ) 
+  
   record Hom (A1 A2  : Set ) (In1  : (Involution A1 )) (In2  : (Involution A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
-      pres-prim : ({x1  : A1}  → (hom ((prim In1 ) x1 ) ) ≡ ((prim In2 ) (hom x1 ) ))
+      pres-prim : ({x1  : A1}  → (hom ((prim In1 ) x1 ) ) ≡ ((prim In2 ) (hom x1 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (In1  : (Involution A1 )) (In2  : (Involution A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
-      interp-prim : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((prim In1 ) x1 ) ((prim In2 ) y1 ) )))
+      interp-prim : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((prim In1 ) x1 ) ((prim In2 ) y1 ) ))) 
+  
   data InvolutionTerm  : Set where
-    primL : (InvolutionTerm   → InvolutionTerm  )
+    primL : (InvolutionTerm   → InvolutionTerm  ) 
+  
   data ClInvolutionTerm (A  : Set )  : Set where
     sing : (A  → (ClInvolutionTerm A ) )
-    primCl : ((ClInvolutionTerm A )  → (ClInvolutionTerm A ) )
+    primCl : ((ClInvolutionTerm A )  → (ClInvolutionTerm A ) ) 
+  
   data OpInvolutionTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpInvolutionTerm n ) )
-    primOL : ((OpInvolutionTerm n )  → (OpInvolutionTerm n ) )
+    primOL : ((OpInvolutionTerm n )  → (OpInvolutionTerm n ) ) 
+  
   data OpInvolutionTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpInvolutionTerm2 n A ) )
     sing2 : (A  → (OpInvolutionTerm2 n A ) )
-    primOL2 : ((OpInvolutionTerm2 n A )  → (OpInvolutionTerm2 n A ) )
+    primOL2 : ((OpInvolutionTerm2 n A )  → (OpInvolutionTerm2 n A ) ) 
+  
+  simplifyB : (InvolutionTerm  → InvolutionTerm )
+  simplifyB (primL (primL x ) )  = x  
+  simplifyB (primL x1)  = (primL (simplifyB x1))
+  
+  simplifyCl : ((A  : Set )  → ((ClInvolutionTerm A ) → (ClInvolutionTerm A )))
+  simplifyCl _ (primCl (primCl x ) )  = x 
+  
+  simplifyCl _ (primCl x1 )  = (primCl (simplifyCl _ x1 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpInvolutionTerm n ) → (OpInvolutionTerm n )))
+  simplifyOp _ (primOL (primOL x ) )  = x 
+  
+  simplifyOp _ (primOL x1 )  = (primOL (simplifyOp _ x1 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpInvolutionTerm2 n A ) → (OpInvolutionTerm2 n A )))
+  simplifyOpE _ _ (primOL2 (primOL2 x ) )  = x 
+  
+  simplifyOpE _ _ (primOL2 x1 )  = (primOL2 (simplifyOpE _ _ x1 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((Involution A ) → (InvolutionTerm  → A )))
   evalB In (primL x1 )  = ((prim In ) (evalB In x1 ) )
   
@@ -116,4 +153,5 @@ module Involution  where
   record Tagless (A  : Set) (Repr  : (Set  → Set ))  : Set where
     constructor tagless
     field
-      primT : ((Repr A )  → (Repr A ) )
+      primT : ((Repr A )  → (Repr A ) ) 
+   

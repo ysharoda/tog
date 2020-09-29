@@ -1,4 +1,5 @@
-module BoundedDistributiveLattice  where
+
+ module BoundedDistributiveLattice  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -24,7 +25,8 @@ module BoundedDistributiveLattice  where
       1ᵢ : A 
       lunit_1ᵢ : ({x  : A }  → (* 1ᵢ x ) ≡ x )
       runit_1ᵢ : ({x  : A }  → (* x 1ᵢ ) ≡ x )
-      leftDistributive_*_+ : ({x y z  : A }  → (* x (+ y z ) ) ≡ (+ (* x y ) (* x z ) ))
+      leftDistributive_*_+ : ({x y z  : A }  → (* x (+ y z ) ) ≡ (+ (* x y ) (* x z ) )) 
+  
   open BoundedDistributiveLattice
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
@@ -32,7 +34,8 @@ module BoundedDistributiveLattice  where
       *S : (AS  → (AS  → AS ))
       +S : (AS  → (AS  → AS ))
       0S : AS 
-      1S : AS 
+      1S : AS  
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
@@ -53,7 +56,8 @@ module BoundedDistributiveLattice  where
       runit_0P : ({xP  : (Prod AP AP )}  → (+P xP 0P ) ≡ xP )
       lunit_1P : ({xP  : (Prod AP AP )}  → (*P 1P xP ) ≡ xP )
       runit_1P : ({xP  : (Prod AP AP )}  → (*P xP 1P ) ≡ xP )
-      leftDistributive_*_+P : ({xP yP zP  : (Prod AP AP )}  → (*P xP (+P yP zP ) ) ≡ (+P (*P xP yP ) (*P xP zP ) ))
+      leftDistributive_*_+P : ({xP yP zP  : (Prod AP AP )}  → (*P xP (+P yP zP ) ) ≡ (+P (*P xP yP ) (*P xP zP ) )) 
+  
   record Hom (A1 A2  : Set ) (Bo1  : (BoundedDistributiveLattice A1 )) (Bo2  : (BoundedDistributiveLattice A2 ))  : Set where
     constructor HomC
     field
@@ -61,7 +65,8 @@ module BoundedDistributiveLattice  where
       pres-* : ({x1  : A1} {x2  : A1}  → (hom ((* Bo1 ) x1 x2 ) ) ≡ ((* Bo2 ) (hom x1 ) (hom x2 ) ))
       pres-+ : ({x1  : A1} {x2  : A1}  → (hom ((+ Bo1 ) x1 x2 ) ) ≡ ((+ Bo2 ) (hom x1 ) (hom x2 ) ))
       pres-0 : (  (hom (0ᵢ Bo1 )  ) ≡ (0ᵢ Bo2 ) )
-      pres-1 : (  (hom (1ᵢ Bo1 )  ) ≡ (1ᵢ Bo2 ) )
+      pres-1 : (  (hom (1ᵢ Bo1 )  ) ≡ (1ᵢ Bo2 ) ) 
+  
   record RelInterp (A1 A2  : Set ) (Bo1  : (BoundedDistributiveLattice A1 )) (Bo2  : (BoundedDistributiveLattice A2 ))  : Set₁ where
     constructor RelInterpC
     field
@@ -69,31 +74,112 @@ module BoundedDistributiveLattice  where
       interp-* : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((* Bo1 ) x1 x2 ) ((* Bo2 ) y1 y2 ) ))))
       interp-+ : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((+ Bo1 ) x1 x2 ) ((+ Bo2 ) y1 y2 ) ))))
       interp-0 : (  (interp (0ᵢ Bo1 )  (0ᵢ Bo2 )  ))
-      interp-1 : (  (interp (1ᵢ Bo1 )  (1ᵢ Bo2 )  ))
+      interp-1 : (  (interp (1ᵢ Bo1 )  (1ᵢ Bo2 )  )) 
+  
   data BoundedDistributiveLatticeTerm  : Set where
     *L : (BoundedDistributiveLatticeTerm   → (BoundedDistributiveLatticeTerm   → BoundedDistributiveLatticeTerm  ))
     +L : (BoundedDistributiveLatticeTerm   → (BoundedDistributiveLatticeTerm   → BoundedDistributiveLatticeTerm  ))
     0L : BoundedDistributiveLatticeTerm  
-    1L : BoundedDistributiveLatticeTerm  
+    1L : BoundedDistributiveLatticeTerm   
+  
   data ClBoundedDistributiveLatticeTerm (A  : Set )  : Set where
     sing : (A  → (ClBoundedDistributiveLatticeTerm A ) )
     *Cl : ((ClBoundedDistributiveLatticeTerm A )  → ((ClBoundedDistributiveLatticeTerm A )  → (ClBoundedDistributiveLatticeTerm A ) ))
     +Cl : ((ClBoundedDistributiveLatticeTerm A )  → ((ClBoundedDistributiveLatticeTerm A )  → (ClBoundedDistributiveLatticeTerm A ) ))
     0Cl : (ClBoundedDistributiveLatticeTerm A ) 
-    1Cl : (ClBoundedDistributiveLatticeTerm A ) 
+    1Cl : (ClBoundedDistributiveLatticeTerm A )  
+  
   data OpBoundedDistributiveLatticeTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpBoundedDistributiveLatticeTerm n ) )
     *OL : ((OpBoundedDistributiveLatticeTerm n )  → ((OpBoundedDistributiveLatticeTerm n )  → (OpBoundedDistributiveLatticeTerm n ) ))
     +OL : ((OpBoundedDistributiveLatticeTerm n )  → ((OpBoundedDistributiveLatticeTerm n )  → (OpBoundedDistributiveLatticeTerm n ) ))
     0OL : (OpBoundedDistributiveLatticeTerm n ) 
-    1OL : (OpBoundedDistributiveLatticeTerm n ) 
+    1OL : (OpBoundedDistributiveLatticeTerm n )  
+  
   data OpBoundedDistributiveLatticeTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpBoundedDistributiveLatticeTerm2 n A ) )
     sing2 : (A  → (OpBoundedDistributiveLatticeTerm2 n A ) )
     *OL2 : ((OpBoundedDistributiveLatticeTerm2 n A )  → ((OpBoundedDistributiveLatticeTerm2 n A )  → (OpBoundedDistributiveLatticeTerm2 n A ) ))
     +OL2 : ((OpBoundedDistributiveLatticeTerm2 n A )  → ((OpBoundedDistributiveLatticeTerm2 n A )  → (OpBoundedDistributiveLatticeTerm2 n A ) ))
     0OL2 : (OpBoundedDistributiveLatticeTerm2 n A ) 
-    1OL2 : (OpBoundedDistributiveLatticeTerm2 n A ) 
+    1OL2 : (OpBoundedDistributiveLatticeTerm2 n A )  
+  
+  simplifyB : (BoundedDistributiveLatticeTerm  → BoundedDistributiveLatticeTerm )
+  simplifyB (+L 0L x )  = x 
+  
+  simplifyB (+L x 0L )  = x 
+  
+  simplifyB (*L 1L x )  = x 
+  
+  simplifyB (*L x 1L )  = x 
+  
+  simplifyB (*L x1 x2 )  = (*L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB (+L x1 x2 )  = (+L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB 0L  = 0L 
+  
+  simplifyB 1L  = 1L 
+  
+  simplifyCl : ((A  : Set )  → ((ClBoundedDistributiveLatticeTerm A ) → (ClBoundedDistributiveLatticeTerm A )))
+  simplifyCl _ (+Cl 0Cl x )  = x 
+  
+  simplifyCl _ (+Cl x 0Cl )  = x 
+  
+  simplifyCl _ (*Cl 1Cl x )  = x 
+  
+  simplifyCl _ (*Cl x 1Cl )  = x 
+  
+  simplifyCl _ (*Cl x1 x2 )  = (*Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (+Cl x1 x2 )  = (+Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ 0Cl  = 0Cl 
+  
+  simplifyCl _ 1Cl  = 1Cl 
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpBoundedDistributiveLatticeTerm n ) → (OpBoundedDistributiveLatticeTerm n )))
+  simplifyOp _ (+OL 0OL x )  = x 
+  
+  simplifyOp _ (+OL x 0OL )  = x 
+  
+  simplifyOp _ (*OL 1OL x )  = x 
+  
+  simplifyOp _ (*OL x 1OL )  = x 
+  
+  simplifyOp _ (*OL x1 x2 )  = (*OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (+OL x1 x2 )  = (+OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ 0OL  = 0OL 
+  
+  simplifyOp _ 1OL  = 1OL 
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpBoundedDistributiveLatticeTerm2 n A ) → (OpBoundedDistributiveLatticeTerm2 n A )))
+  simplifyOpE _ _ (+OL2 0OL2 x )  = x 
+  
+  simplifyOpE _ _ (+OL2 x 0OL2 )  = x 
+  
+  simplifyOpE _ _ (*OL2 1OL2 x )  = x 
+  
+  simplifyOpE _ _ (*OL2 x 1OL2 )  = x 
+  
+  simplifyOpE _ _ (*OL2 x1 x2 )  = (*OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (+OL2 x1 x2 )  = (+OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ 0OL2  = 0OL2 
+  
+  simplifyOpE _ _ 1OL2  = 1OL2 
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((BoundedDistributiveLattice A ) → (BoundedDistributiveLatticeTerm  → A )))
   evalB Bo (*L x1 x2 )  = ((* Bo ) (evalB Bo x1 ) (evalB Bo x2 ) )
   
@@ -280,4 +366,5 @@ module BoundedDistributiveLattice  where
       *T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
       +T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
       0T : (Repr A ) 
-      1T : (Repr A ) 
+      1T : (Repr A )  
+   

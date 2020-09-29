@@ -1,4 +1,5 @@
-module PrimAdditiveGroup  where
+
+ module PrimAdditiveGroup  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -15,14 +16,16 @@ module PrimAdditiveGroup  where
       inv_ : (A  → A )
       leftInverse_inv_op_0ᵢ_ : ({x  : A }  → (*_ x (inv_ x ) ) ≡ 0ᵢ_ )
       rightInverse_inv_op_0ᵢ_ : ({x  : A }  → (*_ (inv_ x ) x ) ≡ 0ᵢ_ )
-      commutative_*_ : ({x y  : A }  → (*_ x y ) ≡ (*_ y x ))
+      commutative_*_ : ({x y  : A }  → (*_ x y ) ≡ (*_ y x )) 
+  
   open PrimAdditiveGroup
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       0ᵢ_S : AS 
       *_S : (AS  → (AS  → AS ))
-      inv_S : (AS  → AS )
+      inv_S : (AS  → AS ) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
@@ -34,41 +37,100 @@ module PrimAdditiveGroup  where
       associative_*_P : ({xP yP zP  : (Prod AP AP )}  → (*_P (*_P xP yP ) zP ) ≡ (*_P xP (*_P yP zP ) ))
       leftInverse_inv_op_0ᵢ_P : ({xP  : (Prod AP AP )}  → (*_P xP (inv_P xP ) ) ≡ 0ᵢ_P )
       rightInverse_inv_op_0ᵢ_P : ({xP  : (Prod AP AP )}  → (*_P (inv_P xP ) xP ) ≡ 0ᵢ_P )
-      commutative_*_P : ({xP yP  : (Prod AP AP )}  → (*_P xP yP ) ≡ (*_P yP xP ))
+      commutative_*_P : ({xP yP  : (Prod AP AP )}  → (*_P xP yP ) ≡ (*_P yP xP )) 
+  
   record Hom (A1 A2  : Set ) (Pr1  : (PrimAdditiveGroup A1 )) (Pr2  : (PrimAdditiveGroup A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-0_ : (  (hom (0ᵢ_ Pr1 )  ) ≡ (0ᵢ_ Pr2 ) )
       pres-*_ : ({x1  : A1} {x2  : A1}  → (hom ((*_ Pr1 ) x1 x2 ) ) ≡ ((*_ Pr2 ) (hom x1 ) (hom x2 ) ))
-      pres-inv_ : ({x1  : A1}  → (hom ((inv_ Pr1 ) x1 ) ) ≡ ((inv_ Pr2 ) (hom x1 ) ))
+      pres-inv_ : ({x1  : A1}  → (hom ((inv_ Pr1 ) x1 ) ) ≡ ((inv_ Pr2 ) (hom x1 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Pr1  : (PrimAdditiveGroup A1 )) (Pr2  : (PrimAdditiveGroup A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-0_ : (  (interp (0ᵢ_ Pr1 )  (0ᵢ_ Pr2 )  ))
       interp-*_ : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((*_ Pr1 ) x1 x2 ) ((*_ Pr2 ) y1 y2 ) ))))
-      interp-inv_ : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((inv_ Pr1 ) x1 ) ((inv_ Pr2 ) y1 ) )))
+      interp-inv_ : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((inv_ Pr1 ) x1 ) ((inv_ Pr2 ) y1 ) ))) 
+  
   data PrimAdditiveGroupTerm  : Set where
     0ᵢ_L : PrimAdditiveGroupTerm  
     *_L : (PrimAdditiveGroupTerm   → (PrimAdditiveGroupTerm   → PrimAdditiveGroupTerm  ))
-    inv_L : (PrimAdditiveGroupTerm   → PrimAdditiveGroupTerm  )
+    inv_L : (PrimAdditiveGroupTerm   → PrimAdditiveGroupTerm  ) 
+  
   data ClPrimAdditiveGroupTerm (A  : Set )  : Set where
     sing : (A  → (ClPrimAdditiveGroupTerm A ) )
     0ᵢ_Cl : (ClPrimAdditiveGroupTerm A ) 
     *_Cl : ((ClPrimAdditiveGroupTerm A )  → ((ClPrimAdditiveGroupTerm A )  → (ClPrimAdditiveGroupTerm A ) ))
-    inv_Cl : ((ClPrimAdditiveGroupTerm A )  → (ClPrimAdditiveGroupTerm A ) )
+    inv_Cl : ((ClPrimAdditiveGroupTerm A )  → (ClPrimAdditiveGroupTerm A ) ) 
+  
   data OpPrimAdditiveGroupTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpPrimAdditiveGroupTerm n ) )
     0ᵢ_OL : (OpPrimAdditiveGroupTerm n ) 
     *_OL : ((OpPrimAdditiveGroupTerm n )  → ((OpPrimAdditiveGroupTerm n )  → (OpPrimAdditiveGroupTerm n ) ))
-    inv_OL : ((OpPrimAdditiveGroupTerm n )  → (OpPrimAdditiveGroupTerm n ) )
+    inv_OL : ((OpPrimAdditiveGroupTerm n )  → (OpPrimAdditiveGroupTerm n ) ) 
+  
   data OpPrimAdditiveGroupTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpPrimAdditiveGroupTerm2 n A ) )
     sing2 : (A  → (OpPrimAdditiveGroupTerm2 n A ) )
     0ᵢ_OL2 : (OpPrimAdditiveGroupTerm2 n A ) 
     *_OL2 : ((OpPrimAdditiveGroupTerm2 n A )  → ((OpPrimAdditiveGroupTerm2 n A )  → (OpPrimAdditiveGroupTerm2 n A ) ))
-    inv_OL2 : ((OpPrimAdditiveGroupTerm2 n A )  → (OpPrimAdditiveGroupTerm2 n A ) )
+    inv_OL2 : ((OpPrimAdditiveGroupTerm2 n A )  → (OpPrimAdditiveGroupTerm2 n A ) ) 
+  
+  simplifyB : (PrimAdditiveGroupTerm  → PrimAdditiveGroupTerm )
+  simplifyB (*_L 0ᵢ_L x )  = x 
+  
+  simplifyB (*_L x 0ᵢ_L )  = x 
+  
+  simplifyB 0ᵢ_L  = 0ᵢ_L 
+  
+  simplifyB (*_L x1 x2 )  = (*_L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB (inv_L x1 )  = (inv_L (simplifyB x1 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClPrimAdditiveGroupTerm A ) → (ClPrimAdditiveGroupTerm A )))
+  simplifyCl _ (*_Cl 0ᵢ_Cl x )  = x 
+  
+  simplifyCl _ (*_Cl x 0ᵢ_Cl )  = x 
+  
+  simplifyCl _ 0ᵢ_Cl  = 0ᵢ_Cl 
+  
+  simplifyCl _ (*_Cl x1 x2 )  = (*_Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (inv_Cl x1 )  = (inv_Cl (simplifyCl _ x1 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpPrimAdditiveGroupTerm n ) → (OpPrimAdditiveGroupTerm n )))
+  simplifyOp _ (*_OL 0ᵢ_OL x )  = x 
+  
+  simplifyOp _ (*_OL x 0ᵢ_OL )  = x 
+  
+  simplifyOp _ 0ᵢ_OL  = 0ᵢ_OL 
+  
+  simplifyOp _ (*_OL x1 x2 )  = (*_OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (inv_OL x1 )  = (inv_OL (simplifyOp _ x1 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpPrimAdditiveGroupTerm2 n A ) → (OpPrimAdditiveGroupTerm2 n A )))
+  simplifyOpE _ _ (*_OL2 0ᵢ_OL2 x )  = x 
+  
+  simplifyOpE _ _ (*_OL2 x 0ᵢ_OL2 )  = x 
+  
+  simplifyOpE _ _ 0ᵢ_OL2  = 0ᵢ_OL2 
+  
+  simplifyOpE _ _ (*_OL2 x1 x2 )  = (*_OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (inv_OL2 x1 )  = (inv_OL2 (simplifyOpE _ _ x1 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((PrimAdditiveGroup A ) → (PrimAdditiveGroupTerm  → A )))
   evalB Pr 0ᵢ_L  = (0ᵢ_ Pr ) 
   
@@ -218,4 +280,5 @@ module PrimAdditiveGroup  where
     field
       0ᵢ_T : (Repr A ) 
       *_T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
-      inv_T : ((Repr A )  → (Repr A ) )
+      inv_T : ((Repr A )  → (Repr A ) ) 
+   

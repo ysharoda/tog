@@ -1,4 +1,5 @@
-module Semiring  where
+
+ module Semiring  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -21,7 +22,8 @@ module Semiring  where
       leftDistributive_*_+ : ({x y z  : A }  → (* x (+ y z ) ) ≡ (+ (* x y ) (* x z ) ))
       rightDistributive_*_+ : ({x y z  : A }  → (* (+ y z ) x ) ≡ (+ (* y x ) (* z x ) ))
       leftZero_op_0ᵢ : ({x  : A }  → (* 0ᵢ x ) ≡ 0ᵢ )
-      rightZero_op_0ᵢ : ({x  : A }  → (* x 0ᵢ ) ≡ 0ᵢ )
+      rightZero_op_0ᵢ : ({x  : A }  → (* x 0ᵢ ) ≡ 0ᵢ ) 
+  
   open Semiring
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
@@ -29,7 +31,8 @@ module Semiring  where
       0S : AS 
       +S : (AS  → (AS  → AS ))
       *S : (AS  → (AS  → AS ))
-      1S : AS 
+      1S : AS  
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
@@ -47,7 +50,8 @@ module Semiring  where
       leftDistributive_*_+P : ({xP yP zP  : (Prod AP AP )}  → (*P xP (+P yP zP ) ) ≡ (+P (*P xP yP ) (*P xP zP ) ))
       rightDistributive_*_+P : ({xP yP zP  : (Prod AP AP )}  → (*P (+P yP zP ) xP ) ≡ (+P (*P yP xP ) (*P zP xP ) ))
       leftZero_op_0P : ({xP  : (Prod AP AP )}  → (*P 0P xP ) ≡ 0P )
-      rightZero_op_0P : ({xP  : (Prod AP AP )}  → (*P xP 0P ) ≡ 0P )
+      rightZero_op_0P : ({xP  : (Prod AP AP )}  → (*P xP 0P ) ≡ 0P ) 
+  
   record Hom (A1 A2  : Set ) (Se1  : (Semiring A1 )) (Se2  : (Semiring A2 ))  : Set where
     constructor HomC
     field
@@ -55,7 +59,8 @@ module Semiring  where
       pres-0 : (  (hom (0ᵢ Se1 )  ) ≡ (0ᵢ Se2 ) )
       pres-+ : ({x1  : A1} {x2  : A1}  → (hom ((+ Se1 ) x1 x2 ) ) ≡ ((+ Se2 ) (hom x1 ) (hom x2 ) ))
       pres-* : ({x1  : A1} {x2  : A1}  → (hom ((* Se1 ) x1 x2 ) ) ≡ ((* Se2 ) (hom x1 ) (hom x2 ) ))
-      pres-1 : (  (hom (1ᵢ Se1 )  ) ≡ (1ᵢ Se2 ) )
+      pres-1 : (  (hom (1ᵢ Se1 )  ) ≡ (1ᵢ Se2 ) ) 
+  
   record RelInterp (A1 A2  : Set ) (Se1  : (Semiring A1 )) (Se2  : (Semiring A2 ))  : Set₁ where
     constructor RelInterpC
     field
@@ -63,31 +68,112 @@ module Semiring  where
       interp-0 : (  (interp (0ᵢ Se1 )  (0ᵢ Se2 )  ))
       interp-+ : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((+ Se1 ) x1 x2 ) ((+ Se2 ) y1 y2 ) ))))
       interp-* : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((* Se1 ) x1 x2 ) ((* Se2 ) y1 y2 ) ))))
-      interp-1 : (  (interp (1ᵢ Se1 )  (1ᵢ Se2 )  ))
+      interp-1 : (  (interp (1ᵢ Se1 )  (1ᵢ Se2 )  )) 
+  
   data SemiringTerm  : Set where
     0L : SemiringTerm  
     +L : (SemiringTerm   → (SemiringTerm   → SemiringTerm  ))
     *L : (SemiringTerm   → (SemiringTerm   → SemiringTerm  ))
-    1L : SemiringTerm  
+    1L : SemiringTerm   
+  
   data ClSemiringTerm (A  : Set )  : Set where
     sing : (A  → (ClSemiringTerm A ) )
     0Cl : (ClSemiringTerm A ) 
     +Cl : ((ClSemiringTerm A )  → ((ClSemiringTerm A )  → (ClSemiringTerm A ) ))
     *Cl : ((ClSemiringTerm A )  → ((ClSemiringTerm A )  → (ClSemiringTerm A ) ))
-    1Cl : (ClSemiringTerm A ) 
+    1Cl : (ClSemiringTerm A )  
+  
   data OpSemiringTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpSemiringTerm n ) )
     0OL : (OpSemiringTerm n ) 
     +OL : ((OpSemiringTerm n )  → ((OpSemiringTerm n )  → (OpSemiringTerm n ) ))
     *OL : ((OpSemiringTerm n )  → ((OpSemiringTerm n )  → (OpSemiringTerm n ) ))
-    1OL : (OpSemiringTerm n ) 
+    1OL : (OpSemiringTerm n )  
+  
   data OpSemiringTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpSemiringTerm2 n A ) )
     sing2 : (A  → (OpSemiringTerm2 n A ) )
     0OL2 : (OpSemiringTerm2 n A ) 
     +OL2 : ((OpSemiringTerm2 n A )  → ((OpSemiringTerm2 n A )  → (OpSemiringTerm2 n A ) ))
     *OL2 : ((OpSemiringTerm2 n A )  → ((OpSemiringTerm2 n A )  → (OpSemiringTerm2 n A ) ))
-    1OL2 : (OpSemiringTerm2 n A ) 
+    1OL2 : (OpSemiringTerm2 n A )  
+  
+  simplifyB : (SemiringTerm  → SemiringTerm )
+  simplifyB (*L 1L x )  = x 
+  
+  simplifyB (*L x 1L )  = x 
+  
+  simplifyB (+L 0L x )  = x 
+  
+  simplifyB (+L x 0L )  = x 
+  
+  simplifyB 0L  = 0L 
+  
+  simplifyB (+L x1 x2 )  = (+L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB (*L x1 x2 )  = (*L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB 1L  = 1L 
+  
+  simplifyCl : ((A  : Set )  → ((ClSemiringTerm A ) → (ClSemiringTerm A )))
+  simplifyCl _ (*Cl 1Cl x )  = x 
+  
+  simplifyCl _ (*Cl x 1Cl )  = x 
+  
+  simplifyCl _ (+Cl 0Cl x )  = x 
+  
+  simplifyCl _ (+Cl x 0Cl )  = x 
+  
+  simplifyCl _ 0Cl  = 0Cl 
+  
+  simplifyCl _ (+Cl x1 x2 )  = (+Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (*Cl x1 x2 )  = (*Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ 1Cl  = 1Cl 
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpSemiringTerm n ) → (OpSemiringTerm n )))
+  simplifyOp _ (*OL 1OL x )  = x 
+  
+  simplifyOp _ (*OL x 1OL )  = x 
+  
+  simplifyOp _ (+OL 0OL x )  = x 
+  
+  simplifyOp _ (+OL x 0OL )  = x 
+  
+  simplifyOp _ 0OL  = 0OL 
+  
+  simplifyOp _ (+OL x1 x2 )  = (+OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (*OL x1 x2 )  = (*OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ 1OL  = 1OL 
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpSemiringTerm2 n A ) → (OpSemiringTerm2 n A )))
+  simplifyOpE _ _ (*OL2 1OL2 x )  = x 
+  
+  simplifyOpE _ _ (*OL2 x 1OL2 )  = x 
+  
+  simplifyOpE _ _ (+OL2 0OL2 x )  = x 
+  
+  simplifyOpE _ _ (+OL2 x 0OL2 )  = x 
+  
+  simplifyOpE _ _ 0OL2  = 0OL2 
+  
+  simplifyOpE _ _ (+OL2 x1 x2 )  = (+OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (*OL2 x1 x2 )  = (*OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ 1OL2  = 1OL2 
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((Semiring A ) → (SemiringTerm  → A )))
   evalB Se 0L  = (0ᵢ Se ) 
   
@@ -274,4 +360,5 @@ module Semiring  where
       0T : (Repr A ) 
       +T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
       *T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
-      1T : (Repr A ) 
+      1T : (Repr A )  
+   

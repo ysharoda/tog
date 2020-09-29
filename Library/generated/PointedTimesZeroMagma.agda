@@ -1,4 +1,5 @@
-module PointedTimesZeroMagma  where
+
+ module PointedTimesZeroMagma  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -8,46 +9,83 @@ module PointedTimesZeroMagma  where
     constructor PointedTimesZeroMagmaC
     field
       0ᵢ : A 
-      * : (A  → (A  → A ))
+      * : (A  → (A  → A )) 
+  
   open PointedTimesZeroMagma
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       0S : AS 
-      *S : (AS  → (AS  → AS ))
+      *S : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       0P : (Prod AP AP )
-      *P : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
+      *P : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP ))) 
+  
   record Hom (A1 A2  : Set ) (Po1  : (PointedTimesZeroMagma A1 )) (Po2  : (PointedTimesZeroMagma A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-0 : (  (hom (0ᵢ Po1 )  ) ≡ (0ᵢ Po2 ) )
-      pres-* : ({x1  : A1} {x2  : A1}  → (hom ((* Po1 ) x1 x2 ) ) ≡ ((* Po2 ) (hom x1 ) (hom x2 ) ))
+      pres-* : ({x1  : A1} {x2  : A1}  → (hom ((* Po1 ) x1 x2 ) ) ≡ ((* Po2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Po1  : (PointedTimesZeroMagma A1 )) (Po2  : (PointedTimesZeroMagma A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-0 : (  (interp (0ᵢ Po1 )  (0ᵢ Po2 )  ))
-      interp-* : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((* Po1 ) x1 x2 ) ((* Po2 ) y1 y2 ) ))))
+      interp-* : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((* Po1 ) x1 x2 ) ((* Po2 ) y1 y2 ) )))) 
+  
   data PointedTimesZeroMagmaTerm  : Set where
     0L : PointedTimesZeroMagmaTerm  
-    *L : (PointedTimesZeroMagmaTerm   → (PointedTimesZeroMagmaTerm   → PointedTimesZeroMagmaTerm  ))
+    *L : (PointedTimesZeroMagmaTerm   → (PointedTimesZeroMagmaTerm   → PointedTimesZeroMagmaTerm  )) 
+  
   data ClPointedTimesZeroMagmaTerm (A  : Set )  : Set where
     sing : (A  → (ClPointedTimesZeroMagmaTerm A ) )
     0Cl : (ClPointedTimesZeroMagmaTerm A ) 
-    *Cl : ((ClPointedTimesZeroMagmaTerm A )  → ((ClPointedTimesZeroMagmaTerm A )  → (ClPointedTimesZeroMagmaTerm A ) ))
+    *Cl : ((ClPointedTimesZeroMagmaTerm A )  → ((ClPointedTimesZeroMagmaTerm A )  → (ClPointedTimesZeroMagmaTerm A ) )) 
+  
   data OpPointedTimesZeroMagmaTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpPointedTimesZeroMagmaTerm n ) )
     0OL : (OpPointedTimesZeroMagmaTerm n ) 
-    *OL : ((OpPointedTimesZeroMagmaTerm n )  → ((OpPointedTimesZeroMagmaTerm n )  → (OpPointedTimesZeroMagmaTerm n ) ))
+    *OL : ((OpPointedTimesZeroMagmaTerm n )  → ((OpPointedTimesZeroMagmaTerm n )  → (OpPointedTimesZeroMagmaTerm n ) )) 
+  
   data OpPointedTimesZeroMagmaTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpPointedTimesZeroMagmaTerm2 n A ) )
     sing2 : (A  → (OpPointedTimesZeroMagmaTerm2 n A ) )
     0OL2 : (OpPointedTimesZeroMagmaTerm2 n A ) 
-    *OL2 : ((OpPointedTimesZeroMagmaTerm2 n A )  → ((OpPointedTimesZeroMagmaTerm2 n A )  → (OpPointedTimesZeroMagmaTerm2 n A ) ))
+    *OL2 : ((OpPointedTimesZeroMagmaTerm2 n A )  → ((OpPointedTimesZeroMagmaTerm2 n A )  → (OpPointedTimesZeroMagmaTerm2 n A ) )) 
+  
+  simplifyB : (PointedTimesZeroMagmaTerm  → PointedTimesZeroMagmaTerm )
+  simplifyB 0L  = 0L 
+  
+  simplifyB (*L x1 x2 )  = (*L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClPointedTimesZeroMagmaTerm A ) → (ClPointedTimesZeroMagmaTerm A )))
+  simplifyCl _ 0Cl  = 0Cl 
+  
+  simplifyCl _ (*Cl x1 x2 )  = (*Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpPointedTimesZeroMagmaTerm n ) → (OpPointedTimesZeroMagmaTerm n )))
+  simplifyOp _ 0OL  = 0OL 
+  
+  simplifyOp _ (*OL x1 x2 )  = (*OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpPointedTimesZeroMagmaTerm2 n A ) → (OpPointedTimesZeroMagmaTerm2 n A )))
+  simplifyOpE _ _ 0OL2  = 0OL2 
+  
+  simplifyOpE _ _ (*OL2 x1 x2 )  = (*OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((PointedTimesZeroMagma A ) → (PointedTimesZeroMagmaTerm  → A )))
   evalB Po 0L  = (0ᵢ Po ) 
   
@@ -160,4 +198,5 @@ module PointedTimesZeroMagma  where
     constructor tagless
     field
       0T : (Repr A ) 
-      *T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      *T : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

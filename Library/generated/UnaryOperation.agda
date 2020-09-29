@@ -1,4 +1,5 @@
-module UnaryOperation  where
+
+ module UnaryOperation  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -7,38 +8,67 @@ module UnaryOperation  where
   record UnaryOperation (A  : Set )  : Set where
     constructor UnaryOperationC
     field
-      prim : (A  → A )
+      prim : (A  → A ) 
+  
   open UnaryOperation
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
-      primS : (AS  → AS )
+      primS : (AS  → AS ) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
-      primP : ((Prod AP AP ) → (Prod AP AP ))
+      primP : ((Prod AP AP ) → (Prod AP AP )) 
+  
   record Hom (A1 A2  : Set ) (Un1  : (UnaryOperation A1 )) (Un2  : (UnaryOperation A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
-      pres-prim : ({x1  : A1}  → (hom ((prim Un1 ) x1 ) ) ≡ ((prim Un2 ) (hom x1 ) ))
+      pres-prim : ({x1  : A1}  → (hom ((prim Un1 ) x1 ) ) ≡ ((prim Un2 ) (hom x1 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Un1  : (UnaryOperation A1 )) (Un2  : (UnaryOperation A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
-      interp-prim : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((prim Un1 ) x1 ) ((prim Un2 ) y1 ) )))
+      interp-prim : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((prim Un1 ) x1 ) ((prim Un2 ) y1 ) ))) 
+  
   data UnaryOperationTerm  : Set where
-    primL : (UnaryOperationTerm   → UnaryOperationTerm  )
+    primL : (UnaryOperationTerm   → UnaryOperationTerm  ) 
+  
   data ClUnaryOperationTerm (A  : Set )  : Set where
     sing : (A  → (ClUnaryOperationTerm A ) )
-    primCl : ((ClUnaryOperationTerm A )  → (ClUnaryOperationTerm A ) )
+    primCl : ((ClUnaryOperationTerm A )  → (ClUnaryOperationTerm A ) ) 
+  
   data OpUnaryOperationTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpUnaryOperationTerm n ) )
-    primOL : ((OpUnaryOperationTerm n )  → (OpUnaryOperationTerm n ) )
+    primOL : ((OpUnaryOperationTerm n )  → (OpUnaryOperationTerm n ) ) 
+  
   data OpUnaryOperationTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpUnaryOperationTerm2 n A ) )
     sing2 : (A  → (OpUnaryOperationTerm2 n A ) )
-    primOL2 : ((OpUnaryOperationTerm2 n A )  → (OpUnaryOperationTerm2 n A ) )
+    primOL2 : ((OpUnaryOperationTerm2 n A )  → (OpUnaryOperationTerm2 n A ) ) 
+  
+  simplifyB : (UnaryOperationTerm  → UnaryOperationTerm )
+  simplifyB (primL x1 )  = (primL (simplifyB x1 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClUnaryOperationTerm A ) → (ClUnaryOperationTerm A )))
+  simplifyCl _ (primCl x1 )  = (primCl (simplifyCl _ x1 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpUnaryOperationTerm n ) → (OpUnaryOperationTerm n )))
+  simplifyOp _ (primOL x1 )  = (primOL (simplifyOp _ x1 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpUnaryOperationTerm2 n A ) → (OpUnaryOperationTerm2 n A )))
+  simplifyOpE _ _ (primOL2 x1 )  = (primOL2 (simplifyOpE _ _ x1 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((UnaryOperation A ) → (UnaryOperationTerm  → A )))
   evalB Un (primL x1 )  = ((prim Un ) (evalB Un x1 ) )
   
@@ -114,4 +144,5 @@ module UnaryOperation  where
   record Tagless (A  : Set) (Repr  : (Set  → Set ))  : Set where
     constructor tagless
     field
-      primT : ((Repr A )  → (Repr A ) )
+      primT : ((Repr A )  → (Repr A ) ) 
+   

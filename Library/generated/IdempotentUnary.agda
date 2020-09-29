@@ -1,4 +1,5 @@
-module IdempotentUnary  where
+
+ module IdempotentUnary  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -8,39 +9,76 @@ module IdempotentUnary  where
     constructor IdempotentUnaryC
     field
       prim : (A  → A )
-      idempotent_prim : ({x  : A }  → (prim (prim x ) ) ≡ (prim x ))
+      idempotent_prim : ({x  : A }  → (prim (prim x ) ) ≡ (prim x )) 
+  
   open IdempotentUnary
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
-      primS : (AS  → AS )
+      primS : (AS  → AS ) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       primP : ((Prod AP AP ) → (Prod AP AP ))
-      idempotent_primP : ({xP  : (Prod AP AP )}  → (primP (primP xP ) ) ≡ (primP xP ))
+      idempotent_primP : ({xP  : (Prod AP AP )}  → (primP (primP xP ) ) ≡ (primP xP )) 
+  
   record Hom (A1 A2  : Set ) (Id1  : (IdempotentUnary A1 )) (Id2  : (IdempotentUnary A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
-      pres-prim : ({x1  : A1}  → (hom ((prim Id1 ) x1 ) ) ≡ ((prim Id2 ) (hom x1 ) ))
+      pres-prim : ({x1  : A1}  → (hom ((prim Id1 ) x1 ) ) ≡ ((prim Id2 ) (hom x1 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Id1  : (IdempotentUnary A1 )) (Id2  : (IdempotentUnary A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
-      interp-prim : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((prim Id1 ) x1 ) ((prim Id2 ) y1 ) )))
+      interp-prim : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((prim Id1 ) x1 ) ((prim Id2 ) y1 ) ))) 
+  
   data IdempotentUnaryTerm  : Set where
-    primL : (IdempotentUnaryTerm   → IdempotentUnaryTerm  )
+    primL : (IdempotentUnaryTerm   → IdempotentUnaryTerm  ) 
+  
   data ClIdempotentUnaryTerm (A  : Set )  : Set where
     sing : (A  → (ClIdempotentUnaryTerm A ) )
-    primCl : ((ClIdempotentUnaryTerm A )  → (ClIdempotentUnaryTerm A ) )
+    primCl : ((ClIdempotentUnaryTerm A )  → (ClIdempotentUnaryTerm A ) ) 
+  
   data OpIdempotentUnaryTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpIdempotentUnaryTerm n ) )
-    primOL : ((OpIdempotentUnaryTerm n )  → (OpIdempotentUnaryTerm n ) )
+    primOL : ((OpIdempotentUnaryTerm n )  → (OpIdempotentUnaryTerm n ) ) 
+  
   data OpIdempotentUnaryTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpIdempotentUnaryTerm2 n A ) )
     sing2 : (A  → (OpIdempotentUnaryTerm2 n A ) )
-    primOL2 : ((OpIdempotentUnaryTerm2 n A )  → (OpIdempotentUnaryTerm2 n A ) )
+    primOL2 : ((OpIdempotentUnaryTerm2 n A )  → (OpIdempotentUnaryTerm2 n A ) ) 
+  
+  simplifyB : (IdempotentUnaryTerm  → IdempotentUnaryTerm )
+  simplifyB (primL (primL x ) )  = (primL x )
+  
+  simplifyB (primL x1 )  = (primL (simplifyB x1 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClIdempotentUnaryTerm A ) → (ClIdempotentUnaryTerm A )))
+  simplifyCl _ (primCl (primCl x ) )  = (primCl x )
+  
+  simplifyCl _ (primCl x1 )  = (primCl (simplifyCl _ x1 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpIdempotentUnaryTerm n ) → (OpIdempotentUnaryTerm n )))
+  simplifyOp _ (primOL (primOL x ) )  = (primOL x )
+  
+  simplifyOp _ (primOL x1 )  = (primOL (simplifyOp _ x1 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpIdempotentUnaryTerm2 n A ) → (OpIdempotentUnaryTerm2 n A )))
+  simplifyOpE _ _ (primOL2 (primOL2 x ) )  = (primOL2 x )
+  
+  simplifyOpE _ _ (primOL2 x1 )  = (primOL2 (simplifyOpE _ _ x1 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((IdempotentUnary A ) → (IdempotentUnaryTerm  → A )))
   evalB Id (primL x1 )  = ((prim Id ) (evalB Id x1 ) )
   
@@ -116,4 +154,5 @@ module IdempotentUnary  where
   record Tagless (A  : Set) (Repr  : (Set  → Set ))  : Set where
     constructor tagless
     field
-      primT : ((Repr A )  → (Repr A ) )
+      primT : ((Repr A )  → (Repr A ) ) 
+   

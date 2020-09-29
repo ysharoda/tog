@@ -1,4 +1,5 @@
-module MultCommutativeMonoid  where
+
+ module MultCommutativeMonoid  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -12,13 +13,15 @@ module MultCommutativeMonoid  where
       lunit_1ᵢ : ({x  : A }  → (* 1ᵢ x ) ≡ x )
       runit_1ᵢ : ({x  : A }  → (* x 1ᵢ ) ≡ x )
       associative_* : ({x y z  : A }  → (* (* x y ) z ) ≡ (* x (* y z ) ))
-      commutative_* : ({x y  : A }  → (* x y ) ≡ (* y x ))
+      commutative_* : ({x y  : A }  → (* x y ) ≡ (* y x )) 
+  
   open MultCommutativeMonoid
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       *S : (AS  → (AS  → AS ))
-      1S : AS 
+      1S : AS  
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
@@ -27,35 +30,86 @@ module MultCommutativeMonoid  where
       lunit_1P : ({xP  : (Prod AP AP )}  → (*P 1P xP ) ≡ xP )
       runit_1P : ({xP  : (Prod AP AP )}  → (*P xP 1P ) ≡ xP )
       associative_*P : ({xP yP zP  : (Prod AP AP )}  → (*P (*P xP yP ) zP ) ≡ (*P xP (*P yP zP ) ))
-      commutative_*P : ({xP yP  : (Prod AP AP )}  → (*P xP yP ) ≡ (*P yP xP ))
+      commutative_*P : ({xP yP  : (Prod AP AP )}  → (*P xP yP ) ≡ (*P yP xP )) 
+  
   record Hom (A1 A2  : Set ) (Mu1  : (MultCommutativeMonoid A1 )) (Mu2  : (MultCommutativeMonoid A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-* : ({x1  : A1} {x2  : A1}  → (hom ((* Mu1 ) x1 x2 ) ) ≡ ((* Mu2 ) (hom x1 ) (hom x2 ) ))
-      pres-1 : (  (hom (1ᵢ Mu1 )  ) ≡ (1ᵢ Mu2 ) )
+      pres-1 : (  (hom (1ᵢ Mu1 )  ) ≡ (1ᵢ Mu2 ) ) 
+  
   record RelInterp (A1 A2  : Set ) (Mu1  : (MultCommutativeMonoid A1 )) (Mu2  : (MultCommutativeMonoid A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-* : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((* Mu1 ) x1 x2 ) ((* Mu2 ) y1 y2 ) ))))
-      interp-1 : (  (interp (1ᵢ Mu1 )  (1ᵢ Mu2 )  ))
+      interp-1 : (  (interp (1ᵢ Mu1 )  (1ᵢ Mu2 )  )) 
+  
   data MultCommutativeMonoidTerm  : Set where
     *L : (MultCommutativeMonoidTerm   → (MultCommutativeMonoidTerm   → MultCommutativeMonoidTerm  ))
-    1L : MultCommutativeMonoidTerm  
+    1L : MultCommutativeMonoidTerm   
+  
   data ClMultCommutativeMonoidTerm (A  : Set )  : Set where
     sing : (A  → (ClMultCommutativeMonoidTerm A ) )
     *Cl : ((ClMultCommutativeMonoidTerm A )  → ((ClMultCommutativeMonoidTerm A )  → (ClMultCommutativeMonoidTerm A ) ))
-    1Cl : (ClMultCommutativeMonoidTerm A ) 
+    1Cl : (ClMultCommutativeMonoidTerm A )  
+  
   data OpMultCommutativeMonoidTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpMultCommutativeMonoidTerm n ) )
     *OL : ((OpMultCommutativeMonoidTerm n )  → ((OpMultCommutativeMonoidTerm n )  → (OpMultCommutativeMonoidTerm n ) ))
-    1OL : (OpMultCommutativeMonoidTerm n ) 
+    1OL : (OpMultCommutativeMonoidTerm n )  
+  
   data OpMultCommutativeMonoidTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpMultCommutativeMonoidTerm2 n A ) )
     sing2 : (A  → (OpMultCommutativeMonoidTerm2 n A ) )
     *OL2 : ((OpMultCommutativeMonoidTerm2 n A )  → ((OpMultCommutativeMonoidTerm2 n A )  → (OpMultCommutativeMonoidTerm2 n A ) ))
-    1OL2 : (OpMultCommutativeMonoidTerm2 n A ) 
+    1OL2 : (OpMultCommutativeMonoidTerm2 n A )  
+  
+  simplifyB : (MultCommutativeMonoidTerm  → MultCommutativeMonoidTerm )
+  simplifyB (*L 1L x )  = x 
+  
+  simplifyB (*L x 1L )  = x 
+  
+  simplifyB (*L x1 x2 )  = (*L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB 1L  = 1L 
+  
+  simplifyCl : ((A  : Set )  → ((ClMultCommutativeMonoidTerm A ) → (ClMultCommutativeMonoidTerm A )))
+  simplifyCl _ (*Cl 1Cl x )  = x 
+  
+  simplifyCl _ (*Cl x 1Cl )  = x 
+  
+  simplifyCl _ (*Cl x1 x2 )  = (*Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ 1Cl  = 1Cl 
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpMultCommutativeMonoidTerm n ) → (OpMultCommutativeMonoidTerm n )))
+  simplifyOp _ (*OL 1OL x )  = x 
+  
+  simplifyOp _ (*OL x 1OL )  = x 
+  
+  simplifyOp _ (*OL x1 x2 )  = (*OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ 1OL  = 1OL 
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpMultCommutativeMonoidTerm2 n A ) → (OpMultCommutativeMonoidTerm2 n A )))
+  simplifyOpE _ _ (*OL2 1OL2 x )  = x 
+  
+  simplifyOpE _ _ (*OL2 x 1OL2 )  = x 
+  
+  simplifyOpE _ _ (*OL2 x1 x2 )  = (*OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ 1OL2  = 1OL2 
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((MultCommutativeMonoid A ) → (MultCommutativeMonoidTerm  → A )))
   evalB Mu (*L x1 x2 )  = ((* Mu ) (evalB Mu x1 ) (evalB Mu x2 ) )
   
@@ -168,4 +222,5 @@ module MultCommutativeMonoid  where
     constructor tagless
     field
       *T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
-      1T : (Repr A ) 
+      1T : (Repr A )  
+   

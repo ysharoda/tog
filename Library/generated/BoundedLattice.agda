@@ -1,4 +1,5 @@
-module BoundedLattice  where
+
+ module BoundedLattice  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -22,7 +23,8 @@ module BoundedLattice  where
       runit_0ᵢ : ({x  : A }  → (+ x 0ᵢ ) ≡ x )
       1ᵢ : A 
       lunit_1ᵢ : ({x  : A }  → (* 1ᵢ x ) ≡ x )
-      runit_1ᵢ : ({x  : A }  → (* x 1ᵢ ) ≡ x )
+      runit_1ᵢ : ({x  : A }  → (* x 1ᵢ ) ≡ x ) 
+  
   open BoundedLattice
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
@@ -30,7 +32,8 @@ module BoundedLattice  where
       *S : (AS  → (AS  → AS ))
       +S : (AS  → (AS  → AS ))
       0S : AS 
-      1S : AS 
+      1S : AS  
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
@@ -49,7 +52,8 @@ module BoundedLattice  where
       lunit_0P : ({xP  : (Prod AP AP )}  → (+P 0P xP ) ≡ xP )
       runit_0P : ({xP  : (Prod AP AP )}  → (+P xP 0P ) ≡ xP )
       lunit_1P : ({xP  : (Prod AP AP )}  → (*P 1P xP ) ≡ xP )
-      runit_1P : ({xP  : (Prod AP AP )}  → (*P xP 1P ) ≡ xP )
+      runit_1P : ({xP  : (Prod AP AP )}  → (*P xP 1P ) ≡ xP ) 
+  
   record Hom (A1 A2  : Set ) (Bo1  : (BoundedLattice A1 )) (Bo2  : (BoundedLattice A2 ))  : Set where
     constructor HomC
     field
@@ -57,7 +61,8 @@ module BoundedLattice  where
       pres-* : ({x1  : A1} {x2  : A1}  → (hom ((* Bo1 ) x1 x2 ) ) ≡ ((* Bo2 ) (hom x1 ) (hom x2 ) ))
       pres-+ : ({x1  : A1} {x2  : A1}  → (hom ((+ Bo1 ) x1 x2 ) ) ≡ ((+ Bo2 ) (hom x1 ) (hom x2 ) ))
       pres-0 : (  (hom (0ᵢ Bo1 )  ) ≡ (0ᵢ Bo2 ) )
-      pres-1 : (  (hom (1ᵢ Bo1 )  ) ≡ (1ᵢ Bo2 ) )
+      pres-1 : (  (hom (1ᵢ Bo1 )  ) ≡ (1ᵢ Bo2 ) ) 
+  
   record RelInterp (A1 A2  : Set ) (Bo1  : (BoundedLattice A1 )) (Bo2  : (BoundedLattice A2 ))  : Set₁ where
     constructor RelInterpC
     field
@@ -65,31 +70,112 @@ module BoundedLattice  where
       interp-* : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((* Bo1 ) x1 x2 ) ((* Bo2 ) y1 y2 ) ))))
       interp-+ : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((+ Bo1 ) x1 x2 ) ((+ Bo2 ) y1 y2 ) ))))
       interp-0 : (  (interp (0ᵢ Bo1 )  (0ᵢ Bo2 )  ))
-      interp-1 : (  (interp (1ᵢ Bo1 )  (1ᵢ Bo2 )  ))
+      interp-1 : (  (interp (1ᵢ Bo1 )  (1ᵢ Bo2 )  )) 
+  
   data BoundedLatticeTerm  : Set where
     *L : (BoundedLatticeTerm   → (BoundedLatticeTerm   → BoundedLatticeTerm  ))
     +L : (BoundedLatticeTerm   → (BoundedLatticeTerm   → BoundedLatticeTerm  ))
     0L : BoundedLatticeTerm  
-    1L : BoundedLatticeTerm  
+    1L : BoundedLatticeTerm   
+  
   data ClBoundedLatticeTerm (A  : Set )  : Set where
     sing : (A  → (ClBoundedLatticeTerm A ) )
     *Cl : ((ClBoundedLatticeTerm A )  → ((ClBoundedLatticeTerm A )  → (ClBoundedLatticeTerm A ) ))
     +Cl : ((ClBoundedLatticeTerm A )  → ((ClBoundedLatticeTerm A )  → (ClBoundedLatticeTerm A ) ))
     0Cl : (ClBoundedLatticeTerm A ) 
-    1Cl : (ClBoundedLatticeTerm A ) 
+    1Cl : (ClBoundedLatticeTerm A )  
+  
   data OpBoundedLatticeTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpBoundedLatticeTerm n ) )
     *OL : ((OpBoundedLatticeTerm n )  → ((OpBoundedLatticeTerm n )  → (OpBoundedLatticeTerm n ) ))
     +OL : ((OpBoundedLatticeTerm n )  → ((OpBoundedLatticeTerm n )  → (OpBoundedLatticeTerm n ) ))
     0OL : (OpBoundedLatticeTerm n ) 
-    1OL : (OpBoundedLatticeTerm n ) 
+    1OL : (OpBoundedLatticeTerm n )  
+  
   data OpBoundedLatticeTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpBoundedLatticeTerm2 n A ) )
     sing2 : (A  → (OpBoundedLatticeTerm2 n A ) )
     *OL2 : ((OpBoundedLatticeTerm2 n A )  → ((OpBoundedLatticeTerm2 n A )  → (OpBoundedLatticeTerm2 n A ) ))
     +OL2 : ((OpBoundedLatticeTerm2 n A )  → ((OpBoundedLatticeTerm2 n A )  → (OpBoundedLatticeTerm2 n A ) ))
     0OL2 : (OpBoundedLatticeTerm2 n A ) 
-    1OL2 : (OpBoundedLatticeTerm2 n A ) 
+    1OL2 : (OpBoundedLatticeTerm2 n A )  
+  
+  simplifyB : (BoundedLatticeTerm  → BoundedLatticeTerm )
+  simplifyB (+L 0L x )  = x 
+  
+  simplifyB (+L x 0L )  = x 
+  
+  simplifyB (*L 1L x )  = x 
+  
+  simplifyB (*L x 1L )  = x 
+  
+  simplifyB (*L x1 x2 )  = (*L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB (+L x1 x2 )  = (+L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB 0L  = 0L 
+  
+  simplifyB 1L  = 1L 
+  
+  simplifyCl : ((A  : Set )  → ((ClBoundedLatticeTerm A ) → (ClBoundedLatticeTerm A )))
+  simplifyCl _ (+Cl 0Cl x )  = x 
+  
+  simplifyCl _ (+Cl x 0Cl )  = x 
+  
+  simplifyCl _ (*Cl 1Cl x )  = x 
+  
+  simplifyCl _ (*Cl x 1Cl )  = x 
+  
+  simplifyCl _ (*Cl x1 x2 )  = (*Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (+Cl x1 x2 )  = (+Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ 0Cl  = 0Cl 
+  
+  simplifyCl _ 1Cl  = 1Cl 
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpBoundedLatticeTerm n ) → (OpBoundedLatticeTerm n )))
+  simplifyOp _ (+OL 0OL x )  = x 
+  
+  simplifyOp _ (+OL x 0OL )  = x 
+  
+  simplifyOp _ (*OL 1OL x )  = x 
+  
+  simplifyOp _ (*OL x 1OL )  = x 
+  
+  simplifyOp _ (*OL x1 x2 )  = (*OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (+OL x1 x2 )  = (+OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ 0OL  = 0OL 
+  
+  simplifyOp _ 1OL  = 1OL 
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpBoundedLatticeTerm2 n A ) → (OpBoundedLatticeTerm2 n A )))
+  simplifyOpE _ _ (+OL2 0OL2 x )  = x 
+  
+  simplifyOpE _ _ (+OL2 x 0OL2 )  = x 
+  
+  simplifyOpE _ _ (*OL2 1OL2 x )  = x 
+  
+  simplifyOpE _ _ (*OL2 x 1OL2 )  = x 
+  
+  simplifyOpE _ _ (*OL2 x1 x2 )  = (*OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (+OL2 x1 x2 )  = (+OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ 0OL2  = 0OL2 
+  
+  simplifyOpE _ _ 1OL2  = 1OL2 
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((BoundedLattice A ) → (BoundedLatticeTerm  → A )))
   evalB Bo (*L x1 x2 )  = ((* Bo ) (evalB Bo x1 ) (evalB Bo x2 ) )
   
@@ -276,4 +362,5 @@ module BoundedLattice  where
       *T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
       +T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
       0T : (Repr A ) 
-      1T : (Repr A ) 
+      1T : (Repr A )  
+   

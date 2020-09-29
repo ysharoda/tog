@@ -1,4 +1,5 @@
-module AndDeMorgan  where
+
+ module AndDeMorgan  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -10,55 +11,100 @@ module AndDeMorgan  where
       * : (A  → (A  → A ))
       + : (A  → (A  → A ))
       prim : (A  → A )
-      andDeMorgan_*_+_prim : ({x y z  : A }  → (prim (* x y ) ) ≡ (+ (prim x ) (prim y ) ))
+      andDeMorgan_*_+_prim : ({x y z  : A }  → (prim (* x y ) ) ≡ (+ (prim x ) (prim y ) )) 
+  
   open AndDeMorgan
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       *S : (AS  → (AS  → AS ))
       +S : (AS  → (AS  → AS ))
-      primS : (AS  → AS )
+      primS : (AS  → AS ) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       *P : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
       +P : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
       primP : ((Prod AP AP ) → (Prod AP AP ))
-      andDeMorgan_*_+_primP : ({xP yP zP  : (Prod AP AP )}  → (primP (*P xP yP ) ) ≡ (+P (primP xP ) (primP yP ) ))
+      andDeMorgan_*_+_primP : ({xP yP zP  : (Prod AP AP )}  → (primP (*P xP yP ) ) ≡ (+P (primP xP ) (primP yP ) )) 
+  
   record Hom (A1 A2  : Set ) (An1  : (AndDeMorgan A1 )) (An2  : (AndDeMorgan A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-* : ({x1  : A1} {x2  : A1}  → (hom ((* An1 ) x1 x2 ) ) ≡ ((* An2 ) (hom x1 ) (hom x2 ) ))
       pres-+ : ({x1  : A1} {x2  : A1}  → (hom ((+ An1 ) x1 x2 ) ) ≡ ((+ An2 ) (hom x1 ) (hom x2 ) ))
-      pres-prim : ({x1  : A1}  → (hom ((prim An1 ) x1 ) ) ≡ ((prim An2 ) (hom x1 ) ))
+      pres-prim : ({x1  : A1}  → (hom ((prim An1 ) x1 ) ) ≡ ((prim An2 ) (hom x1 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (An1  : (AndDeMorgan A1 )) (An2  : (AndDeMorgan A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-* : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((* An1 ) x1 x2 ) ((* An2 ) y1 y2 ) ))))
       interp-+ : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((+ An1 ) x1 x2 ) ((+ An2 ) y1 y2 ) ))))
-      interp-prim : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((prim An1 ) x1 ) ((prim An2 ) y1 ) )))
+      interp-prim : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((prim An1 ) x1 ) ((prim An2 ) y1 ) ))) 
+  
   data AndDeMorganTerm  : Set where
     *L : (AndDeMorganTerm   → (AndDeMorganTerm   → AndDeMorganTerm  ))
     +L : (AndDeMorganTerm   → (AndDeMorganTerm   → AndDeMorganTerm  ))
-    primL : (AndDeMorganTerm   → AndDeMorganTerm  )
+    primL : (AndDeMorganTerm   → AndDeMorganTerm  ) 
+  
   data ClAndDeMorganTerm (A  : Set )  : Set where
     sing : (A  → (ClAndDeMorganTerm A ) )
     *Cl : ((ClAndDeMorganTerm A )  → ((ClAndDeMorganTerm A )  → (ClAndDeMorganTerm A ) ))
     +Cl : ((ClAndDeMorganTerm A )  → ((ClAndDeMorganTerm A )  → (ClAndDeMorganTerm A ) ))
-    primCl : ((ClAndDeMorganTerm A )  → (ClAndDeMorganTerm A ) )
+    primCl : ((ClAndDeMorganTerm A )  → (ClAndDeMorganTerm A ) ) 
+  
   data OpAndDeMorganTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpAndDeMorganTerm n ) )
     *OL : ((OpAndDeMorganTerm n )  → ((OpAndDeMorganTerm n )  → (OpAndDeMorganTerm n ) ))
     +OL : ((OpAndDeMorganTerm n )  → ((OpAndDeMorganTerm n )  → (OpAndDeMorganTerm n ) ))
-    primOL : ((OpAndDeMorganTerm n )  → (OpAndDeMorganTerm n ) )
+    primOL : ((OpAndDeMorganTerm n )  → (OpAndDeMorganTerm n ) ) 
+  
   data OpAndDeMorganTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpAndDeMorganTerm2 n A ) )
     sing2 : (A  → (OpAndDeMorganTerm2 n A ) )
     *OL2 : ((OpAndDeMorganTerm2 n A )  → ((OpAndDeMorganTerm2 n A )  → (OpAndDeMorganTerm2 n A ) ))
     +OL2 : ((OpAndDeMorganTerm2 n A )  → ((OpAndDeMorganTerm2 n A )  → (OpAndDeMorganTerm2 n A ) ))
-    primOL2 : ((OpAndDeMorganTerm2 n A )  → (OpAndDeMorganTerm2 n A ) )
+    primOL2 : ((OpAndDeMorganTerm2 n A )  → (OpAndDeMorganTerm2 n A ) ) 
+  
+  simplifyB : (AndDeMorganTerm  → AndDeMorganTerm )
+  simplifyB (*L x1 x2 )  = (*L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB (+L x1 x2 )  = (+L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB (primL x1 )  = (primL (simplifyB x1 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClAndDeMorganTerm A ) → (ClAndDeMorganTerm A )))
+  simplifyCl _ (*Cl x1 x2 )  = (*Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (+Cl x1 x2 )  = (+Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (primCl x1 )  = (primCl (simplifyCl _ x1 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpAndDeMorganTerm n ) → (OpAndDeMorganTerm n )))
+  simplifyOp _ (*OL x1 x2 )  = (*OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (+OL x1 x2 )  = (+OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (primOL x1 )  = (primOL (simplifyOp _ x1 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpAndDeMorganTerm2 n A ) → (OpAndDeMorganTerm2 n A )))
+  simplifyOpE _ _ (*OL2 x1 x2 )  = (*OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (+OL2 x1 x2 )  = (+OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (primOL2 x1 )  = (primOL2 (simplifyOpE _ _ x1 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((AndDeMorgan A ) → (AndDeMorganTerm  → A )))
   evalB An (*L x1 x2 )  = ((* An ) (evalB An x1 ) (evalB An x2 ) )
   
@@ -208,4 +254,5 @@ module AndDeMorgan  where
     field
       *T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
       +T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
-      primT : ((Repr A )  → (Repr A ) )
+      primT : ((Repr A )  → (Repr A ) ) 
+   

@@ -1,4 +1,5 @@
-module ComplementSig  where
+
+ module ComplementSig  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -7,38 +8,67 @@ module ComplementSig  where
   record ComplementSig (A  : Set )  : Set where
     constructor ComplementSigC
     field
-      compl : (A  → A )
+      compl : (A  → A ) 
+  
   open ComplementSig
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
-      complS : (AS  → AS )
+      complS : (AS  → AS ) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
-      complP : ((Prod AP AP ) → (Prod AP AP ))
+      complP : ((Prod AP AP ) → (Prod AP AP )) 
+  
   record Hom (A1 A2  : Set ) (Co1  : (ComplementSig A1 )) (Co2  : (ComplementSig A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
-      pres-compl : ({x1  : A1}  → (hom ((compl Co1 ) x1 ) ) ≡ ((compl Co2 ) (hom x1 ) ))
+      pres-compl : ({x1  : A1}  → (hom ((compl Co1 ) x1 ) ) ≡ ((compl Co2 ) (hom x1 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Co1  : (ComplementSig A1 )) (Co2  : (ComplementSig A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
-      interp-compl : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((compl Co1 ) x1 ) ((compl Co2 ) y1 ) )))
+      interp-compl : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((compl Co1 ) x1 ) ((compl Co2 ) y1 ) ))) 
+  
   data ComplementSigTerm  : Set where
-    complL : (ComplementSigTerm   → ComplementSigTerm  )
+    complL : (ComplementSigTerm   → ComplementSigTerm  ) 
+  
   data ClComplementSigTerm (A  : Set )  : Set where
     sing : (A  → (ClComplementSigTerm A ) )
-    complCl : ((ClComplementSigTerm A )  → (ClComplementSigTerm A ) )
+    complCl : ((ClComplementSigTerm A )  → (ClComplementSigTerm A ) ) 
+  
   data OpComplementSigTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpComplementSigTerm n ) )
-    complOL : ((OpComplementSigTerm n )  → (OpComplementSigTerm n ) )
+    complOL : ((OpComplementSigTerm n )  → (OpComplementSigTerm n ) ) 
+  
   data OpComplementSigTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpComplementSigTerm2 n A ) )
     sing2 : (A  → (OpComplementSigTerm2 n A ) )
-    complOL2 : ((OpComplementSigTerm2 n A )  → (OpComplementSigTerm2 n A ) )
+    complOL2 : ((OpComplementSigTerm2 n A )  → (OpComplementSigTerm2 n A ) ) 
+  
+  simplifyB : (ComplementSigTerm  → ComplementSigTerm )
+  simplifyB (complL x1 )  = (complL (simplifyB x1 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClComplementSigTerm A ) → (ClComplementSigTerm A )))
+  simplifyCl _ (complCl x1 )  = (complCl (simplifyCl _ x1 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpComplementSigTerm n ) → (OpComplementSigTerm n )))
+  simplifyOp _ (complOL x1 )  = (complOL (simplifyOp _ x1 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpComplementSigTerm2 n A ) → (OpComplementSigTerm2 n A )))
+  simplifyOpE _ _ (complOL2 x1 )  = (complOL2 (simplifyOpE _ _ x1 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((ComplementSig A ) → (ComplementSigTerm  → A )))
   evalB Co (complL x1 )  = ((compl Co ) (evalB Co x1 ) )
   
@@ -114,4 +144,5 @@ module ComplementSig  where
   record Tagless (A  : Set) (Repr  : (Set  → Set ))  : Set where
     constructor tagless
     field
-      complT : ((Repr A )  → (Repr A ) )
+      complT : ((Repr A )  → (Repr A ) ) 
+   

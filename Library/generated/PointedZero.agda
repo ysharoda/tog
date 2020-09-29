@@ -1,4 +1,5 @@
-module PointedZero  where
+
+ module PointedZero  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -7,38 +8,67 @@ module PointedZero  where
   record PointedZero (A  : Set )  : Set where
     constructor PointedZeroC
     field
-      0ᵢ : A 
+      0ᵢ : A  
+  
   open PointedZero
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
-      0S : AS 
+      0S : AS  
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
-      0P : (Prod AP AP )
+      0P : (Prod AP AP ) 
+  
   record Hom (A1 A2  : Set ) (Po1  : (PointedZero A1 )) (Po2  : (PointedZero A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
-      pres-0 : (  (hom (0ᵢ Po1 )  ) ≡ (0ᵢ Po2 ) )
+      pres-0 : (  (hom (0ᵢ Po1 )  ) ≡ (0ᵢ Po2 ) ) 
+  
   record RelInterp (A1 A2  : Set ) (Po1  : (PointedZero A1 )) (Po2  : (PointedZero A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
-      interp-0 : (  (interp (0ᵢ Po1 )  (0ᵢ Po2 )  ))
+      interp-0 : (  (interp (0ᵢ Po1 )  (0ᵢ Po2 )  )) 
+  
   data PointedZeroTerm  : Set where
-    0L : PointedZeroTerm  
+    0L : PointedZeroTerm   
+  
   data ClPointedZeroTerm (A  : Set )  : Set where
     sing : (A  → (ClPointedZeroTerm A ) )
-    0Cl : (ClPointedZeroTerm A ) 
+    0Cl : (ClPointedZeroTerm A )  
+  
   data OpPointedZeroTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpPointedZeroTerm n ) )
-    0OL : (OpPointedZeroTerm n ) 
+    0OL : (OpPointedZeroTerm n )  
+  
   data OpPointedZeroTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpPointedZeroTerm2 n A ) )
     sing2 : (A  → (OpPointedZeroTerm2 n A ) )
-    0OL2 : (OpPointedZeroTerm2 n A ) 
+    0OL2 : (OpPointedZeroTerm2 n A )  
+  
+  simplifyB : (PointedZeroTerm  → PointedZeroTerm )
+  simplifyB 0L  = 0L 
+  
+  simplifyCl : ((A  : Set )  → ((ClPointedZeroTerm A ) → (ClPointedZeroTerm A )))
+  simplifyCl _ 0Cl  = 0Cl 
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpPointedZeroTerm n ) → (OpPointedZeroTerm n )))
+  simplifyOp _ 0OL  = 0OL 
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpPointedZeroTerm2 n A ) → (OpPointedZeroTerm2 n A )))
+  simplifyOpE _ _ 0OL2  = 0OL2 
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((PointedZero A ) → (PointedZeroTerm  → A )))
   evalB Po 0L  = (0ᵢ Po ) 
   
@@ -114,4 +144,5 @@ module PointedZero  where
   record Tagless (A  : Set) (Repr  : (Set  → Set ))  : Set where
     constructor tagless
     field
-      0T : (Repr A ) 
+      0T : (Repr A )  
+   

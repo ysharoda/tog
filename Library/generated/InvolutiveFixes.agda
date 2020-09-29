@@ -1,4 +1,5 @@
-module InvolutiveFixes  where
+
+ module InvolutiveFixes  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -9,47 +10,92 @@ module InvolutiveFixes  where
     field
       1ᵢ : A 
       prim : (A  → A )
-      fixes_prim_1ᵢ : (prim 1ᵢ ) ≡ 1ᵢ 
+      fixes_prim_1ᵢ : (prim 1ᵢ ) ≡ 1ᵢ  
+  
   open InvolutiveFixes
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       1S : AS 
-      primS : (AS  → AS )
+      primS : (AS  → AS ) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       1P : (Prod AP AP )
       primP : ((Prod AP AP ) → (Prod AP AP ))
-      fixes_prim_1P : (primP 1P ) ≡ 1P 
+      fixes_prim_1P : (primP 1P ) ≡ 1P  
+  
   record Hom (A1 A2  : Set ) (In1  : (InvolutiveFixes A1 )) (In2  : (InvolutiveFixes A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-1 : (  (hom (1ᵢ In1 )  ) ≡ (1ᵢ In2 ) )
-      pres-prim : ({x1  : A1}  → (hom ((prim In1 ) x1 ) ) ≡ ((prim In2 ) (hom x1 ) ))
+      pres-prim : ({x1  : A1}  → (hom ((prim In1 ) x1 ) ) ≡ ((prim In2 ) (hom x1 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (In1  : (InvolutiveFixes A1 )) (In2  : (InvolutiveFixes A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-1 : (  (interp (1ᵢ In1 )  (1ᵢ In2 )  ))
-      interp-prim : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((prim In1 ) x1 ) ((prim In2 ) y1 ) )))
+      interp-prim : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((prim In1 ) x1 ) ((prim In2 ) y1 ) ))) 
+  
   data InvolutiveFixesTerm  : Set where
     1L : InvolutiveFixesTerm  
-    primL : (InvolutiveFixesTerm   → InvolutiveFixesTerm  )
+    primL : (InvolutiveFixesTerm   → InvolutiveFixesTerm  ) 
+  
   data ClInvolutiveFixesTerm (A  : Set )  : Set where
     sing : (A  → (ClInvolutiveFixesTerm A ) )
     1Cl : (ClInvolutiveFixesTerm A ) 
-    primCl : ((ClInvolutiveFixesTerm A )  → (ClInvolutiveFixesTerm A ) )
+    primCl : ((ClInvolutiveFixesTerm A )  → (ClInvolutiveFixesTerm A ) ) 
+  
   data OpInvolutiveFixesTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpInvolutiveFixesTerm n ) )
     1OL : (OpInvolutiveFixesTerm n ) 
-    primOL : ((OpInvolutiveFixesTerm n )  → (OpInvolutiveFixesTerm n ) )
+    primOL : ((OpInvolutiveFixesTerm n )  → (OpInvolutiveFixesTerm n ) ) 
+  
   data OpInvolutiveFixesTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpInvolutiveFixesTerm2 n A ) )
     sing2 : (A  → (OpInvolutiveFixesTerm2 n A ) )
     1OL2 : (OpInvolutiveFixesTerm2 n A ) 
-    primOL2 : ((OpInvolutiveFixesTerm2 n A )  → (OpInvolutiveFixesTerm2 n A ) )
+    primOL2 : ((OpInvolutiveFixesTerm2 n A )  → (OpInvolutiveFixesTerm2 n A ) ) 
+  
+  simplifyB : (InvolutiveFixesTerm  → InvolutiveFixesTerm )
+  simplifyB (primL 1L )  = 1L 
+  
+  simplifyB 1L  = 1L 
+  
+  simplifyB (primL x1 )  = (primL (simplifyB x1 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClInvolutiveFixesTerm A ) → (ClInvolutiveFixesTerm A )))
+  simplifyCl _ (primCl 1Cl )  = 1Cl 
+  
+  simplifyCl _ 1Cl  = 1Cl 
+  
+  simplifyCl _ (primCl x1 )  = (primCl (simplifyCl _ x1 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpInvolutiveFixesTerm n ) → (OpInvolutiveFixesTerm n )))
+  simplifyOp _ (primOL 1OL )  = 1OL 
+  
+  simplifyOp _ 1OL  = 1OL 
+  
+  simplifyOp _ (primOL x1 )  = (primOL (simplifyOp _ x1 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpInvolutiveFixesTerm2 n A ) → (OpInvolutiveFixesTerm2 n A )))
+  simplifyOpE _ _ (primOL2 1OL2 )  = 1OL2 
+  
+  simplifyOpE _ _ 1OL2  = 1OL2 
+  
+  simplifyOpE _ _ (primOL2 x1 )  = (primOL2 (simplifyOpE _ _ x1 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((InvolutiveFixes A ) → (InvolutiveFixesTerm  → A )))
   evalB In 1L  = (1ᵢ In ) 
   
@@ -162,4 +208,5 @@ module InvolutiveFixes  where
     constructor tagless
     field
       1T : (Repr A ) 
-      primT : ((Repr A )  → (Repr A ) )
+      primT : ((Repr A )  → (Repr A ) ) 
+   

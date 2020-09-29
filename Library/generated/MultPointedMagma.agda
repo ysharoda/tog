@@ -1,4 +1,5 @@
-module MultPointedMagma  where
+
+ module MultPointedMagma  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -8,46 +9,83 @@ module MultPointedMagma  where
     constructor MultPointedMagmaC
     field
       1ᵢ : A 
-      * : (A  → (A  → A ))
+      * : (A  → (A  → A )) 
+  
   open MultPointedMagma
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       1S : AS 
-      *S : (AS  → (AS  → AS ))
+      *S : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       1P : (Prod AP AP )
-      *P : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
+      *P : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP ))) 
+  
   record Hom (A1 A2  : Set ) (Mu1  : (MultPointedMagma A1 )) (Mu2  : (MultPointedMagma A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-1 : (  (hom (1ᵢ Mu1 )  ) ≡ (1ᵢ Mu2 ) )
-      pres-* : ({x1  : A1} {x2  : A1}  → (hom ((* Mu1 ) x1 x2 ) ) ≡ ((* Mu2 ) (hom x1 ) (hom x2 ) ))
+      pres-* : ({x1  : A1} {x2  : A1}  → (hom ((* Mu1 ) x1 x2 ) ) ≡ ((* Mu2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Mu1  : (MultPointedMagma A1 )) (Mu2  : (MultPointedMagma A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-1 : (  (interp (1ᵢ Mu1 )  (1ᵢ Mu2 )  ))
-      interp-* : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((* Mu1 ) x1 x2 ) ((* Mu2 ) y1 y2 ) ))))
+      interp-* : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((* Mu1 ) x1 x2 ) ((* Mu2 ) y1 y2 ) )))) 
+  
   data MultPointedMagmaTerm  : Set where
     1L : MultPointedMagmaTerm  
-    *L : (MultPointedMagmaTerm   → (MultPointedMagmaTerm   → MultPointedMagmaTerm  ))
+    *L : (MultPointedMagmaTerm   → (MultPointedMagmaTerm   → MultPointedMagmaTerm  )) 
+  
   data ClMultPointedMagmaTerm (A  : Set )  : Set where
     sing : (A  → (ClMultPointedMagmaTerm A ) )
     1Cl : (ClMultPointedMagmaTerm A ) 
-    *Cl : ((ClMultPointedMagmaTerm A )  → ((ClMultPointedMagmaTerm A )  → (ClMultPointedMagmaTerm A ) ))
+    *Cl : ((ClMultPointedMagmaTerm A )  → ((ClMultPointedMagmaTerm A )  → (ClMultPointedMagmaTerm A ) )) 
+  
   data OpMultPointedMagmaTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpMultPointedMagmaTerm n ) )
     1OL : (OpMultPointedMagmaTerm n ) 
-    *OL : ((OpMultPointedMagmaTerm n )  → ((OpMultPointedMagmaTerm n )  → (OpMultPointedMagmaTerm n ) ))
+    *OL : ((OpMultPointedMagmaTerm n )  → ((OpMultPointedMagmaTerm n )  → (OpMultPointedMagmaTerm n ) )) 
+  
   data OpMultPointedMagmaTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpMultPointedMagmaTerm2 n A ) )
     sing2 : (A  → (OpMultPointedMagmaTerm2 n A ) )
     1OL2 : (OpMultPointedMagmaTerm2 n A ) 
-    *OL2 : ((OpMultPointedMagmaTerm2 n A )  → ((OpMultPointedMagmaTerm2 n A )  → (OpMultPointedMagmaTerm2 n A ) ))
+    *OL2 : ((OpMultPointedMagmaTerm2 n A )  → ((OpMultPointedMagmaTerm2 n A )  → (OpMultPointedMagmaTerm2 n A ) )) 
+  
+  simplifyB : (MultPointedMagmaTerm  → MultPointedMagmaTerm )
+  simplifyB 1L  = 1L 
+  
+  simplifyB (*L x1 x2 )  = (*L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClMultPointedMagmaTerm A ) → (ClMultPointedMagmaTerm A )))
+  simplifyCl _ 1Cl  = 1Cl 
+  
+  simplifyCl _ (*Cl x1 x2 )  = (*Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpMultPointedMagmaTerm n ) → (OpMultPointedMagmaTerm n )))
+  simplifyOp _ 1OL  = 1OL 
+  
+  simplifyOp _ (*OL x1 x2 )  = (*OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpMultPointedMagmaTerm2 n A ) → (OpMultPointedMagmaTerm2 n A )))
+  simplifyOpE _ _ 1OL2  = 1OL2 
+  
+  simplifyOpE _ _ (*OL2 x1 x2 )  = (*OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((MultPointedMagma A ) → (MultPointedMagmaTerm  → A )))
   evalB Mu 1L  = (1ᵢ Mu ) 
   
@@ -160,4 +198,5 @@ module MultPointedMagma  where
     constructor tagless
     field
       1T : (Repr A ) 
-      *T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      *T : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

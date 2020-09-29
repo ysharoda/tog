@@ -1,4 +1,5 @@
-module InverseUnaryOperation  where
+
+ module InverseUnaryOperation  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -7,38 +8,67 @@ module InverseUnaryOperation  where
   record InverseUnaryOperation (A  : Set )  : Set where
     constructor InverseUnaryOperationC
     field
-      inv : (A  → A )
+      inv : (A  → A ) 
+  
   open InverseUnaryOperation
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
-      invS : (AS  → AS )
+      invS : (AS  → AS ) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
-      invP : ((Prod AP AP ) → (Prod AP AP ))
+      invP : ((Prod AP AP ) → (Prod AP AP )) 
+  
   record Hom (A1 A2  : Set ) (In1  : (InverseUnaryOperation A1 )) (In2  : (InverseUnaryOperation A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
-      pres-inv : ({x1  : A1}  → (hom ((inv In1 ) x1 ) ) ≡ ((inv In2 ) (hom x1 ) ))
+      pres-inv : ({x1  : A1}  → (hom ((inv In1 ) x1 ) ) ≡ ((inv In2 ) (hom x1 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (In1  : (InverseUnaryOperation A1 )) (In2  : (InverseUnaryOperation A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
-      interp-inv : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((inv In1 ) x1 ) ((inv In2 ) y1 ) )))
+      interp-inv : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((inv In1 ) x1 ) ((inv In2 ) y1 ) ))) 
+  
   data InverseUnaryOperationTerm  : Set where
-    invL : (InverseUnaryOperationTerm   → InverseUnaryOperationTerm  )
+    invL : (InverseUnaryOperationTerm   → InverseUnaryOperationTerm  ) 
+  
   data ClInverseUnaryOperationTerm (A  : Set )  : Set where
     sing : (A  → (ClInverseUnaryOperationTerm A ) )
-    invCl : ((ClInverseUnaryOperationTerm A )  → (ClInverseUnaryOperationTerm A ) )
+    invCl : ((ClInverseUnaryOperationTerm A )  → (ClInverseUnaryOperationTerm A ) ) 
+  
   data OpInverseUnaryOperationTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpInverseUnaryOperationTerm n ) )
-    invOL : ((OpInverseUnaryOperationTerm n )  → (OpInverseUnaryOperationTerm n ) )
+    invOL : ((OpInverseUnaryOperationTerm n )  → (OpInverseUnaryOperationTerm n ) ) 
+  
   data OpInverseUnaryOperationTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpInverseUnaryOperationTerm2 n A ) )
     sing2 : (A  → (OpInverseUnaryOperationTerm2 n A ) )
-    invOL2 : ((OpInverseUnaryOperationTerm2 n A )  → (OpInverseUnaryOperationTerm2 n A ) )
+    invOL2 : ((OpInverseUnaryOperationTerm2 n A )  → (OpInverseUnaryOperationTerm2 n A ) ) 
+  
+  simplifyB : (InverseUnaryOperationTerm  → InverseUnaryOperationTerm )
+  simplifyB (invL x1 )  = (invL (simplifyB x1 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClInverseUnaryOperationTerm A ) → (ClInverseUnaryOperationTerm A )))
+  simplifyCl _ (invCl x1 )  = (invCl (simplifyCl _ x1 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpInverseUnaryOperationTerm n ) → (OpInverseUnaryOperationTerm n )))
+  simplifyOp _ (invOL x1 )  = (invOL (simplifyOp _ x1 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpInverseUnaryOperationTerm2 n A ) → (OpInverseUnaryOperationTerm2 n A )))
+  simplifyOpE _ _ (invOL2 x1 )  = (invOL2 (simplifyOpE _ _ x1 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((InverseUnaryOperation A ) → (InverseUnaryOperationTerm  → A )))
   evalB In (invL x1 )  = ((inv In ) (evalB In x1 ) )
   
@@ -114,4 +144,5 @@ module InverseUnaryOperation  where
   record Tagless (A  : Set) (Repr  : (Set  → Set ))  : Set where
     constructor tagless
     field
-      invT : ((Repr A )  → (Repr A ) )
+      invT : ((Repr A )  → (Repr A ) ) 
+   

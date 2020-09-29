@@ -1,4 +1,5 @@
-module BoundedJoinLattice  where
+
+ module BoundedJoinLattice  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -19,14 +20,16 @@ module BoundedJoinLattice  where
       associative_* : ({x y z  : A }  → (* (* x y ) z ) ≡ (* x (* y z ) ))
       idempotent_* : ({x  : A }  → (* x x ) ≡ x )
       leftAbsorp_*_+ : ({x y  : A }  → (* x (+ x y ) ) ≡ x )
-      leftAbsorp_+_* : ({x y  : A }  → (+ x (* x y ) ) ≡ x )
+      leftAbsorp_+_* : ({x y  : A }  → (+ x (* x y ) ) ≡ x ) 
+  
   open BoundedJoinLattice
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       +S : (AS  → (AS  → AS ))
       0S : AS 
-      *S : (AS  → (AS  → AS ))
+      *S : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
@@ -42,41 +45,100 @@ module BoundedJoinLattice  where
       associative_*P : ({xP yP zP  : (Prod AP AP )}  → (*P (*P xP yP ) zP ) ≡ (*P xP (*P yP zP ) ))
       idempotent_*P : ({xP  : (Prod AP AP )}  → (*P xP xP ) ≡ xP )
       leftAbsorp_*_+P : ({xP yP  : (Prod AP AP )}  → (*P xP (+P xP yP ) ) ≡ xP )
-      leftAbsorp_+_*P : ({xP yP  : (Prod AP AP )}  → (+P xP (*P xP yP ) ) ≡ xP )
+      leftAbsorp_+_*P : ({xP yP  : (Prod AP AP )}  → (+P xP (*P xP yP ) ) ≡ xP ) 
+  
   record Hom (A1 A2  : Set ) (Bo1  : (BoundedJoinLattice A1 )) (Bo2  : (BoundedJoinLattice A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-+ : ({x1  : A1} {x2  : A1}  → (hom ((+ Bo1 ) x1 x2 ) ) ≡ ((+ Bo2 ) (hom x1 ) (hom x2 ) ))
       pres-0 : (  (hom (0ᵢ Bo1 )  ) ≡ (0ᵢ Bo2 ) )
-      pres-* : ({x1  : A1} {x2  : A1}  → (hom ((* Bo1 ) x1 x2 ) ) ≡ ((* Bo2 ) (hom x1 ) (hom x2 ) ))
+      pres-* : ({x1  : A1} {x2  : A1}  → (hom ((* Bo1 ) x1 x2 ) ) ≡ ((* Bo2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Bo1  : (BoundedJoinLattice A1 )) (Bo2  : (BoundedJoinLattice A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-+ : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((+ Bo1 ) x1 x2 ) ((+ Bo2 ) y1 y2 ) ))))
       interp-0 : (  (interp (0ᵢ Bo1 )  (0ᵢ Bo2 )  ))
-      interp-* : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((* Bo1 ) x1 x2 ) ((* Bo2 ) y1 y2 ) ))))
+      interp-* : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((* Bo1 ) x1 x2 ) ((* Bo2 ) y1 y2 ) )))) 
+  
   data BoundedJoinLatticeTerm  : Set where
     +L : (BoundedJoinLatticeTerm   → (BoundedJoinLatticeTerm   → BoundedJoinLatticeTerm  ))
     0L : BoundedJoinLatticeTerm  
-    *L : (BoundedJoinLatticeTerm   → (BoundedJoinLatticeTerm   → BoundedJoinLatticeTerm  ))
+    *L : (BoundedJoinLatticeTerm   → (BoundedJoinLatticeTerm   → BoundedJoinLatticeTerm  )) 
+  
   data ClBoundedJoinLatticeTerm (A  : Set )  : Set where
     sing : (A  → (ClBoundedJoinLatticeTerm A ) )
     +Cl : ((ClBoundedJoinLatticeTerm A )  → ((ClBoundedJoinLatticeTerm A )  → (ClBoundedJoinLatticeTerm A ) ))
     0Cl : (ClBoundedJoinLatticeTerm A ) 
-    *Cl : ((ClBoundedJoinLatticeTerm A )  → ((ClBoundedJoinLatticeTerm A )  → (ClBoundedJoinLatticeTerm A ) ))
+    *Cl : ((ClBoundedJoinLatticeTerm A )  → ((ClBoundedJoinLatticeTerm A )  → (ClBoundedJoinLatticeTerm A ) )) 
+  
   data OpBoundedJoinLatticeTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpBoundedJoinLatticeTerm n ) )
     +OL : ((OpBoundedJoinLatticeTerm n )  → ((OpBoundedJoinLatticeTerm n )  → (OpBoundedJoinLatticeTerm n ) ))
     0OL : (OpBoundedJoinLatticeTerm n ) 
-    *OL : ((OpBoundedJoinLatticeTerm n )  → ((OpBoundedJoinLatticeTerm n )  → (OpBoundedJoinLatticeTerm n ) ))
+    *OL : ((OpBoundedJoinLatticeTerm n )  → ((OpBoundedJoinLatticeTerm n )  → (OpBoundedJoinLatticeTerm n ) )) 
+  
   data OpBoundedJoinLatticeTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpBoundedJoinLatticeTerm2 n A ) )
     sing2 : (A  → (OpBoundedJoinLatticeTerm2 n A ) )
     +OL2 : ((OpBoundedJoinLatticeTerm2 n A )  → ((OpBoundedJoinLatticeTerm2 n A )  → (OpBoundedJoinLatticeTerm2 n A ) ))
     0OL2 : (OpBoundedJoinLatticeTerm2 n A ) 
-    *OL2 : ((OpBoundedJoinLatticeTerm2 n A )  → ((OpBoundedJoinLatticeTerm2 n A )  → (OpBoundedJoinLatticeTerm2 n A ) ))
+    *OL2 : ((OpBoundedJoinLatticeTerm2 n A )  → ((OpBoundedJoinLatticeTerm2 n A )  → (OpBoundedJoinLatticeTerm2 n A ) )) 
+  
+  simplifyB : (BoundedJoinLatticeTerm  → BoundedJoinLatticeTerm )
+  simplifyB (+L 0L x )  = x 
+  
+  simplifyB (+L x 0L )  = x 
+  
+  simplifyB (+L x1 x2 )  = (+L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB 0L  = 0L 
+  
+  simplifyB (*L x1 x2 )  = (*L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClBoundedJoinLatticeTerm A ) → (ClBoundedJoinLatticeTerm A )))
+  simplifyCl _ (+Cl 0Cl x )  = x 
+  
+  simplifyCl _ (+Cl x 0Cl )  = x 
+  
+  simplifyCl _ (+Cl x1 x2 )  = (+Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ 0Cl  = 0Cl 
+  
+  simplifyCl _ (*Cl x1 x2 )  = (*Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpBoundedJoinLatticeTerm n ) → (OpBoundedJoinLatticeTerm n )))
+  simplifyOp _ (+OL 0OL x )  = x 
+  
+  simplifyOp _ (+OL x 0OL )  = x 
+  
+  simplifyOp _ (+OL x1 x2 )  = (+OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ 0OL  = 0OL 
+  
+  simplifyOp _ (*OL x1 x2 )  = (*OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpBoundedJoinLatticeTerm2 n A ) → (OpBoundedJoinLatticeTerm2 n A )))
+  simplifyOpE _ _ (+OL2 0OL2 x )  = x 
+  
+  simplifyOpE _ _ (+OL2 x 0OL2 )  = x 
+  
+  simplifyOpE _ _ (+OL2 x1 x2 )  = (+OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ 0OL2  = 0OL2 
+  
+  simplifyOpE _ _ (*OL2 x1 x2 )  = (*OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((BoundedJoinLattice A ) → (BoundedJoinLatticeTerm  → A )))
   evalB Bo (+L x1 x2 )  = ((+ Bo ) (evalB Bo x1 ) (evalB Bo x2 ) )
   
@@ -226,4 +288,5 @@ module BoundedJoinLattice  where
     field
       +T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
       0T : (Repr A ) 
-      *T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      *T : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

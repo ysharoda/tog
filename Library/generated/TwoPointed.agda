@@ -1,4 +1,5 @@
-module TwoPointed  where
+
+ module TwoPointed  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -8,46 +9,83 @@ module TwoPointed  where
     constructor TwoPointedC
     field
       e1 : A 
-      e2 : A 
+      e2 : A  
+  
   open TwoPointed
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       e1S : AS 
-      e2S : AS 
+      e2S : AS  
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       e1P : (Prod AP AP )
-      e2P : (Prod AP AP )
+      e2P : (Prod AP AP ) 
+  
   record Hom (A1 A2  : Set ) (Tw1  : (TwoPointed A1 )) (Tw2  : (TwoPointed A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-e1 : (  (hom (e1 Tw1 )  ) ≡ (e1 Tw2 ) )
-      pres-e2 : (  (hom (e2 Tw1 )  ) ≡ (e2 Tw2 ) )
+      pres-e2 : (  (hom (e2 Tw1 )  ) ≡ (e2 Tw2 ) ) 
+  
   record RelInterp (A1 A2  : Set ) (Tw1  : (TwoPointed A1 )) (Tw2  : (TwoPointed A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-e1 : (  (interp (e1 Tw1 )  (e1 Tw2 )  ))
-      interp-e2 : (  (interp (e2 Tw1 )  (e2 Tw2 )  ))
+      interp-e2 : (  (interp (e2 Tw1 )  (e2 Tw2 )  )) 
+  
   data TwoPointedTerm  : Set where
     e1L : TwoPointedTerm  
-    e2L : TwoPointedTerm  
+    e2L : TwoPointedTerm   
+  
   data ClTwoPointedTerm (A  : Set )  : Set where
     sing : (A  → (ClTwoPointedTerm A ) )
     e1Cl : (ClTwoPointedTerm A ) 
-    e2Cl : (ClTwoPointedTerm A ) 
+    e2Cl : (ClTwoPointedTerm A )  
+  
   data OpTwoPointedTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpTwoPointedTerm n ) )
     e1OL : (OpTwoPointedTerm n ) 
-    e2OL : (OpTwoPointedTerm n ) 
+    e2OL : (OpTwoPointedTerm n )  
+  
   data OpTwoPointedTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpTwoPointedTerm2 n A ) )
     sing2 : (A  → (OpTwoPointedTerm2 n A ) )
     e1OL2 : (OpTwoPointedTerm2 n A ) 
-    e2OL2 : (OpTwoPointedTerm2 n A ) 
+    e2OL2 : (OpTwoPointedTerm2 n A )  
+  
+  simplifyB : (TwoPointedTerm  → TwoPointedTerm )
+  simplifyB e1L  = e1L 
+  
+  simplifyB e2L  = e2L 
+  
+  simplifyCl : ((A  : Set )  → ((ClTwoPointedTerm A ) → (ClTwoPointedTerm A )))
+  simplifyCl _ e1Cl  = e1Cl 
+  
+  simplifyCl _ e2Cl  = e2Cl 
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpTwoPointedTerm n ) → (OpTwoPointedTerm n )))
+  simplifyOp _ e1OL  = e1OL 
+  
+  simplifyOp _ e2OL  = e2OL 
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpTwoPointedTerm2 n A ) → (OpTwoPointedTerm2 n A )))
+  simplifyOpE _ _ e1OL2  = e1OL2 
+  
+  simplifyOpE _ _ e2OL2  = e2OL2 
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((TwoPointed A ) → (TwoPointedTerm  → A )))
   evalB Tw e1L  = (e1 Tw ) 
   
@@ -160,4 +198,5 @@ module TwoPointed  where
     constructor tagless
     field
       e1T : (Repr A ) 
-      e2T : (Repr A ) 
+      e2T : (Repr A )  
+   

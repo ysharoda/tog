@@ -1,4 +1,5 @@
-module Zero  where
+
+ module Zero  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -10,48 +11,85 @@ module Zero  where
       e : A 
       op : (A  → (A  → A ))
       leftZero_op_e : ({x  : A }  → (op e x ) ≡ e )
-      rightZero_op_e : ({x  : A }  → (op x e ) ≡ e )
+      rightZero_op_e : ({x  : A }  → (op x e ) ≡ e ) 
+  
   open Zero
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       eS : AS 
-      opS : (AS  → (AS  → AS ))
+      opS : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       eP : (Prod AP AP )
       opP : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
       leftZero_op_eP : ({xP  : (Prod AP AP )}  → (opP eP xP ) ≡ eP )
-      rightZero_op_eP : ({xP  : (Prod AP AP )}  → (opP xP eP ) ≡ eP )
+      rightZero_op_eP : ({xP  : (Prod AP AP )}  → (opP xP eP ) ≡ eP ) 
+  
   record Hom (A1 A2  : Set ) (Ze1  : (Zero A1 )) (Ze2  : (Zero A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-e : (  (hom (e Ze1 )  ) ≡ (e Ze2 ) )
-      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Ze1 ) x1 x2 ) ) ≡ ((op Ze2 ) (hom x1 ) (hom x2 ) ))
+      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Ze1 ) x1 x2 ) ) ≡ ((op Ze2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Ze1  : (Zero A1 )) (Ze2  : (Zero A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-e : (  (interp (e Ze1 )  (e Ze2 )  ))
-      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Ze1 ) x1 x2 ) ((op Ze2 ) y1 y2 ) ))))
+      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Ze1 ) x1 x2 ) ((op Ze2 ) y1 y2 ) )))) 
+  
   data ZeroTerm  : Set where
     eL : ZeroTerm  
-    opL : (ZeroTerm   → (ZeroTerm   → ZeroTerm  ))
+    opL : (ZeroTerm   → (ZeroTerm   → ZeroTerm  )) 
+  
   data ClZeroTerm (A  : Set )  : Set where
     sing : (A  → (ClZeroTerm A ) )
     eCl : (ClZeroTerm A ) 
-    opCl : ((ClZeroTerm A )  → ((ClZeroTerm A )  → (ClZeroTerm A ) ))
+    opCl : ((ClZeroTerm A )  → ((ClZeroTerm A )  → (ClZeroTerm A ) )) 
+  
   data OpZeroTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpZeroTerm n ) )
     eOL : (OpZeroTerm n ) 
-    opOL : ((OpZeroTerm n )  → ((OpZeroTerm n )  → (OpZeroTerm n ) ))
+    opOL : ((OpZeroTerm n )  → ((OpZeroTerm n )  → (OpZeroTerm n ) )) 
+  
   data OpZeroTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpZeroTerm2 n A ) )
     sing2 : (A  → (OpZeroTerm2 n A ) )
     eOL2 : (OpZeroTerm2 n A ) 
-    opOL2 : ((OpZeroTerm2 n A )  → ((OpZeroTerm2 n A )  → (OpZeroTerm2 n A ) ))
+    opOL2 : ((OpZeroTerm2 n A )  → ((OpZeroTerm2 n A )  → (OpZeroTerm2 n A ) )) 
+  
+  simplifyB : (ZeroTerm  → ZeroTerm )
+  simplifyB eL  = eL 
+  
+  simplifyB (opL x1 x2 )  = (opL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClZeroTerm A ) → (ClZeroTerm A )))
+  simplifyCl _ eCl  = eCl 
+  
+  simplifyCl _ (opCl x1 x2 )  = (opCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpZeroTerm n ) → (OpZeroTerm n )))
+  simplifyOp _ eOL  = eOL 
+  
+  simplifyOp _ (opOL x1 x2 )  = (opOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpZeroTerm2 n A ) → (OpZeroTerm2 n A )))
+  simplifyOpE _ _ eOL2  = eOL2 
+  
+  simplifyOpE _ _ (opOL2 x1 x2 )  = (opOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((Zero A ) → (ZeroTerm  → A )))
   evalB Ze eL  = (e Ze ) 
   
@@ -164,4 +202,5 @@ module Zero  where
     constructor tagless
     field
       eT : (Repr A ) 
-      opT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      opT : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

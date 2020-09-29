@@ -1,4 +1,5 @@
-module Empty  where
+
+ module Empty  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -6,5 +7,6 @@ module Empty  where
   open import Data.Vec
   record Empty  : Set where
     constructor EmptyC
+   
   
-  open Empty
+  open Empty 

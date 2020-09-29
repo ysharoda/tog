@@ -1,4 +1,5 @@
-module MoufangLaw  where
+
+ module MoufangLaw  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -8,39 +9,68 @@ module MoufangLaw  where
     constructor MoufangLawC
     field
       op : (A  → (A  → A ))
-      moufangLaw : ({e x y z  : A }  → ((op y e )  ≡ y  → (op (op (op x y ) z ) x ) ≡ (op x (op y (op (op e z ) x ) ) )))
+      moufangLaw : ({e x y z  : A }  → ((op y e )  ≡ y  → (op (op (op x y ) z ) x ) ≡ (op x (op y (op (op e z ) x ) ) ))) 
+  
   open MoufangLaw
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
-      opS : (AS  → (AS  → AS ))
+      opS : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       opP : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
-      moufangLawP : ({eP xP yP zP  : (Prod AP AP )}  → ((opP yP eP )  ≡ yP  → (opP (opP (opP xP yP ) zP ) xP ) ≡ (opP xP (opP yP (opP (opP eP zP ) xP ) ) )))
+      moufangLawP : ({eP xP yP zP  : (Prod AP AP )}  → ((opP yP eP )  ≡ yP  → (opP (opP (opP xP yP ) zP ) xP ) ≡ (opP xP (opP yP (opP (opP eP zP ) xP ) ) ))) 
+  
   record Hom (A1 A2  : Set ) (Mo1  : (MoufangLaw A1 )) (Mo2  : (MoufangLaw A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
-      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Mo1 ) x1 x2 ) ) ≡ ((op Mo2 ) (hom x1 ) (hom x2 ) ))
+      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Mo1 ) x1 x2 ) ) ≡ ((op Mo2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Mo1  : (MoufangLaw A1 )) (Mo2  : (MoufangLaw A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
-      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Mo1 ) x1 x2 ) ((op Mo2 ) y1 y2 ) ))))
+      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Mo1 ) x1 x2 ) ((op Mo2 ) y1 y2 ) )))) 
+  
   data MoufangLawTerm  : Set where
-    opL : (MoufangLawTerm   → (MoufangLawTerm   → MoufangLawTerm  ))
+    opL : (MoufangLawTerm   → (MoufangLawTerm   → MoufangLawTerm  )) 
+  
   data ClMoufangLawTerm (A  : Set )  : Set where
     sing : (A  → (ClMoufangLawTerm A ) )
-    opCl : ((ClMoufangLawTerm A )  → ((ClMoufangLawTerm A )  → (ClMoufangLawTerm A ) ))
+    opCl : ((ClMoufangLawTerm A )  → ((ClMoufangLawTerm A )  → (ClMoufangLawTerm A ) )) 
+  
   data OpMoufangLawTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpMoufangLawTerm n ) )
-    opOL : ((OpMoufangLawTerm n )  → ((OpMoufangLawTerm n )  → (OpMoufangLawTerm n ) ))
+    opOL : ((OpMoufangLawTerm n )  → ((OpMoufangLawTerm n )  → (OpMoufangLawTerm n ) )) 
+  
   data OpMoufangLawTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpMoufangLawTerm2 n A ) )
     sing2 : (A  → (OpMoufangLawTerm2 n A ) )
-    opOL2 : ((OpMoufangLawTerm2 n A )  → ((OpMoufangLawTerm2 n A )  → (OpMoufangLawTerm2 n A ) ))
+    opOL2 : ((OpMoufangLawTerm2 n A )  → ((OpMoufangLawTerm2 n A )  → (OpMoufangLawTerm2 n A ) )) 
+  
+  simplifyB : (MoufangLawTerm  → MoufangLawTerm )
+  simplifyB (opL x1 x2 )  = (opL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClMoufangLawTerm A ) → (ClMoufangLawTerm A )))
+  simplifyCl _ (opCl x1 x2 )  = (opCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpMoufangLawTerm n ) → (OpMoufangLawTerm n )))
+  simplifyOp _ (opOL x1 x2 )  = (opOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpMoufangLawTerm2 n A ) → (OpMoufangLawTerm2 n A )))
+  simplifyOpE _ _ (opOL2 x1 x2 )  = (opOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((MoufangLaw A ) → (MoufangLawTerm  → A )))
   evalB Mo (opL x1 x2 )  = ((op Mo ) (evalB Mo x1 ) (evalB Mo x2 ) )
   
@@ -116,4 +146,5 @@ module MoufangLaw  where
   record Tagless (A  : Set) (Repr  : (Set  → Set ))  : Set where
     constructor tagless
     field
-      opT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      opT : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

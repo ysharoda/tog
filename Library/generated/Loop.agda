@@ -1,4 +1,5 @@
-module Loop  where
+
+ module Loop  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -16,7 +17,8 @@ module Loop  where
       lefCancelOp : ({x y  : A }  → (linv x (op x y ) ) ≡ y )
       rinv : (A  → (A  → A ))
       rightCancel : ({x y  : A }  → (op (rinv y x ) x ) ≡ y )
-      rightCancelOp : ({x y  : A }  → (rinv (op y x ) x ) ≡ y )
+      rightCancelOp : ({x y  : A }  → (rinv (op y x ) x ) ≡ y ) 
+  
   open Loop
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
@@ -24,7 +26,8 @@ module Loop  where
       opS : (AS  → (AS  → AS ))
       eS : AS 
       linvS : (AS  → (AS  → AS ))
-      rinvS : (AS  → (AS  → AS ))
+      rinvS : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
@@ -37,7 +40,8 @@ module Loop  where
       leftCancelP : ({xP yP  : (Prod AP AP )}  → (opP xP (linvP xP yP ) ) ≡ yP )
       lefCancelOpP : ({xP yP  : (Prod AP AP )}  → (linvP xP (opP xP yP ) ) ≡ yP )
       rightCancelP : ({xP yP  : (Prod AP AP )}  → (opP (rinvP yP xP ) xP ) ≡ yP )
-      rightCancelOpP : ({xP yP  : (Prod AP AP )}  → (rinvP (opP yP xP ) xP ) ≡ yP )
+      rightCancelOpP : ({xP yP  : (Prod AP AP )}  → (rinvP (opP yP xP ) xP ) ≡ yP ) 
+  
   record Hom (A1 A2  : Set ) (Lo1  : (Loop A1 )) (Lo2  : (Loop A2 ))  : Set where
     constructor HomC
     field
@@ -45,7 +49,8 @@ module Loop  where
       pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Lo1 ) x1 x2 ) ) ≡ ((op Lo2 ) (hom x1 ) (hom x2 ) ))
       pres-e : (  (hom (e Lo1 )  ) ≡ (e Lo2 ) )
       pres-linv : ({x1  : A1} {x2  : A1}  → (hom ((linv Lo1 ) x1 x2 ) ) ≡ ((linv Lo2 ) (hom x1 ) (hom x2 ) ))
-      pres-rinv : ({x1  : A1} {x2  : A1}  → (hom ((rinv Lo1 ) x1 x2 ) ) ≡ ((rinv Lo2 ) (hom x1 ) (hom x2 ) ))
+      pres-rinv : ({x1  : A1} {x2  : A1}  → (hom ((rinv Lo1 ) x1 x2 ) ) ≡ ((rinv Lo2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Lo1  : (Loop A1 )) (Lo2  : (Loop A2 ))  : Set₁ where
     constructor RelInterpC
     field
@@ -53,31 +58,96 @@ module Loop  where
       interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Lo1 ) x1 x2 ) ((op Lo2 ) y1 y2 ) ))))
       interp-e : (  (interp (e Lo1 )  (e Lo2 )  ))
       interp-linv : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((linv Lo1 ) x1 x2 ) ((linv Lo2 ) y1 y2 ) ))))
-      interp-rinv : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((rinv Lo1 ) x1 x2 ) ((rinv Lo2 ) y1 y2 ) ))))
+      interp-rinv : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((rinv Lo1 ) x1 x2 ) ((rinv Lo2 ) y1 y2 ) )))) 
+  
   data LoopLTerm  : Set where
     opL : (LoopLTerm   → (LoopLTerm   → LoopLTerm  ))
     eL : LoopLTerm  
     linvL : (LoopLTerm   → (LoopLTerm   → LoopLTerm  ))
-    rinvL : (LoopLTerm   → (LoopLTerm   → LoopLTerm  ))
+    rinvL : (LoopLTerm   → (LoopLTerm   → LoopLTerm  )) 
+  
   data ClLoopClTerm (A  : Set )  : Set where
     sing : (A  → (ClLoopClTerm A ) )
     opCl : ((ClLoopClTerm A )  → ((ClLoopClTerm A )  → (ClLoopClTerm A ) ))
     eCl : (ClLoopClTerm A ) 
     linvCl : ((ClLoopClTerm A )  → ((ClLoopClTerm A )  → (ClLoopClTerm A ) ))
-    rinvCl : ((ClLoopClTerm A )  → ((ClLoopClTerm A )  → (ClLoopClTerm A ) ))
+    rinvCl : ((ClLoopClTerm A )  → ((ClLoopClTerm A )  → (ClLoopClTerm A ) )) 
+  
   data OpLoopOLTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpLoopOLTerm n ) )
     opOL : ((OpLoopOLTerm n )  → ((OpLoopOLTerm n )  → (OpLoopOLTerm n ) ))
     eOL : (OpLoopOLTerm n ) 
     linvOL : ((OpLoopOLTerm n )  → ((OpLoopOLTerm n )  → (OpLoopOLTerm n ) ))
-    rinvOL : ((OpLoopOLTerm n )  → ((OpLoopOLTerm n )  → (OpLoopOLTerm n ) ))
+    rinvOL : ((OpLoopOLTerm n )  → ((OpLoopOLTerm n )  → (OpLoopOLTerm n ) )) 
+  
   data OpLoopOL2Term2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpLoopOL2Term2 n A ) )
     sing2 : (A  → (OpLoopOL2Term2 n A ) )
     opOL2 : ((OpLoopOL2Term2 n A )  → ((OpLoopOL2Term2 n A )  → (OpLoopOL2Term2 n A ) ))
     eOL2 : (OpLoopOL2Term2 n A ) 
     linvOL2 : ((OpLoopOL2Term2 n A )  → ((OpLoopOL2Term2 n A )  → (OpLoopOL2Term2 n A ) ))
-    rinvOL2 : ((OpLoopOL2Term2 n A )  → ((OpLoopOL2Term2 n A )  → (OpLoopOL2Term2 n A ) ))
+    rinvOL2 : ((OpLoopOL2Term2 n A )  → ((OpLoopOL2Term2 n A )  → (OpLoopOL2Term2 n A ) )) 
+  
+  simplifyB : (LoopLTerm  → LoopLTerm )
+  simplifyB (opL eL x )  = x 
+  
+  simplifyB (opL x eL )  = x 
+  
+  simplifyB (opL x1 x2 )  = (opL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB eL  = eL 
+  
+  simplifyB (linvL x1 x2 )  = (linvL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB (rinvL x1 x2 )  = (rinvL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClLoopClTerm A ) → (ClLoopClTerm A )))
+  simplifyCl _ (opCl eCl x )  = x 
+  
+  simplifyCl _ (opCl x eCl )  = x 
+  
+  simplifyCl _ (opCl x1 x2 )  = (opCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ eCl  = eCl 
+  
+  simplifyCl _ (linvCl x1 x2 )  = (linvCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (rinvCl x1 x2 )  = (rinvCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpLoopOLTerm n ) → (OpLoopOLTerm n )))
+  simplifyOp _ (opOL eOL x )  = x 
+  
+  simplifyOp _ (opOL x eOL )  = x 
+  
+  simplifyOp _ (opOL x1 x2 )  = (opOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ eOL  = eOL 
+  
+  simplifyOp _ (linvOL x1 x2 )  = (linvOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (rinvOL x1 x2 )  = (rinvOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpLoopOL2Term2 n A ) → (OpLoopOL2Term2 n A )))
+  simplifyOpE _ _ (opOL2 eOL2 x )  = x 
+  
+  simplifyOpE _ _ (opOL2 x eOL2 )  = x 
+  
+  simplifyOpE _ _ (opOL2 x1 x2 )  = (opOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ eOL2  = eOL2 
+  
+  simplifyOpE _ _ (linvOL2 x1 x2 )  = (linvOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (rinvOL2 x1 x2 )  = (rinvOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((Loop A ) → (LoopLTerm  → A )))
   evalB Lo (opL x1 x2 )  = ((op Lo ) (evalB Lo x1 ) (evalB Lo x2 ) )
   
@@ -264,4 +334,5 @@ module Loop  where
       opT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
       eT : (Repr A ) 
       linvT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
-      rinvT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      rinvT : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

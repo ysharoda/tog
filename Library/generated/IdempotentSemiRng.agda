@@ -1,4 +1,5 @@
-module IdempotentSemiRng  where
+
+ module IdempotentSemiRng  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -17,14 +18,16 @@ module IdempotentSemiRng  where
       associative_* : ({x y z  : A }  → (* (* x y ) z ) ≡ (* x (* y z ) ))
       leftDistributive_*_+ : ({x y z  : A }  → (* x (+ y z ) ) ≡ (+ (* x y ) (* x z ) ))
       rightDistributive_*_+ : ({x y z  : A }  → (* (+ y z ) x ) ≡ (+ (* y x ) (* z x ) ))
-      idempotent_+ : ({x  : A }  → (+ x x ) ≡ x )
+      idempotent_+ : ({x  : A }  → (+ x x ) ≡ x ) 
+  
   open IdempotentSemiRng
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       +S : (AS  → (AS  → AS ))
       *S : (AS  → (AS  → AS ))
-      0S : AS 
+      0S : AS  
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
@@ -38,41 +41,100 @@ module IdempotentSemiRng  where
       associative_*P : ({xP yP zP  : (Prod AP AP )}  → (*P (*P xP yP ) zP ) ≡ (*P xP (*P yP zP ) ))
       leftDistributive_*_+P : ({xP yP zP  : (Prod AP AP )}  → (*P xP (+P yP zP ) ) ≡ (+P (*P xP yP ) (*P xP zP ) ))
       rightDistributive_*_+P : ({xP yP zP  : (Prod AP AP )}  → (*P (+P yP zP ) xP ) ≡ (+P (*P yP xP ) (*P zP xP ) ))
-      idempotent_+P : ({xP  : (Prod AP AP )}  → (+P xP xP ) ≡ xP )
+      idempotent_+P : ({xP  : (Prod AP AP )}  → (+P xP xP ) ≡ xP ) 
+  
   record Hom (A1 A2  : Set ) (Id1  : (IdempotentSemiRng A1 )) (Id2  : (IdempotentSemiRng A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-+ : ({x1  : A1} {x2  : A1}  → (hom ((+ Id1 ) x1 x2 ) ) ≡ ((+ Id2 ) (hom x1 ) (hom x2 ) ))
       pres-* : ({x1  : A1} {x2  : A1}  → (hom ((* Id1 ) x1 x2 ) ) ≡ ((* Id2 ) (hom x1 ) (hom x2 ) ))
-      pres-0 : (  (hom (0ᵢ Id1 )  ) ≡ (0ᵢ Id2 ) )
+      pres-0 : (  (hom (0ᵢ Id1 )  ) ≡ (0ᵢ Id2 ) ) 
+  
   record RelInterp (A1 A2  : Set ) (Id1  : (IdempotentSemiRng A1 )) (Id2  : (IdempotentSemiRng A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-+ : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((+ Id1 ) x1 x2 ) ((+ Id2 ) y1 y2 ) ))))
       interp-* : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((* Id1 ) x1 x2 ) ((* Id2 ) y1 y2 ) ))))
-      interp-0 : (  (interp (0ᵢ Id1 )  (0ᵢ Id2 )  ))
+      interp-0 : (  (interp (0ᵢ Id1 )  (0ᵢ Id2 )  )) 
+  
   data IdempotentSemiRngTerm  : Set where
     +L : (IdempotentSemiRngTerm   → (IdempotentSemiRngTerm   → IdempotentSemiRngTerm  ))
     *L : (IdempotentSemiRngTerm   → (IdempotentSemiRngTerm   → IdempotentSemiRngTerm  ))
-    0L : IdempotentSemiRngTerm  
+    0L : IdempotentSemiRngTerm   
+  
   data ClIdempotentSemiRngTerm (A  : Set )  : Set where
     sing : (A  → (ClIdempotentSemiRngTerm A ) )
     +Cl : ((ClIdempotentSemiRngTerm A )  → ((ClIdempotentSemiRngTerm A )  → (ClIdempotentSemiRngTerm A ) ))
     *Cl : ((ClIdempotentSemiRngTerm A )  → ((ClIdempotentSemiRngTerm A )  → (ClIdempotentSemiRngTerm A ) ))
-    0Cl : (ClIdempotentSemiRngTerm A ) 
+    0Cl : (ClIdempotentSemiRngTerm A )  
+  
   data OpIdempotentSemiRngTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpIdempotentSemiRngTerm n ) )
     +OL : ((OpIdempotentSemiRngTerm n )  → ((OpIdempotentSemiRngTerm n )  → (OpIdempotentSemiRngTerm n ) ))
     *OL : ((OpIdempotentSemiRngTerm n )  → ((OpIdempotentSemiRngTerm n )  → (OpIdempotentSemiRngTerm n ) ))
-    0OL : (OpIdempotentSemiRngTerm n ) 
+    0OL : (OpIdempotentSemiRngTerm n )  
+  
   data OpIdempotentSemiRngTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpIdempotentSemiRngTerm2 n A ) )
     sing2 : (A  → (OpIdempotentSemiRngTerm2 n A ) )
     +OL2 : ((OpIdempotentSemiRngTerm2 n A )  → ((OpIdempotentSemiRngTerm2 n A )  → (OpIdempotentSemiRngTerm2 n A ) ))
     *OL2 : ((OpIdempotentSemiRngTerm2 n A )  → ((OpIdempotentSemiRngTerm2 n A )  → (OpIdempotentSemiRngTerm2 n A ) ))
-    0OL2 : (OpIdempotentSemiRngTerm2 n A ) 
+    0OL2 : (OpIdempotentSemiRngTerm2 n A )  
+  
+  simplifyB : (IdempotentSemiRngTerm  → IdempotentSemiRngTerm )
+  simplifyB (+L 0L x )  = x 
+  
+  simplifyB (+L x 0L )  = x 
+  
+  simplifyB (+L x1 x2 )  = (+L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB (*L x1 x2 )  = (*L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB 0L  = 0L 
+  
+  simplifyCl : ((A  : Set )  → ((ClIdempotentSemiRngTerm A ) → (ClIdempotentSemiRngTerm A )))
+  simplifyCl _ (+Cl 0Cl x )  = x 
+  
+  simplifyCl _ (+Cl x 0Cl )  = x 
+  
+  simplifyCl _ (+Cl x1 x2 )  = (+Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (*Cl x1 x2 )  = (*Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ 0Cl  = 0Cl 
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpIdempotentSemiRngTerm n ) → (OpIdempotentSemiRngTerm n )))
+  simplifyOp _ (+OL 0OL x )  = x 
+  
+  simplifyOp _ (+OL x 0OL )  = x 
+  
+  simplifyOp _ (+OL x1 x2 )  = (+OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (*OL x1 x2 )  = (*OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ 0OL  = 0OL 
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpIdempotentSemiRngTerm2 n A ) → (OpIdempotentSemiRngTerm2 n A )))
+  simplifyOpE _ _ (+OL2 0OL2 x )  = x 
+  
+  simplifyOpE _ _ (+OL2 x 0OL2 )  = x 
+  
+  simplifyOpE _ _ (+OL2 x1 x2 )  = (+OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (*OL2 x1 x2 )  = (*OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ 0OL2  = 0OL2 
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((IdempotentSemiRng A ) → (IdempotentSemiRngTerm  → A )))
   evalB Id (+L x1 x2 )  = ((+ Id ) (evalB Id x1 ) (evalB Id x2 ) )
   
@@ -222,4 +284,5 @@ module IdempotentSemiRng  where
     field
       +T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
       *T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
-      0T : (Repr A ) 
+      0T : (Repr A )  
+   

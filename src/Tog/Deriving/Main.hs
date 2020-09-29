@@ -46,13 +46,13 @@ leverageThry thry =
      relInterp = relationalInterp thry
      trmLangs = termLangs thry
      temLangsDecls = termLangsToDecls trmLangs
- --    simplifiers = simplifyFuncs thry trmLangs
+     simplifiers = simplifyFuncs thry trmLangs
      evaluators = evalFuncs thry trmLangs
      inductions = inductionFuncs trmLangs
      stagedTLs = stagedFuncs trmLangs
      tagless = taglessRep thry 
  in [sigs, prodthry, hom, relInterp] ++ temLangsDecls 
-    -- ++ simplifiers
+    ++ simplifiers
     ++ evaluators ++ inductions  ++ stagedTLs ++ [tagless] 
     
     --[trmlang, openTrmLang] ++ evalTrmLang ++ evalOpenTrmLang ++ simplifier ++

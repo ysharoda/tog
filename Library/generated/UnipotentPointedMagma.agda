@@ -1,4 +1,5 @@
-module UnipotentPointedMagma  where
+
+ module UnipotentPointedMagma  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -9,47 +10,84 @@ module UnipotentPointedMagma  where
     field
       e : A 
       op : (A  → (A  → A ))
-      unipotence : ({x  : A }  → (op x x ) ≡ e )
+      unipotence : ({x  : A }  → (op x x ) ≡ e ) 
+  
   open UnipotentPointedMagma
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       eS : AS 
-      opS : (AS  → (AS  → AS ))
+      opS : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       eP : (Prod AP AP )
       opP : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
-      unipotenceP : ({xP  : (Prod AP AP )}  → (opP xP xP ) ≡ eP )
+      unipotenceP : ({xP  : (Prod AP AP )}  → (opP xP xP ) ≡ eP ) 
+  
   record Hom (A1 A2  : Set ) (Un1  : (UnipotentPointedMagma A1 )) (Un2  : (UnipotentPointedMagma A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-e : (  (hom (e Un1 )  ) ≡ (e Un2 ) )
-      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Un1 ) x1 x2 ) ) ≡ ((op Un2 ) (hom x1 ) (hom x2 ) ))
+      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Un1 ) x1 x2 ) ) ≡ ((op Un2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Un1  : (UnipotentPointedMagma A1 )) (Un2  : (UnipotentPointedMagma A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-e : (  (interp (e Un1 )  (e Un2 )  ))
-      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Un1 ) x1 x2 ) ((op Un2 ) y1 y2 ) ))))
+      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Un1 ) x1 x2 ) ((op Un2 ) y1 y2 ) )))) 
+  
   data UnipotentPointedMagmaTerm  : Set where
     eL : UnipotentPointedMagmaTerm  
-    opL : (UnipotentPointedMagmaTerm   → (UnipotentPointedMagmaTerm   → UnipotentPointedMagmaTerm  ))
+    opL : (UnipotentPointedMagmaTerm   → (UnipotentPointedMagmaTerm   → UnipotentPointedMagmaTerm  )) 
+  
   data ClUnipotentPointedMagmaTerm (A  : Set )  : Set where
     sing : (A  → (ClUnipotentPointedMagmaTerm A ) )
     eCl : (ClUnipotentPointedMagmaTerm A ) 
-    opCl : ((ClUnipotentPointedMagmaTerm A )  → ((ClUnipotentPointedMagmaTerm A )  → (ClUnipotentPointedMagmaTerm A ) ))
+    opCl : ((ClUnipotentPointedMagmaTerm A )  → ((ClUnipotentPointedMagmaTerm A )  → (ClUnipotentPointedMagmaTerm A ) )) 
+  
   data OpUnipotentPointedMagmaTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpUnipotentPointedMagmaTerm n ) )
     eOL : (OpUnipotentPointedMagmaTerm n ) 
-    opOL : ((OpUnipotentPointedMagmaTerm n )  → ((OpUnipotentPointedMagmaTerm n )  → (OpUnipotentPointedMagmaTerm n ) ))
+    opOL : ((OpUnipotentPointedMagmaTerm n )  → ((OpUnipotentPointedMagmaTerm n )  → (OpUnipotentPointedMagmaTerm n ) )) 
+  
   data OpUnipotentPointedMagmaTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpUnipotentPointedMagmaTerm2 n A ) )
     sing2 : (A  → (OpUnipotentPointedMagmaTerm2 n A ) )
     eOL2 : (OpUnipotentPointedMagmaTerm2 n A ) 
-    opOL2 : ((OpUnipotentPointedMagmaTerm2 n A )  → ((OpUnipotentPointedMagmaTerm2 n A )  → (OpUnipotentPointedMagmaTerm2 n A ) ))
+    opOL2 : ((OpUnipotentPointedMagmaTerm2 n A )  → ((OpUnipotentPointedMagmaTerm2 n A )  → (OpUnipotentPointedMagmaTerm2 n A ) )) 
+  
+  simplifyB : (UnipotentPointedMagmaTerm  → UnipotentPointedMagmaTerm )
+  simplifyB eL  = eL 
+  
+  simplifyB (opL x1 x2 )  = (opL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClUnipotentPointedMagmaTerm A ) → (ClUnipotentPointedMagmaTerm A )))
+  simplifyCl _ eCl  = eCl 
+  
+  simplifyCl _ (opCl x1 x2 )  = (opCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpUnipotentPointedMagmaTerm n ) → (OpUnipotentPointedMagmaTerm n )))
+  simplifyOp _ eOL  = eOL 
+  
+  simplifyOp _ (opOL x1 x2 )  = (opOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpUnipotentPointedMagmaTerm2 n A ) → (OpUnipotentPointedMagmaTerm2 n A )))
+  simplifyOpE _ _ eOL2  = eOL2 
+  
+  simplifyOpE _ _ (opOL2 x1 x2 )  = (opOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((UnipotentPointedMagma A ) → (UnipotentPointedMagmaTerm  → A )))
   evalB Un eL  = (e Un ) 
   
@@ -162,4 +200,5 @@ module UnipotentPointedMagma  where
     constructor tagless
     field
       eT : (Repr A ) 
-      opT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      opT : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

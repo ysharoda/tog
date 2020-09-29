@@ -1,4 +1,5 @@
-module PointedSteinerMagma  where
+
+ module PointedSteinerMagma  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -10,48 +11,85 @@ module PointedSteinerMagma  where
       op : (A  → (A  → A ))
       e : A 
       commutative_op : ({x y  : A }  → (op x y ) ≡ (op y x ))
-      antiAbsorbent : ({x y  : A }  → (op x (op x y ) ) ≡ y )
+      antiAbsorbent : ({x y  : A }  → (op x (op x y ) ) ≡ y ) 
+  
   open PointedSteinerMagma
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       opS : (AS  → (AS  → AS ))
-      eS : AS 
+      eS : AS  
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       opP : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
       eP : (Prod AP AP )
       commutative_opP : ({xP yP  : (Prod AP AP )}  → (opP xP yP ) ≡ (opP yP xP ))
-      antiAbsorbentP : ({xP yP  : (Prod AP AP )}  → (opP xP (opP xP yP ) ) ≡ yP )
+      antiAbsorbentP : ({xP yP  : (Prod AP AP )}  → (opP xP (opP xP yP ) ) ≡ yP ) 
+  
   record Hom (A1 A2  : Set ) (Po1  : (PointedSteinerMagma A1 )) (Po2  : (PointedSteinerMagma A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Po1 ) x1 x2 ) ) ≡ ((op Po2 ) (hom x1 ) (hom x2 ) ))
-      pres-e : (  (hom (e Po1 )  ) ≡ (e Po2 ) )
+      pres-e : (  (hom (e Po1 )  ) ≡ (e Po2 ) ) 
+  
   record RelInterp (A1 A2  : Set ) (Po1  : (PointedSteinerMagma A1 )) (Po2  : (PointedSteinerMagma A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Po1 ) x1 x2 ) ((op Po2 ) y1 y2 ) ))))
-      interp-e : (  (interp (e Po1 )  (e Po2 )  ))
+      interp-e : (  (interp (e Po1 )  (e Po2 )  )) 
+  
   data PointedSteinerMagmaTerm  : Set where
     opL : (PointedSteinerMagmaTerm   → (PointedSteinerMagmaTerm   → PointedSteinerMagmaTerm  ))
-    eL : PointedSteinerMagmaTerm  
+    eL : PointedSteinerMagmaTerm   
+  
   data ClPointedSteinerMagmaTerm (A  : Set )  : Set where
     sing : (A  → (ClPointedSteinerMagmaTerm A ) )
     opCl : ((ClPointedSteinerMagmaTerm A )  → ((ClPointedSteinerMagmaTerm A )  → (ClPointedSteinerMagmaTerm A ) ))
-    eCl : (ClPointedSteinerMagmaTerm A ) 
+    eCl : (ClPointedSteinerMagmaTerm A )  
+  
   data OpPointedSteinerMagmaTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpPointedSteinerMagmaTerm n ) )
     opOL : ((OpPointedSteinerMagmaTerm n )  → ((OpPointedSteinerMagmaTerm n )  → (OpPointedSteinerMagmaTerm n ) ))
-    eOL : (OpPointedSteinerMagmaTerm n ) 
+    eOL : (OpPointedSteinerMagmaTerm n )  
+  
   data OpPointedSteinerMagmaTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpPointedSteinerMagmaTerm2 n A ) )
     sing2 : (A  → (OpPointedSteinerMagmaTerm2 n A ) )
     opOL2 : ((OpPointedSteinerMagmaTerm2 n A )  → ((OpPointedSteinerMagmaTerm2 n A )  → (OpPointedSteinerMagmaTerm2 n A ) ))
-    eOL2 : (OpPointedSteinerMagmaTerm2 n A ) 
+    eOL2 : (OpPointedSteinerMagmaTerm2 n A )  
+  
+  simplifyB : (PointedSteinerMagmaTerm  → PointedSteinerMagmaTerm )
+  simplifyB (opL x1 x2 )  = (opL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB eL  = eL 
+  
+  simplifyCl : ((A  : Set )  → ((ClPointedSteinerMagmaTerm A ) → (ClPointedSteinerMagmaTerm A )))
+  simplifyCl _ (opCl x1 x2 )  = (opCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ eCl  = eCl 
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpPointedSteinerMagmaTerm n ) → (OpPointedSteinerMagmaTerm n )))
+  simplifyOp _ (opOL x1 x2 )  = (opOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ eOL  = eOL 
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpPointedSteinerMagmaTerm2 n A ) → (OpPointedSteinerMagmaTerm2 n A )))
+  simplifyOpE _ _ (opOL2 x1 x2 )  = (opOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ eOL2  = eOL2 
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((PointedSteinerMagma A ) → (PointedSteinerMagmaTerm  → A )))
   evalB Po (opL x1 x2 )  = ((op Po ) (evalB Po x1 ) (evalB Po x2 ) )
   
@@ -164,4 +202,5 @@ module PointedSteinerMagma  where
     constructor tagless
     field
       opT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
-      eT : (Repr A ) 
+      eT : (Repr A )  
+   

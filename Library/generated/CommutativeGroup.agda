@@ -1,4 +1,5 @@
-module CommutativeGroup  where
+
+ module CommutativeGroup  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -15,14 +16,16 @@ module CommutativeGroup  where
       inv : (A  → A )
       leftInverse_inv_op_e : ({x  : A }  → (op x (inv x ) ) ≡ e )
       rightInverse_inv_op_e : ({x  : A }  → (op (inv x ) x ) ≡ e )
-      commutative_op : ({x y  : A }  → (op x y ) ≡ (op y x ))
+      commutative_op : ({x y  : A }  → (op x y ) ≡ (op y x )) 
+  
   open CommutativeGroup
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       opS : (AS  → (AS  → AS ))
       eS : AS 
-      invS : (AS  → AS )
+      invS : (AS  → AS ) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
@@ -34,41 +37,100 @@ module CommutativeGroup  where
       associative_opP : ({xP yP zP  : (Prod AP AP )}  → (opP (opP xP yP ) zP ) ≡ (opP xP (opP yP zP ) ))
       leftInverse_inv_op_eP : ({xP  : (Prod AP AP )}  → (opP xP (invP xP ) ) ≡ eP )
       rightInverse_inv_op_eP : ({xP  : (Prod AP AP )}  → (opP (invP xP ) xP ) ≡ eP )
-      commutative_opP : ({xP yP  : (Prod AP AP )}  → (opP xP yP ) ≡ (opP yP xP ))
+      commutative_opP : ({xP yP  : (Prod AP AP )}  → (opP xP yP ) ≡ (opP yP xP )) 
+  
   record Hom (A1 A2  : Set ) (Co1  : (CommutativeGroup A1 )) (Co2  : (CommutativeGroup A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Co1 ) x1 x2 ) ) ≡ ((op Co2 ) (hom x1 ) (hom x2 ) ))
       pres-e : (  (hom (e Co1 )  ) ≡ (e Co2 ) )
-      pres-inv : ({x1  : A1}  → (hom ((inv Co1 ) x1 ) ) ≡ ((inv Co2 ) (hom x1 ) ))
+      pres-inv : ({x1  : A1}  → (hom ((inv Co1 ) x1 ) ) ≡ ((inv Co2 ) (hom x1 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Co1  : (CommutativeGroup A1 )) (Co2  : (CommutativeGroup A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Co1 ) x1 x2 ) ((op Co2 ) y1 y2 ) ))))
       interp-e : (  (interp (e Co1 )  (e Co2 )  ))
-      interp-inv : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((inv Co1 ) x1 ) ((inv Co2 ) y1 ) )))
+      interp-inv : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((inv Co1 ) x1 ) ((inv Co2 ) y1 ) ))) 
+  
   data CommutativeGroupTerm  : Set where
     opL : (CommutativeGroupTerm   → (CommutativeGroupTerm   → CommutativeGroupTerm  ))
     eL : CommutativeGroupTerm  
-    invL : (CommutativeGroupTerm   → CommutativeGroupTerm  )
+    invL : (CommutativeGroupTerm   → CommutativeGroupTerm  ) 
+  
   data ClCommutativeGroupTerm (A  : Set )  : Set where
     sing : (A  → (ClCommutativeGroupTerm A ) )
     opCl : ((ClCommutativeGroupTerm A )  → ((ClCommutativeGroupTerm A )  → (ClCommutativeGroupTerm A ) ))
     eCl : (ClCommutativeGroupTerm A ) 
-    invCl : ((ClCommutativeGroupTerm A )  → (ClCommutativeGroupTerm A ) )
+    invCl : ((ClCommutativeGroupTerm A )  → (ClCommutativeGroupTerm A ) ) 
+  
   data OpCommutativeGroupTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpCommutativeGroupTerm n ) )
     opOL : ((OpCommutativeGroupTerm n )  → ((OpCommutativeGroupTerm n )  → (OpCommutativeGroupTerm n ) ))
     eOL : (OpCommutativeGroupTerm n ) 
-    invOL : ((OpCommutativeGroupTerm n )  → (OpCommutativeGroupTerm n ) )
+    invOL : ((OpCommutativeGroupTerm n )  → (OpCommutativeGroupTerm n ) ) 
+  
   data OpCommutativeGroupTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpCommutativeGroupTerm2 n A ) )
     sing2 : (A  → (OpCommutativeGroupTerm2 n A ) )
     opOL2 : ((OpCommutativeGroupTerm2 n A )  → ((OpCommutativeGroupTerm2 n A )  → (OpCommutativeGroupTerm2 n A ) ))
     eOL2 : (OpCommutativeGroupTerm2 n A ) 
-    invOL2 : ((OpCommutativeGroupTerm2 n A )  → (OpCommutativeGroupTerm2 n A ) )
+    invOL2 : ((OpCommutativeGroupTerm2 n A )  → (OpCommutativeGroupTerm2 n A ) ) 
+  
+  simplifyB : (CommutativeGroupTerm  → CommutativeGroupTerm )
+  simplifyB (opL eL x )  = x 
+  
+  simplifyB (opL x eL )  = x 
+  
+  simplifyB (opL x1 x2 )  = (opL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB eL  = eL 
+  
+  simplifyB (invL x1 )  = (invL (simplifyB x1 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClCommutativeGroupTerm A ) → (ClCommutativeGroupTerm A )))
+  simplifyCl _ (opCl eCl x )  = x 
+  
+  simplifyCl _ (opCl x eCl )  = x 
+  
+  simplifyCl _ (opCl x1 x2 )  = (opCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ eCl  = eCl 
+  
+  simplifyCl _ (invCl x1 )  = (invCl (simplifyCl _ x1 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpCommutativeGroupTerm n ) → (OpCommutativeGroupTerm n )))
+  simplifyOp _ (opOL eOL x )  = x 
+  
+  simplifyOp _ (opOL x eOL )  = x 
+  
+  simplifyOp _ (opOL x1 x2 )  = (opOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ eOL  = eOL 
+  
+  simplifyOp _ (invOL x1 )  = (invOL (simplifyOp _ x1 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpCommutativeGroupTerm2 n A ) → (OpCommutativeGroupTerm2 n A )))
+  simplifyOpE _ _ (opOL2 eOL2 x )  = x 
+  
+  simplifyOpE _ _ (opOL2 x eOL2 )  = x 
+  
+  simplifyOpE _ _ (opOL2 x1 x2 )  = (opOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ eOL2  = eOL2 
+  
+  simplifyOpE _ _ (invOL2 x1 )  = (invOL2 (simplifyOpE _ _ x1 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((CommutativeGroup A ) → (CommutativeGroupTerm  → A )))
   evalB Co (opL x1 x2 )  = ((op Co ) (evalB Co x1 ) (evalB Co x2 ) )
   
@@ -218,4 +280,5 @@ module CommutativeGroup  where
     field
       opT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
       eT : (Repr A ) 
-      invT : ((Repr A )  → (Repr A ) )
+      invT : ((Repr A )  → (Repr A ) ) 
+   

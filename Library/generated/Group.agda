@@ -1,4 +1,5 @@
-module Group  where
+
+ module Group  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -14,14 +15,16 @@ module Group  where
       associative_op : ({x y z  : A }  → (op (op x y ) z ) ≡ (op x (op y z ) ))
       inv : (A  → A )
       leftInverse_inv_op_e : ({x  : A }  → (op x (inv x ) ) ≡ e )
-      rightInverse_inv_op_e : ({x  : A }  → (op (inv x ) x ) ≡ e )
+      rightInverse_inv_op_e : ({x  : A }  → (op (inv x ) x ) ≡ e ) 
+  
   open Group
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       eS : AS 
       opS : (AS  → (AS  → AS ))
-      invS : (AS  → AS )
+      invS : (AS  → AS ) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
@@ -32,41 +35,100 @@ module Group  where
       runit_eP : ({xP  : (Prod AP AP )}  → (opP xP eP ) ≡ xP )
       associative_opP : ({xP yP zP  : (Prod AP AP )}  → (opP (opP xP yP ) zP ) ≡ (opP xP (opP yP zP ) ))
       leftInverse_inv_op_eP : ({xP  : (Prod AP AP )}  → (opP xP (invP xP ) ) ≡ eP )
-      rightInverse_inv_op_eP : ({xP  : (Prod AP AP )}  → (opP (invP xP ) xP ) ≡ eP )
+      rightInverse_inv_op_eP : ({xP  : (Prod AP AP )}  → (opP (invP xP ) xP ) ≡ eP ) 
+  
   record Hom (A1 A2  : Set ) (Gr1  : (Group A1 )) (Gr2  : (Group A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-e : (  (hom (e Gr1 )  ) ≡ (e Gr2 ) )
       pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Gr1 ) x1 x2 ) ) ≡ ((op Gr2 ) (hom x1 ) (hom x2 ) ))
-      pres-inv : ({x1  : A1}  → (hom ((inv Gr1 ) x1 ) ) ≡ ((inv Gr2 ) (hom x1 ) ))
+      pres-inv : ({x1  : A1}  → (hom ((inv Gr1 ) x1 ) ) ≡ ((inv Gr2 ) (hom x1 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Gr1  : (Group A1 )) (Gr2  : (Group A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-e : (  (interp (e Gr1 )  (e Gr2 )  ))
       interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Gr1 ) x1 x2 ) ((op Gr2 ) y1 y2 ) ))))
-      interp-inv : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((inv Gr1 ) x1 ) ((inv Gr2 ) y1 ) )))
+      interp-inv : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((inv Gr1 ) x1 ) ((inv Gr2 ) y1 ) ))) 
+  
   data GroupTerm  : Set where
     eL : GroupTerm  
     opL : (GroupTerm   → (GroupTerm   → GroupTerm  ))
-    invL : (GroupTerm   → GroupTerm  )
+    invL : (GroupTerm   → GroupTerm  ) 
+  
   data ClGroupTerm (A  : Set )  : Set where
     sing : (A  → (ClGroupTerm A ) )
     eCl : (ClGroupTerm A ) 
     opCl : ((ClGroupTerm A )  → ((ClGroupTerm A )  → (ClGroupTerm A ) ))
-    invCl : ((ClGroupTerm A )  → (ClGroupTerm A ) )
+    invCl : ((ClGroupTerm A )  → (ClGroupTerm A ) ) 
+  
   data OpGroupTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpGroupTerm n ) )
     eOL : (OpGroupTerm n ) 
     opOL : ((OpGroupTerm n )  → ((OpGroupTerm n )  → (OpGroupTerm n ) ))
-    invOL : ((OpGroupTerm n )  → (OpGroupTerm n ) )
+    invOL : ((OpGroupTerm n )  → (OpGroupTerm n ) ) 
+  
   data OpGroupTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpGroupTerm2 n A ) )
     sing2 : (A  → (OpGroupTerm2 n A ) )
     eOL2 : (OpGroupTerm2 n A ) 
     opOL2 : ((OpGroupTerm2 n A )  → ((OpGroupTerm2 n A )  → (OpGroupTerm2 n A ) ))
-    invOL2 : ((OpGroupTerm2 n A )  → (OpGroupTerm2 n A ) )
+    invOL2 : ((OpGroupTerm2 n A )  → (OpGroupTerm2 n A ) ) 
+  
+  simplifyB : (GroupTerm  → GroupTerm )
+  simplifyB (opL eL x )  = x 
+  
+  simplifyB (opL x eL )  = x 
+  
+  simplifyB eL  = eL 
+  
+  simplifyB (opL x1 x2 )  = (opL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB (invL x1 )  = (invL (simplifyB x1 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClGroupTerm A ) → (ClGroupTerm A )))
+  simplifyCl _ (opCl eCl x )  = x 
+  
+  simplifyCl _ (opCl x eCl )  = x 
+  
+  simplifyCl _ eCl  = eCl 
+  
+  simplifyCl _ (opCl x1 x2 )  = (opCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (invCl x1 )  = (invCl (simplifyCl _ x1 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpGroupTerm n ) → (OpGroupTerm n )))
+  simplifyOp _ (opOL eOL x )  = x 
+  
+  simplifyOp _ (opOL x eOL )  = x 
+  
+  simplifyOp _ eOL  = eOL 
+  
+  simplifyOp _ (opOL x1 x2 )  = (opOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (invOL x1 )  = (invOL (simplifyOp _ x1 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpGroupTerm2 n A ) → (OpGroupTerm2 n A )))
+  simplifyOpE _ _ (opOL2 eOL2 x )  = x 
+  
+  simplifyOpE _ _ (opOL2 x eOL2 )  = x 
+  
+  simplifyOpE _ _ eOL2  = eOL2 
+  
+  simplifyOpE _ _ (opOL2 x1 x2 )  = (opOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (invOL2 x1 )  = (invOL2 (simplifyOpE _ _ x1 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((Group A ) → (GroupTerm  → A )))
   evalB Gr eL  = (e Gr ) 
   
@@ -216,4 +278,5 @@ module Group  where
     field
       eT : (Repr A ) 
       opT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
-      invT : ((Repr A )  → (Repr A ) )
+      invT : ((Repr A )  → (Repr A ) ) 
+   

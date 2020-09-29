@@ -1,4 +1,5 @@
-module Sloop  where
+
+ module Sloop  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -11,13 +12,15 @@ module Sloop  where
       op : (A  → (A  → A ))
       commutative_op : ({x y  : A }  → (op x y ) ≡ (op y x ))
       antiAbsorbent : ({x y  : A }  → (op x (op x y ) ) ≡ y )
-      unipotence : ({x  : A }  → (op x x ) ≡ e )
+      unipotence : ({x  : A }  → (op x x ) ≡ e ) 
+  
   open Sloop
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       eS : AS 
-      opS : (AS  → (AS  → AS ))
+      opS : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
@@ -25,35 +28,70 @@ module Sloop  where
       opP : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
       commutative_opP : ({xP yP  : (Prod AP AP )}  → (opP xP yP ) ≡ (opP yP xP ))
       antiAbsorbentP : ({xP yP  : (Prod AP AP )}  → (opP xP (opP xP yP ) ) ≡ yP )
-      unipotenceP : ({xP  : (Prod AP AP )}  → (opP xP xP ) ≡ eP )
+      unipotenceP : ({xP  : (Prod AP AP )}  → (opP xP xP ) ≡ eP ) 
+  
   record Hom (A1 A2  : Set ) (Sl1  : (Sloop A1 )) (Sl2  : (Sloop A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-e : (  (hom (e Sl1 )  ) ≡ (e Sl2 ) )
-      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Sl1 ) x1 x2 ) ) ≡ ((op Sl2 ) (hom x1 ) (hom x2 ) ))
+      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Sl1 ) x1 x2 ) ) ≡ ((op Sl2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Sl1  : (Sloop A1 )) (Sl2  : (Sloop A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-e : (  (interp (e Sl1 )  (e Sl2 )  ))
-      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Sl1 ) x1 x2 ) ((op Sl2 ) y1 y2 ) ))))
+      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Sl1 ) x1 x2 ) ((op Sl2 ) y1 y2 ) )))) 
+  
   data SloopLTerm  : Set where
     eL : SloopLTerm  
-    opL : (SloopLTerm   → (SloopLTerm   → SloopLTerm  ))
+    opL : (SloopLTerm   → (SloopLTerm   → SloopLTerm  )) 
+  
   data ClSloopClTerm (A  : Set )  : Set where
     sing : (A  → (ClSloopClTerm A ) )
     eCl : (ClSloopClTerm A ) 
-    opCl : ((ClSloopClTerm A )  → ((ClSloopClTerm A )  → (ClSloopClTerm A ) ))
+    opCl : ((ClSloopClTerm A )  → ((ClSloopClTerm A )  → (ClSloopClTerm A ) )) 
+  
   data OpSloopOLTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpSloopOLTerm n ) )
     eOL : (OpSloopOLTerm n ) 
-    opOL : ((OpSloopOLTerm n )  → ((OpSloopOLTerm n )  → (OpSloopOLTerm n ) ))
+    opOL : ((OpSloopOLTerm n )  → ((OpSloopOLTerm n )  → (OpSloopOLTerm n ) )) 
+  
   data OpSloopOL2Term2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpSloopOL2Term2 n A ) )
     sing2 : (A  → (OpSloopOL2Term2 n A ) )
     eOL2 : (OpSloopOL2Term2 n A ) 
-    opOL2 : ((OpSloopOL2Term2 n A )  → ((OpSloopOL2Term2 n A )  → (OpSloopOL2Term2 n A ) ))
+    opOL2 : ((OpSloopOL2Term2 n A )  → ((OpSloopOL2Term2 n A )  → (OpSloopOL2Term2 n A ) )) 
+  
+  simplifyB : (SloopLTerm  → SloopLTerm )
+  simplifyB eL  = eL 
+  
+  simplifyB (opL x1 x2 )  = (opL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClSloopClTerm A ) → (ClSloopClTerm A )))
+  simplifyCl _ eCl  = eCl 
+  
+  simplifyCl _ (opCl x1 x2 )  = (opCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpSloopOLTerm n ) → (OpSloopOLTerm n )))
+  simplifyOp _ eOL  = eOL 
+  
+  simplifyOp _ (opOL x1 x2 )  = (opOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpSloopOL2Term2 n A ) → (OpSloopOL2Term2 n A )))
+  simplifyOpE _ _ eOL2  = eOL2 
+  
+  simplifyOpE _ _ (opOL2 x1 x2 )  = (opOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((Sloop A ) → (SloopLTerm  → A )))
   evalB Sl eL  = (e Sl ) 
   
@@ -166,4 +204,5 @@ module Sloop  where
     constructor tagless
     field
       eT : (Repr A ) 
-      opT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      opT : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

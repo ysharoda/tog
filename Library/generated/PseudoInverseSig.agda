@@ -1,4 +1,5 @@
-module PseudoInverseSig  where
+
+ module PseudoInverseSig  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -8,46 +9,83 @@ module PseudoInverseSig  where
     constructor PseudoInverseSigC
     field
       inv : (A  → A )
-      op : (A  → (A  → A ))
+      op : (A  → (A  → A )) 
+  
   open PseudoInverseSig
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       invS : (AS  → AS )
-      opS : (AS  → (AS  → AS ))
+      opS : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       invP : ((Prod AP AP ) → (Prod AP AP ))
-      opP : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
+      opP : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP ))) 
+  
   record Hom (A1 A2  : Set ) (Ps1  : (PseudoInverseSig A1 )) (Ps2  : (PseudoInverseSig A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-inv : ({x1  : A1}  → (hom ((inv Ps1 ) x1 ) ) ≡ ((inv Ps2 ) (hom x1 ) ))
-      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Ps1 ) x1 x2 ) ) ≡ ((op Ps2 ) (hom x1 ) (hom x2 ) ))
+      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Ps1 ) x1 x2 ) ) ≡ ((op Ps2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Ps1  : (PseudoInverseSig A1 )) (Ps2  : (PseudoInverseSig A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-inv : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((inv Ps1 ) x1 ) ((inv Ps2 ) y1 ) )))
-      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Ps1 ) x1 x2 ) ((op Ps2 ) y1 y2 ) ))))
+      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Ps1 ) x1 x2 ) ((op Ps2 ) y1 y2 ) )))) 
+  
   data PseudoInverseSigTerm  : Set where
     invL : (PseudoInverseSigTerm   → PseudoInverseSigTerm  )
-    opL : (PseudoInverseSigTerm   → (PseudoInverseSigTerm   → PseudoInverseSigTerm  ))
+    opL : (PseudoInverseSigTerm   → (PseudoInverseSigTerm   → PseudoInverseSigTerm  )) 
+  
   data ClPseudoInverseSigTerm (A  : Set )  : Set where
     sing : (A  → (ClPseudoInverseSigTerm A ) )
     invCl : ((ClPseudoInverseSigTerm A )  → (ClPseudoInverseSigTerm A ) )
-    opCl : ((ClPseudoInverseSigTerm A )  → ((ClPseudoInverseSigTerm A )  → (ClPseudoInverseSigTerm A ) ))
+    opCl : ((ClPseudoInverseSigTerm A )  → ((ClPseudoInverseSigTerm A )  → (ClPseudoInverseSigTerm A ) )) 
+  
   data OpPseudoInverseSigTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpPseudoInverseSigTerm n ) )
     invOL : ((OpPseudoInverseSigTerm n )  → (OpPseudoInverseSigTerm n ) )
-    opOL : ((OpPseudoInverseSigTerm n )  → ((OpPseudoInverseSigTerm n )  → (OpPseudoInverseSigTerm n ) ))
+    opOL : ((OpPseudoInverseSigTerm n )  → ((OpPseudoInverseSigTerm n )  → (OpPseudoInverseSigTerm n ) )) 
+  
   data OpPseudoInverseSigTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpPseudoInverseSigTerm2 n A ) )
     sing2 : (A  → (OpPseudoInverseSigTerm2 n A ) )
     invOL2 : ((OpPseudoInverseSigTerm2 n A )  → (OpPseudoInverseSigTerm2 n A ) )
-    opOL2 : ((OpPseudoInverseSigTerm2 n A )  → ((OpPseudoInverseSigTerm2 n A )  → (OpPseudoInverseSigTerm2 n A ) ))
+    opOL2 : ((OpPseudoInverseSigTerm2 n A )  → ((OpPseudoInverseSigTerm2 n A )  → (OpPseudoInverseSigTerm2 n A ) )) 
+  
+  simplifyB : (PseudoInverseSigTerm  → PseudoInverseSigTerm )
+  simplifyB (invL x1 )  = (invL (simplifyB x1 ) )
+  
+  simplifyB (opL x1 x2 )  = (opL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClPseudoInverseSigTerm A ) → (ClPseudoInverseSigTerm A )))
+  simplifyCl _ (invCl x1 )  = (invCl (simplifyCl _ x1 ) )
+  
+  simplifyCl _ (opCl x1 x2 )  = (opCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpPseudoInverseSigTerm n ) → (OpPseudoInverseSigTerm n )))
+  simplifyOp _ (invOL x1 )  = (invOL (simplifyOp _ x1 ) )
+  
+  simplifyOp _ (opOL x1 x2 )  = (opOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpPseudoInverseSigTerm2 n A ) → (OpPseudoInverseSigTerm2 n A )))
+  simplifyOpE _ _ (invOL2 x1 )  = (invOL2 (simplifyOpE _ _ x1 ) )
+  
+  simplifyOpE _ _ (opOL2 x1 x2 )  = (opOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((PseudoInverseSig A ) → (PseudoInverseSigTerm  → A )))
   evalB Ps (invL x1 )  = ((inv Ps ) (evalB Ps x1 ) )
   
@@ -160,4 +198,5 @@ module PseudoInverseSig  where
     constructor tagless
     field
       invT : ((Repr A )  → (Repr A ) )
-      opT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      opT : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

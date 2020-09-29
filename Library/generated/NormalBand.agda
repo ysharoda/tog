@@ -1,4 +1,5 @@
-module NormalBand  where
+
+ module NormalBand  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -10,41 +11,70 @@ module NormalBand  where
       op : (A  → (A  → A ))
       associative_op : ({x y z  : A }  → (op (op x y ) z ) ≡ (op x (op y z ) ))
       idempotent_op : ({x  : A }  → (op x x ) ≡ x )
-      middleCommute_* : ({x y z  : A }  → (op (op (op x y ) z ) x ) ≡ (op (op (op x z ) y ) x ))
+      middleCommute_* : ({x y z  : A }  → (op (op (op x y ) z ) x ) ≡ (op (op (op x z ) y ) x )) 
+  
   open NormalBand
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
-      opS : (AS  → (AS  → AS ))
+      opS : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       opP : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
       associative_opP : ({xP yP zP  : (Prod AP AP )}  → (opP (opP xP yP ) zP ) ≡ (opP xP (opP yP zP ) ))
       idempotent_opP : ({xP  : (Prod AP AP )}  → (opP xP xP ) ≡ xP )
-      middleCommute_*P : ({xP yP zP  : (Prod AP AP )}  → (opP (opP (opP xP yP ) zP ) xP ) ≡ (opP (opP (opP xP zP ) yP ) xP ))
+      middleCommute_*P : ({xP yP zP  : (Prod AP AP )}  → (opP (opP (opP xP yP ) zP ) xP ) ≡ (opP (opP (opP xP zP ) yP ) xP )) 
+  
   record Hom (A1 A2  : Set ) (No1  : (NormalBand A1 )) (No2  : (NormalBand A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
-      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op No1 ) x1 x2 ) ) ≡ ((op No2 ) (hom x1 ) (hom x2 ) ))
+      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op No1 ) x1 x2 ) ) ≡ ((op No2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (No1  : (NormalBand A1 )) (No2  : (NormalBand A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
-      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op No1 ) x1 x2 ) ((op No2 ) y1 y2 ) ))))
+      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op No1 ) x1 x2 ) ((op No2 ) y1 y2 ) )))) 
+  
   data NormalBandTerm  : Set where
-    opL : (NormalBandTerm   → (NormalBandTerm   → NormalBandTerm  ))
+    opL : (NormalBandTerm   → (NormalBandTerm   → NormalBandTerm  )) 
+  
   data ClNormalBandTerm (A  : Set )  : Set where
     sing : (A  → (ClNormalBandTerm A ) )
-    opCl : ((ClNormalBandTerm A )  → ((ClNormalBandTerm A )  → (ClNormalBandTerm A ) ))
+    opCl : ((ClNormalBandTerm A )  → ((ClNormalBandTerm A )  → (ClNormalBandTerm A ) )) 
+  
   data OpNormalBandTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpNormalBandTerm n ) )
-    opOL : ((OpNormalBandTerm n )  → ((OpNormalBandTerm n )  → (OpNormalBandTerm n ) ))
+    opOL : ((OpNormalBandTerm n )  → ((OpNormalBandTerm n )  → (OpNormalBandTerm n ) )) 
+  
   data OpNormalBandTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpNormalBandTerm2 n A ) )
     sing2 : (A  → (OpNormalBandTerm2 n A ) )
-    opOL2 : ((OpNormalBandTerm2 n A )  → ((OpNormalBandTerm2 n A )  → (OpNormalBandTerm2 n A ) ))
+    opOL2 : ((OpNormalBandTerm2 n A )  → ((OpNormalBandTerm2 n A )  → (OpNormalBandTerm2 n A ) )) 
+  
+  simplifyB : (NormalBandTerm  → NormalBandTerm )
+  simplifyB (opL x1 x2 )  = (opL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClNormalBandTerm A ) → (ClNormalBandTerm A )))
+  simplifyCl _ (opCl x1 x2 )  = (opCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpNormalBandTerm n ) → (OpNormalBandTerm n )))
+  simplifyOp _ (opOL x1 x2 )  = (opOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpNormalBandTerm2 n A ) → (OpNormalBandTerm2 n A )))
+  simplifyOpE _ _ (opOL2 x1 x2 )  = (opOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((NormalBand A ) → (NormalBandTerm  → A )))
   evalB No (opL x1 x2 )  = ((op No ) (evalB No x1 ) (evalB No x2 ) )
   
@@ -120,4 +150,5 @@ module NormalBand  where
   record Tagless (A  : Set) (Repr  : (Set  → Set ))  : Set where
     constructor tagless
     field
-      opT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      opT : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

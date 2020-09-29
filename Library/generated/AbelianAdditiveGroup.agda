@@ -1,4 +1,5 @@
-module AbelianAdditiveGroup  where
+
+ module AbelianAdditiveGroup  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -15,14 +16,16 @@ module AbelianAdditiveGroup  where
       commutative_+ : ({x y  : A }  → (+ x y ) ≡ (+ y x ))
       neg : (A  → A )
       leftInverse_inv_op_0ᵢ : ({x  : A }  → (+ x (neg x ) ) ≡ 0ᵢ )
-      rightInverse_inv_op_0ᵢ : ({x  : A }  → (+ (neg x ) x ) ≡ 0ᵢ )
+      rightInverse_inv_op_0ᵢ : ({x  : A }  → (+ (neg x ) x ) ≡ 0ᵢ ) 
+  
   open AbelianAdditiveGroup
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       +S : (AS  → (AS  → AS ))
       0S : AS 
-      negS : (AS  → AS )
+      negS : (AS  → AS ) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
@@ -34,41 +37,100 @@ module AbelianAdditiveGroup  where
       runit_0P : ({xP  : (Prod AP AP )}  → (+P xP 0P ) ≡ xP )
       commutative_+P : ({xP yP  : (Prod AP AP )}  → (+P xP yP ) ≡ (+P yP xP ))
       leftInverse_inv_op_0P : ({xP  : (Prod AP AP )}  → (+P xP (negP xP ) ) ≡ 0P )
-      rightInverse_inv_op_0P : ({xP  : (Prod AP AP )}  → (+P (negP xP ) xP ) ≡ 0P )
+      rightInverse_inv_op_0P : ({xP  : (Prod AP AP )}  → (+P (negP xP ) xP ) ≡ 0P ) 
+  
   record Hom (A1 A2  : Set ) (Ab1  : (AbelianAdditiveGroup A1 )) (Ab2  : (AbelianAdditiveGroup A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-+ : ({x1  : A1} {x2  : A1}  → (hom ((+ Ab1 ) x1 x2 ) ) ≡ ((+ Ab2 ) (hom x1 ) (hom x2 ) ))
       pres-0 : (  (hom (0ᵢ Ab1 )  ) ≡ (0ᵢ Ab2 ) )
-      pres-neg : ({x1  : A1}  → (hom ((neg Ab1 ) x1 ) ) ≡ ((neg Ab2 ) (hom x1 ) ))
+      pres-neg : ({x1  : A1}  → (hom ((neg Ab1 ) x1 ) ) ≡ ((neg Ab2 ) (hom x1 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Ab1  : (AbelianAdditiveGroup A1 )) (Ab2  : (AbelianAdditiveGroup A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-+ : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((+ Ab1 ) x1 x2 ) ((+ Ab2 ) y1 y2 ) ))))
       interp-0 : (  (interp (0ᵢ Ab1 )  (0ᵢ Ab2 )  ))
-      interp-neg : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((neg Ab1 ) x1 ) ((neg Ab2 ) y1 ) )))
+      interp-neg : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((neg Ab1 ) x1 ) ((neg Ab2 ) y1 ) ))) 
+  
   data AbelianAdditiveGroupTerm  : Set where
     +L : (AbelianAdditiveGroupTerm   → (AbelianAdditiveGroupTerm   → AbelianAdditiveGroupTerm  ))
     0L : AbelianAdditiveGroupTerm  
-    negL : (AbelianAdditiveGroupTerm   → AbelianAdditiveGroupTerm  )
+    negL : (AbelianAdditiveGroupTerm   → AbelianAdditiveGroupTerm  ) 
+  
   data ClAbelianAdditiveGroupTerm (A  : Set )  : Set where
     sing : (A  → (ClAbelianAdditiveGroupTerm A ) )
     +Cl : ((ClAbelianAdditiveGroupTerm A )  → ((ClAbelianAdditiveGroupTerm A )  → (ClAbelianAdditiveGroupTerm A ) ))
     0Cl : (ClAbelianAdditiveGroupTerm A ) 
-    negCl : ((ClAbelianAdditiveGroupTerm A )  → (ClAbelianAdditiveGroupTerm A ) )
+    negCl : ((ClAbelianAdditiveGroupTerm A )  → (ClAbelianAdditiveGroupTerm A ) ) 
+  
   data OpAbelianAdditiveGroupTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpAbelianAdditiveGroupTerm n ) )
     +OL : ((OpAbelianAdditiveGroupTerm n )  → ((OpAbelianAdditiveGroupTerm n )  → (OpAbelianAdditiveGroupTerm n ) ))
     0OL : (OpAbelianAdditiveGroupTerm n ) 
-    negOL : ((OpAbelianAdditiveGroupTerm n )  → (OpAbelianAdditiveGroupTerm n ) )
+    negOL : ((OpAbelianAdditiveGroupTerm n )  → (OpAbelianAdditiveGroupTerm n ) ) 
+  
   data OpAbelianAdditiveGroupTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpAbelianAdditiveGroupTerm2 n A ) )
     sing2 : (A  → (OpAbelianAdditiveGroupTerm2 n A ) )
     +OL2 : ((OpAbelianAdditiveGroupTerm2 n A )  → ((OpAbelianAdditiveGroupTerm2 n A )  → (OpAbelianAdditiveGroupTerm2 n A ) ))
     0OL2 : (OpAbelianAdditiveGroupTerm2 n A ) 
-    negOL2 : ((OpAbelianAdditiveGroupTerm2 n A )  → (OpAbelianAdditiveGroupTerm2 n A ) )
+    negOL2 : ((OpAbelianAdditiveGroupTerm2 n A )  → (OpAbelianAdditiveGroupTerm2 n A ) ) 
+  
+  simplifyB : (AbelianAdditiveGroupTerm  → AbelianAdditiveGroupTerm )
+  simplifyB (+L 0L x )  = x 
+  
+  simplifyB (+L x 0L )  = x 
+  
+  simplifyB (+L x1 x2 )  = (+L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB 0L  = 0L 
+  
+  simplifyB (negL x1 )  = (negL (simplifyB x1 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClAbelianAdditiveGroupTerm A ) → (ClAbelianAdditiveGroupTerm A )))
+  simplifyCl _ (+Cl 0Cl x )  = x 
+  
+  simplifyCl _ (+Cl x 0Cl )  = x 
+  
+  simplifyCl _ (+Cl x1 x2 )  = (+Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ 0Cl  = 0Cl 
+  
+  simplifyCl _ (negCl x1 )  = (negCl (simplifyCl _ x1 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpAbelianAdditiveGroupTerm n ) → (OpAbelianAdditiveGroupTerm n )))
+  simplifyOp _ (+OL 0OL x )  = x 
+  
+  simplifyOp _ (+OL x 0OL )  = x 
+  
+  simplifyOp _ (+OL x1 x2 )  = (+OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ 0OL  = 0OL 
+  
+  simplifyOp _ (negOL x1 )  = (negOL (simplifyOp _ x1 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpAbelianAdditiveGroupTerm2 n A ) → (OpAbelianAdditiveGroupTerm2 n A )))
+  simplifyOpE _ _ (+OL2 0OL2 x )  = x 
+  
+  simplifyOpE _ _ (+OL2 x 0OL2 )  = x 
+  
+  simplifyOpE _ _ (+OL2 x1 x2 )  = (+OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ 0OL2  = 0OL2 
+  
+  simplifyOpE _ _ (negOL2 x1 )  = (negOL2 (simplifyOpE _ _ x1 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((AbelianAdditiveGroup A ) → (AbelianAdditiveGroupTerm  → A )))
   evalB Ab (+L x1 x2 )  = ((+ Ab ) (evalB Ab x1 ) (evalB Ab x2 ) )
   
@@ -218,4 +280,5 @@ module AbelianAdditiveGroup  where
     field
       +T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
       0T : (Repr A ) 
-      negT : ((Repr A )  → (Repr A ) )
+      negT : ((Repr A )  → (Repr A ) ) 
+   

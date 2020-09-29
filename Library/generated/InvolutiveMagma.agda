@@ -1,4 +1,5 @@
-module InvolutiveMagma  where
+
+ module InvolutiveMagma  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -10,48 +11,101 @@ module InvolutiveMagma  where
       prim : (A  → A )
       involutive_prim : ({x  : A }  → (prim (prim x ) ) ≡ x )
       op : (A  → (A  → A ))
-      antidis_prim_op : ({x y  : A }  → (prim (op x y ) ) ≡ (op (prim y ) (prim x ) ))
+      antidis_prim_op : ({x y  : A }  → (prim (op x y ) ) ≡ (op (prim y ) (prim x ) )) 
+  
   open InvolutiveMagma
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       primS : (AS  → AS )
-      opS : (AS  → (AS  → AS ))
+      opS : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       primP : ((Prod AP AP ) → (Prod AP AP ))
       opP : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
       involutive_primP : ({xP  : (Prod AP AP )}  → (primP (primP xP ) ) ≡ xP )
-      antidis_prim_opP : ({xP yP  : (Prod AP AP )}  → (primP (opP xP yP ) ) ≡ (opP (primP yP ) (primP xP ) ))
+      antidis_prim_opP : ({xP yP  : (Prod AP AP )}  → (primP (opP xP yP ) ) ≡ (opP (primP yP ) (primP xP ) )) 
+  
   record Hom (A1 A2  : Set ) (In1  : (InvolutiveMagma A1 )) (In2  : (InvolutiveMagma A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-prim : ({x1  : A1}  → (hom ((prim In1 ) x1 ) ) ≡ ((prim In2 ) (hom x1 ) ))
-      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op In1 ) x1 x2 ) ) ≡ ((op In2 ) (hom x1 ) (hom x2 ) ))
+      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op In1 ) x1 x2 ) ) ≡ ((op In2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (In1  : (InvolutiveMagma A1 )) (In2  : (InvolutiveMagma A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-prim : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((prim In1 ) x1 ) ((prim In2 ) y1 ) )))
-      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op In1 ) x1 x2 ) ((op In2 ) y1 y2 ) ))))
+      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op In1 ) x1 x2 ) ((op In2 ) y1 y2 ) )))) 
+  
   data InvolutiveMagmaTerm  : Set where
     primL : (InvolutiveMagmaTerm   → InvolutiveMagmaTerm  )
-    opL : (InvolutiveMagmaTerm   → (InvolutiveMagmaTerm   → InvolutiveMagmaTerm  ))
+    opL : (InvolutiveMagmaTerm   → (InvolutiveMagmaTerm   → InvolutiveMagmaTerm  )) 
+  
   data ClInvolutiveMagmaTerm (A  : Set )  : Set where
     sing : (A  → (ClInvolutiveMagmaTerm A ) )
     primCl : ((ClInvolutiveMagmaTerm A )  → (ClInvolutiveMagmaTerm A ) )
-    opCl : ((ClInvolutiveMagmaTerm A )  → ((ClInvolutiveMagmaTerm A )  → (ClInvolutiveMagmaTerm A ) ))
+    opCl : ((ClInvolutiveMagmaTerm A )  → ((ClInvolutiveMagmaTerm A )  → (ClInvolutiveMagmaTerm A ) )) 
+  
   data OpInvolutiveMagmaTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpInvolutiveMagmaTerm n ) )
     primOL : ((OpInvolutiveMagmaTerm n )  → (OpInvolutiveMagmaTerm n ) )
-    opOL : ((OpInvolutiveMagmaTerm n )  → ((OpInvolutiveMagmaTerm n )  → (OpInvolutiveMagmaTerm n ) ))
+    opOL : ((OpInvolutiveMagmaTerm n )  → ((OpInvolutiveMagmaTerm n )  → (OpInvolutiveMagmaTerm n ) )) 
+  
   data OpInvolutiveMagmaTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpInvolutiveMagmaTerm2 n A ) )
     sing2 : (A  → (OpInvolutiveMagmaTerm2 n A ) )
     primOL2 : ((OpInvolutiveMagmaTerm2 n A )  → (OpInvolutiveMagmaTerm2 n A ) )
-    opOL2 : ((OpInvolutiveMagmaTerm2 n A )  → ((OpInvolutiveMagmaTerm2 n A )  → (OpInvolutiveMagmaTerm2 n A ) ))
+    opOL2 : ((OpInvolutiveMagmaTerm2 n A )  → ((OpInvolutiveMagmaTerm2 n A )  → (OpInvolutiveMagmaTerm2 n A ) )) 
+  
+  simplifyB : (InvolutiveMagmaTerm  → InvolutiveMagmaTerm )
+  simplifyB (primL (primL x ) )  = x 
+  
+  simplifyB (opL (primL y ) (primL x ) )  = (primL (opL x y ) )
+  
+  simplifyB (primL x1 )  = (primL (simplifyB x1 ) )
+  
+  simplifyB (opL x1 x2 )  = (opL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClInvolutiveMagmaTerm A ) → (ClInvolutiveMagmaTerm A )))
+  simplifyCl _ (primCl (primCl x ) )  = x 
+  
+  simplifyCl _ (opCl (primCl y ) (primCl x ) )  = (primCl (opCl x y ) )
+  
+  simplifyCl _ (primCl x1 )  = (primCl (simplifyCl _ x1 ) )
+  
+  simplifyCl _ (opCl x1 x2 )  = (opCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpInvolutiveMagmaTerm n ) → (OpInvolutiveMagmaTerm n )))
+  simplifyOp _ (primOL (primOL x ) )  = x 
+  
+  simplifyOp _ (opOL (primOL y ) (primOL x ) )  = (primOL (opOL x y ) )
+  
+  simplifyOp _ (primOL x1 )  = (primOL (simplifyOp _ x1 ) )
+  
+  simplifyOp _ (opOL x1 x2 )  = (opOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpInvolutiveMagmaTerm2 n A ) → (OpInvolutiveMagmaTerm2 n A )))
+  simplifyOpE _ _ (primOL2 (primOL2 x ) )  = x 
+  
+  simplifyOpE _ _ (opOL2 (primOL2 y ) (primOL2 x ) )  = (primOL2 (opOL2 x y ) )
+  
+  simplifyOpE _ _ (primOL2 x1 )  = (primOL2 (simplifyOpE _ _ x1 ) )
+  
+  simplifyOpE _ _ (opOL2 x1 x2 )  = (opOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((InvolutiveMagma A ) → (InvolutiveMagmaTerm  → A )))
   evalB In (primL x1 )  = ((prim In ) (evalB In x1 ) )
   
@@ -164,4 +218,5 @@ module InvolutiveMagma  where
     constructor tagless
     field
       primT : ((Repr A )  → (Repr A ) )
-      opT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      opT : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

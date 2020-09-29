@@ -1,4 +1,5 @@
-module Ringoid01Sig  where
+
+ module Ringoid01Sig  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -10,7 +11,8 @@ module Ringoid01Sig  where
       * : (A  → (A  → A ))
       + : (A  → (A  → A ))
       0ᵢ : A 
-      1ᵢ : A 
+      1ᵢ : A  
+  
   open Ringoid01Sig
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
@@ -18,14 +20,16 @@ module Ringoid01Sig  where
       *S : (AS  → (AS  → AS ))
       +S : (AS  → (AS  → AS ))
       0S : AS 
-      1S : AS 
+      1S : AS  
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       *P : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
       +P : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
       0P : (Prod AP AP )
-      1P : (Prod AP AP )
+      1P : (Prod AP AP ) 
+  
   record Hom (A1 A2  : Set ) (Ri1  : (Ringoid01Sig A1 )) (Ri2  : (Ringoid01Sig A2 ))  : Set where
     constructor HomC
     field
@@ -33,7 +37,8 @@ module Ringoid01Sig  where
       pres-* : ({x1  : A1} {x2  : A1}  → (hom ((* Ri1 ) x1 x2 ) ) ≡ ((* Ri2 ) (hom x1 ) (hom x2 ) ))
       pres-+ : ({x1  : A1} {x2  : A1}  → (hom ((+ Ri1 ) x1 x2 ) ) ≡ ((+ Ri2 ) (hom x1 ) (hom x2 ) ))
       pres-0 : (  (hom (0ᵢ Ri1 )  ) ≡ (0ᵢ Ri2 ) )
-      pres-1 : (  (hom (1ᵢ Ri1 )  ) ≡ (1ᵢ Ri2 ) )
+      pres-1 : (  (hom (1ᵢ Ri1 )  ) ≡ (1ᵢ Ri2 ) ) 
+  
   record RelInterp (A1 A2  : Set ) (Ri1  : (Ringoid01Sig A1 )) (Ri2  : (Ringoid01Sig A2 ))  : Set₁ where
     constructor RelInterpC
     field
@@ -41,31 +46,80 @@ module Ringoid01Sig  where
       interp-* : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((* Ri1 ) x1 x2 ) ((* Ri2 ) y1 y2 ) ))))
       interp-+ : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((+ Ri1 ) x1 x2 ) ((+ Ri2 ) y1 y2 ) ))))
       interp-0 : (  (interp (0ᵢ Ri1 )  (0ᵢ Ri2 )  ))
-      interp-1 : (  (interp (1ᵢ Ri1 )  (1ᵢ Ri2 )  ))
+      interp-1 : (  (interp (1ᵢ Ri1 )  (1ᵢ Ri2 )  )) 
+  
   data Ringoid01SigTerm  : Set where
     *L : (Ringoid01SigTerm   → (Ringoid01SigTerm   → Ringoid01SigTerm  ))
     +L : (Ringoid01SigTerm   → (Ringoid01SigTerm   → Ringoid01SigTerm  ))
     0L : Ringoid01SigTerm  
-    1L : Ringoid01SigTerm  
+    1L : Ringoid01SigTerm   
+  
   data ClRingoid01SigTerm (A  : Set )  : Set where
     sing : (A  → (ClRingoid01SigTerm A ) )
     *Cl : ((ClRingoid01SigTerm A )  → ((ClRingoid01SigTerm A )  → (ClRingoid01SigTerm A ) ))
     +Cl : ((ClRingoid01SigTerm A )  → ((ClRingoid01SigTerm A )  → (ClRingoid01SigTerm A ) ))
     0Cl : (ClRingoid01SigTerm A ) 
-    1Cl : (ClRingoid01SigTerm A ) 
+    1Cl : (ClRingoid01SigTerm A )  
+  
   data OpRingoid01SigTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpRingoid01SigTerm n ) )
     *OL : ((OpRingoid01SigTerm n )  → ((OpRingoid01SigTerm n )  → (OpRingoid01SigTerm n ) ))
     +OL : ((OpRingoid01SigTerm n )  → ((OpRingoid01SigTerm n )  → (OpRingoid01SigTerm n ) ))
     0OL : (OpRingoid01SigTerm n ) 
-    1OL : (OpRingoid01SigTerm n ) 
+    1OL : (OpRingoid01SigTerm n )  
+  
   data OpRingoid01SigTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpRingoid01SigTerm2 n A ) )
     sing2 : (A  → (OpRingoid01SigTerm2 n A ) )
     *OL2 : ((OpRingoid01SigTerm2 n A )  → ((OpRingoid01SigTerm2 n A )  → (OpRingoid01SigTerm2 n A ) ))
     +OL2 : ((OpRingoid01SigTerm2 n A )  → ((OpRingoid01SigTerm2 n A )  → (OpRingoid01SigTerm2 n A ) ))
     0OL2 : (OpRingoid01SigTerm2 n A ) 
-    1OL2 : (OpRingoid01SigTerm2 n A ) 
+    1OL2 : (OpRingoid01SigTerm2 n A )  
+  
+  simplifyB : (Ringoid01SigTerm  → Ringoid01SigTerm )
+  simplifyB (*L x1 x2 )  = (*L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB (+L x1 x2 )  = (+L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB 0L  = 0L 
+  
+  simplifyB 1L  = 1L 
+  
+  simplifyCl : ((A  : Set )  → ((ClRingoid01SigTerm A ) → (ClRingoid01SigTerm A )))
+  simplifyCl _ (*Cl x1 x2 )  = (*Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (+Cl x1 x2 )  = (+Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ 0Cl  = 0Cl 
+  
+  simplifyCl _ 1Cl  = 1Cl 
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpRingoid01SigTerm n ) → (OpRingoid01SigTerm n )))
+  simplifyOp _ (*OL x1 x2 )  = (*OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (+OL x1 x2 )  = (+OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ 0OL  = 0OL 
+  
+  simplifyOp _ 1OL  = 1OL 
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpRingoid01SigTerm2 n A ) → (OpRingoid01SigTerm2 n A )))
+  simplifyOpE _ _ (*OL2 x1 x2 )  = (*OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (+OL2 x1 x2 )  = (+OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ 0OL2  = 0OL2 
+  
+  simplifyOpE _ _ 1OL2  = 1OL2 
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((Ringoid01Sig A ) → (Ringoid01SigTerm  → A )))
   evalB Ri (*L x1 x2 )  = ((* Ri ) (evalB Ri x1 ) (evalB Ri x2 ) )
   
@@ -252,4 +306,5 @@ module Ringoid01Sig  where
       *T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
       +T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
       0T : (Repr A ) 
-      1T : (Repr A ) 
+      1T : (Repr A )  
+   

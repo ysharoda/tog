@@ -1,4 +1,5 @@
-module AbelianGroup  where
+
+ module AbelianGroup  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -15,14 +16,16 @@ module AbelianGroup  where
       inv : (A  → A )
       leftInverse_inv_op_1ᵢ : ({x  : A }  → (* x (inv x ) ) ≡ 1ᵢ )
       rightInverse_inv_op_1ᵢ : ({x  : A }  → (* (inv x ) x ) ≡ 1ᵢ )
-      commutative_* : ({x y  : A }  → (* x y ) ≡ (* y x ))
+      commutative_* : ({x y  : A }  → (* x y ) ≡ (* y x )) 
+  
   open AbelianGroup
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       1S : AS 
       *S : (AS  → (AS  → AS ))
-      invS : (AS  → AS )
+      invS : (AS  → AS ) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
@@ -34,41 +37,100 @@ module AbelianGroup  where
       associative_*P : ({xP yP zP  : (Prod AP AP )}  → (*P (*P xP yP ) zP ) ≡ (*P xP (*P yP zP ) ))
       leftInverse_inv_op_1P : ({xP  : (Prod AP AP )}  → (*P xP (invP xP ) ) ≡ 1P )
       rightInverse_inv_op_1P : ({xP  : (Prod AP AP )}  → (*P (invP xP ) xP ) ≡ 1P )
-      commutative_*P : ({xP yP  : (Prod AP AP )}  → (*P xP yP ) ≡ (*P yP xP ))
+      commutative_*P : ({xP yP  : (Prod AP AP )}  → (*P xP yP ) ≡ (*P yP xP )) 
+  
   record Hom (A1 A2  : Set ) (Ab1  : (AbelianGroup A1 )) (Ab2  : (AbelianGroup A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-1 : (  (hom (1ᵢ Ab1 )  ) ≡ (1ᵢ Ab2 ) )
       pres-* : ({x1  : A1} {x2  : A1}  → (hom ((* Ab1 ) x1 x2 ) ) ≡ ((* Ab2 ) (hom x1 ) (hom x2 ) ))
-      pres-inv : ({x1  : A1}  → (hom ((inv Ab1 ) x1 ) ) ≡ ((inv Ab2 ) (hom x1 ) ))
+      pres-inv : ({x1  : A1}  → (hom ((inv Ab1 ) x1 ) ) ≡ ((inv Ab2 ) (hom x1 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Ab1  : (AbelianGroup A1 )) (Ab2  : (AbelianGroup A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-1 : (  (interp (1ᵢ Ab1 )  (1ᵢ Ab2 )  ))
       interp-* : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((* Ab1 ) x1 x2 ) ((* Ab2 ) y1 y2 ) ))))
-      interp-inv : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((inv Ab1 ) x1 ) ((inv Ab2 ) y1 ) )))
+      interp-inv : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((inv Ab1 ) x1 ) ((inv Ab2 ) y1 ) ))) 
+  
   data AbelianGroupTerm  : Set where
     1L : AbelianGroupTerm  
     *L : (AbelianGroupTerm   → (AbelianGroupTerm   → AbelianGroupTerm  ))
-    invL : (AbelianGroupTerm   → AbelianGroupTerm  )
+    invL : (AbelianGroupTerm   → AbelianGroupTerm  ) 
+  
   data ClAbelianGroupTerm (A  : Set )  : Set where
     sing : (A  → (ClAbelianGroupTerm A ) )
     1Cl : (ClAbelianGroupTerm A ) 
     *Cl : ((ClAbelianGroupTerm A )  → ((ClAbelianGroupTerm A )  → (ClAbelianGroupTerm A ) ))
-    invCl : ((ClAbelianGroupTerm A )  → (ClAbelianGroupTerm A ) )
+    invCl : ((ClAbelianGroupTerm A )  → (ClAbelianGroupTerm A ) ) 
+  
   data OpAbelianGroupTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpAbelianGroupTerm n ) )
     1OL : (OpAbelianGroupTerm n ) 
     *OL : ((OpAbelianGroupTerm n )  → ((OpAbelianGroupTerm n )  → (OpAbelianGroupTerm n ) ))
-    invOL : ((OpAbelianGroupTerm n )  → (OpAbelianGroupTerm n ) )
+    invOL : ((OpAbelianGroupTerm n )  → (OpAbelianGroupTerm n ) ) 
+  
   data OpAbelianGroupTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpAbelianGroupTerm2 n A ) )
     sing2 : (A  → (OpAbelianGroupTerm2 n A ) )
     1OL2 : (OpAbelianGroupTerm2 n A ) 
     *OL2 : ((OpAbelianGroupTerm2 n A )  → ((OpAbelianGroupTerm2 n A )  → (OpAbelianGroupTerm2 n A ) ))
-    invOL2 : ((OpAbelianGroupTerm2 n A )  → (OpAbelianGroupTerm2 n A ) )
+    invOL2 : ((OpAbelianGroupTerm2 n A )  → (OpAbelianGroupTerm2 n A ) ) 
+  
+  simplifyB : (AbelianGroupTerm  → AbelianGroupTerm )
+  simplifyB (*L 1L x )  = x 
+  
+  simplifyB (*L x 1L )  = x 
+  
+  simplifyB 1L  = 1L 
+  
+  simplifyB (*L x1 x2 )  = (*L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB (invL x1 )  = (invL (simplifyB x1 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClAbelianGroupTerm A ) → (ClAbelianGroupTerm A )))
+  simplifyCl _ (*Cl 1Cl x )  = x 
+  
+  simplifyCl _ (*Cl x 1Cl )  = x 
+  
+  simplifyCl _ 1Cl  = 1Cl 
+  
+  simplifyCl _ (*Cl x1 x2 )  = (*Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (invCl x1 )  = (invCl (simplifyCl _ x1 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpAbelianGroupTerm n ) → (OpAbelianGroupTerm n )))
+  simplifyOp _ (*OL 1OL x )  = x 
+  
+  simplifyOp _ (*OL x 1OL )  = x 
+  
+  simplifyOp _ 1OL  = 1OL 
+  
+  simplifyOp _ (*OL x1 x2 )  = (*OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (invOL x1 )  = (invOL (simplifyOp _ x1 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpAbelianGroupTerm2 n A ) → (OpAbelianGroupTerm2 n A )))
+  simplifyOpE _ _ (*OL2 1OL2 x )  = x 
+  
+  simplifyOpE _ _ (*OL2 x 1OL2 )  = x 
+  
+  simplifyOpE _ _ 1OL2  = 1OL2 
+  
+  simplifyOpE _ _ (*OL2 x1 x2 )  = (*OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (invOL2 x1 )  = (invOL2 (simplifyOpE _ _ x1 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((AbelianGroup A ) → (AbelianGroupTerm  → A )))
   evalB Ab 1L  = (1ᵢ Ab ) 
   
@@ -218,4 +280,5 @@ module AbelianGroup  where
     field
       1T : (Repr A ) 
       *T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
-      invT : ((Repr A )  → (Repr A ) )
+      invT : ((Repr A )  → (Repr A ) ) 
+   

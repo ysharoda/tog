@@ -1,4 +1,5 @@
-module Ring  where
+
+ module Ring  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -24,7 +25,8 @@ module Ring  where
       lunit_1ᵢ : ({x  : A }  → (* 1ᵢ x ) ≡ x )
       runit_1ᵢ : ({x  : A }  → (* x 1ᵢ ) ≡ x )
       leftZero_op_0ᵢ : ({x  : A }  → (* 0ᵢ x ) ≡ 0ᵢ )
-      rightZero_op_0ᵢ : ({x  : A }  → (* x 0ᵢ ) ≡ 0ᵢ )
+      rightZero_op_0ᵢ : ({x  : A }  → (* x 0ᵢ ) ≡ 0ᵢ ) 
+  
   open Ring
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
@@ -33,7 +35,8 @@ module Ring  where
       +S : (AS  → (AS  → AS ))
       0S : AS 
       negS : (AS  → AS )
-      1S : AS 
+      1S : AS  
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
@@ -54,7 +57,8 @@ module Ring  where
       lunit_1P : ({xP  : (Prod AP AP )}  → (*P 1P xP ) ≡ xP )
       runit_1P : ({xP  : (Prod AP AP )}  → (*P xP 1P ) ≡ xP )
       leftZero_op_0P : ({xP  : (Prod AP AP )}  → (*P 0P xP ) ≡ 0P )
-      rightZero_op_0P : ({xP  : (Prod AP AP )}  → (*P xP 0P ) ≡ 0P )
+      rightZero_op_0P : ({xP  : (Prod AP AP )}  → (*P xP 0P ) ≡ 0P ) 
+  
   record Hom (A1 A2  : Set ) (Ri1  : (Ring A1 )) (Ri2  : (Ring A2 ))  : Set where
     constructor HomC
     field
@@ -63,7 +67,8 @@ module Ring  where
       pres-+ : ({x1  : A1} {x2  : A1}  → (hom ((+ Ri1 ) x1 x2 ) ) ≡ ((+ Ri2 ) (hom x1 ) (hom x2 ) ))
       pres-0 : (  (hom (0ᵢ Ri1 )  ) ≡ (0ᵢ Ri2 ) )
       pres-neg : ({x1  : A1}  → (hom ((neg Ri1 ) x1 ) ) ≡ ((neg Ri2 ) (hom x1 ) ))
-      pres-1 : (  (hom (1ᵢ Ri1 )  ) ≡ (1ᵢ Ri2 ) )
+      pres-1 : (  (hom (1ᵢ Ri1 )  ) ≡ (1ᵢ Ri2 ) ) 
+  
   record RelInterp (A1 A2  : Set ) (Ri1  : (Ring A1 )) (Ri2  : (Ring A2 ))  : Set₁ where
     constructor RelInterpC
     field
@@ -72,27 +77,31 @@ module Ring  where
       interp-+ : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((+ Ri1 ) x1 x2 ) ((+ Ri2 ) y1 y2 ) ))))
       interp-0 : (  (interp (0ᵢ Ri1 )  (0ᵢ Ri2 )  ))
       interp-neg : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((neg Ri1 ) x1 ) ((neg Ri2 ) y1 ) )))
-      interp-1 : (  (interp (1ᵢ Ri1 )  (1ᵢ Ri2 )  ))
+      interp-1 : (  (interp (1ᵢ Ri1 )  (1ᵢ Ri2 )  )) 
+  
   data RingTerm  : Set where
     *L : (RingTerm   → (RingTerm   → RingTerm  ))
     +L : (RingTerm   → (RingTerm   → RingTerm  ))
     0L : RingTerm  
     negL : (RingTerm   → RingTerm  )
-    1L : RingTerm  
+    1L : RingTerm   
+  
   data ClRingTerm (A  : Set )  : Set where
     sing : (A  → (ClRingTerm A ) )
     *Cl : ((ClRingTerm A )  → ((ClRingTerm A )  → (ClRingTerm A ) ))
     +Cl : ((ClRingTerm A )  → ((ClRingTerm A )  → (ClRingTerm A ) ))
     0Cl : (ClRingTerm A ) 
     negCl : ((ClRingTerm A )  → (ClRingTerm A ) )
-    1Cl : (ClRingTerm A ) 
+    1Cl : (ClRingTerm A )  
+  
   data OpRingTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpRingTerm n ) )
     *OL : ((OpRingTerm n )  → ((OpRingTerm n )  → (OpRingTerm n ) ))
     +OL : ((OpRingTerm n )  → ((OpRingTerm n )  → (OpRingTerm n ) ))
     0OL : (OpRingTerm n ) 
     negOL : ((OpRingTerm n )  → (OpRingTerm n ) )
-    1OL : (OpRingTerm n ) 
+    1OL : (OpRingTerm n )  
+  
   data OpRingTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpRingTerm2 n A ) )
     sing2 : (A  → (OpRingTerm2 n A ) )
@@ -100,7 +109,92 @@ module Ring  where
     +OL2 : ((OpRingTerm2 n A )  → ((OpRingTerm2 n A )  → (OpRingTerm2 n A ) ))
     0OL2 : (OpRingTerm2 n A ) 
     negOL2 : ((OpRingTerm2 n A )  → (OpRingTerm2 n A ) )
-    1OL2 : (OpRingTerm2 n A ) 
+    1OL2 : (OpRingTerm2 n A )  
+  
+  simplifyB : (RingTerm  → RingTerm )
+  simplifyB (+L 0L x )  = x 
+  
+  simplifyB (+L x 0L )  = x 
+  
+  simplifyB (*L 1L x )  = x 
+  
+  simplifyB (*L x 1L )  = x 
+  
+  simplifyB (*L x1 x2 )  = (*L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB (+L x1 x2 )  = (+L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB 0L  = 0L 
+  
+  simplifyB (negL x1 )  = (negL (simplifyB x1 ) )
+  
+  simplifyB 1L  = 1L 
+  
+  simplifyCl : ((A  : Set )  → ((ClRingTerm A ) → (ClRingTerm A )))
+  simplifyCl _ (+Cl 0Cl x )  = x 
+  
+  simplifyCl _ (+Cl x 0Cl )  = x 
+  
+  simplifyCl _ (*Cl 1Cl x )  = x 
+  
+  simplifyCl _ (*Cl x 1Cl )  = x 
+  
+  simplifyCl _ (*Cl x1 x2 )  = (*Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (+Cl x1 x2 )  = (+Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ 0Cl  = 0Cl 
+  
+  simplifyCl _ (negCl x1 )  = (negCl (simplifyCl _ x1 ) )
+  
+  simplifyCl _ 1Cl  = 1Cl 
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpRingTerm n ) → (OpRingTerm n )))
+  simplifyOp _ (+OL 0OL x )  = x 
+  
+  simplifyOp _ (+OL x 0OL )  = x 
+  
+  simplifyOp _ (*OL 1OL x )  = x 
+  
+  simplifyOp _ (*OL x 1OL )  = x 
+  
+  simplifyOp _ (*OL x1 x2 )  = (*OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (+OL x1 x2 )  = (+OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ 0OL  = 0OL 
+  
+  simplifyOp _ (negOL x1 )  = (negOL (simplifyOp _ x1 ) )
+  
+  simplifyOp _ 1OL  = 1OL 
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpRingTerm2 n A ) → (OpRingTerm2 n A )))
+  simplifyOpE _ _ (+OL2 0OL2 x )  = x 
+  
+  simplifyOpE _ _ (+OL2 x 0OL2 )  = x 
+  
+  simplifyOpE _ _ (*OL2 1OL2 x )  = x 
+  
+  simplifyOpE _ _ (*OL2 x 1OL2 )  = x 
+  
+  simplifyOpE _ _ (*OL2 x1 x2 )  = (*OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (+OL2 x1 x2 )  = (+OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ 0OL2  = 0OL2 
+  
+  simplifyOpE _ _ (negOL2 x1 )  = (negOL2 (simplifyOpE _ _ x1 ) )
+  
+  simplifyOpE _ _ 1OL2  = 1OL2 
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((Ring A ) → (RingTerm  → A )))
   evalB Ri (*L x1 x2 )  = ((* Ri ) (evalB Ri x1 ) (evalB Ri x2 ) )
   
@@ -324,4 +418,5 @@ module Ring  where
       +T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
       0T : (Repr A ) 
       negT : ((Repr A )  → (Repr A ) )
-      1T : (Repr A ) 
+      1T : (Repr A )  
+   

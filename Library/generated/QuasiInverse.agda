@@ -1,4 +1,5 @@
-module QuasiInverse  where
+
+ module QuasiInverse  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -10,48 +11,85 @@ module QuasiInverse  where
       inv : (A  → A )
       op : (A  → (A  → A ))
       quasiInverse_inv_op_e : ({x  : A }  → (op (op x (inv x ) ) x ) ≡ x )
-      quasiRightInverse_inv_op_e : ({x  : A }  → (op (op (inv x ) x ) (inv x ) ) ≡ (inv x ))
+      quasiRightInverse_inv_op_e : ({x  : A }  → (op (op (inv x ) x ) (inv x ) ) ≡ (inv x )) 
+  
   open QuasiInverse
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       invS : (AS  → AS )
-      opS : (AS  → (AS  → AS ))
+      opS : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       invP : ((Prod AP AP ) → (Prod AP AP ))
       opP : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
       quasiInverse_inv_op_eP : ({xP  : (Prod AP AP )}  → (opP (opP xP (invP xP ) ) xP ) ≡ xP )
-      quasiRightInverse_inv_op_eP : ({xP  : (Prod AP AP )}  → (opP (opP (invP xP ) xP ) (invP xP ) ) ≡ (invP xP ))
+      quasiRightInverse_inv_op_eP : ({xP  : (Prod AP AP )}  → (opP (opP (invP xP ) xP ) (invP xP ) ) ≡ (invP xP )) 
+  
   record Hom (A1 A2  : Set ) (Qu1  : (QuasiInverse A1 )) (Qu2  : (QuasiInverse A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-inv : ({x1  : A1}  → (hom ((inv Qu1 ) x1 ) ) ≡ ((inv Qu2 ) (hom x1 ) ))
-      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Qu1 ) x1 x2 ) ) ≡ ((op Qu2 ) (hom x1 ) (hom x2 ) ))
+      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Qu1 ) x1 x2 ) ) ≡ ((op Qu2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Qu1  : (QuasiInverse A1 )) (Qu2  : (QuasiInverse A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-inv : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((inv Qu1 ) x1 ) ((inv Qu2 ) y1 ) )))
-      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Qu1 ) x1 x2 ) ((op Qu2 ) y1 y2 ) ))))
+      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Qu1 ) x1 x2 ) ((op Qu2 ) y1 y2 ) )))) 
+  
   data QuasiInverseTerm  : Set where
     invL : (QuasiInverseTerm   → QuasiInverseTerm  )
-    opL : (QuasiInverseTerm   → (QuasiInverseTerm   → QuasiInverseTerm  ))
+    opL : (QuasiInverseTerm   → (QuasiInverseTerm   → QuasiInverseTerm  )) 
+  
   data ClQuasiInverseTerm (A  : Set )  : Set where
     sing : (A  → (ClQuasiInverseTerm A ) )
     invCl : ((ClQuasiInverseTerm A )  → (ClQuasiInverseTerm A ) )
-    opCl : ((ClQuasiInverseTerm A )  → ((ClQuasiInverseTerm A )  → (ClQuasiInverseTerm A ) ))
+    opCl : ((ClQuasiInverseTerm A )  → ((ClQuasiInverseTerm A )  → (ClQuasiInverseTerm A ) )) 
+  
   data OpQuasiInverseTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpQuasiInverseTerm n ) )
     invOL : ((OpQuasiInverseTerm n )  → (OpQuasiInverseTerm n ) )
-    opOL : ((OpQuasiInverseTerm n )  → ((OpQuasiInverseTerm n )  → (OpQuasiInverseTerm n ) ))
+    opOL : ((OpQuasiInverseTerm n )  → ((OpQuasiInverseTerm n )  → (OpQuasiInverseTerm n ) )) 
+  
   data OpQuasiInverseTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpQuasiInverseTerm2 n A ) )
     sing2 : (A  → (OpQuasiInverseTerm2 n A ) )
     invOL2 : ((OpQuasiInverseTerm2 n A )  → (OpQuasiInverseTerm2 n A ) )
-    opOL2 : ((OpQuasiInverseTerm2 n A )  → ((OpQuasiInverseTerm2 n A )  → (OpQuasiInverseTerm2 n A ) ))
+    opOL2 : ((OpQuasiInverseTerm2 n A )  → ((OpQuasiInverseTerm2 n A )  → (OpQuasiInverseTerm2 n A ) )) 
+  
+  simplifyB : (QuasiInverseTerm  → QuasiInverseTerm )
+  simplifyB (invL x1 )  = (invL (simplifyB x1 ) )
+  
+  simplifyB (opL x1 x2 )  = (opL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClQuasiInverseTerm A ) → (ClQuasiInverseTerm A )))
+  simplifyCl _ (invCl x1 )  = (invCl (simplifyCl _ x1 ) )
+  
+  simplifyCl _ (opCl x1 x2 )  = (opCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpQuasiInverseTerm n ) → (OpQuasiInverseTerm n )))
+  simplifyOp _ (invOL x1 )  = (invOL (simplifyOp _ x1 ) )
+  
+  simplifyOp _ (opOL x1 x2 )  = (opOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpQuasiInverseTerm2 n A ) → (OpQuasiInverseTerm2 n A )))
+  simplifyOpE _ _ (invOL2 x1 )  = (invOL2 (simplifyOpE _ _ x1 ) )
+  
+  simplifyOpE _ _ (opOL2 x1 x2 )  = (opOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((QuasiInverse A ) → (QuasiInverseTerm  → A )))
   evalB Qu (invL x1 )  = ((inv Qu ) (evalB Qu x1 ) )
   
@@ -164,4 +202,5 @@ module QuasiInverse  where
     constructor tagless
     field
       invT : ((Repr A )  → (Repr A ) )
-      opT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      opT : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

@@ -1,4 +1,5 @@
-module AntiCommutativeRing  where
+
+ module AntiCommutativeRing  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -25,7 +26,8 @@ module AntiCommutativeRing  where
       runit_1ᵢ : ({x  : A }  → (* x 1ᵢ ) ≡ x )
       leftZero_op_0ᵢ : ({x  : A }  → (* 0ᵢ x ) ≡ 0ᵢ )
       rightZero_op_0ᵢ : ({x  : A }  → (* x 0ᵢ ) ≡ 0ᵢ )
-      antiCommutative : ({x y  : A }  → (* x y )  ≡ (neg (* y x ) ))
+      antiCommutative : ({x y  : A }  → (* x y )  ≡ (neg (* y x ) )) 
+  
   open AntiCommutativeRing
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
@@ -34,7 +36,8 @@ module AntiCommutativeRing  where
       +S : (AS  → (AS  → AS ))
       0S : AS 
       negS : (AS  → AS )
-      1S : AS 
+      1S : AS  
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
@@ -56,7 +59,8 @@ module AntiCommutativeRing  where
       runit_1P : ({xP  : (Prod AP AP )}  → (*P xP 1P ) ≡ xP )
       leftZero_op_0P : ({xP  : (Prod AP AP )}  → (*P 0P xP ) ≡ 0P )
       rightZero_op_0P : ({xP  : (Prod AP AP )}  → (*P xP 0P ) ≡ 0P )
-      antiCommutativeP : ({xP yP  : (Prod AP AP )}  → (*P xP yP )  ≡ (negP (*P yP xP ) ))
+      antiCommutativeP : ({xP yP  : (Prod AP AP )}  → (*P xP yP )  ≡ (negP (*P yP xP ) )) 
+  
   record Hom (A1 A2  : Set ) (An1  : (AntiCommutativeRing A1 )) (An2  : (AntiCommutativeRing A2 ))  : Set where
     constructor HomC
     field
@@ -65,7 +69,8 @@ module AntiCommutativeRing  where
       pres-+ : ({x1  : A1} {x2  : A1}  → (hom ((+ An1 ) x1 x2 ) ) ≡ ((+ An2 ) (hom x1 ) (hom x2 ) ))
       pres-0 : (  (hom (0ᵢ An1 )  ) ≡ (0ᵢ An2 ) )
       pres-neg : ({x1  : A1}  → (hom ((neg An1 ) x1 ) ) ≡ ((neg An2 ) (hom x1 ) ))
-      pres-1 : (  (hom (1ᵢ An1 )  ) ≡ (1ᵢ An2 ) )
+      pres-1 : (  (hom (1ᵢ An1 )  ) ≡ (1ᵢ An2 ) ) 
+  
   record RelInterp (A1 A2  : Set ) (An1  : (AntiCommutativeRing A1 )) (An2  : (AntiCommutativeRing A2 ))  : Set₁ where
     constructor RelInterpC
     field
@@ -74,27 +79,31 @@ module AntiCommutativeRing  where
       interp-+ : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((+ An1 ) x1 x2 ) ((+ An2 ) y1 y2 ) ))))
       interp-0 : (  (interp (0ᵢ An1 )  (0ᵢ An2 )  ))
       interp-neg : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((neg An1 ) x1 ) ((neg An2 ) y1 ) )))
-      interp-1 : (  (interp (1ᵢ An1 )  (1ᵢ An2 )  ))
+      interp-1 : (  (interp (1ᵢ An1 )  (1ᵢ An2 )  )) 
+  
   data AntiCommutativeRingTerm  : Set where
     *L : (AntiCommutativeRingTerm   → (AntiCommutativeRingTerm   → AntiCommutativeRingTerm  ))
     +L : (AntiCommutativeRingTerm   → (AntiCommutativeRingTerm   → AntiCommutativeRingTerm  ))
     0L : AntiCommutativeRingTerm  
     negL : (AntiCommutativeRingTerm   → AntiCommutativeRingTerm  )
-    1L : AntiCommutativeRingTerm  
+    1L : AntiCommutativeRingTerm   
+  
   data ClAntiCommutativeRingTerm (A  : Set )  : Set where
     sing : (A  → (ClAntiCommutativeRingTerm A ) )
     *Cl : ((ClAntiCommutativeRingTerm A )  → ((ClAntiCommutativeRingTerm A )  → (ClAntiCommutativeRingTerm A ) ))
     +Cl : ((ClAntiCommutativeRingTerm A )  → ((ClAntiCommutativeRingTerm A )  → (ClAntiCommutativeRingTerm A ) ))
     0Cl : (ClAntiCommutativeRingTerm A ) 
     negCl : ((ClAntiCommutativeRingTerm A )  → (ClAntiCommutativeRingTerm A ) )
-    1Cl : (ClAntiCommutativeRingTerm A ) 
+    1Cl : (ClAntiCommutativeRingTerm A )  
+  
   data OpAntiCommutativeRingTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpAntiCommutativeRingTerm n ) )
     *OL : ((OpAntiCommutativeRingTerm n )  → ((OpAntiCommutativeRingTerm n )  → (OpAntiCommutativeRingTerm n ) ))
     +OL : ((OpAntiCommutativeRingTerm n )  → ((OpAntiCommutativeRingTerm n )  → (OpAntiCommutativeRingTerm n ) ))
     0OL : (OpAntiCommutativeRingTerm n ) 
     negOL : ((OpAntiCommutativeRingTerm n )  → (OpAntiCommutativeRingTerm n ) )
-    1OL : (OpAntiCommutativeRingTerm n ) 
+    1OL : (OpAntiCommutativeRingTerm n )  
+  
   data OpAntiCommutativeRingTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpAntiCommutativeRingTerm2 n A ) )
     sing2 : (A  → (OpAntiCommutativeRingTerm2 n A ) )
@@ -102,7 +111,100 @@ module AntiCommutativeRing  where
     +OL2 : ((OpAntiCommutativeRingTerm2 n A )  → ((OpAntiCommutativeRingTerm2 n A )  → (OpAntiCommutativeRingTerm2 n A ) ))
     0OL2 : (OpAntiCommutativeRingTerm2 n A ) 
     negOL2 : ((OpAntiCommutativeRingTerm2 n A )  → (OpAntiCommutativeRingTerm2 n A ) )
-    1OL2 : (OpAntiCommutativeRingTerm2 n A ) 
+    1OL2 : (OpAntiCommutativeRingTerm2 n A )  
+  
+  simplifyB : (AntiCommutativeRingTerm  → AntiCommutativeRingTerm )
+  simplifyB (+L 0L x )  = x 
+  
+  simplifyB (+L x 0L )  = x 
+  
+  simplifyB (*L 1L x )  = x 
+  
+  simplifyB (*L x 1L )  = x 
+  
+  simplifyB (negL (*L y x ) )  = (*L x y ) 
+  
+  simplifyB (*L x1 x2 )  = (*L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB (+L x1 x2 )  = (+L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB 0L  = 0L 
+  
+  simplifyB (negL x1 )  = (negL (simplifyB x1 ) )
+  
+  simplifyB 1L  = 1L 
+  
+  simplifyCl : ((A  : Set )  → ((ClAntiCommutativeRingTerm A ) → (ClAntiCommutativeRingTerm A )))
+  simplifyCl _ (+Cl 0Cl x )  = x 
+  
+  simplifyCl _ (+Cl x 0Cl )  = x 
+  
+  simplifyCl _ (*Cl 1Cl x )  = x 
+  
+  simplifyCl _ (*Cl x 1Cl )  = x 
+  
+  simplifyCl _ (negCl (*Cl y x ) )  = (*Cl x y ) 
+  
+  simplifyCl _ (*Cl x1 x2 )  = (*Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (+Cl x1 x2 )  = (+Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ 0Cl  = 0Cl 
+  
+  simplifyCl _ (negCl x1 )  = (negCl (simplifyCl _ x1 ) )
+  
+  simplifyCl _ 1Cl  = 1Cl 
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpAntiCommutativeRingTerm n ) → (OpAntiCommutativeRingTerm n )))
+  simplifyOp _ (+OL 0OL x )  = x 
+  
+  simplifyOp _ (+OL x 0OL )  = x 
+  
+  simplifyOp _ (*OL 1OL x )  = x 
+  
+  simplifyOp _ (*OL x 1OL )  = x 
+  
+  simplifyOp _ (negOL (*OL y x ) )  = (*OL x y ) 
+  
+  simplifyOp _ (*OL x1 x2 )  = (*OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (+OL x1 x2 )  = (+OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ 0OL  = 0OL 
+  
+  simplifyOp _ (negOL x1 )  = (negOL (simplifyOp _ x1 ) )
+  
+  simplifyOp _ 1OL  = 1OL 
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpAntiCommutativeRingTerm2 n A ) → (OpAntiCommutativeRingTerm2 n A )))
+  simplifyOpE _ _ (+OL2 0OL2 x )  = x 
+  
+  simplifyOpE _ _ (+OL2 x 0OL2 )  = x 
+  
+  simplifyOpE _ _ (*OL2 1OL2 x )  = x 
+  
+  simplifyOpE _ _ (*OL2 x 1OL2 )  = x 
+  
+  simplifyOpE _ _ (negOL2 (*OL2 y x ) )  = (*OL2 x y ) 
+  
+  simplifyOpE _ _ (*OL2 x1 x2 )  = (*OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (+OL2 x1 x2 )  = (+OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ 0OL2  = 0OL2 
+  
+  simplifyOpE _ _ (negOL2 x1 )  = (negOL2 (simplifyOpE _ _ x1 ) )
+  
+  simplifyOpE _ _ 1OL2  = 1OL2 
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((AntiCommutativeRing A ) → (AntiCommutativeRingTerm  → A )))
   evalB An (*L x1 x2 )  = ((* An ) (evalB An x1 ) (evalB An x2 ) )
   
@@ -326,4 +428,5 @@ module AntiCommutativeRing  where
       +T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
       0T : (Repr A ) 
       negT : ((Repr A )  → (Repr A ) )
-      1T : (Repr A ) 
+      1T : (Repr A )  
+   

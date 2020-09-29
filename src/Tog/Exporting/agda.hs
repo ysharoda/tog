@@ -123,22 +123,22 @@ instance PrintAgda Import where
 instance PrintAgda Decl where
   printAgda (TypeSig typ) = printAgda typ
   printAgda (FunDef nm patterns body) =
-    printAgda nm <+> (foldr (<+>) empty $ map (printAgda) patterns) <+> text fundef <+> printAgda body 
+    printAgda nm <+> (foldr (<+>) empty $ map (printAgda) patterns) <+> text fundef <+> printAgda body
   printAgda (Data nm params body) =
-    (text type_keyword) <+> printAgda nm <+> printAgda params <+> printAgda body  
+    (text type_keyword) <+> printAgda nm <+> printAgda params <+> printAgda body <+> linebreak 
   printAgda (Record nm params body) =
-    (text record_keyword) <+> printAgda nm <+> printAgda params <+> printAgda body 
+    (text record_keyword) <+> printAgda nm <+> printAgda params <+> printAgda body <+> linebreak 
   --  (text open) <+> printAgda nm -- have to open every record type to be able to access those of the type of the theory. 
   printAgda (Open imp) = text open <+> printAgda imp
   printAgda (Import imp) = text import_ <+> printAgda imp
   printAgda (OpenImport imp) = text open_import <+> printAgda imp
-  printAgda (Module_ m) = printAgda $ addOpenDecl m -- to open the first declaration, which represents the equational theory. 
+  printAgda (Module_ m) = linebreak <+> printAgda (addOpenDecl m)  <+> linebreak -- to open the first declaration, which represents the equational theory. 
   printAgda _ = empty
 
 universeLevel :: Fields -> Doc
 universeLevel flds =
   text $
-  if elem "Set" $ everything (++) (mkQ [] (\(Name (_,x)) → [x])) flds 
+  if elem "Set" $ everything (++) (mkQ [] (\(Name (_,x)) → [x])) flds
   then "Set₁" else "Set" 
 
 instance PrintAgda DeclOrLE where

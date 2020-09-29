@@ -1,4 +1,5 @@
-module MedialMagma  where
+
+ module MedialMagma  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -8,39 +9,68 @@ module MedialMagma  where
     constructor MedialMagmaC
     field
       op : (A  → (A  → A ))
-      mediates : ({w x y z  : A }  → (op (op x y ) (op z w ) ) ≡ (op (op x z ) (op y w ) ))
+      mediates : ({w x y z  : A }  → (op (op x y ) (op z w ) ) ≡ (op (op x z ) (op y w ) )) 
+  
   open MedialMagma
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
-      opS : (AS  → (AS  → AS ))
+      opS : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       opP : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
-      mediatesP : ({wP xP yP zP  : (Prod AP AP )}  → (opP (opP xP yP ) (opP zP wP ) ) ≡ (opP (opP xP zP ) (opP yP wP ) ))
+      mediatesP : ({wP xP yP zP  : (Prod AP AP )}  → (opP (opP xP yP ) (opP zP wP ) ) ≡ (opP (opP xP zP ) (opP yP wP ) )) 
+  
   record Hom (A1 A2  : Set ) (Me1  : (MedialMagma A1 )) (Me2  : (MedialMagma A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
-      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Me1 ) x1 x2 ) ) ≡ ((op Me2 ) (hom x1 ) (hom x2 ) ))
+      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Me1 ) x1 x2 ) ) ≡ ((op Me2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Me1  : (MedialMagma A1 )) (Me2  : (MedialMagma A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
-      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Me1 ) x1 x2 ) ((op Me2 ) y1 y2 ) ))))
+      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Me1 ) x1 x2 ) ((op Me2 ) y1 y2 ) )))) 
+  
   data MedialMagmaTerm  : Set where
-    opL : (MedialMagmaTerm   → (MedialMagmaTerm   → MedialMagmaTerm  ))
+    opL : (MedialMagmaTerm   → (MedialMagmaTerm   → MedialMagmaTerm  )) 
+  
   data ClMedialMagmaTerm (A  : Set )  : Set where
     sing : (A  → (ClMedialMagmaTerm A ) )
-    opCl : ((ClMedialMagmaTerm A )  → ((ClMedialMagmaTerm A )  → (ClMedialMagmaTerm A ) ))
+    opCl : ((ClMedialMagmaTerm A )  → ((ClMedialMagmaTerm A )  → (ClMedialMagmaTerm A ) )) 
+  
   data OpMedialMagmaTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpMedialMagmaTerm n ) )
-    opOL : ((OpMedialMagmaTerm n )  → ((OpMedialMagmaTerm n )  → (OpMedialMagmaTerm n ) ))
+    opOL : ((OpMedialMagmaTerm n )  → ((OpMedialMagmaTerm n )  → (OpMedialMagmaTerm n ) )) 
+  
   data OpMedialMagmaTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpMedialMagmaTerm2 n A ) )
     sing2 : (A  → (OpMedialMagmaTerm2 n A ) )
-    opOL2 : ((OpMedialMagmaTerm2 n A )  → ((OpMedialMagmaTerm2 n A )  → (OpMedialMagmaTerm2 n A ) ))
+    opOL2 : ((OpMedialMagmaTerm2 n A )  → ((OpMedialMagmaTerm2 n A )  → (OpMedialMagmaTerm2 n A ) )) 
+  
+  simplifyB : (MedialMagmaTerm  → MedialMagmaTerm )
+  simplifyB (opL x1 x2 )  = (opL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClMedialMagmaTerm A ) → (ClMedialMagmaTerm A )))
+  simplifyCl _ (opCl x1 x2 )  = (opCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpMedialMagmaTerm n ) → (OpMedialMagmaTerm n )))
+  simplifyOp _ (opOL x1 x2 )  = (opOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpMedialMagmaTerm2 n A ) → (OpMedialMagmaTerm2 n A )))
+  simplifyOpE _ _ (opOL2 x1 x2 )  = (opOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((MedialMagma A ) → (MedialMagmaTerm  → A )))
   evalB Me (opL x1 x2 )  = ((op Me ) (evalB Me x1 ) (evalB Me x2 ) )
   
@@ -116,4 +146,5 @@ module MedialMagma  where
   record Tagless (A  : Set) (Repr  : (Set  → Set ))  : Set where
     constructor tagless
     field
-      opT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      opT : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

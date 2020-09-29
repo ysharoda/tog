@@ -1,4 +1,5 @@
-module BoundedJoinSemilattice  where
+
+ module BoundedJoinSemilattice  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -13,13 +14,15 @@ module BoundedJoinSemilattice  where
       0ᵢ : A 
       lunit_0ᵢ : ({x  : A }  → (+ 0ᵢ x ) ≡ x )
       runit_0ᵢ : ({x  : A }  → (+ x 0ᵢ ) ≡ x )
-      idempotent_+ : ({x  : A }  → (+ x x ) ≡ x )
+      idempotent_+ : ({x  : A }  → (+ x x ) ≡ x ) 
+  
   open BoundedJoinSemilattice
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       +S : (AS  → (AS  → AS ))
-      0S : AS 
+      0S : AS  
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
@@ -29,35 +32,86 @@ module BoundedJoinSemilattice  where
       associative_+P : ({xP yP zP  : (Prod AP AP )}  → (+P (+P xP yP ) zP ) ≡ (+P xP (+P yP zP ) ))
       lunit_0P : ({xP  : (Prod AP AP )}  → (+P 0P xP ) ≡ xP )
       runit_0P : ({xP  : (Prod AP AP )}  → (+P xP 0P ) ≡ xP )
-      idempotent_+P : ({xP  : (Prod AP AP )}  → (+P xP xP ) ≡ xP )
+      idempotent_+P : ({xP  : (Prod AP AP )}  → (+P xP xP ) ≡ xP ) 
+  
   record Hom (A1 A2  : Set ) (Bo1  : (BoundedJoinSemilattice A1 )) (Bo2  : (BoundedJoinSemilattice A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-+ : ({x1  : A1} {x2  : A1}  → (hom ((+ Bo1 ) x1 x2 ) ) ≡ ((+ Bo2 ) (hom x1 ) (hom x2 ) ))
-      pres-0 : (  (hom (0ᵢ Bo1 )  ) ≡ (0ᵢ Bo2 ) )
+      pres-0 : (  (hom (0ᵢ Bo1 )  ) ≡ (0ᵢ Bo2 ) ) 
+  
   record RelInterp (A1 A2  : Set ) (Bo1  : (BoundedJoinSemilattice A1 )) (Bo2  : (BoundedJoinSemilattice A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-+ : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((+ Bo1 ) x1 x2 ) ((+ Bo2 ) y1 y2 ) ))))
-      interp-0 : (  (interp (0ᵢ Bo1 )  (0ᵢ Bo2 )  ))
+      interp-0 : (  (interp (0ᵢ Bo1 )  (0ᵢ Bo2 )  )) 
+  
   data BoundedJoinSemilatticeTerm  : Set where
     +L : (BoundedJoinSemilatticeTerm   → (BoundedJoinSemilatticeTerm   → BoundedJoinSemilatticeTerm  ))
-    0L : BoundedJoinSemilatticeTerm  
+    0L : BoundedJoinSemilatticeTerm   
+  
   data ClBoundedJoinSemilatticeTerm (A  : Set )  : Set where
     sing : (A  → (ClBoundedJoinSemilatticeTerm A ) )
     +Cl : ((ClBoundedJoinSemilatticeTerm A )  → ((ClBoundedJoinSemilatticeTerm A )  → (ClBoundedJoinSemilatticeTerm A ) ))
-    0Cl : (ClBoundedJoinSemilatticeTerm A ) 
+    0Cl : (ClBoundedJoinSemilatticeTerm A )  
+  
   data OpBoundedJoinSemilatticeTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpBoundedJoinSemilatticeTerm n ) )
     +OL : ((OpBoundedJoinSemilatticeTerm n )  → ((OpBoundedJoinSemilatticeTerm n )  → (OpBoundedJoinSemilatticeTerm n ) ))
-    0OL : (OpBoundedJoinSemilatticeTerm n ) 
+    0OL : (OpBoundedJoinSemilatticeTerm n )  
+  
   data OpBoundedJoinSemilatticeTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpBoundedJoinSemilatticeTerm2 n A ) )
     sing2 : (A  → (OpBoundedJoinSemilatticeTerm2 n A ) )
     +OL2 : ((OpBoundedJoinSemilatticeTerm2 n A )  → ((OpBoundedJoinSemilatticeTerm2 n A )  → (OpBoundedJoinSemilatticeTerm2 n A ) ))
-    0OL2 : (OpBoundedJoinSemilatticeTerm2 n A ) 
+    0OL2 : (OpBoundedJoinSemilatticeTerm2 n A )  
+  
+  simplifyB : (BoundedJoinSemilatticeTerm  → BoundedJoinSemilatticeTerm )
+  simplifyB (+L 0L x )  = x 
+  
+  simplifyB (+L x 0L )  = x 
+  
+  simplifyB (+L x1 x2 )  = (+L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB 0L  = 0L 
+  
+  simplifyCl : ((A  : Set )  → ((ClBoundedJoinSemilatticeTerm A ) → (ClBoundedJoinSemilatticeTerm A )))
+  simplifyCl _ (+Cl 0Cl x )  = x 
+  
+  simplifyCl _ (+Cl x 0Cl )  = x 
+  
+  simplifyCl _ (+Cl x1 x2 )  = (+Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ 0Cl  = 0Cl 
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpBoundedJoinSemilatticeTerm n ) → (OpBoundedJoinSemilatticeTerm n )))
+  simplifyOp _ (+OL 0OL x )  = x 
+  
+  simplifyOp _ (+OL x 0OL )  = x 
+  
+  simplifyOp _ (+OL x1 x2 )  = (+OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ 0OL  = 0OL 
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpBoundedJoinSemilatticeTerm2 n A ) → (OpBoundedJoinSemilatticeTerm2 n A )))
+  simplifyOpE _ _ (+OL2 0OL2 x )  = x 
+  
+  simplifyOpE _ _ (+OL2 x 0OL2 )  = x 
+  
+  simplifyOpE _ _ (+OL2 x1 x2 )  = (+OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ 0OL2  = 0OL2 
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((BoundedJoinSemilattice A ) → (BoundedJoinSemilatticeTerm  → A )))
   evalB Bo (+L x1 x2 )  = ((+ Bo ) (evalB Bo x1 ) (evalB Bo x2 ) )
   
@@ -170,4 +224,5 @@ module BoundedJoinSemilattice  where
     constructor tagless
     field
       +T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
-      0T : (Repr A ) 
+      0T : (Repr A )  
+   

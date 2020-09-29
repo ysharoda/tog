@@ -1,4 +1,5 @@
-module BooleanGroup  where
+
+ module BooleanGroup  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -12,13 +13,15 @@ module BooleanGroup  where
       lunit_e : ({x  : A }  → (op e x ) ≡ x )
       runit_e : ({x  : A }  → (op x e ) ≡ x )
       associative_op : ({x y z  : A }  → (op (op x y ) z ) ≡ (op x (op y z ) ))
-      unipotence : ({x  : A }  → (op x x ) ≡ e )
+      unipotence : ({x  : A }  → (op x x ) ≡ e ) 
+  
   open BooleanGroup
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       eS : AS 
-      opS : (AS  → (AS  → AS ))
+      opS : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
@@ -27,35 +30,86 @@ module BooleanGroup  where
       lunit_eP : ({xP  : (Prod AP AP )}  → (opP eP xP ) ≡ xP )
       runit_eP : ({xP  : (Prod AP AP )}  → (opP xP eP ) ≡ xP )
       associative_opP : ({xP yP zP  : (Prod AP AP )}  → (opP (opP xP yP ) zP ) ≡ (opP xP (opP yP zP ) ))
-      unipotenceP : ({xP  : (Prod AP AP )}  → (opP xP xP ) ≡ eP )
+      unipotenceP : ({xP  : (Prod AP AP )}  → (opP xP xP ) ≡ eP ) 
+  
   record Hom (A1 A2  : Set ) (Bo1  : (BooleanGroup A1 )) (Bo2  : (BooleanGroup A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-e : (  (hom (e Bo1 )  ) ≡ (e Bo2 ) )
-      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Bo1 ) x1 x2 ) ) ≡ ((op Bo2 ) (hom x1 ) (hom x2 ) ))
+      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Bo1 ) x1 x2 ) ) ≡ ((op Bo2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Bo1  : (BooleanGroup A1 )) (Bo2  : (BooleanGroup A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-e : (  (interp (e Bo1 )  (e Bo2 )  ))
-      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Bo1 ) x1 x2 ) ((op Bo2 ) y1 y2 ) ))))
+      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Bo1 ) x1 x2 ) ((op Bo2 ) y1 y2 ) )))) 
+  
   data BooleanGroupTerm  : Set where
     eL : BooleanGroupTerm  
-    opL : (BooleanGroupTerm   → (BooleanGroupTerm   → BooleanGroupTerm  ))
+    opL : (BooleanGroupTerm   → (BooleanGroupTerm   → BooleanGroupTerm  )) 
+  
   data ClBooleanGroupTerm (A  : Set )  : Set where
     sing : (A  → (ClBooleanGroupTerm A ) )
     eCl : (ClBooleanGroupTerm A ) 
-    opCl : ((ClBooleanGroupTerm A )  → ((ClBooleanGroupTerm A )  → (ClBooleanGroupTerm A ) ))
+    opCl : ((ClBooleanGroupTerm A )  → ((ClBooleanGroupTerm A )  → (ClBooleanGroupTerm A ) )) 
+  
   data OpBooleanGroupTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpBooleanGroupTerm n ) )
     eOL : (OpBooleanGroupTerm n ) 
-    opOL : ((OpBooleanGroupTerm n )  → ((OpBooleanGroupTerm n )  → (OpBooleanGroupTerm n ) ))
+    opOL : ((OpBooleanGroupTerm n )  → ((OpBooleanGroupTerm n )  → (OpBooleanGroupTerm n ) )) 
+  
   data OpBooleanGroupTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpBooleanGroupTerm2 n A ) )
     sing2 : (A  → (OpBooleanGroupTerm2 n A ) )
     eOL2 : (OpBooleanGroupTerm2 n A ) 
-    opOL2 : ((OpBooleanGroupTerm2 n A )  → ((OpBooleanGroupTerm2 n A )  → (OpBooleanGroupTerm2 n A ) ))
+    opOL2 : ((OpBooleanGroupTerm2 n A )  → ((OpBooleanGroupTerm2 n A )  → (OpBooleanGroupTerm2 n A ) )) 
+  
+  simplifyB : (BooleanGroupTerm  → BooleanGroupTerm )
+  simplifyB (opL eL x )  = x 
+  
+  simplifyB (opL x eL )  = x 
+  
+  simplifyB eL  = eL 
+  
+  simplifyB (opL x1 x2 )  = (opL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClBooleanGroupTerm A ) → (ClBooleanGroupTerm A )))
+  simplifyCl _ (opCl eCl x )  = x 
+  
+  simplifyCl _ (opCl x eCl )  = x 
+  
+  simplifyCl _ eCl  = eCl 
+  
+  simplifyCl _ (opCl x1 x2 )  = (opCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpBooleanGroupTerm n ) → (OpBooleanGroupTerm n )))
+  simplifyOp _ (opOL eOL x )  = x 
+  
+  simplifyOp _ (opOL x eOL )  = x 
+  
+  simplifyOp _ eOL  = eOL 
+  
+  simplifyOp _ (opOL x1 x2 )  = (opOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpBooleanGroupTerm2 n A ) → (OpBooleanGroupTerm2 n A )))
+  simplifyOpE _ _ (opOL2 eOL2 x )  = x 
+  
+  simplifyOpE _ _ (opOL2 x eOL2 )  = x 
+  
+  simplifyOpE _ _ eOL2  = eOL2 
+  
+  simplifyOpE _ _ (opOL2 x1 x2 )  = (opOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((BooleanGroup A ) → (BooleanGroupTerm  → A )))
   evalB Bo eL  = (e Bo ) 
   
@@ -168,4 +222,5 @@ module BooleanGroup  where
     constructor tagless
     field
       eT : (Repr A ) 
-      opT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      opT : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

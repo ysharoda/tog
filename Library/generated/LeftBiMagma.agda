@@ -1,4 +1,5 @@
-module LeftBiMagma  where
+
+ module LeftBiMagma  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -8,46 +9,83 @@ module LeftBiMagma  where
     constructor LeftBiMagmaC
     field
       op : (A  → (A  → A ))
-      linv : (A  → (A  → A ))
+      linv : (A  → (A  → A )) 
+  
   open LeftBiMagma
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       opS : (AS  → (AS  → AS ))
-      linvS : (AS  → (AS  → AS ))
+      linvS : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       opP : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
-      linvP : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
+      linvP : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP ))) 
+  
   record Hom (A1 A2  : Set ) (Le1  : (LeftBiMagma A1 )) (Le2  : (LeftBiMagma A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Le1 ) x1 x2 ) ) ≡ ((op Le2 ) (hom x1 ) (hom x2 ) ))
-      pres-linv : ({x1  : A1} {x2  : A1}  → (hom ((linv Le1 ) x1 x2 ) ) ≡ ((linv Le2 ) (hom x1 ) (hom x2 ) ))
+      pres-linv : ({x1  : A1} {x2  : A1}  → (hom ((linv Le1 ) x1 x2 ) ) ≡ ((linv Le2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Le1  : (LeftBiMagma A1 )) (Le2  : (LeftBiMagma A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Le1 ) x1 x2 ) ((op Le2 ) y1 y2 ) ))))
-      interp-linv : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((linv Le1 ) x1 x2 ) ((linv Le2 ) y1 y2 ) ))))
+      interp-linv : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((linv Le1 ) x1 x2 ) ((linv Le2 ) y1 y2 ) )))) 
+  
   data LeftBiMagmaTerm  : Set where
     opL : (LeftBiMagmaTerm   → (LeftBiMagmaTerm   → LeftBiMagmaTerm  ))
-    linvL : (LeftBiMagmaTerm   → (LeftBiMagmaTerm   → LeftBiMagmaTerm  ))
+    linvL : (LeftBiMagmaTerm   → (LeftBiMagmaTerm   → LeftBiMagmaTerm  )) 
+  
   data ClLeftBiMagmaTerm (A  : Set )  : Set where
     sing : (A  → (ClLeftBiMagmaTerm A ) )
     opCl : ((ClLeftBiMagmaTerm A )  → ((ClLeftBiMagmaTerm A )  → (ClLeftBiMagmaTerm A ) ))
-    linvCl : ((ClLeftBiMagmaTerm A )  → ((ClLeftBiMagmaTerm A )  → (ClLeftBiMagmaTerm A ) ))
+    linvCl : ((ClLeftBiMagmaTerm A )  → ((ClLeftBiMagmaTerm A )  → (ClLeftBiMagmaTerm A ) )) 
+  
   data OpLeftBiMagmaTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpLeftBiMagmaTerm n ) )
     opOL : ((OpLeftBiMagmaTerm n )  → ((OpLeftBiMagmaTerm n )  → (OpLeftBiMagmaTerm n ) ))
-    linvOL : ((OpLeftBiMagmaTerm n )  → ((OpLeftBiMagmaTerm n )  → (OpLeftBiMagmaTerm n ) ))
+    linvOL : ((OpLeftBiMagmaTerm n )  → ((OpLeftBiMagmaTerm n )  → (OpLeftBiMagmaTerm n ) )) 
+  
   data OpLeftBiMagmaTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpLeftBiMagmaTerm2 n A ) )
     sing2 : (A  → (OpLeftBiMagmaTerm2 n A ) )
     opOL2 : ((OpLeftBiMagmaTerm2 n A )  → ((OpLeftBiMagmaTerm2 n A )  → (OpLeftBiMagmaTerm2 n A ) ))
-    linvOL2 : ((OpLeftBiMagmaTerm2 n A )  → ((OpLeftBiMagmaTerm2 n A )  → (OpLeftBiMagmaTerm2 n A ) ))
+    linvOL2 : ((OpLeftBiMagmaTerm2 n A )  → ((OpLeftBiMagmaTerm2 n A )  → (OpLeftBiMagmaTerm2 n A ) )) 
+  
+  simplifyB : (LeftBiMagmaTerm  → LeftBiMagmaTerm )
+  simplifyB (opL x1 x2 )  = (opL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB (linvL x1 x2 )  = (linvL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClLeftBiMagmaTerm A ) → (ClLeftBiMagmaTerm A )))
+  simplifyCl _ (opCl x1 x2 )  = (opCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (linvCl x1 x2 )  = (linvCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpLeftBiMagmaTerm n ) → (OpLeftBiMagmaTerm n )))
+  simplifyOp _ (opOL x1 x2 )  = (opOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (linvOL x1 x2 )  = (linvOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpLeftBiMagmaTerm2 n A ) → (OpLeftBiMagmaTerm2 n A )))
+  simplifyOpE _ _ (opOL2 x1 x2 )  = (opOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (linvOL2 x1 x2 )  = (linvOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((LeftBiMagma A ) → (LeftBiMagmaTerm  → A )))
   evalB Le (opL x1 x2 )  = ((op Le ) (evalB Le x1 ) (evalB Le x2 ) )
   
@@ -160,4 +198,5 @@ module LeftBiMagma  where
     constructor tagless
     field
       opT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
-      linvT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      linvT : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

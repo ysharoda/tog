@@ -1,4 +1,5 @@
-module Squag  where
+
+ module Squag  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -10,41 +11,70 @@ module Squag  where
       op : (A  → (A  → A ))
       commutative_op : ({x y  : A }  → (op x y ) ≡ (op y x ))
       antiAbsorbent : ({x y  : A }  → (op x (op x y ) ) ≡ y )
-      idempotent_op : ({x  : A }  → (op x x ) ≡ x )
+      idempotent_op : ({x  : A }  → (op x x ) ≡ x ) 
+  
   open Squag
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
-      opS : (AS  → (AS  → AS ))
+      opS : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       opP : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
       commutative_opP : ({xP yP  : (Prod AP AP )}  → (opP xP yP ) ≡ (opP yP xP ))
       antiAbsorbentP : ({xP yP  : (Prod AP AP )}  → (opP xP (opP xP yP ) ) ≡ yP )
-      idempotent_opP : ({xP  : (Prod AP AP )}  → (opP xP xP ) ≡ xP )
+      idempotent_opP : ({xP  : (Prod AP AP )}  → (opP xP xP ) ≡ xP ) 
+  
   record Hom (A1 A2  : Set ) (Sq1  : (Squag A1 )) (Sq2  : (Squag A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
-      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Sq1 ) x1 x2 ) ) ≡ ((op Sq2 ) (hom x1 ) (hom x2 ) ))
+      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Sq1 ) x1 x2 ) ) ≡ ((op Sq2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Sq1  : (Squag A1 )) (Sq2  : (Squag A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
-      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Sq1 ) x1 x2 ) ((op Sq2 ) y1 y2 ) ))))
+      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Sq1 ) x1 x2 ) ((op Sq2 ) y1 y2 ) )))) 
+  
   data SquagTerm  : Set where
-    opL : (SquagTerm   → (SquagTerm   → SquagTerm  ))
+    opL : (SquagTerm   → (SquagTerm   → SquagTerm  )) 
+  
   data ClSquagTerm (A  : Set )  : Set where
     sing : (A  → (ClSquagTerm A ) )
-    opCl : ((ClSquagTerm A )  → ((ClSquagTerm A )  → (ClSquagTerm A ) ))
+    opCl : ((ClSquagTerm A )  → ((ClSquagTerm A )  → (ClSquagTerm A ) )) 
+  
   data OpSquagTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpSquagTerm n ) )
-    opOL : ((OpSquagTerm n )  → ((OpSquagTerm n )  → (OpSquagTerm n ) ))
+    opOL : ((OpSquagTerm n )  → ((OpSquagTerm n )  → (OpSquagTerm n ) )) 
+  
   data OpSquagTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpSquagTerm2 n A ) )
     sing2 : (A  → (OpSquagTerm2 n A ) )
-    opOL2 : ((OpSquagTerm2 n A )  → ((OpSquagTerm2 n A )  → (OpSquagTerm2 n A ) ))
+    opOL2 : ((OpSquagTerm2 n A )  → ((OpSquagTerm2 n A )  → (OpSquagTerm2 n A ) )) 
+  
+  simplifyB : (SquagTerm  → SquagTerm )
+  simplifyB (opL x1 x2 )  = (opL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClSquagTerm A ) → (ClSquagTerm A )))
+  simplifyCl _ (opCl x1 x2 )  = (opCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpSquagTerm n ) → (OpSquagTerm n )))
+  simplifyOp _ (opOL x1 x2 )  = (opOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpSquagTerm2 n A ) → (OpSquagTerm2 n A )))
+  simplifyOpE _ _ (opOL2 x1 x2 )  = (opOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((Squag A ) → (SquagTerm  → A )))
   evalB Sq (opL x1 x2 )  = ((op Sq ) (evalB Sq x1 ) (evalB Sq x2 ) )
   
@@ -120,4 +150,5 @@ module Squag  where
   record Tagless (A  : Set) (Repr  : (Set  → Set ))  : Set where
     constructor tagless
     field
-      opT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      opT : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

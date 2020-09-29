@@ -1,4 +1,5 @@
-module AssociativeNonDistributiveRingoid  where
+
+ module AssociativeNonDistributiveRingoid  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -10,48 +11,85 @@ module AssociativeNonDistributiveRingoid  where
       * : (A  → (A  → A ))
       + : (A  → (A  → A ))
       associative_+ : ({x y z  : A }  → (+ (+ x y ) z ) ≡ (+ x (+ y z ) ))
-      associative_* : ({x y z  : A }  → (* (* x y ) z ) ≡ (* x (* y z ) ))
+      associative_* : ({x y z  : A }  → (* (* x y ) z ) ≡ (* x (* y z ) )) 
+  
   open AssociativeNonDistributiveRingoid
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       *S : (AS  → (AS  → AS ))
-      +S : (AS  → (AS  → AS ))
+      +S : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       *P : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
       +P : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
       associative_+P : ({xP yP zP  : (Prod AP AP )}  → (+P (+P xP yP ) zP ) ≡ (+P xP (+P yP zP ) ))
-      associative_*P : ({xP yP zP  : (Prod AP AP )}  → (*P (*P xP yP ) zP ) ≡ (*P xP (*P yP zP ) ))
+      associative_*P : ({xP yP zP  : (Prod AP AP )}  → (*P (*P xP yP ) zP ) ≡ (*P xP (*P yP zP ) )) 
+  
   record Hom (A1 A2  : Set ) (As1  : (AssociativeNonDistributiveRingoid A1 )) (As2  : (AssociativeNonDistributiveRingoid A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-* : ({x1  : A1} {x2  : A1}  → (hom ((* As1 ) x1 x2 ) ) ≡ ((* As2 ) (hom x1 ) (hom x2 ) ))
-      pres-+ : ({x1  : A1} {x2  : A1}  → (hom ((+ As1 ) x1 x2 ) ) ≡ ((+ As2 ) (hom x1 ) (hom x2 ) ))
+      pres-+ : ({x1  : A1} {x2  : A1}  → (hom ((+ As1 ) x1 x2 ) ) ≡ ((+ As2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (As1  : (AssociativeNonDistributiveRingoid A1 )) (As2  : (AssociativeNonDistributiveRingoid A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-* : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((* As1 ) x1 x2 ) ((* As2 ) y1 y2 ) ))))
-      interp-+ : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((+ As1 ) x1 x2 ) ((+ As2 ) y1 y2 ) ))))
+      interp-+ : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((+ As1 ) x1 x2 ) ((+ As2 ) y1 y2 ) )))) 
+  
   data AssociativeNonDistributiveRingoidTerm  : Set where
     *L : (AssociativeNonDistributiveRingoidTerm   → (AssociativeNonDistributiveRingoidTerm   → AssociativeNonDistributiveRingoidTerm  ))
-    +L : (AssociativeNonDistributiveRingoidTerm   → (AssociativeNonDistributiveRingoidTerm   → AssociativeNonDistributiveRingoidTerm  ))
+    +L : (AssociativeNonDistributiveRingoidTerm   → (AssociativeNonDistributiveRingoidTerm   → AssociativeNonDistributiveRingoidTerm  )) 
+  
   data ClAssociativeNonDistributiveRingoidTerm (A  : Set )  : Set where
     sing : (A  → (ClAssociativeNonDistributiveRingoidTerm A ) )
     *Cl : ((ClAssociativeNonDistributiveRingoidTerm A )  → ((ClAssociativeNonDistributiveRingoidTerm A )  → (ClAssociativeNonDistributiveRingoidTerm A ) ))
-    +Cl : ((ClAssociativeNonDistributiveRingoidTerm A )  → ((ClAssociativeNonDistributiveRingoidTerm A )  → (ClAssociativeNonDistributiveRingoidTerm A ) ))
+    +Cl : ((ClAssociativeNonDistributiveRingoidTerm A )  → ((ClAssociativeNonDistributiveRingoidTerm A )  → (ClAssociativeNonDistributiveRingoidTerm A ) )) 
+  
   data OpAssociativeNonDistributiveRingoidTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpAssociativeNonDistributiveRingoidTerm n ) )
     *OL : ((OpAssociativeNonDistributiveRingoidTerm n )  → ((OpAssociativeNonDistributiveRingoidTerm n )  → (OpAssociativeNonDistributiveRingoidTerm n ) ))
-    +OL : ((OpAssociativeNonDistributiveRingoidTerm n )  → ((OpAssociativeNonDistributiveRingoidTerm n )  → (OpAssociativeNonDistributiveRingoidTerm n ) ))
+    +OL : ((OpAssociativeNonDistributiveRingoidTerm n )  → ((OpAssociativeNonDistributiveRingoidTerm n )  → (OpAssociativeNonDistributiveRingoidTerm n ) )) 
+  
   data OpAssociativeNonDistributiveRingoidTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpAssociativeNonDistributiveRingoidTerm2 n A ) )
     sing2 : (A  → (OpAssociativeNonDistributiveRingoidTerm2 n A ) )
     *OL2 : ((OpAssociativeNonDistributiveRingoidTerm2 n A )  → ((OpAssociativeNonDistributiveRingoidTerm2 n A )  → (OpAssociativeNonDistributiveRingoidTerm2 n A ) ))
-    +OL2 : ((OpAssociativeNonDistributiveRingoidTerm2 n A )  → ((OpAssociativeNonDistributiveRingoidTerm2 n A )  → (OpAssociativeNonDistributiveRingoidTerm2 n A ) ))
+    +OL2 : ((OpAssociativeNonDistributiveRingoidTerm2 n A )  → ((OpAssociativeNonDistributiveRingoidTerm2 n A )  → (OpAssociativeNonDistributiveRingoidTerm2 n A ) )) 
+  
+  simplifyB : (AssociativeNonDistributiveRingoidTerm  → AssociativeNonDistributiveRingoidTerm )
+  simplifyB (*L x1 x2 )  = (*L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB (+L x1 x2 )  = (+L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClAssociativeNonDistributiveRingoidTerm A ) → (ClAssociativeNonDistributiveRingoidTerm A )))
+  simplifyCl _ (*Cl x1 x2 )  = (*Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (+Cl x1 x2 )  = (+Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpAssociativeNonDistributiveRingoidTerm n ) → (OpAssociativeNonDistributiveRingoidTerm n )))
+  simplifyOp _ (*OL x1 x2 )  = (*OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (+OL x1 x2 )  = (+OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpAssociativeNonDistributiveRingoidTerm2 n A ) → (OpAssociativeNonDistributiveRingoidTerm2 n A )))
+  simplifyOpE _ _ (*OL2 x1 x2 )  = (*OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (+OL2 x1 x2 )  = (+OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((AssociativeNonDistributiveRingoid A ) → (AssociativeNonDistributiveRingoidTerm  → A )))
   evalB As (*L x1 x2 )  = ((* As ) (evalB As x1 ) (evalB As x2 ) )
   
@@ -164,4 +202,5 @@ module AssociativeNonDistributiveRingoid  where
     constructor tagless
     field
       *T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
-      +T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      +T : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

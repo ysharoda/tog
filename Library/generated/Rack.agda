@@ -1,4 +1,5 @@
-module Rack  where
+
+ module Rack  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -12,13 +13,15 @@ module Rack  where
       leftDistributive : ({x y z  : A }  → (|> x (|> y z ) ) ≡ (|> (|> x y ) (|> x z ) ))
       rightDistributive : ({x y z  : A }  → (<| (<| y z ) x ) ≡ (<| (<| y x ) (<| z x ) ))
       leftInverse : ({x y  : A }  → (<| (|> x y ) x ) ≡ y )
-      rightInverse : ({x y  : A }  → (|> x (<| y x ) ) ≡ y )
+      rightInverse : ({x y  : A }  → (|> x (<| y x ) ) ≡ y ) 
+  
   open Rack
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       |>S : (AS  → (AS  → AS ))
-      <|S : (AS  → (AS  → AS ))
+      <|S : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
@@ -27,35 +30,70 @@ module Rack  where
       leftDistributiveP : ({xP yP zP  : (Prod AP AP )}  → (|>P xP (|>P yP zP ) ) ≡ (|>P (|>P xP yP ) (|>P xP zP ) ))
       rightDistributiveP : ({xP yP zP  : (Prod AP AP )}  → (<|P (<|P yP zP ) xP ) ≡ (<|P (<|P yP xP ) (<|P zP xP ) ))
       leftInverseP : ({xP yP  : (Prod AP AP )}  → (<|P (|>P xP yP ) xP ) ≡ yP )
-      rightInverseP : ({xP yP  : (Prod AP AP )}  → (|>P xP (<|P yP xP ) ) ≡ yP )
+      rightInverseP : ({xP yP  : (Prod AP AP )}  → (|>P xP (<|P yP xP ) ) ≡ yP ) 
+  
   record Hom (A1 A2  : Set ) (Ra1  : (Rack A1 )) (Ra2  : (Rack A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-|> : ({x1  : A1} {x2  : A1}  → (hom ((|> Ra1 ) x1 x2 ) ) ≡ ((|> Ra2 ) (hom x1 ) (hom x2 ) ))
-      pres-<| : ({x1  : A1} {x2  : A1}  → (hom ((<| Ra1 ) x1 x2 ) ) ≡ ((<| Ra2 ) (hom x1 ) (hom x2 ) ))
+      pres-<| : ({x1  : A1} {x2  : A1}  → (hom ((<| Ra1 ) x1 x2 ) ) ≡ ((<| Ra2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Ra1  : (Rack A1 )) (Ra2  : (Rack A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-|> : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((|> Ra1 ) x1 x2 ) ((|> Ra2 ) y1 y2 ) ))))
-      interp-<| : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((<| Ra1 ) x1 x2 ) ((<| Ra2 ) y1 y2 ) ))))
+      interp-<| : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((<| Ra1 ) x1 x2 ) ((<| Ra2 ) y1 y2 ) )))) 
+  
   data RackTerm  : Set where
     |>L : (RackTerm   → (RackTerm   → RackTerm  ))
-    <|L : (RackTerm   → (RackTerm   → RackTerm  ))
+    <|L : (RackTerm   → (RackTerm   → RackTerm  )) 
+  
   data ClRackTerm (A  : Set )  : Set where
     sing : (A  → (ClRackTerm A ) )
     |>Cl : ((ClRackTerm A )  → ((ClRackTerm A )  → (ClRackTerm A ) ))
-    <|Cl : ((ClRackTerm A )  → ((ClRackTerm A )  → (ClRackTerm A ) ))
+    <|Cl : ((ClRackTerm A )  → ((ClRackTerm A )  → (ClRackTerm A ) )) 
+  
   data OpRackTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpRackTerm n ) )
     |>OL : ((OpRackTerm n )  → ((OpRackTerm n )  → (OpRackTerm n ) ))
-    <|OL : ((OpRackTerm n )  → ((OpRackTerm n )  → (OpRackTerm n ) ))
+    <|OL : ((OpRackTerm n )  → ((OpRackTerm n )  → (OpRackTerm n ) )) 
+  
   data OpRackTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpRackTerm2 n A ) )
     sing2 : (A  → (OpRackTerm2 n A ) )
     |>OL2 : ((OpRackTerm2 n A )  → ((OpRackTerm2 n A )  → (OpRackTerm2 n A ) ))
-    <|OL2 : ((OpRackTerm2 n A )  → ((OpRackTerm2 n A )  → (OpRackTerm2 n A ) ))
+    <|OL2 : ((OpRackTerm2 n A )  → ((OpRackTerm2 n A )  → (OpRackTerm2 n A ) )) 
+  
+  simplifyB : (RackTerm  → RackTerm )
+  simplifyB (|>L x1 x2 )  = (|>L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB (<|L x1 x2 )  = (<|L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClRackTerm A ) → (ClRackTerm A )))
+  simplifyCl _ (|>Cl x1 x2 )  = (|>Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (<|Cl x1 x2 )  = (<|Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpRackTerm n ) → (OpRackTerm n )))
+  simplifyOp _ (|>OL x1 x2 )  = (|>OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (<|OL x1 x2 )  = (<|OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpRackTerm2 n A ) → (OpRackTerm2 n A )))
+  simplifyOpE _ _ (|>OL2 x1 x2 )  = (|>OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (<|OL2 x1 x2 )  = (<|OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((Rack A ) → (RackTerm  → A )))
   evalB Ra (|>L x1 x2 )  = ((|> Ra ) (evalB Ra x1 ) (evalB Ra x2 ) )
   
@@ -168,4 +206,5 @@ module Rack  where
     constructor tagless
     field
       |>T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
-      <|T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      <|T : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

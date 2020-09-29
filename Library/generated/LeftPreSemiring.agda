@@ -1,4 +1,5 @@
-module LeftPreSemiring  where
+
+ module LeftPreSemiring  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -12,13 +13,15 @@ module LeftPreSemiring  where
       associative_* : ({x y z  : A }  → (* (* x y ) z ) ≡ (* x (* y z ) ))
       leftDistributive_*_+ : ({x y z  : A }  → (* x (+ y z ) ) ≡ (+ (* x y ) (* x z ) ))
       commutative_+ : ({x y  : A }  → (+ x y ) ≡ (+ y x ))
-      associative_+ : ({x y z  : A }  → (+ (+ x y ) z ) ≡ (+ x (+ y z ) ))
+      associative_+ : ({x y z  : A }  → (+ (+ x y ) z ) ≡ (+ x (+ y z ) )) 
+  
   open LeftPreSemiring
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       *S : (AS  → (AS  → AS ))
-      +S : (AS  → (AS  → AS ))
+      +S : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
@@ -27,35 +30,70 @@ module LeftPreSemiring  where
       associative_*P : ({xP yP zP  : (Prod AP AP )}  → (*P (*P xP yP ) zP ) ≡ (*P xP (*P yP zP ) ))
       leftDistributive_*_+P : ({xP yP zP  : (Prod AP AP )}  → (*P xP (+P yP zP ) ) ≡ (+P (*P xP yP ) (*P xP zP ) ))
       commutative_+P : ({xP yP  : (Prod AP AP )}  → (+P xP yP ) ≡ (+P yP xP ))
-      associative_+P : ({xP yP zP  : (Prod AP AP )}  → (+P (+P xP yP ) zP ) ≡ (+P xP (+P yP zP ) ))
+      associative_+P : ({xP yP zP  : (Prod AP AP )}  → (+P (+P xP yP ) zP ) ≡ (+P xP (+P yP zP ) )) 
+  
   record Hom (A1 A2  : Set ) (Le1  : (LeftPreSemiring A1 )) (Le2  : (LeftPreSemiring A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-* : ({x1  : A1} {x2  : A1}  → (hom ((* Le1 ) x1 x2 ) ) ≡ ((* Le2 ) (hom x1 ) (hom x2 ) ))
-      pres-+ : ({x1  : A1} {x2  : A1}  → (hom ((+ Le1 ) x1 x2 ) ) ≡ ((+ Le2 ) (hom x1 ) (hom x2 ) ))
+      pres-+ : ({x1  : A1} {x2  : A1}  → (hom ((+ Le1 ) x1 x2 ) ) ≡ ((+ Le2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Le1  : (LeftPreSemiring A1 )) (Le2  : (LeftPreSemiring A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-* : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((* Le1 ) x1 x2 ) ((* Le2 ) y1 y2 ) ))))
-      interp-+ : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((+ Le1 ) x1 x2 ) ((+ Le2 ) y1 y2 ) ))))
+      interp-+ : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((+ Le1 ) x1 x2 ) ((+ Le2 ) y1 y2 ) )))) 
+  
   data LeftPreSemiringTerm  : Set where
     *L : (LeftPreSemiringTerm   → (LeftPreSemiringTerm   → LeftPreSemiringTerm  ))
-    +L : (LeftPreSemiringTerm   → (LeftPreSemiringTerm   → LeftPreSemiringTerm  ))
+    +L : (LeftPreSemiringTerm   → (LeftPreSemiringTerm   → LeftPreSemiringTerm  )) 
+  
   data ClLeftPreSemiringTerm (A  : Set )  : Set where
     sing : (A  → (ClLeftPreSemiringTerm A ) )
     *Cl : ((ClLeftPreSemiringTerm A )  → ((ClLeftPreSemiringTerm A )  → (ClLeftPreSemiringTerm A ) ))
-    +Cl : ((ClLeftPreSemiringTerm A )  → ((ClLeftPreSemiringTerm A )  → (ClLeftPreSemiringTerm A ) ))
+    +Cl : ((ClLeftPreSemiringTerm A )  → ((ClLeftPreSemiringTerm A )  → (ClLeftPreSemiringTerm A ) )) 
+  
   data OpLeftPreSemiringTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpLeftPreSemiringTerm n ) )
     *OL : ((OpLeftPreSemiringTerm n )  → ((OpLeftPreSemiringTerm n )  → (OpLeftPreSemiringTerm n ) ))
-    +OL : ((OpLeftPreSemiringTerm n )  → ((OpLeftPreSemiringTerm n )  → (OpLeftPreSemiringTerm n ) ))
+    +OL : ((OpLeftPreSemiringTerm n )  → ((OpLeftPreSemiringTerm n )  → (OpLeftPreSemiringTerm n ) )) 
+  
   data OpLeftPreSemiringTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpLeftPreSemiringTerm2 n A ) )
     sing2 : (A  → (OpLeftPreSemiringTerm2 n A ) )
     *OL2 : ((OpLeftPreSemiringTerm2 n A )  → ((OpLeftPreSemiringTerm2 n A )  → (OpLeftPreSemiringTerm2 n A ) ))
-    +OL2 : ((OpLeftPreSemiringTerm2 n A )  → ((OpLeftPreSemiringTerm2 n A )  → (OpLeftPreSemiringTerm2 n A ) ))
+    +OL2 : ((OpLeftPreSemiringTerm2 n A )  → ((OpLeftPreSemiringTerm2 n A )  → (OpLeftPreSemiringTerm2 n A ) )) 
+  
+  simplifyB : (LeftPreSemiringTerm  → LeftPreSemiringTerm )
+  simplifyB (*L x1 x2 )  = (*L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB (+L x1 x2 )  = (+L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClLeftPreSemiringTerm A ) → (ClLeftPreSemiringTerm A )))
+  simplifyCl _ (*Cl x1 x2 )  = (*Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (+Cl x1 x2 )  = (+Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpLeftPreSemiringTerm n ) → (OpLeftPreSemiringTerm n )))
+  simplifyOp _ (*OL x1 x2 )  = (*OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (+OL x1 x2 )  = (+OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpLeftPreSemiringTerm2 n A ) → (OpLeftPreSemiringTerm2 n A )))
+  simplifyOpE _ _ (*OL2 x1 x2 )  = (*OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (+OL2 x1 x2 )  = (+OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((LeftPreSemiring A ) → (LeftPreSemiringTerm  → A )))
   evalB Le (*L x1 x2 )  = ((* Le ) (evalB Le x1 ) (evalB Le x2 ) )
   
@@ -168,4 +206,5 @@ module LeftPreSemiring  where
     constructor tagless
     field
       *T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
-      +T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      +T : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

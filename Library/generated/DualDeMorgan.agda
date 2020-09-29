@@ -1,4 +1,5 @@
-module DualDeMorgan  where
+
+ module DualDeMorgan  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -11,14 +12,16 @@ module DualDeMorgan  where
       + : (A  → (A  → A ))
       prim : (A  → A )
       andDeMorgan_*_+_prim : ({x y z  : A }  → (prim (* x y ) ) ≡ (+ (prim x ) (prim y ) ))
-      orDeMorgan_+_*_prim : ({x y z  : A }  → (prim (+ x y ) ) ≡ (* (prim x ) (prim y ) ))
+      orDeMorgan_+_*_prim : ({x y z  : A }  → (prim (+ x y ) ) ≡ (* (prim x ) (prim y ) )) 
+  
   open DualDeMorgan
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       *S : (AS  → (AS  → AS ))
       +S : (AS  → (AS  → AS ))
-      primS : (AS  → AS )
+      primS : (AS  → AS ) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
@@ -26,41 +29,84 @@ module DualDeMorgan  where
       +P : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
       primP : ((Prod AP AP ) → (Prod AP AP ))
       andDeMorgan_*_+_primP : ({xP yP zP  : (Prod AP AP )}  → (primP (*P xP yP ) ) ≡ (+P (primP xP ) (primP yP ) ))
-      orDeMorgan_+_*_primP : ({xP yP zP  : (Prod AP AP )}  → (primP (+P xP yP ) ) ≡ (*P (primP xP ) (primP yP ) ))
+      orDeMorgan_+_*_primP : ({xP yP zP  : (Prod AP AP )}  → (primP (+P xP yP ) ) ≡ (*P (primP xP ) (primP yP ) )) 
+  
   record Hom (A1 A2  : Set ) (Du1  : (DualDeMorgan A1 )) (Du2  : (DualDeMorgan A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-* : ({x1  : A1} {x2  : A1}  → (hom ((* Du1 ) x1 x2 ) ) ≡ ((* Du2 ) (hom x1 ) (hom x2 ) ))
       pres-+ : ({x1  : A1} {x2  : A1}  → (hom ((+ Du1 ) x1 x2 ) ) ≡ ((+ Du2 ) (hom x1 ) (hom x2 ) ))
-      pres-prim : ({x1  : A1}  → (hom ((prim Du1 ) x1 ) ) ≡ ((prim Du2 ) (hom x1 ) ))
+      pres-prim : ({x1  : A1}  → (hom ((prim Du1 ) x1 ) ) ≡ ((prim Du2 ) (hom x1 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Du1  : (DualDeMorgan A1 )) (Du2  : (DualDeMorgan A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-* : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((* Du1 ) x1 x2 ) ((* Du2 ) y1 y2 ) ))))
       interp-+ : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((+ Du1 ) x1 x2 ) ((+ Du2 ) y1 y2 ) ))))
-      interp-prim : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((prim Du1 ) x1 ) ((prim Du2 ) y1 ) )))
+      interp-prim : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((prim Du1 ) x1 ) ((prim Du2 ) y1 ) ))) 
+  
   data DualDeMorganTerm  : Set where
     *L : (DualDeMorganTerm   → (DualDeMorganTerm   → DualDeMorganTerm  ))
     +L : (DualDeMorganTerm   → (DualDeMorganTerm   → DualDeMorganTerm  ))
-    primL : (DualDeMorganTerm   → DualDeMorganTerm  )
+    primL : (DualDeMorganTerm   → DualDeMorganTerm  ) 
+  
   data ClDualDeMorganTerm (A  : Set )  : Set where
     sing : (A  → (ClDualDeMorganTerm A ) )
     *Cl : ((ClDualDeMorganTerm A )  → ((ClDualDeMorganTerm A )  → (ClDualDeMorganTerm A ) ))
     +Cl : ((ClDualDeMorganTerm A )  → ((ClDualDeMorganTerm A )  → (ClDualDeMorganTerm A ) ))
-    primCl : ((ClDualDeMorganTerm A )  → (ClDualDeMorganTerm A ) )
+    primCl : ((ClDualDeMorganTerm A )  → (ClDualDeMorganTerm A ) ) 
+  
   data OpDualDeMorganTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpDualDeMorganTerm n ) )
     *OL : ((OpDualDeMorganTerm n )  → ((OpDualDeMorganTerm n )  → (OpDualDeMorganTerm n ) ))
     +OL : ((OpDualDeMorganTerm n )  → ((OpDualDeMorganTerm n )  → (OpDualDeMorganTerm n ) ))
-    primOL : ((OpDualDeMorganTerm n )  → (OpDualDeMorganTerm n ) )
+    primOL : ((OpDualDeMorganTerm n )  → (OpDualDeMorganTerm n ) ) 
+  
   data OpDualDeMorganTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpDualDeMorganTerm2 n A ) )
     sing2 : (A  → (OpDualDeMorganTerm2 n A ) )
     *OL2 : ((OpDualDeMorganTerm2 n A )  → ((OpDualDeMorganTerm2 n A )  → (OpDualDeMorganTerm2 n A ) ))
     +OL2 : ((OpDualDeMorganTerm2 n A )  → ((OpDualDeMorganTerm2 n A )  → (OpDualDeMorganTerm2 n A ) ))
-    primOL2 : ((OpDualDeMorganTerm2 n A )  → (OpDualDeMorganTerm2 n A ) )
+    primOL2 : ((OpDualDeMorganTerm2 n A )  → (OpDualDeMorganTerm2 n A ) ) 
+  
+  simplifyB : (DualDeMorganTerm  → DualDeMorganTerm )
+  simplifyB (*L x1 x2 )  = (*L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB (+L x1 x2 )  = (+L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB (primL x1 )  = (primL (simplifyB x1 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClDualDeMorganTerm A ) → (ClDualDeMorganTerm A )))
+  simplifyCl _ (*Cl x1 x2 )  = (*Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (+Cl x1 x2 )  = (+Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (primCl x1 )  = (primCl (simplifyCl _ x1 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpDualDeMorganTerm n ) → (OpDualDeMorganTerm n )))
+  simplifyOp _ (*OL x1 x2 )  = (*OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (+OL x1 x2 )  = (+OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (primOL x1 )  = (primOL (simplifyOp _ x1 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpDualDeMorganTerm2 n A ) → (OpDualDeMorganTerm2 n A )))
+  simplifyOpE _ _ (*OL2 x1 x2 )  = (*OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (+OL2 x1 x2 )  = (+OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (primOL2 x1 )  = (primOL2 (simplifyOpE _ _ x1 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((DualDeMorgan A ) → (DualDeMorganTerm  → A )))
   evalB Du (*L x1 x2 )  = ((* Du ) (evalB Du x1 ) (evalB Du x2 ) )
   
@@ -210,4 +256,5 @@ module DualDeMorgan  where
     field
       *T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
       +T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
-      primT : ((Repr A )  → (Repr A ) )
+      primT : ((Repr A )  → (Repr A ) ) 
+   

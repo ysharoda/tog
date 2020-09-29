@@ -1,4 +1,5 @@
-module Spindle  where
+
+ module Spindle  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -12,13 +13,15 @@ module Spindle  where
       leftDistributive : ({x y z  : A }  → (|> x (|> y z ) ) ≡ (|> (|> x y ) (|> x z ) ))
       rightDistributive : ({x y z  : A }  → (<| (<| y z ) x ) ≡ (<| (<| y x ) (<| z x ) ))
       idempotent_|> : ({x  : A }  → (|> x x ) ≡ x )
-      idempotent_<| : ({x  : A }  → (<| x x ) ≡ x )
+      idempotent_<| : ({x  : A }  → (<| x x ) ≡ x ) 
+  
   open Spindle
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       |>S : (AS  → (AS  → AS ))
-      <|S : (AS  → (AS  → AS ))
+      <|S : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
@@ -27,35 +30,70 @@ module Spindle  where
       leftDistributiveP : ({xP yP zP  : (Prod AP AP )}  → (|>P xP (|>P yP zP ) ) ≡ (|>P (|>P xP yP ) (|>P xP zP ) ))
       rightDistributiveP : ({xP yP zP  : (Prod AP AP )}  → (<|P (<|P yP zP ) xP ) ≡ (<|P (<|P yP xP ) (<|P zP xP ) ))
       idempotent_|>P : ({xP  : (Prod AP AP )}  → (|>P xP xP ) ≡ xP )
-      idempotent_<|P : ({xP  : (Prod AP AP )}  → (<|P xP xP ) ≡ xP )
+      idempotent_<|P : ({xP  : (Prod AP AP )}  → (<|P xP xP ) ≡ xP ) 
+  
   record Hom (A1 A2  : Set ) (Sp1  : (Spindle A1 )) (Sp2  : (Spindle A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-|> : ({x1  : A1} {x2  : A1}  → (hom ((|> Sp1 ) x1 x2 ) ) ≡ ((|> Sp2 ) (hom x1 ) (hom x2 ) ))
-      pres-<| : ({x1  : A1} {x2  : A1}  → (hom ((<| Sp1 ) x1 x2 ) ) ≡ ((<| Sp2 ) (hom x1 ) (hom x2 ) ))
+      pres-<| : ({x1  : A1} {x2  : A1}  → (hom ((<| Sp1 ) x1 x2 ) ) ≡ ((<| Sp2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Sp1  : (Spindle A1 )) (Sp2  : (Spindle A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-|> : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((|> Sp1 ) x1 x2 ) ((|> Sp2 ) y1 y2 ) ))))
-      interp-<| : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((<| Sp1 ) x1 x2 ) ((<| Sp2 ) y1 y2 ) ))))
+      interp-<| : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((<| Sp1 ) x1 x2 ) ((<| Sp2 ) y1 y2 ) )))) 
+  
   data SpindleTerm  : Set where
     |>L : (SpindleTerm   → (SpindleTerm   → SpindleTerm  ))
-    <|L : (SpindleTerm   → (SpindleTerm   → SpindleTerm  ))
+    <|L : (SpindleTerm   → (SpindleTerm   → SpindleTerm  )) 
+  
   data ClSpindleTerm (A  : Set )  : Set where
     sing : (A  → (ClSpindleTerm A ) )
     |>Cl : ((ClSpindleTerm A )  → ((ClSpindleTerm A )  → (ClSpindleTerm A ) ))
-    <|Cl : ((ClSpindleTerm A )  → ((ClSpindleTerm A )  → (ClSpindleTerm A ) ))
+    <|Cl : ((ClSpindleTerm A )  → ((ClSpindleTerm A )  → (ClSpindleTerm A ) )) 
+  
   data OpSpindleTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpSpindleTerm n ) )
     |>OL : ((OpSpindleTerm n )  → ((OpSpindleTerm n )  → (OpSpindleTerm n ) ))
-    <|OL : ((OpSpindleTerm n )  → ((OpSpindleTerm n )  → (OpSpindleTerm n ) ))
+    <|OL : ((OpSpindleTerm n )  → ((OpSpindleTerm n )  → (OpSpindleTerm n ) )) 
+  
   data OpSpindleTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpSpindleTerm2 n A ) )
     sing2 : (A  → (OpSpindleTerm2 n A ) )
     |>OL2 : ((OpSpindleTerm2 n A )  → ((OpSpindleTerm2 n A )  → (OpSpindleTerm2 n A ) ))
-    <|OL2 : ((OpSpindleTerm2 n A )  → ((OpSpindleTerm2 n A )  → (OpSpindleTerm2 n A ) ))
+    <|OL2 : ((OpSpindleTerm2 n A )  → ((OpSpindleTerm2 n A )  → (OpSpindleTerm2 n A ) )) 
+  
+  simplifyB : (SpindleTerm  → SpindleTerm )
+  simplifyB (|>L x1 x2 )  = (|>L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB (<|L x1 x2 )  = (<|L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClSpindleTerm A ) → (ClSpindleTerm A )))
+  simplifyCl _ (|>Cl x1 x2 )  = (|>Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (<|Cl x1 x2 )  = (<|Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpSpindleTerm n ) → (OpSpindleTerm n )))
+  simplifyOp _ (|>OL x1 x2 )  = (|>OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (<|OL x1 x2 )  = (<|OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpSpindleTerm2 n A ) → (OpSpindleTerm2 n A )))
+  simplifyOpE _ _ (|>OL2 x1 x2 )  = (|>OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (<|OL2 x1 x2 )  = (<|OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((Spindle A ) → (SpindleTerm  → A )))
   evalB Sp (|>L x1 x2 )  = ((|> Sp ) (evalB Sp x1 ) (evalB Sp x2 ) )
   
@@ -168,4 +206,5 @@ module Spindle  where
     constructor tagless
     field
       |>T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
-      <|T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      <|T : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

@@ -1,4 +1,5 @@
-module PointedSemigroup  where
+
+ module PointedSemigroup  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -9,47 +10,84 @@ module PointedSemigroup  where
     field
       op : (A  → (A  → A ))
       associative_op : ({x y z  : A }  → (op (op x y ) z ) ≡ (op x (op y z ) ))
-      e : A 
+      e : A  
+  
   open PointedSemigroup
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       opS : (AS  → (AS  → AS ))
-      eS : AS 
+      eS : AS  
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       opP : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
       eP : (Prod AP AP )
-      associative_opP : ({xP yP zP  : (Prod AP AP )}  → (opP (opP xP yP ) zP ) ≡ (opP xP (opP yP zP ) ))
+      associative_opP : ({xP yP zP  : (Prod AP AP )}  → (opP (opP xP yP ) zP ) ≡ (opP xP (opP yP zP ) )) 
+  
   record Hom (A1 A2  : Set ) (Po1  : (PointedSemigroup A1 )) (Po2  : (PointedSemigroup A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Po1 ) x1 x2 ) ) ≡ ((op Po2 ) (hom x1 ) (hom x2 ) ))
-      pres-e : (  (hom (e Po1 )  ) ≡ (e Po2 ) )
+      pres-e : (  (hom (e Po1 )  ) ≡ (e Po2 ) ) 
+  
   record RelInterp (A1 A2  : Set ) (Po1  : (PointedSemigroup A1 )) (Po2  : (PointedSemigroup A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Po1 ) x1 x2 ) ((op Po2 ) y1 y2 ) ))))
-      interp-e : (  (interp (e Po1 )  (e Po2 )  ))
+      interp-e : (  (interp (e Po1 )  (e Po2 )  )) 
+  
   data PointedSemigroupTerm  : Set where
     opL : (PointedSemigroupTerm   → (PointedSemigroupTerm   → PointedSemigroupTerm  ))
-    eL : PointedSemigroupTerm  
+    eL : PointedSemigroupTerm   
+  
   data ClPointedSemigroupTerm (A  : Set )  : Set where
     sing : (A  → (ClPointedSemigroupTerm A ) )
     opCl : ((ClPointedSemigroupTerm A )  → ((ClPointedSemigroupTerm A )  → (ClPointedSemigroupTerm A ) ))
-    eCl : (ClPointedSemigroupTerm A ) 
+    eCl : (ClPointedSemigroupTerm A )  
+  
   data OpPointedSemigroupTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpPointedSemigroupTerm n ) )
     opOL : ((OpPointedSemigroupTerm n )  → ((OpPointedSemigroupTerm n )  → (OpPointedSemigroupTerm n ) ))
-    eOL : (OpPointedSemigroupTerm n ) 
+    eOL : (OpPointedSemigroupTerm n )  
+  
   data OpPointedSemigroupTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpPointedSemigroupTerm2 n A ) )
     sing2 : (A  → (OpPointedSemigroupTerm2 n A ) )
     opOL2 : ((OpPointedSemigroupTerm2 n A )  → ((OpPointedSemigroupTerm2 n A )  → (OpPointedSemigroupTerm2 n A ) ))
-    eOL2 : (OpPointedSemigroupTerm2 n A ) 
+    eOL2 : (OpPointedSemigroupTerm2 n A )  
+  
+  simplifyB : (PointedSemigroupTerm  → PointedSemigroupTerm )
+  simplifyB (opL x1 x2 )  = (opL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB eL  = eL 
+  
+  simplifyCl : ((A  : Set )  → ((ClPointedSemigroupTerm A ) → (ClPointedSemigroupTerm A )))
+  simplifyCl _ (opCl x1 x2 )  = (opCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ eCl  = eCl 
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpPointedSemigroupTerm n ) → (OpPointedSemigroupTerm n )))
+  simplifyOp _ (opOL x1 x2 )  = (opOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ eOL  = eOL 
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpPointedSemigroupTerm2 n A ) → (OpPointedSemigroupTerm2 n A )))
+  simplifyOpE _ _ (opOL2 x1 x2 )  = (opOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ eOL2  = eOL2 
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((PointedSemigroup A ) → (PointedSemigroupTerm  → A )))
   evalB Po (opL x1 x2 )  = ((op Po ) (evalB Po x1 ) (evalB Po x2 ) )
   
@@ -162,4 +200,5 @@ module PointedSemigroup  where
     constructor tagless
     field
       opT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
-      eT : (Repr A ) 
+      eT : (Repr A )  
+   

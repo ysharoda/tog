@@ -1,4 +1,5 @@
-module LeftDistributiveMagma  where
+
+ module LeftDistributiveMagma  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -8,39 +9,68 @@ module LeftDistributiveMagma  where
     constructor LeftDistributiveMagmaC
     field
       op : (A  → (A  → A ))
-      leftDistributive : ({x y z  : A }  → (op x (op y z ) ) ≡ (op (op x y ) (op x z ) ))
+      leftDistributive : ({x y z  : A }  → (op x (op y z ) ) ≡ (op (op x y ) (op x z ) )) 
+  
   open LeftDistributiveMagma
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
-      opS : (AS  → (AS  → AS ))
+      opS : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       opP : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
-      leftDistributiveP : ({xP yP zP  : (Prod AP AP )}  → (opP xP (opP yP zP ) ) ≡ (opP (opP xP yP ) (opP xP zP ) ))
+      leftDistributiveP : ({xP yP zP  : (Prod AP AP )}  → (opP xP (opP yP zP ) ) ≡ (opP (opP xP yP ) (opP xP zP ) )) 
+  
   record Hom (A1 A2  : Set ) (Le1  : (LeftDistributiveMagma A1 )) (Le2  : (LeftDistributiveMagma A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
-      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Le1 ) x1 x2 ) ) ≡ ((op Le2 ) (hom x1 ) (hom x2 ) ))
+      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Le1 ) x1 x2 ) ) ≡ ((op Le2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Le1  : (LeftDistributiveMagma A1 )) (Le2  : (LeftDistributiveMagma A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
-      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Le1 ) x1 x2 ) ((op Le2 ) y1 y2 ) ))))
+      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Le1 ) x1 x2 ) ((op Le2 ) y1 y2 ) )))) 
+  
   data LeftDistributiveMagmaTerm  : Set where
-    opL : (LeftDistributiveMagmaTerm   → (LeftDistributiveMagmaTerm   → LeftDistributiveMagmaTerm  ))
+    opL : (LeftDistributiveMagmaTerm   → (LeftDistributiveMagmaTerm   → LeftDistributiveMagmaTerm  )) 
+  
   data ClLeftDistributiveMagmaTerm (A  : Set )  : Set where
     sing : (A  → (ClLeftDistributiveMagmaTerm A ) )
-    opCl : ((ClLeftDistributiveMagmaTerm A )  → ((ClLeftDistributiveMagmaTerm A )  → (ClLeftDistributiveMagmaTerm A ) ))
+    opCl : ((ClLeftDistributiveMagmaTerm A )  → ((ClLeftDistributiveMagmaTerm A )  → (ClLeftDistributiveMagmaTerm A ) )) 
+  
   data OpLeftDistributiveMagmaTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpLeftDistributiveMagmaTerm n ) )
-    opOL : ((OpLeftDistributiveMagmaTerm n )  → ((OpLeftDistributiveMagmaTerm n )  → (OpLeftDistributiveMagmaTerm n ) ))
+    opOL : ((OpLeftDistributiveMagmaTerm n )  → ((OpLeftDistributiveMagmaTerm n )  → (OpLeftDistributiveMagmaTerm n ) )) 
+  
   data OpLeftDistributiveMagmaTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpLeftDistributiveMagmaTerm2 n A ) )
     sing2 : (A  → (OpLeftDistributiveMagmaTerm2 n A ) )
-    opOL2 : ((OpLeftDistributiveMagmaTerm2 n A )  → ((OpLeftDistributiveMagmaTerm2 n A )  → (OpLeftDistributiveMagmaTerm2 n A ) ))
+    opOL2 : ((OpLeftDistributiveMagmaTerm2 n A )  → ((OpLeftDistributiveMagmaTerm2 n A )  → (OpLeftDistributiveMagmaTerm2 n A ) )) 
+  
+  simplifyB : (LeftDistributiveMagmaTerm  → LeftDistributiveMagmaTerm )
+  simplifyB (opL x1 x2 )  = (opL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClLeftDistributiveMagmaTerm A ) → (ClLeftDistributiveMagmaTerm A )))
+  simplifyCl _ (opCl x1 x2 )  = (opCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpLeftDistributiveMagmaTerm n ) → (OpLeftDistributiveMagmaTerm n )))
+  simplifyOp _ (opOL x1 x2 )  = (opOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpLeftDistributiveMagmaTerm2 n A ) → (OpLeftDistributiveMagmaTerm2 n A )))
+  simplifyOpE _ _ (opOL2 x1 x2 )  = (opOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((LeftDistributiveMagma A ) → (LeftDistributiveMagmaTerm  → A )))
   evalB Le (opL x1 x2 )  = ((op Le ) (evalB Le x1 ) (evalB Le x2 ) )
   
@@ -116,4 +146,5 @@ module LeftDistributiveMagma  where
   record Tagless (A  : Set) (Repr  : (Set  → Set ))  : Set where
     constructor tagless
     field
-      opT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      opT : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

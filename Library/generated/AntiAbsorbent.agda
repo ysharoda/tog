@@ -1,4 +1,5 @@
-module AntiAbsorbent  where
+
+ module AntiAbsorbent  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -8,39 +9,68 @@ module AntiAbsorbent  where
     constructor AntiAbsorbentC
     field
       op : (A  → (A  → A ))
-      antiAbsorbent : ({x y  : A }  → (op x (op x y ) ) ≡ y )
+      antiAbsorbent : ({x y  : A }  → (op x (op x y ) ) ≡ y ) 
+  
   open AntiAbsorbent
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
-      opS : (AS  → (AS  → AS ))
+      opS : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       opP : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
-      antiAbsorbentP : ({xP yP  : (Prod AP AP )}  → (opP xP (opP xP yP ) ) ≡ yP )
+      antiAbsorbentP : ({xP yP  : (Prod AP AP )}  → (opP xP (opP xP yP ) ) ≡ yP ) 
+  
   record Hom (A1 A2  : Set ) (An1  : (AntiAbsorbent A1 )) (An2  : (AntiAbsorbent A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
-      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op An1 ) x1 x2 ) ) ≡ ((op An2 ) (hom x1 ) (hom x2 ) ))
+      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op An1 ) x1 x2 ) ) ≡ ((op An2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (An1  : (AntiAbsorbent A1 )) (An2  : (AntiAbsorbent A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
-      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op An1 ) x1 x2 ) ((op An2 ) y1 y2 ) ))))
+      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op An1 ) x1 x2 ) ((op An2 ) y1 y2 ) )))) 
+  
   data AntiAbsorbentTerm  : Set where
-    opL : (AntiAbsorbentTerm   → (AntiAbsorbentTerm   → AntiAbsorbentTerm  ))
+    opL : (AntiAbsorbentTerm   → (AntiAbsorbentTerm   → AntiAbsorbentTerm  )) 
+  
   data ClAntiAbsorbentTerm (A  : Set )  : Set where
     sing : (A  → (ClAntiAbsorbentTerm A ) )
-    opCl : ((ClAntiAbsorbentTerm A )  → ((ClAntiAbsorbentTerm A )  → (ClAntiAbsorbentTerm A ) ))
+    opCl : ((ClAntiAbsorbentTerm A )  → ((ClAntiAbsorbentTerm A )  → (ClAntiAbsorbentTerm A ) )) 
+  
   data OpAntiAbsorbentTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpAntiAbsorbentTerm n ) )
-    opOL : ((OpAntiAbsorbentTerm n )  → ((OpAntiAbsorbentTerm n )  → (OpAntiAbsorbentTerm n ) ))
+    opOL : ((OpAntiAbsorbentTerm n )  → ((OpAntiAbsorbentTerm n )  → (OpAntiAbsorbentTerm n ) )) 
+  
   data OpAntiAbsorbentTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpAntiAbsorbentTerm2 n A ) )
     sing2 : (A  → (OpAntiAbsorbentTerm2 n A ) )
-    opOL2 : ((OpAntiAbsorbentTerm2 n A )  → ((OpAntiAbsorbentTerm2 n A )  → (OpAntiAbsorbentTerm2 n A ) ))
+    opOL2 : ((OpAntiAbsorbentTerm2 n A )  → ((OpAntiAbsorbentTerm2 n A )  → (OpAntiAbsorbentTerm2 n A ) )) 
+  
+  simplifyB : (AntiAbsorbentTerm  → AntiAbsorbentTerm )
+  simplifyB (opL x1 x2 )  = (opL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClAntiAbsorbentTerm A ) → (ClAntiAbsorbentTerm A )))
+  simplifyCl _ (opCl x1 x2 )  = (opCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpAntiAbsorbentTerm n ) → (OpAntiAbsorbentTerm n )))
+  simplifyOp _ (opOL x1 x2 )  = (opOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpAntiAbsorbentTerm2 n A ) → (OpAntiAbsorbentTerm2 n A )))
+  simplifyOpE _ _ (opOL2 x1 x2 )  = (opOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((AntiAbsorbent A ) → (AntiAbsorbentTerm  → A )))
   evalB An (opL x1 x2 )  = ((op An ) (evalB An x1 ) (evalB An x2 ) )
   
@@ -116,4 +146,5 @@ module AntiAbsorbent  where
   record Tagless (A  : Set) (Repr  : (Set  → Set ))  : Set where
     constructor tagless
     field
-      opT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      opT : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

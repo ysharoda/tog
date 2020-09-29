@@ -1,4 +1,5 @@
-module AddCommMonWithMultSemigroup  where
+
+ module AddCommMonWithMultSemigroup  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -14,14 +15,16 @@ module AddCommMonWithMultSemigroup  where
       runit_0ᵢ : ({x  : A }  → (+ x 0ᵢ ) ≡ x )
       associative_+ : ({x y z  : A }  → (+ (+ x y ) z ) ≡ (+ x (+ y z ) ))
       commutative_+ : ({x y  : A }  → (+ x y ) ≡ (+ y x ))
-      associative_* : ({x y z  : A }  → (* (* x y ) z ) ≡ (* x (* y z ) ))
+      associative_* : ({x y z  : A }  → (* (* x y ) z ) ≡ (* x (* y z ) )) 
+  
   open AddCommMonWithMultSemigroup
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       *S : (AS  → (AS  → AS ))
       0S : AS 
-      +S : (AS  → (AS  → AS ))
+      +S : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
@@ -32,41 +35,100 @@ module AddCommMonWithMultSemigroup  where
       runit_0P : ({xP  : (Prod AP AP )}  → (+P xP 0P ) ≡ xP )
       associative_+P : ({xP yP zP  : (Prod AP AP )}  → (+P (+P xP yP ) zP ) ≡ (+P xP (+P yP zP ) ))
       commutative_+P : ({xP yP  : (Prod AP AP )}  → (+P xP yP ) ≡ (+P yP xP ))
-      associative_*P : ({xP yP zP  : (Prod AP AP )}  → (*P (*P xP yP ) zP ) ≡ (*P xP (*P yP zP ) ))
+      associative_*P : ({xP yP zP  : (Prod AP AP )}  → (*P (*P xP yP ) zP ) ≡ (*P xP (*P yP zP ) )) 
+  
   record Hom (A1 A2  : Set ) (Ad1  : (AddCommMonWithMultSemigroup A1 )) (Ad2  : (AddCommMonWithMultSemigroup A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-* : ({x1  : A1} {x2  : A1}  → (hom ((* Ad1 ) x1 x2 ) ) ≡ ((* Ad2 ) (hom x1 ) (hom x2 ) ))
       pres-0 : (  (hom (0ᵢ Ad1 )  ) ≡ (0ᵢ Ad2 ) )
-      pres-+ : ({x1  : A1} {x2  : A1}  → (hom ((+ Ad1 ) x1 x2 ) ) ≡ ((+ Ad2 ) (hom x1 ) (hom x2 ) ))
+      pres-+ : ({x1  : A1} {x2  : A1}  → (hom ((+ Ad1 ) x1 x2 ) ) ≡ ((+ Ad2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Ad1  : (AddCommMonWithMultSemigroup A1 )) (Ad2  : (AddCommMonWithMultSemigroup A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-* : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((* Ad1 ) x1 x2 ) ((* Ad2 ) y1 y2 ) ))))
       interp-0 : (  (interp (0ᵢ Ad1 )  (0ᵢ Ad2 )  ))
-      interp-+ : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((+ Ad1 ) x1 x2 ) ((+ Ad2 ) y1 y2 ) ))))
+      interp-+ : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((+ Ad1 ) x1 x2 ) ((+ Ad2 ) y1 y2 ) )))) 
+  
   data AddCommMonWithMultSemigroupTerm  : Set where
     *L : (AddCommMonWithMultSemigroupTerm   → (AddCommMonWithMultSemigroupTerm   → AddCommMonWithMultSemigroupTerm  ))
     0L : AddCommMonWithMultSemigroupTerm  
-    +L : (AddCommMonWithMultSemigroupTerm   → (AddCommMonWithMultSemigroupTerm   → AddCommMonWithMultSemigroupTerm  ))
+    +L : (AddCommMonWithMultSemigroupTerm   → (AddCommMonWithMultSemigroupTerm   → AddCommMonWithMultSemigroupTerm  )) 
+  
   data ClAddCommMonWithMultSemigroupTerm (A  : Set )  : Set where
     sing : (A  → (ClAddCommMonWithMultSemigroupTerm A ) )
     *Cl : ((ClAddCommMonWithMultSemigroupTerm A )  → ((ClAddCommMonWithMultSemigroupTerm A )  → (ClAddCommMonWithMultSemigroupTerm A ) ))
     0Cl : (ClAddCommMonWithMultSemigroupTerm A ) 
-    +Cl : ((ClAddCommMonWithMultSemigroupTerm A )  → ((ClAddCommMonWithMultSemigroupTerm A )  → (ClAddCommMonWithMultSemigroupTerm A ) ))
+    +Cl : ((ClAddCommMonWithMultSemigroupTerm A )  → ((ClAddCommMonWithMultSemigroupTerm A )  → (ClAddCommMonWithMultSemigroupTerm A ) )) 
+  
   data OpAddCommMonWithMultSemigroupTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpAddCommMonWithMultSemigroupTerm n ) )
     *OL : ((OpAddCommMonWithMultSemigroupTerm n )  → ((OpAddCommMonWithMultSemigroupTerm n )  → (OpAddCommMonWithMultSemigroupTerm n ) ))
     0OL : (OpAddCommMonWithMultSemigroupTerm n ) 
-    +OL : ((OpAddCommMonWithMultSemigroupTerm n )  → ((OpAddCommMonWithMultSemigroupTerm n )  → (OpAddCommMonWithMultSemigroupTerm n ) ))
+    +OL : ((OpAddCommMonWithMultSemigroupTerm n )  → ((OpAddCommMonWithMultSemigroupTerm n )  → (OpAddCommMonWithMultSemigroupTerm n ) )) 
+  
   data OpAddCommMonWithMultSemigroupTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpAddCommMonWithMultSemigroupTerm2 n A ) )
     sing2 : (A  → (OpAddCommMonWithMultSemigroupTerm2 n A ) )
     *OL2 : ((OpAddCommMonWithMultSemigroupTerm2 n A )  → ((OpAddCommMonWithMultSemigroupTerm2 n A )  → (OpAddCommMonWithMultSemigroupTerm2 n A ) ))
     0OL2 : (OpAddCommMonWithMultSemigroupTerm2 n A ) 
-    +OL2 : ((OpAddCommMonWithMultSemigroupTerm2 n A )  → ((OpAddCommMonWithMultSemigroupTerm2 n A )  → (OpAddCommMonWithMultSemigroupTerm2 n A ) ))
+    +OL2 : ((OpAddCommMonWithMultSemigroupTerm2 n A )  → ((OpAddCommMonWithMultSemigroupTerm2 n A )  → (OpAddCommMonWithMultSemigroupTerm2 n A ) )) 
+  
+  simplifyB : (AddCommMonWithMultSemigroupTerm  → AddCommMonWithMultSemigroupTerm )
+  simplifyB (+L 0L x )  = x 
+  
+  simplifyB (+L x 0L )  = x 
+  
+  simplifyB (*L x1 x2 )  = (*L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB 0L  = 0L 
+  
+  simplifyB (+L x1 x2 )  = (+L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClAddCommMonWithMultSemigroupTerm A ) → (ClAddCommMonWithMultSemigroupTerm A )))
+  simplifyCl _ (+Cl 0Cl x )  = x 
+  
+  simplifyCl _ (+Cl x 0Cl )  = x 
+  
+  simplifyCl _ (*Cl x1 x2 )  = (*Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ 0Cl  = 0Cl 
+  
+  simplifyCl _ (+Cl x1 x2 )  = (+Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpAddCommMonWithMultSemigroupTerm n ) → (OpAddCommMonWithMultSemigroupTerm n )))
+  simplifyOp _ (+OL 0OL x )  = x 
+  
+  simplifyOp _ (+OL x 0OL )  = x 
+  
+  simplifyOp _ (*OL x1 x2 )  = (*OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ 0OL  = 0OL 
+  
+  simplifyOp _ (+OL x1 x2 )  = (+OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpAddCommMonWithMultSemigroupTerm2 n A ) → (OpAddCommMonWithMultSemigroupTerm2 n A )))
+  simplifyOpE _ _ (+OL2 0OL2 x )  = x 
+  
+  simplifyOpE _ _ (+OL2 x 0OL2 )  = x 
+  
+  simplifyOpE _ _ (*OL2 x1 x2 )  = (*OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ 0OL2  = 0OL2 
+  
+  simplifyOpE _ _ (+OL2 x1 x2 )  = (+OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((AddCommMonWithMultSemigroup A ) → (AddCommMonWithMultSemigroupTerm  → A )))
   evalB Ad (*L x1 x2 )  = ((* Ad ) (evalB Ad x1 ) (evalB Ad x2 ) )
   
@@ -216,4 +278,5 @@ module AddCommMonWithMultSemigroup  where
     field
       *T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
       0T : (Repr A ) 
-      +T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      +T : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

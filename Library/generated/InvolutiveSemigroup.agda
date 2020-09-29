@@ -1,4 +1,5 @@
-module InvolutiveSemigroup  where
+
+ module InvolutiveSemigroup  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -11,13 +12,15 @@ module InvolutiveSemigroup  where
       associative_op : ({x y z  : A }  → (op (op x y ) z ) ≡ (op x (op y z ) ))
       prim : (A  → A )
       involutive_prim : ({x  : A }  → (prim (prim x ) ) ≡ x )
-      antidis_prim_op : ({x y  : A }  → (prim (op x y ) ) ≡ (op (prim y ) (prim x ) ))
+      antidis_prim_op : ({x y  : A }  → (prim (op x y ) ) ≡ (op (prim y ) (prim x ) )) 
+  
   open InvolutiveSemigroup
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       opS : (AS  → (AS  → AS ))
-      primS : (AS  → AS )
+      primS : (AS  → AS ) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
@@ -25,35 +28,86 @@ module InvolutiveSemigroup  where
       primP : ((Prod AP AP ) → (Prod AP AP ))
       associative_opP : ({xP yP zP  : (Prod AP AP )}  → (opP (opP xP yP ) zP ) ≡ (opP xP (opP yP zP ) ))
       involutive_primP : ({xP  : (Prod AP AP )}  → (primP (primP xP ) ) ≡ xP )
-      antidis_prim_opP : ({xP yP  : (Prod AP AP )}  → (primP (opP xP yP ) ) ≡ (opP (primP yP ) (primP xP ) ))
+      antidis_prim_opP : ({xP yP  : (Prod AP AP )}  → (primP (opP xP yP ) ) ≡ (opP (primP yP ) (primP xP ) )) 
+  
   record Hom (A1 A2  : Set ) (In1  : (InvolutiveSemigroup A1 )) (In2  : (InvolutiveSemigroup A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op In1 ) x1 x2 ) ) ≡ ((op In2 ) (hom x1 ) (hom x2 ) ))
-      pres-prim : ({x1  : A1}  → (hom ((prim In1 ) x1 ) ) ≡ ((prim In2 ) (hom x1 ) ))
+      pres-prim : ({x1  : A1}  → (hom ((prim In1 ) x1 ) ) ≡ ((prim In2 ) (hom x1 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (In1  : (InvolutiveSemigroup A1 )) (In2  : (InvolutiveSemigroup A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op In1 ) x1 x2 ) ((op In2 ) y1 y2 ) ))))
-      interp-prim : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((prim In1 ) x1 ) ((prim In2 ) y1 ) )))
+      interp-prim : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((prim In1 ) x1 ) ((prim In2 ) y1 ) ))) 
+  
   data InvolutiveSemigroupTerm  : Set where
     opL : (InvolutiveSemigroupTerm   → (InvolutiveSemigroupTerm   → InvolutiveSemigroupTerm  ))
-    primL : (InvolutiveSemigroupTerm   → InvolutiveSemigroupTerm  )
+    primL : (InvolutiveSemigroupTerm   → InvolutiveSemigroupTerm  ) 
+  
   data ClInvolutiveSemigroupTerm (A  : Set )  : Set where
     sing : (A  → (ClInvolutiveSemigroupTerm A ) )
     opCl : ((ClInvolutiveSemigroupTerm A )  → ((ClInvolutiveSemigroupTerm A )  → (ClInvolutiveSemigroupTerm A ) ))
-    primCl : ((ClInvolutiveSemigroupTerm A )  → (ClInvolutiveSemigroupTerm A ) )
+    primCl : ((ClInvolutiveSemigroupTerm A )  → (ClInvolutiveSemigroupTerm A ) ) 
+  
   data OpInvolutiveSemigroupTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpInvolutiveSemigroupTerm n ) )
     opOL : ((OpInvolutiveSemigroupTerm n )  → ((OpInvolutiveSemigroupTerm n )  → (OpInvolutiveSemigroupTerm n ) ))
-    primOL : ((OpInvolutiveSemigroupTerm n )  → (OpInvolutiveSemigroupTerm n ) )
+    primOL : ((OpInvolutiveSemigroupTerm n )  → (OpInvolutiveSemigroupTerm n ) ) 
+  
   data OpInvolutiveSemigroupTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpInvolutiveSemigroupTerm2 n A ) )
     sing2 : (A  → (OpInvolutiveSemigroupTerm2 n A ) )
     opOL2 : ((OpInvolutiveSemigroupTerm2 n A )  → ((OpInvolutiveSemigroupTerm2 n A )  → (OpInvolutiveSemigroupTerm2 n A ) ))
-    primOL2 : ((OpInvolutiveSemigroupTerm2 n A )  → (OpInvolutiveSemigroupTerm2 n A ) )
+    primOL2 : ((OpInvolutiveSemigroupTerm2 n A )  → (OpInvolutiveSemigroupTerm2 n A ) ) 
+  
+  simplifyB : (InvolutiveSemigroupTerm  → InvolutiveSemigroupTerm )
+  simplifyB (primL (primL x ) )  = x 
+  
+  simplifyB (opL (primL y ) (primL x ) )  = (primL (opL x y ) )
+  
+  simplifyB (opL x1 x2 )  = (opL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB (primL x1 )  = (primL (simplifyB x1 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClInvolutiveSemigroupTerm A ) → (ClInvolutiveSemigroupTerm A )))
+  simplifyCl _ (primCl (primCl x ) )  = x 
+  
+  simplifyCl _ (opCl (primCl y ) (primCl x ) )  = (primCl (opCl x y ) )
+  
+  simplifyCl _ (opCl x1 x2 )  = (opCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (primCl x1 )  = (primCl (simplifyCl _ x1 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpInvolutiveSemigroupTerm n ) → (OpInvolutiveSemigroupTerm n )))
+  simplifyOp _ (primOL (primOL x ) )  = x 
+  
+  simplifyOp _ (opOL (primOL y ) (primOL x ) )  = (primOL (opOL x y ) )
+  
+  simplifyOp _ (opOL x1 x2 )  = (opOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (primOL x1 )  = (primOL (simplifyOp _ x1 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpInvolutiveSemigroupTerm2 n A ) → (OpInvolutiveSemigroupTerm2 n A )))
+  simplifyOpE _ _ (primOL2 (primOL2 x ) )  = x 
+  
+  simplifyOpE _ _ (opOL2 (primOL2 y ) (primOL2 x ) )  = (primOL2 (opOL2 x y ) )
+  
+  simplifyOpE _ _ (opOL2 x1 x2 )  = (opOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (primOL2 x1 )  = (primOL2 (simplifyOpE _ _ x1 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((InvolutiveSemigroup A ) → (InvolutiveSemigroupTerm  → A )))
   evalB In (opL x1 x2 )  = ((op In ) (evalB In x1 ) (evalB In x2 ) )
   
@@ -166,4 +220,5 @@ module InvolutiveSemigroup  where
     constructor tagless
     field
       opT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
-      primT : ((Repr A )  → (Repr A ) )
+      primT : ((Repr A )  → (Repr A ) ) 
+   

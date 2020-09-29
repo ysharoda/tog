@@ -1,4 +1,5 @@
-module PseudoInvolution  where
+
+ module PseudoInvolution  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -9,47 +10,84 @@ module PseudoInvolution  where
     field
       inv : (A  → A )
       op : (A  → (A  → A ))
-      quasiRightInverse_inv_op_e : ({x  : A }  → (op (op (inv x ) x ) (inv x ) ) ≡ (inv x ))
+      quasiRightInverse_inv_op_e : ({x  : A }  → (op (op (inv x ) x ) (inv x ) ) ≡ (inv x )) 
+  
   open PseudoInvolution
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       invS : (AS  → AS )
-      opS : (AS  → (AS  → AS ))
+      opS : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       invP : ((Prod AP AP ) → (Prod AP AP ))
       opP : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
-      quasiRightInverse_inv_op_eP : ({xP  : (Prod AP AP )}  → (opP (opP (invP xP ) xP ) (invP xP ) ) ≡ (invP xP ))
+      quasiRightInverse_inv_op_eP : ({xP  : (Prod AP AP )}  → (opP (opP (invP xP ) xP ) (invP xP ) ) ≡ (invP xP )) 
+  
   record Hom (A1 A2  : Set ) (Ps1  : (PseudoInvolution A1 )) (Ps2  : (PseudoInvolution A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-inv : ({x1  : A1}  → (hom ((inv Ps1 ) x1 ) ) ≡ ((inv Ps2 ) (hom x1 ) ))
-      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Ps1 ) x1 x2 ) ) ≡ ((op Ps2 ) (hom x1 ) (hom x2 ) ))
+      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Ps1 ) x1 x2 ) ) ≡ ((op Ps2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Ps1  : (PseudoInvolution A1 )) (Ps2  : (PseudoInvolution A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-inv : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((inv Ps1 ) x1 ) ((inv Ps2 ) y1 ) )))
-      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Ps1 ) x1 x2 ) ((op Ps2 ) y1 y2 ) ))))
+      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Ps1 ) x1 x2 ) ((op Ps2 ) y1 y2 ) )))) 
+  
   data PseudoInvolutionTerm  : Set where
     invL : (PseudoInvolutionTerm   → PseudoInvolutionTerm  )
-    opL : (PseudoInvolutionTerm   → (PseudoInvolutionTerm   → PseudoInvolutionTerm  ))
+    opL : (PseudoInvolutionTerm   → (PseudoInvolutionTerm   → PseudoInvolutionTerm  )) 
+  
   data ClPseudoInvolutionTerm (A  : Set )  : Set where
     sing : (A  → (ClPseudoInvolutionTerm A ) )
     invCl : ((ClPseudoInvolutionTerm A )  → (ClPseudoInvolutionTerm A ) )
-    opCl : ((ClPseudoInvolutionTerm A )  → ((ClPseudoInvolutionTerm A )  → (ClPseudoInvolutionTerm A ) ))
+    opCl : ((ClPseudoInvolutionTerm A )  → ((ClPseudoInvolutionTerm A )  → (ClPseudoInvolutionTerm A ) )) 
+  
   data OpPseudoInvolutionTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpPseudoInvolutionTerm n ) )
     invOL : ((OpPseudoInvolutionTerm n )  → (OpPseudoInvolutionTerm n ) )
-    opOL : ((OpPseudoInvolutionTerm n )  → ((OpPseudoInvolutionTerm n )  → (OpPseudoInvolutionTerm n ) ))
+    opOL : ((OpPseudoInvolutionTerm n )  → ((OpPseudoInvolutionTerm n )  → (OpPseudoInvolutionTerm n ) )) 
+  
   data OpPseudoInvolutionTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpPseudoInvolutionTerm2 n A ) )
     sing2 : (A  → (OpPseudoInvolutionTerm2 n A ) )
     invOL2 : ((OpPseudoInvolutionTerm2 n A )  → (OpPseudoInvolutionTerm2 n A ) )
-    opOL2 : ((OpPseudoInvolutionTerm2 n A )  → ((OpPseudoInvolutionTerm2 n A )  → (OpPseudoInvolutionTerm2 n A ) ))
+    opOL2 : ((OpPseudoInvolutionTerm2 n A )  → ((OpPseudoInvolutionTerm2 n A )  → (OpPseudoInvolutionTerm2 n A ) )) 
+  
+  simplifyB : (PseudoInvolutionTerm  → PseudoInvolutionTerm )
+  simplifyB (invL x1 )  = (invL (simplifyB x1 ) )
+  
+  simplifyB (opL x1 x2 )  = (opL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClPseudoInvolutionTerm A ) → (ClPseudoInvolutionTerm A )))
+  simplifyCl _ (invCl x1 )  = (invCl (simplifyCl _ x1 ) )
+  
+  simplifyCl _ (opCl x1 x2 )  = (opCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpPseudoInvolutionTerm n ) → (OpPseudoInvolutionTerm n )))
+  simplifyOp _ (invOL x1 )  = (invOL (simplifyOp _ x1 ) )
+  
+  simplifyOp _ (opOL x1 x2 )  = (opOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpPseudoInvolutionTerm2 n A ) → (OpPseudoInvolutionTerm2 n A )))
+  simplifyOpE _ _ (invOL2 x1 )  = (invOL2 (simplifyOpE _ _ x1 ) )
+  
+  simplifyOpE _ _ (opOL2 x1 x2 )  = (opOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((PseudoInvolution A ) → (PseudoInvolutionTerm  → A )))
   evalB Ps (invL x1 )  = ((inv Ps ) (evalB Ps x1 ) )
   
@@ -162,4 +200,5 @@ module PseudoInvolution  where
     constructor tagless
     field
       invT : ((Repr A )  → (Repr A ) )
-      opT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      opT : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

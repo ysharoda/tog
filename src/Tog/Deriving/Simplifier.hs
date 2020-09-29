@@ -7,6 +7,7 @@ import Tog.Deriving.EqTheory
 import Tog.Deriving.Utils.Types
 import Tog.Deriving.Terms
 import Tog.Deriving.Utils.Renames (foldrenConstrs)
+import Tog.Deriving.Utils.Bindings (getBindingArgs)
 
 import Control.Lens ((^.))
 import Data.Generics (everything, mkQ)
@@ -33,12 +34,29 @@ minMax e1 e2 =
   else if explength e1 < explength e2 then Just (e1,e2)
   else Just (e2,e1) 
 
+gatherVars :: Telescope -> [String]
+gatherVars (Tel binds) =
+  everything (++) (mkQ [] (\(Name (_,nm)) -> [nm])) $ map getBindingArgs binds
+
+count :: Expr -> String -> Int 
+count e el = everything (+) (mkQ 0 (\(Name (_,nm)) -> if nm == el then 1 else 0)) e 
+  
+isLinear :: Expr -> Bool
+isLinear (Pi tel e) =
+  let vs = gatherVars tel
+      occurences = map (count e) vs
+  in null $ filter (/= 1) occurences
+isLinear _ = True 
+
 -- Given a Constr that is an equality , if one of the sides have length less than the other, then we create a pattern match 
 simplify :: Constr -> Maybe (Pattern,FunDefBody) 
 simplify (Constr _ e) = 
  case e of
    Eq e1 e2 -> helper e1 e2 
-   Pi _ (Eq e1 e2) -> helper e1 e2 
+   Pi p (Eq e1 e2) ->
+      if (isLinear (Pi p e1)) && (isLinear (Pi p e2))
+      then helper e1 e2
+      else Nothing 
    _ -> Nothing
  where
    helper e1 e2 =

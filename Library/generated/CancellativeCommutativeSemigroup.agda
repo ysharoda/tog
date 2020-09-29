@@ -1,4 +1,5 @@
-module CancellativeCommutativeSemigroup  where
+
+ module CancellativeCommutativeSemigroup  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -11,12 +12,14 @@ module CancellativeCommutativeSemigroup  where
       associative_op : ({x y z  : A }  → (op (op x y ) z ) ≡ (op x (op y z ) ))
       commutative_op : ({x y  : A }  → (op x y ) ≡ (op y x ))
       leftCancellative : ({x y z  : A }  → ((op z x ) ≡ (op z y ) → x  ≡ y ))
-      rightCancellative : ({x y z  : A }  → ((op x z ) ≡ (op y z ) → x  ≡ y ))
+      rightCancellative : ({x y z  : A }  → ((op x z ) ≡ (op y z ) → x  ≡ y )) 
+  
   open CancellativeCommutativeSemigroup
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
-      opS : (AS  → (AS  → AS ))
+      opS : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
@@ -24,29 +27,56 @@ module CancellativeCommutativeSemigroup  where
       associative_opP : ({xP yP zP  : (Prod AP AP )}  → (opP (opP xP yP ) zP ) ≡ (opP xP (opP yP zP ) ))
       commutative_opP : ({xP yP  : (Prod AP AP )}  → (opP xP yP ) ≡ (opP yP xP ))
       leftCancellativeP : ({xP yP zP  : (Prod AP AP )}  → ((opP zP xP ) ≡ (opP zP yP ) → xP  ≡ yP ))
-      rightCancellativeP : ({xP yP zP  : (Prod AP AP )}  → ((opP xP zP ) ≡ (opP yP zP ) → xP  ≡ yP ))
+      rightCancellativeP : ({xP yP zP  : (Prod AP AP )}  → ((opP xP zP ) ≡ (opP yP zP ) → xP  ≡ yP )) 
+  
   record Hom (A1 A2  : Set ) (Ca1  : (CancellativeCommutativeSemigroup A1 )) (Ca2  : (CancellativeCommutativeSemigroup A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
-      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Ca1 ) x1 x2 ) ) ≡ ((op Ca2 ) (hom x1 ) (hom x2 ) ))
+      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Ca1 ) x1 x2 ) ) ≡ ((op Ca2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Ca1  : (CancellativeCommutativeSemigroup A1 )) (Ca2  : (CancellativeCommutativeSemigroup A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
-      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Ca1 ) x1 x2 ) ((op Ca2 ) y1 y2 ) ))))
+      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Ca1 ) x1 x2 ) ((op Ca2 ) y1 y2 ) )))) 
+  
   data CancellativeCommutativeSemigroupTerm  : Set where
-    opL : (CancellativeCommutativeSemigroupTerm   → (CancellativeCommutativeSemigroupTerm   → CancellativeCommutativeSemigroupTerm  ))
+    opL : (CancellativeCommutativeSemigroupTerm   → (CancellativeCommutativeSemigroupTerm   → CancellativeCommutativeSemigroupTerm  )) 
+  
   data ClCancellativeCommutativeSemigroupTerm (A  : Set )  : Set where
     sing : (A  → (ClCancellativeCommutativeSemigroupTerm A ) )
-    opCl : ((ClCancellativeCommutativeSemigroupTerm A )  → ((ClCancellativeCommutativeSemigroupTerm A )  → (ClCancellativeCommutativeSemigroupTerm A ) ))
+    opCl : ((ClCancellativeCommutativeSemigroupTerm A )  → ((ClCancellativeCommutativeSemigroupTerm A )  → (ClCancellativeCommutativeSemigroupTerm A ) )) 
+  
   data OpCancellativeCommutativeSemigroupTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpCancellativeCommutativeSemigroupTerm n ) )
-    opOL : ((OpCancellativeCommutativeSemigroupTerm n )  → ((OpCancellativeCommutativeSemigroupTerm n )  → (OpCancellativeCommutativeSemigroupTerm n ) ))
+    opOL : ((OpCancellativeCommutativeSemigroupTerm n )  → ((OpCancellativeCommutativeSemigroupTerm n )  → (OpCancellativeCommutativeSemigroupTerm n ) )) 
+  
   data OpCancellativeCommutativeSemigroupTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpCancellativeCommutativeSemigroupTerm2 n A ) )
     sing2 : (A  → (OpCancellativeCommutativeSemigroupTerm2 n A ) )
-    opOL2 : ((OpCancellativeCommutativeSemigroupTerm2 n A )  → ((OpCancellativeCommutativeSemigroupTerm2 n A )  → (OpCancellativeCommutativeSemigroupTerm2 n A ) ))
+    opOL2 : ((OpCancellativeCommutativeSemigroupTerm2 n A )  → ((OpCancellativeCommutativeSemigroupTerm2 n A )  → (OpCancellativeCommutativeSemigroupTerm2 n A ) )) 
+  
+  simplifyB : (CancellativeCommutativeSemigroupTerm  → CancellativeCommutativeSemigroupTerm )
+  simplifyB (opL x1 x2 )  = (opL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClCancellativeCommutativeSemigroupTerm A ) → (ClCancellativeCommutativeSemigroupTerm A )))
+  simplifyCl _ (opCl x1 x2 )  = (opCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpCancellativeCommutativeSemigroupTerm n ) → (OpCancellativeCommutativeSemigroupTerm n )))
+  simplifyOp _ (opOL x1 x2 )  = (opOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpCancellativeCommutativeSemigroupTerm2 n A ) → (OpCancellativeCommutativeSemigroupTerm2 n A )))
+  simplifyOpE _ _ (opOL2 x1 x2 )  = (opOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((CancellativeCommutativeSemigroup A ) → (CancellativeCommutativeSemigroupTerm  → A )))
   evalB Ca (opL x1 x2 )  = ((op Ca ) (evalB Ca x1 ) (evalB Ca x2 ) )
   
@@ -122,4 +152,5 @@ module CancellativeCommutativeSemigroup  where
   record Tagless (A  : Set) (Repr  : (Set  → Set ))  : Set where
     constructor tagless
     field
-      opT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      opT : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

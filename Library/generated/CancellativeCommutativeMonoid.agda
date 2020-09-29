@@ -1,4 +1,5 @@
-module CancellativeCommutativeMonoid  where
+
+ module CancellativeCommutativeMonoid  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -14,13 +15,15 @@ module CancellativeCommutativeMonoid  where
       associative_op : ({x y z  : A }  → (op (op x y ) z ) ≡ (op x (op y z ) ))
       leftCancellative : ({x y z  : A }  → ((op z x ) ≡ (op z y ) → x  ≡ y ))
       rightCancellative : ({x y z  : A }  → ((op x z ) ≡ (op y z ) → x  ≡ y ))
-      commutative_op : ({x y  : A }  → (op x y ) ≡ (op y x ))
+      commutative_op : ({x y  : A }  → (op x y ) ≡ (op y x )) 
+  
   open CancellativeCommutativeMonoid
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       opS : (AS  → (AS  → AS ))
-      eS : AS 
+      eS : AS  
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
@@ -31,35 +34,86 @@ module CancellativeCommutativeMonoid  where
       associative_opP : ({xP yP zP  : (Prod AP AP )}  → (opP (opP xP yP ) zP ) ≡ (opP xP (opP yP zP ) ))
       leftCancellativeP : ({xP yP zP  : (Prod AP AP )}  → ((opP zP xP ) ≡ (opP zP yP ) → xP  ≡ yP ))
       rightCancellativeP : ({xP yP zP  : (Prod AP AP )}  → ((opP xP zP ) ≡ (opP yP zP ) → xP  ≡ yP ))
-      commutative_opP : ({xP yP  : (Prod AP AP )}  → (opP xP yP ) ≡ (opP yP xP ))
+      commutative_opP : ({xP yP  : (Prod AP AP )}  → (opP xP yP ) ≡ (opP yP xP )) 
+  
   record Hom (A1 A2  : Set ) (Ca1  : (CancellativeCommutativeMonoid A1 )) (Ca2  : (CancellativeCommutativeMonoid A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Ca1 ) x1 x2 ) ) ≡ ((op Ca2 ) (hom x1 ) (hom x2 ) ))
-      pres-e : (  (hom (e Ca1 )  ) ≡ (e Ca2 ) )
+      pres-e : (  (hom (e Ca1 )  ) ≡ (e Ca2 ) ) 
+  
   record RelInterp (A1 A2  : Set ) (Ca1  : (CancellativeCommutativeMonoid A1 )) (Ca2  : (CancellativeCommutativeMonoid A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Ca1 ) x1 x2 ) ((op Ca2 ) y1 y2 ) ))))
-      interp-e : (  (interp (e Ca1 )  (e Ca2 )  ))
+      interp-e : (  (interp (e Ca1 )  (e Ca2 )  )) 
+  
   data CancellativeCommutativeMonoidTerm  : Set where
     opL : (CancellativeCommutativeMonoidTerm   → (CancellativeCommutativeMonoidTerm   → CancellativeCommutativeMonoidTerm  ))
-    eL : CancellativeCommutativeMonoidTerm  
+    eL : CancellativeCommutativeMonoidTerm   
+  
   data ClCancellativeCommutativeMonoidTerm (A  : Set )  : Set where
     sing : (A  → (ClCancellativeCommutativeMonoidTerm A ) )
     opCl : ((ClCancellativeCommutativeMonoidTerm A )  → ((ClCancellativeCommutativeMonoidTerm A )  → (ClCancellativeCommutativeMonoidTerm A ) ))
-    eCl : (ClCancellativeCommutativeMonoidTerm A ) 
+    eCl : (ClCancellativeCommutativeMonoidTerm A )  
+  
   data OpCancellativeCommutativeMonoidTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpCancellativeCommutativeMonoidTerm n ) )
     opOL : ((OpCancellativeCommutativeMonoidTerm n )  → ((OpCancellativeCommutativeMonoidTerm n )  → (OpCancellativeCommutativeMonoidTerm n ) ))
-    eOL : (OpCancellativeCommutativeMonoidTerm n ) 
+    eOL : (OpCancellativeCommutativeMonoidTerm n )  
+  
   data OpCancellativeCommutativeMonoidTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpCancellativeCommutativeMonoidTerm2 n A ) )
     sing2 : (A  → (OpCancellativeCommutativeMonoidTerm2 n A ) )
     opOL2 : ((OpCancellativeCommutativeMonoidTerm2 n A )  → ((OpCancellativeCommutativeMonoidTerm2 n A )  → (OpCancellativeCommutativeMonoidTerm2 n A ) ))
-    eOL2 : (OpCancellativeCommutativeMonoidTerm2 n A ) 
+    eOL2 : (OpCancellativeCommutativeMonoidTerm2 n A )  
+  
+  simplifyB : (CancellativeCommutativeMonoidTerm  → CancellativeCommutativeMonoidTerm )
+  simplifyB (opL eL x )  = x 
+  
+  simplifyB (opL x eL )  = x 
+  
+  simplifyB (opL x1 x2 )  = (opL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB eL  = eL 
+  
+  simplifyCl : ((A  : Set )  → ((ClCancellativeCommutativeMonoidTerm A ) → (ClCancellativeCommutativeMonoidTerm A )))
+  simplifyCl _ (opCl eCl x )  = x 
+  
+  simplifyCl _ (opCl x eCl )  = x 
+  
+  simplifyCl _ (opCl x1 x2 )  = (opCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ eCl  = eCl 
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpCancellativeCommutativeMonoidTerm n ) → (OpCancellativeCommutativeMonoidTerm n )))
+  simplifyOp _ (opOL eOL x )  = x 
+  
+  simplifyOp _ (opOL x eOL )  = x 
+  
+  simplifyOp _ (opOL x1 x2 )  = (opOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ eOL  = eOL 
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpCancellativeCommutativeMonoidTerm2 n A ) → (OpCancellativeCommutativeMonoidTerm2 n A )))
+  simplifyOpE _ _ (opOL2 eOL2 x )  = x 
+  
+  simplifyOpE _ _ (opOL2 x eOL2 )  = x 
+  
+  simplifyOpE _ _ (opOL2 x1 x2 )  = (opOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ eOL2  = eOL2 
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((CancellativeCommutativeMonoid A ) → (CancellativeCommutativeMonoidTerm  → A )))
   evalB Ca (opL x1 x2 )  = ((op Ca ) (evalB Ca x1 ) (evalB Ca x2 ) )
   
@@ -172,4 +226,5 @@ module CancellativeCommutativeMonoid  where
     constructor tagless
     field
       opT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
-      eT : (Repr A ) 
+      eT : (Repr A )  
+   

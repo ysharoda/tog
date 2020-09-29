@@ -1,4 +1,5 @@
-module MultGroup  where
+
+ module MultGroup  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -14,14 +15,16 @@ module MultGroup  where
       associative_* : ({x y z  : A }  → (* (* x y ) z ) ≡ (* x (* y z ) ))
       inv : (A  → A )
       leftInverse_inv_op_1ᵢ : ({x  : A }  → (* x (inv x ) ) ≡ 1ᵢ )
-      rightInverse_inv_op_1ᵢ : ({x  : A }  → (* (inv x ) x ) ≡ 1ᵢ )
+      rightInverse_inv_op_1ᵢ : ({x  : A }  → (* (inv x ) x ) ≡ 1ᵢ ) 
+  
   open MultGroup
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       *S : (AS  → (AS  → AS ))
       1S : AS 
-      invS : (AS  → AS )
+      invS : (AS  → AS ) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
@@ -32,41 +35,100 @@ module MultGroup  where
       runit_1P : ({xP  : (Prod AP AP )}  → (*P xP 1P ) ≡ xP )
       associative_*P : ({xP yP zP  : (Prod AP AP )}  → (*P (*P xP yP ) zP ) ≡ (*P xP (*P yP zP ) ))
       leftInverse_inv_op_1P : ({xP  : (Prod AP AP )}  → (*P xP (invP xP ) ) ≡ 1P )
-      rightInverse_inv_op_1P : ({xP  : (Prod AP AP )}  → (*P (invP xP ) xP ) ≡ 1P )
+      rightInverse_inv_op_1P : ({xP  : (Prod AP AP )}  → (*P (invP xP ) xP ) ≡ 1P ) 
+  
   record Hom (A1 A2  : Set ) (Mu1  : (MultGroup A1 )) (Mu2  : (MultGroup A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-* : ({x1  : A1} {x2  : A1}  → (hom ((* Mu1 ) x1 x2 ) ) ≡ ((* Mu2 ) (hom x1 ) (hom x2 ) ))
       pres-1 : (  (hom (1ᵢ Mu1 )  ) ≡ (1ᵢ Mu2 ) )
-      pres-inv : ({x1  : A1}  → (hom ((inv Mu1 ) x1 ) ) ≡ ((inv Mu2 ) (hom x1 ) ))
+      pres-inv : ({x1  : A1}  → (hom ((inv Mu1 ) x1 ) ) ≡ ((inv Mu2 ) (hom x1 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Mu1  : (MultGroup A1 )) (Mu2  : (MultGroup A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-* : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((* Mu1 ) x1 x2 ) ((* Mu2 ) y1 y2 ) ))))
       interp-1 : (  (interp (1ᵢ Mu1 )  (1ᵢ Mu2 )  ))
-      interp-inv : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((inv Mu1 ) x1 ) ((inv Mu2 ) y1 ) )))
+      interp-inv : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((inv Mu1 ) x1 ) ((inv Mu2 ) y1 ) ))) 
+  
   data MultGroupTerm  : Set where
     *L : (MultGroupTerm   → (MultGroupTerm   → MultGroupTerm  ))
     1L : MultGroupTerm  
-    invL : (MultGroupTerm   → MultGroupTerm  )
+    invL : (MultGroupTerm   → MultGroupTerm  ) 
+  
   data ClMultGroupTerm (A  : Set )  : Set where
     sing : (A  → (ClMultGroupTerm A ) )
     *Cl : ((ClMultGroupTerm A )  → ((ClMultGroupTerm A )  → (ClMultGroupTerm A ) ))
     1Cl : (ClMultGroupTerm A ) 
-    invCl : ((ClMultGroupTerm A )  → (ClMultGroupTerm A ) )
+    invCl : ((ClMultGroupTerm A )  → (ClMultGroupTerm A ) ) 
+  
   data OpMultGroupTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpMultGroupTerm n ) )
     *OL : ((OpMultGroupTerm n )  → ((OpMultGroupTerm n )  → (OpMultGroupTerm n ) ))
     1OL : (OpMultGroupTerm n ) 
-    invOL : ((OpMultGroupTerm n )  → (OpMultGroupTerm n ) )
+    invOL : ((OpMultGroupTerm n )  → (OpMultGroupTerm n ) ) 
+  
   data OpMultGroupTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpMultGroupTerm2 n A ) )
     sing2 : (A  → (OpMultGroupTerm2 n A ) )
     *OL2 : ((OpMultGroupTerm2 n A )  → ((OpMultGroupTerm2 n A )  → (OpMultGroupTerm2 n A ) ))
     1OL2 : (OpMultGroupTerm2 n A ) 
-    invOL2 : ((OpMultGroupTerm2 n A )  → (OpMultGroupTerm2 n A ) )
+    invOL2 : ((OpMultGroupTerm2 n A )  → (OpMultGroupTerm2 n A ) ) 
+  
+  simplifyB : (MultGroupTerm  → MultGroupTerm )
+  simplifyB (*L 1L x )  = x 
+  
+  simplifyB (*L x 1L )  = x 
+  
+  simplifyB (*L x1 x2 )  = (*L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB 1L  = 1L 
+  
+  simplifyB (invL x1 )  = (invL (simplifyB x1 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClMultGroupTerm A ) → (ClMultGroupTerm A )))
+  simplifyCl _ (*Cl 1Cl x )  = x 
+  
+  simplifyCl _ (*Cl x 1Cl )  = x 
+  
+  simplifyCl _ (*Cl x1 x2 )  = (*Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ 1Cl  = 1Cl 
+  
+  simplifyCl _ (invCl x1 )  = (invCl (simplifyCl _ x1 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpMultGroupTerm n ) → (OpMultGroupTerm n )))
+  simplifyOp _ (*OL 1OL x )  = x 
+  
+  simplifyOp _ (*OL x 1OL )  = x 
+  
+  simplifyOp _ (*OL x1 x2 )  = (*OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ 1OL  = 1OL 
+  
+  simplifyOp _ (invOL x1 )  = (invOL (simplifyOp _ x1 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpMultGroupTerm2 n A ) → (OpMultGroupTerm2 n A )))
+  simplifyOpE _ _ (*OL2 1OL2 x )  = x 
+  
+  simplifyOpE _ _ (*OL2 x 1OL2 )  = x 
+  
+  simplifyOpE _ _ (*OL2 x1 x2 )  = (*OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ 1OL2  = 1OL2 
+  
+  simplifyOpE _ _ (invOL2 x1 )  = (invOL2 (simplifyOpE _ _ x1 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((MultGroup A ) → (MultGroupTerm  → A )))
   evalB Mu (*L x1 x2 )  = ((* Mu ) (evalB Mu x1 ) (evalB Mu x2 ) )
   
@@ -216,4 +278,5 @@ module MultGroup  where
     field
       *T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
       1T : (Repr A ) 
-      invT : ((Repr A )  → (Repr A ) )
+      invT : ((Repr A )  → (Repr A ) ) 
+   

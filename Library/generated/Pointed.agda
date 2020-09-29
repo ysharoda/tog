@@ -1,4 +1,5 @@
-module Pointed  where
+
+ module Pointed  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -7,38 +8,67 @@ module Pointed  where
   record Pointed (A  : Set )  : Set where
     constructor PointedC
     field
-      e : A 
+      e : A  
+  
   open Pointed
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
-      eS : AS 
+      eS : AS  
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
-      eP : (Prod AP AP )
+      eP : (Prod AP AP ) 
+  
   record Hom (A1 A2  : Set ) (Po1  : (Pointed A1 )) (Po2  : (Pointed A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
-      pres-e : (  (hom (e Po1 )  ) ≡ (e Po2 ) )
+      pres-e : (  (hom (e Po1 )  ) ≡ (e Po2 ) ) 
+  
   record RelInterp (A1 A2  : Set ) (Po1  : (Pointed A1 )) (Po2  : (Pointed A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
-      interp-e : (  (interp (e Po1 )  (e Po2 )  ))
+      interp-e : (  (interp (e Po1 )  (e Po2 )  )) 
+  
   data PointedTerm  : Set where
-    eL : PointedTerm  
+    eL : PointedTerm   
+  
   data ClPointedTerm (A  : Set )  : Set where
     sing : (A  → (ClPointedTerm A ) )
-    eCl : (ClPointedTerm A ) 
+    eCl : (ClPointedTerm A )  
+  
   data OpPointedTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpPointedTerm n ) )
-    eOL : (OpPointedTerm n ) 
+    eOL : (OpPointedTerm n )  
+  
   data OpPointedTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpPointedTerm2 n A ) )
     sing2 : (A  → (OpPointedTerm2 n A ) )
-    eOL2 : (OpPointedTerm2 n A ) 
+    eOL2 : (OpPointedTerm2 n A )  
+  
+  simplifyB : (PointedTerm  → PointedTerm )
+  simplifyB eL  = eL 
+  
+  simplifyCl : ((A  : Set )  → ((ClPointedTerm A ) → (ClPointedTerm A )))
+  simplifyCl _ eCl  = eCl 
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpPointedTerm n ) → (OpPointedTerm n )))
+  simplifyOp _ eOL  = eOL 
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpPointedTerm2 n A ) → (OpPointedTerm2 n A )))
+  simplifyOpE _ _ eOL2  = eOL2 
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((Pointed A ) → (PointedTerm  → A )))
   evalB Po eL  = (e Po ) 
   
@@ -114,4 +144,5 @@ module Pointed  where
   record Tagless (A  : Set) (Repr  : (Set  → Set ))  : Set where
     constructor tagless
     field
-      eT : (Repr A ) 
+      eT : (Repr A )  
+   

@@ -1,4 +1,5 @@
-module CommutativeAdditiveMagma  where
+
+ module CommutativeAdditiveMagma  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -8,39 +9,68 @@ module CommutativeAdditiveMagma  where
     constructor CommutativeAdditiveMagmaC
     field
       + : (A  → (A  → A ))
-      commutative_+ : ({x y  : A }  → (+ x y ) ≡ (+ y x ))
+      commutative_+ : ({x y  : A }  → (+ x y ) ≡ (+ y x )) 
+  
   open CommutativeAdditiveMagma
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
-      +S : (AS  → (AS  → AS ))
+      +S : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       +P : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
-      commutative_+P : ({xP yP  : (Prod AP AP )}  → (+P xP yP ) ≡ (+P yP xP ))
+      commutative_+P : ({xP yP  : (Prod AP AP )}  → (+P xP yP ) ≡ (+P yP xP )) 
+  
   record Hom (A1 A2  : Set ) (Co1  : (CommutativeAdditiveMagma A1 )) (Co2  : (CommutativeAdditiveMagma A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
-      pres-+ : ({x1  : A1} {x2  : A1}  → (hom ((+ Co1 ) x1 x2 ) ) ≡ ((+ Co2 ) (hom x1 ) (hom x2 ) ))
+      pres-+ : ({x1  : A1} {x2  : A1}  → (hom ((+ Co1 ) x1 x2 ) ) ≡ ((+ Co2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Co1  : (CommutativeAdditiveMagma A1 )) (Co2  : (CommutativeAdditiveMagma A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
-      interp-+ : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((+ Co1 ) x1 x2 ) ((+ Co2 ) y1 y2 ) ))))
+      interp-+ : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((+ Co1 ) x1 x2 ) ((+ Co2 ) y1 y2 ) )))) 
+  
   data CommutativeAdditiveMagmaTerm  : Set where
-    +L : (CommutativeAdditiveMagmaTerm   → (CommutativeAdditiveMagmaTerm   → CommutativeAdditiveMagmaTerm  ))
+    +L : (CommutativeAdditiveMagmaTerm   → (CommutativeAdditiveMagmaTerm   → CommutativeAdditiveMagmaTerm  )) 
+  
   data ClCommutativeAdditiveMagmaTerm (A  : Set )  : Set where
     sing : (A  → (ClCommutativeAdditiveMagmaTerm A ) )
-    +Cl : ((ClCommutativeAdditiveMagmaTerm A )  → ((ClCommutativeAdditiveMagmaTerm A )  → (ClCommutativeAdditiveMagmaTerm A ) ))
+    +Cl : ((ClCommutativeAdditiveMagmaTerm A )  → ((ClCommutativeAdditiveMagmaTerm A )  → (ClCommutativeAdditiveMagmaTerm A ) )) 
+  
   data OpCommutativeAdditiveMagmaTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpCommutativeAdditiveMagmaTerm n ) )
-    +OL : ((OpCommutativeAdditiveMagmaTerm n )  → ((OpCommutativeAdditiveMagmaTerm n )  → (OpCommutativeAdditiveMagmaTerm n ) ))
+    +OL : ((OpCommutativeAdditiveMagmaTerm n )  → ((OpCommutativeAdditiveMagmaTerm n )  → (OpCommutativeAdditiveMagmaTerm n ) )) 
+  
   data OpCommutativeAdditiveMagmaTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpCommutativeAdditiveMagmaTerm2 n A ) )
     sing2 : (A  → (OpCommutativeAdditiveMagmaTerm2 n A ) )
-    +OL2 : ((OpCommutativeAdditiveMagmaTerm2 n A )  → ((OpCommutativeAdditiveMagmaTerm2 n A )  → (OpCommutativeAdditiveMagmaTerm2 n A ) ))
+    +OL2 : ((OpCommutativeAdditiveMagmaTerm2 n A )  → ((OpCommutativeAdditiveMagmaTerm2 n A )  → (OpCommutativeAdditiveMagmaTerm2 n A ) )) 
+  
+  simplifyB : (CommutativeAdditiveMagmaTerm  → CommutativeAdditiveMagmaTerm )
+  simplifyB (+L x1 x2 )  = (+L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClCommutativeAdditiveMagmaTerm A ) → (ClCommutativeAdditiveMagmaTerm A )))
+  simplifyCl _ (+Cl x1 x2 )  = (+Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpCommutativeAdditiveMagmaTerm n ) → (OpCommutativeAdditiveMagmaTerm n )))
+  simplifyOp _ (+OL x1 x2 )  = (+OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpCommutativeAdditiveMagmaTerm2 n A ) → (OpCommutativeAdditiveMagmaTerm2 n A )))
+  simplifyOpE _ _ (+OL2 x1 x2 )  = (+OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((CommutativeAdditiveMagma A ) → (CommutativeAdditiveMagmaTerm  → A )))
   evalB Co (+L x1 x2 )  = ((+ Co ) (evalB Co x1 ) (evalB Co x2 ) )
   
@@ -116,4 +146,5 @@ module CommutativeAdditiveMagma  where
   record Tagless (A  : Set) (Repr  : (Set  → Set ))  : Set where
     constructor tagless
     field
-      +T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      +T : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

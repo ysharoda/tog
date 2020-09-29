@@ -1,4 +1,5 @@
-module LeftMonoid  where
+
+ module LeftMonoid  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -10,48 +11,93 @@ module LeftMonoid  where
       op : (A  → (A  → A ))
       e : A 
       lunit_e : ({x  : A }  → (op e x ) ≡ x )
-      associative_op : ({x y z  : A }  → (op (op x y ) z ) ≡ (op x (op y z ) ))
+      associative_op : ({x y z  : A }  → (op (op x y ) z ) ≡ (op x (op y z ) )) 
+  
   open LeftMonoid
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       opS : (AS  → (AS  → AS ))
-      eS : AS 
+      eS : AS  
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       opP : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
       eP : (Prod AP AP )
       lunit_eP : ({xP  : (Prod AP AP )}  → (opP eP xP ) ≡ xP )
-      associative_opP : ({xP yP zP  : (Prod AP AP )}  → (opP (opP xP yP ) zP ) ≡ (opP xP (opP yP zP ) ))
+      associative_opP : ({xP yP zP  : (Prod AP AP )}  → (opP (opP xP yP ) zP ) ≡ (opP xP (opP yP zP ) )) 
+  
   record Hom (A1 A2  : Set ) (Le1  : (LeftMonoid A1 )) (Le2  : (LeftMonoid A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Le1 ) x1 x2 ) ) ≡ ((op Le2 ) (hom x1 ) (hom x2 ) ))
-      pres-e : (  (hom (e Le1 )  ) ≡ (e Le2 ) )
+      pres-e : (  (hom (e Le1 )  ) ≡ (e Le2 ) ) 
+  
   record RelInterp (A1 A2  : Set ) (Le1  : (LeftMonoid A1 )) (Le2  : (LeftMonoid A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Le1 ) x1 x2 ) ((op Le2 ) y1 y2 ) ))))
-      interp-e : (  (interp (e Le1 )  (e Le2 )  ))
+      interp-e : (  (interp (e Le1 )  (e Le2 )  )) 
+  
   data LeftMonoidTerm  : Set where
     opL : (LeftMonoidTerm   → (LeftMonoidTerm   → LeftMonoidTerm  ))
-    eL : LeftMonoidTerm  
+    eL : LeftMonoidTerm   
+  
   data ClLeftMonoidTerm (A  : Set )  : Set where
     sing : (A  → (ClLeftMonoidTerm A ) )
     opCl : ((ClLeftMonoidTerm A )  → ((ClLeftMonoidTerm A )  → (ClLeftMonoidTerm A ) ))
-    eCl : (ClLeftMonoidTerm A ) 
+    eCl : (ClLeftMonoidTerm A )  
+  
   data OpLeftMonoidTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpLeftMonoidTerm n ) )
     opOL : ((OpLeftMonoidTerm n )  → ((OpLeftMonoidTerm n )  → (OpLeftMonoidTerm n ) ))
-    eOL : (OpLeftMonoidTerm n ) 
+    eOL : (OpLeftMonoidTerm n )  
+  
   data OpLeftMonoidTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpLeftMonoidTerm2 n A ) )
     sing2 : (A  → (OpLeftMonoidTerm2 n A ) )
     opOL2 : ((OpLeftMonoidTerm2 n A )  → ((OpLeftMonoidTerm2 n A )  → (OpLeftMonoidTerm2 n A ) ))
-    eOL2 : (OpLeftMonoidTerm2 n A ) 
+    eOL2 : (OpLeftMonoidTerm2 n A )  
+  
+  simplifyB : (LeftMonoidTerm  → LeftMonoidTerm )
+  simplifyB (opL eL x )  = x 
+  
+  simplifyB (opL x1 x2 )  = (opL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB eL  = eL 
+  
+  simplifyCl : ((A  : Set )  → ((ClLeftMonoidTerm A ) → (ClLeftMonoidTerm A )))
+  simplifyCl _ (opCl eCl x )  = x 
+  
+  simplifyCl _ (opCl x1 x2 )  = (opCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ eCl  = eCl 
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpLeftMonoidTerm n ) → (OpLeftMonoidTerm n )))
+  simplifyOp _ (opOL eOL x )  = x 
+  
+  simplifyOp _ (opOL x1 x2 )  = (opOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ eOL  = eOL 
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpLeftMonoidTerm2 n A ) → (OpLeftMonoidTerm2 n A )))
+  simplifyOpE _ _ (opOL2 eOL2 x )  = x 
+  
+  simplifyOpE _ _ (opOL2 x1 x2 )  = (opOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ eOL2  = eOL2 
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((LeftMonoid A ) → (LeftMonoidTerm  → A )))
   evalB Le (opL x1 x2 )  = ((op Le ) (evalB Le x1 ) (evalB Le x2 ) )
   
@@ -164,4 +210,5 @@ module LeftMonoid  where
     constructor tagless
     field
       opT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
-      eT : (Repr A ) 
+      eT : (Repr A )  
+   

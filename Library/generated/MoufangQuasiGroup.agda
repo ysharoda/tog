@@ -1,4 +1,5 @@
-module MoufangQuasiGroup  where
+
+ module MoufangQuasiGroup  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -14,14 +15,16 @@ module MoufangQuasiGroup  where
       rinv : (A  → (A  → A ))
       rightCancel : ({x y  : A }  → (op (rinv y x ) x ) ≡ y )
       rightCancelOp : ({x y  : A }  → (rinv (op y x ) x ) ≡ y )
-      moufangLaw : ({e x y z  : A }  → ((op y e )  ≡ y  → (op (op (op x y ) z ) x ) ≡ (op x (op y (op (op e z ) x ) ) )))
+      moufangLaw : ({e x y z  : A }  → ((op y e )  ≡ y  → (op (op (op x y ) z ) x ) ≡ (op x (op y (op (op e z ) x ) ) ))) 
+  
   open MoufangQuasiGroup
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       opS : (AS  → (AS  → AS ))
       linvS : (AS  → (AS  → AS ))
-      rinvS : (AS  → (AS  → AS ))
+      rinvS : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
@@ -32,41 +35,84 @@ module MoufangQuasiGroup  where
       lefCancelOpP : ({xP yP  : (Prod AP AP )}  → (linvP xP (opP xP yP ) ) ≡ yP )
       rightCancelP : ({xP yP  : (Prod AP AP )}  → (opP (rinvP yP xP ) xP ) ≡ yP )
       rightCancelOpP : ({xP yP  : (Prod AP AP )}  → (rinvP (opP yP xP ) xP ) ≡ yP )
-      moufangLawP : ({eP xP yP zP  : (Prod AP AP )}  → ((opP yP eP )  ≡ yP  → (opP (opP (opP xP yP ) zP ) xP ) ≡ (opP xP (opP yP (opP (opP eP zP ) xP ) ) )))
+      moufangLawP : ({eP xP yP zP  : (Prod AP AP )}  → ((opP yP eP )  ≡ yP  → (opP (opP (opP xP yP ) zP ) xP ) ≡ (opP xP (opP yP (opP (opP eP zP ) xP ) ) ))) 
+  
   record Hom (A1 A2  : Set ) (Mo1  : (MoufangQuasiGroup A1 )) (Mo2  : (MoufangQuasiGroup A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Mo1 ) x1 x2 ) ) ≡ ((op Mo2 ) (hom x1 ) (hom x2 ) ))
       pres-linv : ({x1  : A1} {x2  : A1}  → (hom ((linv Mo1 ) x1 x2 ) ) ≡ ((linv Mo2 ) (hom x1 ) (hom x2 ) ))
-      pres-rinv : ({x1  : A1} {x2  : A1}  → (hom ((rinv Mo1 ) x1 x2 ) ) ≡ ((rinv Mo2 ) (hom x1 ) (hom x2 ) ))
+      pres-rinv : ({x1  : A1} {x2  : A1}  → (hom ((rinv Mo1 ) x1 x2 ) ) ≡ ((rinv Mo2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Mo1  : (MoufangQuasiGroup A1 )) (Mo2  : (MoufangQuasiGroup A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Mo1 ) x1 x2 ) ((op Mo2 ) y1 y2 ) ))))
       interp-linv : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((linv Mo1 ) x1 x2 ) ((linv Mo2 ) y1 y2 ) ))))
-      interp-rinv : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((rinv Mo1 ) x1 x2 ) ((rinv Mo2 ) y1 y2 ) ))))
+      interp-rinv : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((rinv Mo1 ) x1 x2 ) ((rinv Mo2 ) y1 y2 ) )))) 
+  
   data MoufangQuasiGroupTerm  : Set where
     opL : (MoufangQuasiGroupTerm   → (MoufangQuasiGroupTerm   → MoufangQuasiGroupTerm  ))
     linvL : (MoufangQuasiGroupTerm   → (MoufangQuasiGroupTerm   → MoufangQuasiGroupTerm  ))
-    rinvL : (MoufangQuasiGroupTerm   → (MoufangQuasiGroupTerm   → MoufangQuasiGroupTerm  ))
+    rinvL : (MoufangQuasiGroupTerm   → (MoufangQuasiGroupTerm   → MoufangQuasiGroupTerm  )) 
+  
   data ClMoufangQuasiGroupTerm (A  : Set )  : Set where
     sing : (A  → (ClMoufangQuasiGroupTerm A ) )
     opCl : ((ClMoufangQuasiGroupTerm A )  → ((ClMoufangQuasiGroupTerm A )  → (ClMoufangQuasiGroupTerm A ) ))
     linvCl : ((ClMoufangQuasiGroupTerm A )  → ((ClMoufangQuasiGroupTerm A )  → (ClMoufangQuasiGroupTerm A ) ))
-    rinvCl : ((ClMoufangQuasiGroupTerm A )  → ((ClMoufangQuasiGroupTerm A )  → (ClMoufangQuasiGroupTerm A ) ))
+    rinvCl : ((ClMoufangQuasiGroupTerm A )  → ((ClMoufangQuasiGroupTerm A )  → (ClMoufangQuasiGroupTerm A ) )) 
+  
   data OpMoufangQuasiGroupTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpMoufangQuasiGroupTerm n ) )
     opOL : ((OpMoufangQuasiGroupTerm n )  → ((OpMoufangQuasiGroupTerm n )  → (OpMoufangQuasiGroupTerm n ) ))
     linvOL : ((OpMoufangQuasiGroupTerm n )  → ((OpMoufangQuasiGroupTerm n )  → (OpMoufangQuasiGroupTerm n ) ))
-    rinvOL : ((OpMoufangQuasiGroupTerm n )  → ((OpMoufangQuasiGroupTerm n )  → (OpMoufangQuasiGroupTerm n ) ))
+    rinvOL : ((OpMoufangQuasiGroupTerm n )  → ((OpMoufangQuasiGroupTerm n )  → (OpMoufangQuasiGroupTerm n ) )) 
+  
   data OpMoufangQuasiGroupTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpMoufangQuasiGroupTerm2 n A ) )
     sing2 : (A  → (OpMoufangQuasiGroupTerm2 n A ) )
     opOL2 : ((OpMoufangQuasiGroupTerm2 n A )  → ((OpMoufangQuasiGroupTerm2 n A )  → (OpMoufangQuasiGroupTerm2 n A ) ))
     linvOL2 : ((OpMoufangQuasiGroupTerm2 n A )  → ((OpMoufangQuasiGroupTerm2 n A )  → (OpMoufangQuasiGroupTerm2 n A ) ))
-    rinvOL2 : ((OpMoufangQuasiGroupTerm2 n A )  → ((OpMoufangQuasiGroupTerm2 n A )  → (OpMoufangQuasiGroupTerm2 n A ) ))
+    rinvOL2 : ((OpMoufangQuasiGroupTerm2 n A )  → ((OpMoufangQuasiGroupTerm2 n A )  → (OpMoufangQuasiGroupTerm2 n A ) )) 
+  
+  simplifyB : (MoufangQuasiGroupTerm  → MoufangQuasiGroupTerm )
+  simplifyB (opL x1 x2 )  = (opL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB (linvL x1 x2 )  = (linvL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB (rinvL x1 x2 )  = (rinvL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClMoufangQuasiGroupTerm A ) → (ClMoufangQuasiGroupTerm A )))
+  simplifyCl _ (opCl x1 x2 )  = (opCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (linvCl x1 x2 )  = (linvCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (rinvCl x1 x2 )  = (rinvCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpMoufangQuasiGroupTerm n ) → (OpMoufangQuasiGroupTerm n )))
+  simplifyOp _ (opOL x1 x2 )  = (opOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (linvOL x1 x2 )  = (linvOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (rinvOL x1 x2 )  = (rinvOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpMoufangQuasiGroupTerm2 n A ) → (OpMoufangQuasiGroupTerm2 n A )))
+  simplifyOpE _ _ (opOL2 x1 x2 )  = (opOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (linvOL2 x1 x2 )  = (linvOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (rinvOL2 x1 x2 )  = (rinvOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((MoufangQuasiGroup A ) → (MoufangQuasiGroupTerm  → A )))
   evalB Mo (opL x1 x2 )  = ((op Mo ) (evalB Mo x1 ) (evalB Mo x2 ) )
   
@@ -216,4 +262,5 @@ module MoufangQuasiGroup  where
     field
       opT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
       linvT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
-      rinvT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      rinvT : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

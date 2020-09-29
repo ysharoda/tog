@@ -1,4 +1,5 @@
-module AdditiveSemigroup  where
+
+ module AdditiveSemigroup  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -8,39 +9,68 @@ module AdditiveSemigroup  where
     constructor AdditiveSemigroupC
     field
       + : (A  → (A  → A ))
-      associative_+ : ({x y z  : A }  → (+ (+ x y ) z ) ≡ (+ x (+ y z ) ))
+      associative_+ : ({x y z  : A }  → (+ (+ x y ) z ) ≡ (+ x (+ y z ) )) 
+  
   open AdditiveSemigroup
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
-      +S : (AS  → (AS  → AS ))
+      +S : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       +P : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
-      associative_+P : ({xP yP zP  : (Prod AP AP )}  → (+P (+P xP yP ) zP ) ≡ (+P xP (+P yP zP ) ))
+      associative_+P : ({xP yP zP  : (Prod AP AP )}  → (+P (+P xP yP ) zP ) ≡ (+P xP (+P yP zP ) )) 
+  
   record Hom (A1 A2  : Set ) (Ad1  : (AdditiveSemigroup A1 )) (Ad2  : (AdditiveSemigroup A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
-      pres-+ : ({x1  : A1} {x2  : A1}  → (hom ((+ Ad1 ) x1 x2 ) ) ≡ ((+ Ad2 ) (hom x1 ) (hom x2 ) ))
+      pres-+ : ({x1  : A1} {x2  : A1}  → (hom ((+ Ad1 ) x1 x2 ) ) ≡ ((+ Ad2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Ad1  : (AdditiveSemigroup A1 )) (Ad2  : (AdditiveSemigroup A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
-      interp-+ : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((+ Ad1 ) x1 x2 ) ((+ Ad2 ) y1 y2 ) ))))
+      interp-+ : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((+ Ad1 ) x1 x2 ) ((+ Ad2 ) y1 y2 ) )))) 
+  
   data AdditiveSemigroupTerm  : Set where
-    +L : (AdditiveSemigroupTerm   → (AdditiveSemigroupTerm   → AdditiveSemigroupTerm  ))
+    +L : (AdditiveSemigroupTerm   → (AdditiveSemigroupTerm   → AdditiveSemigroupTerm  )) 
+  
   data ClAdditiveSemigroupTerm (A  : Set )  : Set where
     sing : (A  → (ClAdditiveSemigroupTerm A ) )
-    +Cl : ((ClAdditiveSemigroupTerm A )  → ((ClAdditiveSemigroupTerm A )  → (ClAdditiveSemigroupTerm A ) ))
+    +Cl : ((ClAdditiveSemigroupTerm A )  → ((ClAdditiveSemigroupTerm A )  → (ClAdditiveSemigroupTerm A ) )) 
+  
   data OpAdditiveSemigroupTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpAdditiveSemigroupTerm n ) )
-    +OL : ((OpAdditiveSemigroupTerm n )  → ((OpAdditiveSemigroupTerm n )  → (OpAdditiveSemigroupTerm n ) ))
+    +OL : ((OpAdditiveSemigroupTerm n )  → ((OpAdditiveSemigroupTerm n )  → (OpAdditiveSemigroupTerm n ) )) 
+  
   data OpAdditiveSemigroupTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpAdditiveSemigroupTerm2 n A ) )
     sing2 : (A  → (OpAdditiveSemigroupTerm2 n A ) )
-    +OL2 : ((OpAdditiveSemigroupTerm2 n A )  → ((OpAdditiveSemigroupTerm2 n A )  → (OpAdditiveSemigroupTerm2 n A ) ))
+    +OL2 : ((OpAdditiveSemigroupTerm2 n A )  → ((OpAdditiveSemigroupTerm2 n A )  → (OpAdditiveSemigroupTerm2 n A ) )) 
+  
+  simplifyB : (AdditiveSemigroupTerm  → AdditiveSemigroupTerm )
+  simplifyB (+L x1 x2 )  = (+L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClAdditiveSemigroupTerm A ) → (ClAdditiveSemigroupTerm A )))
+  simplifyCl _ (+Cl x1 x2 )  = (+Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpAdditiveSemigroupTerm n ) → (OpAdditiveSemigroupTerm n )))
+  simplifyOp _ (+OL x1 x2 )  = (+OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpAdditiveSemigroupTerm2 n A ) → (OpAdditiveSemigroupTerm2 n A )))
+  simplifyOpE _ _ (+OL2 x1 x2 )  = (+OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((AdditiveSemigroup A ) → (AdditiveSemigroupTerm  → A )))
   evalB Ad (+L x1 x2 )  = ((+ Ad ) (evalB Ad x1 ) (evalB Ad x2 ) )
   
@@ -116,4 +146,5 @@ module AdditiveSemigroup  where
   record Tagless (A  : Set) (Repr  : (Set  → Set ))  : Set where
     constructor tagless
     field
-      +T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      +T : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

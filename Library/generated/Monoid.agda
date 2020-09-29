@@ -1,4 +1,5 @@
-module Monoid  where
+
+ module Monoid  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -11,13 +12,15 @@ module Monoid  where
       e : A 
       lunit_e : ({x  : A }  → (op e x ) ≡ x )
       runit_e : ({x  : A }  → (op x e ) ≡ x )
-      associative_op : ({x y z  : A }  → (op (op x y ) z ) ≡ (op x (op y z ) ))
+      associative_op : ({x y z  : A }  → (op (op x y ) z ) ≡ (op x (op y z ) )) 
+  
   open Monoid
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       opS : (AS  → (AS  → AS ))
-      eS : AS 
+      eS : AS  
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
@@ -25,35 +28,86 @@ module Monoid  where
       eP : (Prod AP AP )
       lunit_eP : ({xP  : (Prod AP AP )}  → (opP eP xP ) ≡ xP )
       runit_eP : ({xP  : (Prod AP AP )}  → (opP xP eP ) ≡ xP )
-      associative_opP : ({xP yP zP  : (Prod AP AP )}  → (opP (opP xP yP ) zP ) ≡ (opP xP (opP yP zP ) ))
+      associative_opP : ({xP yP zP  : (Prod AP AP )}  → (opP (opP xP yP ) zP ) ≡ (opP xP (opP yP zP ) )) 
+  
   record Hom (A1 A2  : Set ) (Mo1  : (Monoid A1 )) (Mo2  : (Monoid A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Mo1 ) x1 x2 ) ) ≡ ((op Mo2 ) (hom x1 ) (hom x2 ) ))
-      pres-e : (  (hom (e Mo1 )  ) ≡ (e Mo2 ) )
+      pres-e : (  (hom (e Mo1 )  ) ≡ (e Mo2 ) ) 
+  
   record RelInterp (A1 A2  : Set ) (Mo1  : (Monoid A1 )) (Mo2  : (Monoid A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Mo1 ) x1 x2 ) ((op Mo2 ) y1 y2 ) ))))
-      interp-e : (  (interp (e Mo1 )  (e Mo2 )  ))
+      interp-e : (  (interp (e Mo1 )  (e Mo2 )  )) 
+  
   data MonoidTerm  : Set where
     opL : (MonoidTerm   → (MonoidTerm   → MonoidTerm  ))
-    eL : MonoidTerm  
+    eL : MonoidTerm   
+  
   data ClMonoidTerm (A  : Set )  : Set where
     sing : (A  → (ClMonoidTerm A ) )
     opCl : ((ClMonoidTerm A )  → ((ClMonoidTerm A )  → (ClMonoidTerm A ) ))
-    eCl : (ClMonoidTerm A ) 
+    eCl : (ClMonoidTerm A )  
+  
   data OpMonoidTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpMonoidTerm n ) )
     opOL : ((OpMonoidTerm n )  → ((OpMonoidTerm n )  → (OpMonoidTerm n ) ))
-    eOL : (OpMonoidTerm n ) 
+    eOL : (OpMonoidTerm n )  
+  
   data OpMonoidTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpMonoidTerm2 n A ) )
     sing2 : (A  → (OpMonoidTerm2 n A ) )
     opOL2 : ((OpMonoidTerm2 n A )  → ((OpMonoidTerm2 n A )  → (OpMonoidTerm2 n A ) ))
-    eOL2 : (OpMonoidTerm2 n A ) 
+    eOL2 : (OpMonoidTerm2 n A )  
+  
+  simplifyB : (MonoidTerm  → MonoidTerm )
+  simplifyB (opL eL x )  = x 
+  
+  simplifyB (opL x eL )  = x 
+  
+  simplifyB (opL x1 x2 )  = (opL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB eL  = eL 
+  
+  simplifyCl : ((A  : Set )  → ((ClMonoidTerm A ) → (ClMonoidTerm A )))
+  simplifyCl _ (opCl eCl x )  = x 
+  
+  simplifyCl _ (opCl x eCl )  = x 
+  
+  simplifyCl _ (opCl x1 x2 )  = (opCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ eCl  = eCl 
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpMonoidTerm n ) → (OpMonoidTerm n )))
+  simplifyOp _ (opOL eOL x )  = x 
+  
+  simplifyOp _ (opOL x eOL )  = x 
+  
+  simplifyOp _ (opOL x1 x2 )  = (opOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ eOL  = eOL 
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpMonoidTerm2 n A ) → (OpMonoidTerm2 n A )))
+  simplifyOpE _ _ (opOL2 eOL2 x )  = x 
+  
+  simplifyOpE _ _ (opOL2 x eOL2 )  = x 
+  
+  simplifyOpE _ _ (opOL2 x1 x2 )  = (opOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ eOL2  = eOL2 
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((Monoid A ) → (MonoidTerm  → A )))
   evalB Mo (opL x1 x2 )  = ((op Mo ) (evalB Mo x1 ) (evalB Mo x2 ) )
   
@@ -166,4 +220,5 @@ module Monoid  where
     constructor tagless
     field
       opT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
-      eT : (Repr A ) 
+      eT : (Repr A )  
+   

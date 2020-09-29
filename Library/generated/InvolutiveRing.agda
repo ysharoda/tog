@@ -1,4 +1,5 @@
-module InvolutiveRing  where
+
+ module InvolutiveRing  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -29,7 +30,8 @@ module InvolutiveRing  where
       lunit_1ᵢ : ({x  : A }  → (* 1ᵢ x ) ≡ x )
       runit_1ᵢ : ({x  : A }  → (* x 1ᵢ ) ≡ x )
       leftZero_op_0ᵢ : ({x  : A }  → (* 0ᵢ x ) ≡ 0ᵢ )
-      rightZero_op_0ᵢ : ({x  : A }  → (* x 0ᵢ ) ≡ 0ᵢ )
+      rightZero_op_0ᵢ : ({x  : A }  → (* x 0ᵢ ) ≡ 0ᵢ ) 
+  
   open InvolutiveRing
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
@@ -39,7 +41,8 @@ module InvolutiveRing  where
       1S : AS 
       primS : (AS  → AS )
       0S : AS 
-      negS : (AS  → AS )
+      negS : (AS  → AS ) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
@@ -65,7 +68,8 @@ module InvolutiveRing  where
       lunit_1P : ({xP  : (Prod AP AP )}  → (*P 1P xP ) ≡ xP )
       runit_1P : ({xP  : (Prod AP AP )}  → (*P xP 1P ) ≡ xP )
       leftZero_op_0P : ({xP  : (Prod AP AP )}  → (*P 0P xP ) ≡ 0P )
-      rightZero_op_0P : ({xP  : (Prod AP AP )}  → (*P xP 0P ) ≡ 0P )
+      rightZero_op_0P : ({xP  : (Prod AP AP )}  → (*P xP 0P ) ≡ 0P ) 
+  
   record Hom (A1 A2  : Set ) (In1  : (InvolutiveRing A1 )) (In2  : (InvolutiveRing A2 ))  : Set where
     constructor HomC
     field
@@ -75,7 +79,8 @@ module InvolutiveRing  where
       pres-1 : (  (hom (1ᵢ In1 )  ) ≡ (1ᵢ In2 ) )
       pres-prim : ({x1  : A1}  → (hom ((prim In1 ) x1 ) ) ≡ ((prim In2 ) (hom x1 ) ))
       pres-0 : (  (hom (0ᵢ In1 )  ) ≡ (0ᵢ In2 ) )
-      pres-neg : ({x1  : A1}  → (hom ((neg In1 ) x1 ) ) ≡ ((neg In2 ) (hom x1 ) ))
+      pres-neg : ({x1  : A1}  → (hom ((neg In1 ) x1 ) ) ≡ ((neg In2 ) (hom x1 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (In1  : (InvolutiveRing A1 )) (In2  : (InvolutiveRing A2 ))  : Set₁ where
     constructor RelInterpC
     field
@@ -85,14 +90,16 @@ module InvolutiveRing  where
       interp-1 : (  (interp (1ᵢ In1 )  (1ᵢ In2 )  ))
       interp-prim : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((prim In1 ) x1 ) ((prim In2 ) y1 ) )))
       interp-0 : (  (interp (0ᵢ In1 )  (0ᵢ In2 )  ))
-      interp-neg : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((neg In1 ) x1 ) ((neg In2 ) y1 ) )))
+      interp-neg : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((neg In1 ) x1 ) ((neg In2 ) y1 ) ))) 
+  
   data InvolutiveRingTerm  : Set where
     *L : (InvolutiveRingTerm   → (InvolutiveRingTerm   → InvolutiveRingTerm  ))
     +L : (InvolutiveRingTerm   → (InvolutiveRingTerm   → InvolutiveRingTerm  ))
     1L : InvolutiveRingTerm  
     primL : (InvolutiveRingTerm   → InvolutiveRingTerm  )
     0L : InvolutiveRingTerm  
-    negL : (InvolutiveRingTerm   → InvolutiveRingTerm  )
+    negL : (InvolutiveRingTerm   → InvolutiveRingTerm  ) 
+  
   data ClInvolutiveRingTerm (A  : Set )  : Set where
     sing : (A  → (ClInvolutiveRingTerm A ) )
     *Cl : ((ClInvolutiveRingTerm A )  → ((ClInvolutiveRingTerm A )  → (ClInvolutiveRingTerm A ) ))
@@ -100,7 +107,8 @@ module InvolutiveRing  where
     1Cl : (ClInvolutiveRingTerm A ) 
     primCl : ((ClInvolutiveRingTerm A )  → (ClInvolutiveRingTerm A ) )
     0Cl : (ClInvolutiveRingTerm A ) 
-    negCl : ((ClInvolutiveRingTerm A )  → (ClInvolutiveRingTerm A ) )
+    negCl : ((ClInvolutiveRingTerm A )  → (ClInvolutiveRingTerm A ) ) 
+  
   data OpInvolutiveRingTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpInvolutiveRingTerm n ) )
     *OL : ((OpInvolutiveRingTerm n )  → ((OpInvolutiveRingTerm n )  → (OpInvolutiveRingTerm n ) ))
@@ -108,7 +116,8 @@ module InvolutiveRing  where
     1OL : (OpInvolutiveRingTerm n ) 
     primOL : ((OpInvolutiveRingTerm n )  → (OpInvolutiveRingTerm n ) )
     0OL : (OpInvolutiveRingTerm n ) 
-    negOL : ((OpInvolutiveRingTerm n )  → (OpInvolutiveRingTerm n ) )
+    negOL : ((OpInvolutiveRingTerm n )  → (OpInvolutiveRingTerm n ) ) 
+  
   data OpInvolutiveRingTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpInvolutiveRingTerm2 n A ) )
     sing2 : (A  → (OpInvolutiveRingTerm2 n A ) )
@@ -117,7 +126,132 @@ module InvolutiveRing  where
     1OL2 : (OpInvolutiveRingTerm2 n A ) 
     primOL2 : ((OpInvolutiveRingTerm2 n A )  → (OpInvolutiveRingTerm2 n A ) )
     0OL2 : (OpInvolutiveRingTerm2 n A ) 
-    negOL2 : ((OpInvolutiveRingTerm2 n A )  → (OpInvolutiveRingTerm2 n A ) )
+    negOL2 : ((OpInvolutiveRingTerm2 n A )  → (OpInvolutiveRingTerm2 n A ) ) 
+  
+  simplifyB : (InvolutiveRingTerm  → InvolutiveRingTerm )
+  simplifyB (primL 1L )  = 1L 
+  
+  simplifyB (primL (primL x ) )  = x 
+  
+  simplifyB (+L (primL y ) (primL x ) )  = (primL (+L x y ) )
+  
+  simplifyB (*L (primL y ) (primL x ) )  = (primL (*L x y ) )
+  
+  simplifyB (+L 0L x )  = x 
+  
+  simplifyB (+L x 0L )  = x 
+  
+  simplifyB (*L 1L x )  = x 
+  
+  simplifyB (*L x 1L )  = x 
+  
+  simplifyB (*L x1 x2 )  = (*L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB (+L x1 x2 )  = (+L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB 1L  = 1L 
+  
+  simplifyB (primL x1 )  = (primL (simplifyB x1 ) )
+  
+  simplifyB 0L  = 0L 
+  
+  simplifyB (negL x1 )  = (negL (simplifyB x1 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClInvolutiveRingTerm A ) → (ClInvolutiveRingTerm A )))
+  simplifyCl _ (primCl 1Cl )  = 1Cl 
+  
+  simplifyCl _ (primCl (primCl x ) )  = x 
+  
+  simplifyCl _ (+Cl (primCl y ) (primCl x ) )  = (primCl (+Cl x y ) )
+  
+  simplifyCl _ (*Cl (primCl y ) (primCl x ) )  = (primCl (*Cl x y ) )
+  
+  simplifyCl _ (+Cl 0Cl x )  = x 
+  
+  simplifyCl _ (+Cl x 0Cl )  = x 
+  
+  simplifyCl _ (*Cl 1Cl x )  = x 
+  
+  simplifyCl _ (*Cl x 1Cl )  = x 
+  
+  simplifyCl _ (*Cl x1 x2 )  = (*Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (+Cl x1 x2 )  = (+Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ 1Cl  = 1Cl 
+  
+  simplifyCl _ (primCl x1 )  = (primCl (simplifyCl _ x1 ) )
+  
+  simplifyCl _ 0Cl  = 0Cl 
+  
+  simplifyCl _ (negCl x1 )  = (negCl (simplifyCl _ x1 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpInvolutiveRingTerm n ) → (OpInvolutiveRingTerm n )))
+  simplifyOp _ (primOL 1OL )  = 1OL 
+  
+  simplifyOp _ (primOL (primOL x ) )  = x 
+  
+  simplifyOp _ (+OL (primOL y ) (primOL x ) )  = (primOL (+OL x y ) )
+  
+  simplifyOp _ (*OL (primOL y ) (primOL x ) )  = (primOL (*OL x y ) )
+  
+  simplifyOp _ (+OL 0OL x )  = x 
+  
+  simplifyOp _ (+OL x 0OL )  = x 
+  
+  simplifyOp _ (*OL 1OL x )  = x 
+  
+  simplifyOp _ (*OL x 1OL )  = x 
+  
+  simplifyOp _ (*OL x1 x2 )  = (*OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (+OL x1 x2 )  = (+OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ 1OL  = 1OL 
+  
+  simplifyOp _ (primOL x1 )  = (primOL (simplifyOp _ x1 ) )
+  
+  simplifyOp _ 0OL  = 0OL 
+  
+  simplifyOp _ (negOL x1 )  = (negOL (simplifyOp _ x1 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpInvolutiveRingTerm2 n A ) → (OpInvolutiveRingTerm2 n A )))
+  simplifyOpE _ _ (primOL2 1OL2 )  = 1OL2 
+  
+  simplifyOpE _ _ (primOL2 (primOL2 x ) )  = x 
+  
+  simplifyOpE _ _ (+OL2 (primOL2 y ) (primOL2 x ) )  = (primOL2 (+OL2 x y ) )
+  
+  simplifyOpE _ _ (*OL2 (primOL2 y ) (primOL2 x ) )  = (primOL2 (*OL2 x y ) )
+  
+  simplifyOpE _ _ (+OL2 0OL2 x )  = x 
+  
+  simplifyOpE _ _ (+OL2 x 0OL2 )  = x 
+  
+  simplifyOpE _ _ (*OL2 1OL2 x )  = x 
+  
+  simplifyOpE _ _ (*OL2 x 1OL2 )  = x 
+  
+  simplifyOpE _ _ (*OL2 x1 x2 )  = (*OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (+OL2 x1 x2 )  = (+OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ 1OL2  = 1OL2 
+  
+  simplifyOpE _ _ (primOL2 x1 )  = (primOL2 (simplifyOpE _ _ x1 ) )
+  
+  simplifyOpE _ _ 0OL2  = 0OL2 
+  
+  simplifyOpE _ _ (negOL2 x1 )  = (negOL2 (simplifyOpE _ _ x1 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((InvolutiveRing A ) → (InvolutiveRingTerm  → A )))
   evalB In (*L x1 x2 )  = ((* In ) (evalB In x1 ) (evalB In x2 ) )
   
@@ -378,4 +512,5 @@ module InvolutiveRing  where
       1T : (Repr A ) 
       primT : ((Repr A )  → (Repr A ) )
       0T : (Repr A ) 
-      negT : ((Repr A )  → (Repr A ) )
+      negT : ((Repr A )  → (Repr A ) ) 
+   

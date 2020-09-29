@@ -1,4 +1,5 @@
-module InvolutiveFixedPoint  where
+
+ module InvolutiveFixedPoint  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -10,48 +11,101 @@ module InvolutiveFixedPoint  where
       prim : (A  → A )
       1ᵢ : A 
       fixes_prim_1ᵢ : (prim 1ᵢ ) ≡ 1ᵢ 
-      involutive_prim : ({x  : A }  → (prim (prim x ) ) ≡ x )
+      involutive_prim : ({x  : A }  → (prim (prim x ) ) ≡ x ) 
+  
   open InvolutiveFixedPoint
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       primS : (AS  → AS )
-      1S : AS 
+      1S : AS  
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       primP : ((Prod AP AP ) → (Prod AP AP ))
       1P : (Prod AP AP )
       fixes_prim_1P : (primP 1P ) ≡ 1P 
-      involutive_primP : ({xP  : (Prod AP AP )}  → (primP (primP xP ) ) ≡ xP )
+      involutive_primP : ({xP  : (Prod AP AP )}  → (primP (primP xP ) ) ≡ xP ) 
+  
   record Hom (A1 A2  : Set ) (In1  : (InvolutiveFixedPoint A1 )) (In2  : (InvolutiveFixedPoint A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-prim : ({x1  : A1}  → (hom ((prim In1 ) x1 ) ) ≡ ((prim In2 ) (hom x1 ) ))
-      pres-1 : (  (hom (1ᵢ In1 )  ) ≡ (1ᵢ In2 ) )
+      pres-1 : (  (hom (1ᵢ In1 )  ) ≡ (1ᵢ In2 ) ) 
+  
   record RelInterp (A1 A2  : Set ) (In1  : (InvolutiveFixedPoint A1 )) (In2  : (InvolutiveFixedPoint A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-prim : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((prim In1 ) x1 ) ((prim In2 ) y1 ) )))
-      interp-1 : (  (interp (1ᵢ In1 )  (1ᵢ In2 )  ))
+      interp-1 : (  (interp (1ᵢ In1 )  (1ᵢ In2 )  )) 
+  
   data InvolutiveFixedPointTerm  : Set where
     primL : (InvolutiveFixedPointTerm   → InvolutiveFixedPointTerm  )
-    1L : InvolutiveFixedPointTerm  
+    1L : InvolutiveFixedPointTerm   
+  
   data ClInvolutiveFixedPointTerm (A  : Set )  : Set where
     sing : (A  → (ClInvolutiveFixedPointTerm A ) )
     primCl : ((ClInvolutiveFixedPointTerm A )  → (ClInvolutiveFixedPointTerm A ) )
-    1Cl : (ClInvolutiveFixedPointTerm A ) 
+    1Cl : (ClInvolutiveFixedPointTerm A )  
+  
   data OpInvolutiveFixedPointTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpInvolutiveFixedPointTerm n ) )
     primOL : ((OpInvolutiveFixedPointTerm n )  → (OpInvolutiveFixedPointTerm n ) )
-    1OL : (OpInvolutiveFixedPointTerm n ) 
+    1OL : (OpInvolutiveFixedPointTerm n )  
+  
   data OpInvolutiveFixedPointTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpInvolutiveFixedPointTerm2 n A ) )
     sing2 : (A  → (OpInvolutiveFixedPointTerm2 n A ) )
     primOL2 : ((OpInvolutiveFixedPointTerm2 n A )  → (OpInvolutiveFixedPointTerm2 n A ) )
-    1OL2 : (OpInvolutiveFixedPointTerm2 n A ) 
+    1OL2 : (OpInvolutiveFixedPointTerm2 n A )  
+  
+  simplifyB : (InvolutiveFixedPointTerm  → InvolutiveFixedPointTerm )
+  simplifyB (primL 1L )  = 1L 
+  
+  simplifyB (primL (primL x ) )  = x 
+  
+  simplifyB (primL x1 )  = (primL (simplifyB x1 ) )
+  
+  simplifyB 1L  = 1L 
+  
+  simplifyCl : ((A  : Set )  → ((ClInvolutiveFixedPointTerm A ) → (ClInvolutiveFixedPointTerm A )))
+  simplifyCl _ (primCl 1Cl )  = 1Cl 
+  
+  simplifyCl _ (primCl (primCl x ) )  = x 
+  
+  simplifyCl _ (primCl x1 )  = (primCl (simplifyCl _ x1 ) )
+  
+  simplifyCl _ 1Cl  = 1Cl 
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpInvolutiveFixedPointTerm n ) → (OpInvolutiveFixedPointTerm n )))
+  simplifyOp _ (primOL 1OL )  = 1OL 
+  
+  simplifyOp _ (primOL (primOL x ) )  = x 
+  
+  simplifyOp _ (primOL x1 )  = (primOL (simplifyOp _ x1 ) )
+  
+  simplifyOp _ 1OL  = 1OL 
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpInvolutiveFixedPointTerm2 n A ) → (OpInvolutiveFixedPointTerm2 n A )))
+  simplifyOpE _ _ (primOL2 1OL2 )  = 1OL2 
+  
+  simplifyOpE _ _ (primOL2 (primOL2 x ) )  = x 
+  
+  simplifyOpE _ _ (primOL2 x1 )  = (primOL2 (simplifyOpE _ _ x1 ) )
+  
+  simplifyOpE _ _ 1OL2  = 1OL2 
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((InvolutiveFixedPoint A ) → (InvolutiveFixedPointTerm  → A )))
   evalB In (primL x1 )  = ((prim In ) (evalB In x1 ) )
   
@@ -164,4 +218,5 @@ module InvolutiveFixedPoint  where
     constructor tagless
     field
       primT : ((Repr A )  → (Repr A ) )
-      1T : (Repr A ) 
+      1T : (Repr A )  
+   

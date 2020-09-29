@@ -11,6 +11,7 @@ import Control.Lens ((^.))
 import System.IO (openFile, IOMode(WriteMode, AppendMode), hClose)
 import Text.PrettyPrint.Leijen (putDoc, hPutDoc, text, vsep, linebreak) 
 
+test :: [Char] -> FilePath -> IO ()
 test dirName file = do
  s <- readFile file
  case parseModule s of

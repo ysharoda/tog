@@ -1,4 +1,5 @@
-module PointedUnarySystem  where
+
+ module PointedUnarySystem  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -8,46 +9,83 @@ module PointedUnarySystem  where
     constructor PointedUnarySystemC
     field
       prim : (A  → A )
-      e : A 
+      e : A  
+  
   open PointedUnarySystem
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       primS : (AS  → AS )
-      eS : AS 
+      eS : AS  
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       primP : ((Prod AP AP ) → (Prod AP AP ))
-      eP : (Prod AP AP )
+      eP : (Prod AP AP ) 
+  
   record Hom (A1 A2  : Set ) (Po1  : (PointedUnarySystem A1 )) (Po2  : (PointedUnarySystem A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-prim : ({x1  : A1}  → (hom ((prim Po1 ) x1 ) ) ≡ ((prim Po2 ) (hom x1 ) ))
-      pres-e : (  (hom (e Po1 )  ) ≡ (e Po2 ) )
+      pres-e : (  (hom (e Po1 )  ) ≡ (e Po2 ) ) 
+  
   record RelInterp (A1 A2  : Set ) (Po1  : (PointedUnarySystem A1 )) (Po2  : (PointedUnarySystem A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-prim : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((prim Po1 ) x1 ) ((prim Po2 ) y1 ) )))
-      interp-e : (  (interp (e Po1 )  (e Po2 )  ))
+      interp-e : (  (interp (e Po1 )  (e Po2 )  )) 
+  
   data PointedUnarySystemTerm  : Set where
     primL : (PointedUnarySystemTerm   → PointedUnarySystemTerm  )
-    eL : PointedUnarySystemTerm  
+    eL : PointedUnarySystemTerm   
+  
   data ClPointedUnarySystemTerm (A  : Set )  : Set where
     sing : (A  → (ClPointedUnarySystemTerm A ) )
     primCl : ((ClPointedUnarySystemTerm A )  → (ClPointedUnarySystemTerm A ) )
-    eCl : (ClPointedUnarySystemTerm A ) 
+    eCl : (ClPointedUnarySystemTerm A )  
+  
   data OpPointedUnarySystemTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpPointedUnarySystemTerm n ) )
     primOL : ((OpPointedUnarySystemTerm n )  → (OpPointedUnarySystemTerm n ) )
-    eOL : (OpPointedUnarySystemTerm n ) 
+    eOL : (OpPointedUnarySystemTerm n )  
+  
   data OpPointedUnarySystemTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpPointedUnarySystemTerm2 n A ) )
     sing2 : (A  → (OpPointedUnarySystemTerm2 n A ) )
     primOL2 : ((OpPointedUnarySystemTerm2 n A )  → (OpPointedUnarySystemTerm2 n A ) )
-    eOL2 : (OpPointedUnarySystemTerm2 n A ) 
+    eOL2 : (OpPointedUnarySystemTerm2 n A )  
+  
+  simplifyB : (PointedUnarySystemTerm  → PointedUnarySystemTerm )
+  simplifyB (primL x1 )  = (primL (simplifyB x1 ) )
+  
+  simplifyB eL  = eL 
+  
+  simplifyCl : ((A  : Set )  → ((ClPointedUnarySystemTerm A ) → (ClPointedUnarySystemTerm A )))
+  simplifyCl _ (primCl x1 )  = (primCl (simplifyCl _ x1 ) )
+  
+  simplifyCl _ eCl  = eCl 
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpPointedUnarySystemTerm n ) → (OpPointedUnarySystemTerm n )))
+  simplifyOp _ (primOL x1 )  = (primOL (simplifyOp _ x1 ) )
+  
+  simplifyOp _ eOL  = eOL 
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpPointedUnarySystemTerm2 n A ) → (OpPointedUnarySystemTerm2 n A )))
+  simplifyOpE _ _ (primOL2 x1 )  = (primOL2 (simplifyOpE _ _ x1 ) )
+  
+  simplifyOpE _ _ eOL2  = eOL2 
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((PointedUnarySystem A ) → (PointedUnarySystemTerm  → A )))
   evalB Po (primL x1 )  = ((prim Po ) (evalB Po x1 ) )
   
@@ -160,4 +198,5 @@ module PointedUnarySystem  where
     constructor tagless
     field
       primT : ((Repr A )  → (Repr A ) )
-      eT : (Repr A ) 
+      eT : (Repr A )  
+   

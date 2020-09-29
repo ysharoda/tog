@@ -1,4 +1,5 @@
-module InvolutiveRingoid  where
+
+ module InvolutiveRingoid  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -16,7 +17,8 @@ module InvolutiveRingoid  where
       leftDistributive_*_+ : ({x y z  : A }  → (* x (+ y z ) ) ≡ (+ (* x y ) (* x z ) ))
       rightDistributive_*_+ : ({x y z  : A }  → (* (+ y z ) x ) ≡ (+ (* y x ) (* z x ) ))
       antidis_prim_+ : ({x y  : A }  → (prim (+ x y ) ) ≡ (+ (prim y ) (prim x ) ))
-      antidis_prim_* : ({x y  : A }  → (prim (* x y ) ) ≡ (* (prim y ) (prim x ) ))
+      antidis_prim_* : ({x y  : A }  → (prim (* x y ) ) ≡ (* (prim y ) (prim x ) )) 
+  
   open InvolutiveRingoid
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
@@ -24,7 +26,8 @@ module InvolutiveRingoid  where
       primS : (AS  → AS )
       1S : AS 
       *S : (AS  → (AS  → AS ))
-      +S : (AS  → (AS  → AS ))
+      +S : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
@@ -37,7 +40,8 @@ module InvolutiveRingoid  where
       leftDistributive_*_+P : ({xP yP zP  : (Prod AP AP )}  → (*P xP (+P yP zP ) ) ≡ (+P (*P xP yP ) (*P xP zP ) ))
       rightDistributive_*_+P : ({xP yP zP  : (Prod AP AP )}  → (*P (+P yP zP ) xP ) ≡ (+P (*P yP xP ) (*P zP xP ) ))
       antidis_prim_+P : ({xP yP  : (Prod AP AP )}  → (primP (+P xP yP ) ) ≡ (+P (primP yP ) (primP xP ) ))
-      antidis_prim_*P : ({xP yP  : (Prod AP AP )}  → (primP (*P xP yP ) ) ≡ (*P (primP yP ) (primP xP ) ))
+      antidis_prim_*P : ({xP yP  : (Prod AP AP )}  → (primP (*P xP yP ) ) ≡ (*P (primP yP ) (primP xP ) )) 
+  
   record Hom (A1 A2  : Set ) (In1  : (InvolutiveRingoid A1 )) (In2  : (InvolutiveRingoid A2 ))  : Set where
     constructor HomC
     field
@@ -45,7 +49,8 @@ module InvolutiveRingoid  where
       pres-prim : ({x1  : A1}  → (hom ((prim In1 ) x1 ) ) ≡ ((prim In2 ) (hom x1 ) ))
       pres-1 : (  (hom (1ᵢ In1 )  ) ≡ (1ᵢ In2 ) )
       pres-* : ({x1  : A1} {x2  : A1}  → (hom ((* In1 ) x1 x2 ) ) ≡ ((* In2 ) (hom x1 ) (hom x2 ) ))
-      pres-+ : ({x1  : A1} {x2  : A1}  → (hom ((+ In1 ) x1 x2 ) ) ≡ ((+ In2 ) (hom x1 ) (hom x2 ) ))
+      pres-+ : ({x1  : A1} {x2  : A1}  → (hom ((+ In1 ) x1 x2 ) ) ≡ ((+ In2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (In1  : (InvolutiveRingoid A1 )) (In2  : (InvolutiveRingoid A2 ))  : Set₁ where
     constructor RelInterpC
     field
@@ -53,31 +58,112 @@ module InvolutiveRingoid  where
       interp-prim : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((prim In1 ) x1 ) ((prim In2 ) y1 ) )))
       interp-1 : (  (interp (1ᵢ In1 )  (1ᵢ In2 )  ))
       interp-* : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((* In1 ) x1 x2 ) ((* In2 ) y1 y2 ) ))))
-      interp-+ : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((+ In1 ) x1 x2 ) ((+ In2 ) y1 y2 ) ))))
+      interp-+ : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((+ In1 ) x1 x2 ) ((+ In2 ) y1 y2 ) )))) 
+  
   data InvolutiveRingoidTerm  : Set where
     primL : (InvolutiveRingoidTerm   → InvolutiveRingoidTerm  )
     1L : InvolutiveRingoidTerm  
     *L : (InvolutiveRingoidTerm   → (InvolutiveRingoidTerm   → InvolutiveRingoidTerm  ))
-    +L : (InvolutiveRingoidTerm   → (InvolutiveRingoidTerm   → InvolutiveRingoidTerm  ))
+    +L : (InvolutiveRingoidTerm   → (InvolutiveRingoidTerm   → InvolutiveRingoidTerm  )) 
+  
   data ClInvolutiveRingoidTerm (A  : Set )  : Set where
     sing : (A  → (ClInvolutiveRingoidTerm A ) )
     primCl : ((ClInvolutiveRingoidTerm A )  → (ClInvolutiveRingoidTerm A ) )
     1Cl : (ClInvolutiveRingoidTerm A ) 
     *Cl : ((ClInvolutiveRingoidTerm A )  → ((ClInvolutiveRingoidTerm A )  → (ClInvolutiveRingoidTerm A ) ))
-    +Cl : ((ClInvolutiveRingoidTerm A )  → ((ClInvolutiveRingoidTerm A )  → (ClInvolutiveRingoidTerm A ) ))
+    +Cl : ((ClInvolutiveRingoidTerm A )  → ((ClInvolutiveRingoidTerm A )  → (ClInvolutiveRingoidTerm A ) )) 
+  
   data OpInvolutiveRingoidTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpInvolutiveRingoidTerm n ) )
     primOL : ((OpInvolutiveRingoidTerm n )  → (OpInvolutiveRingoidTerm n ) )
     1OL : (OpInvolutiveRingoidTerm n ) 
     *OL : ((OpInvolutiveRingoidTerm n )  → ((OpInvolutiveRingoidTerm n )  → (OpInvolutiveRingoidTerm n ) ))
-    +OL : ((OpInvolutiveRingoidTerm n )  → ((OpInvolutiveRingoidTerm n )  → (OpInvolutiveRingoidTerm n ) ))
+    +OL : ((OpInvolutiveRingoidTerm n )  → ((OpInvolutiveRingoidTerm n )  → (OpInvolutiveRingoidTerm n ) )) 
+  
   data OpInvolutiveRingoidTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpInvolutiveRingoidTerm2 n A ) )
     sing2 : (A  → (OpInvolutiveRingoidTerm2 n A ) )
     primOL2 : ((OpInvolutiveRingoidTerm2 n A )  → (OpInvolutiveRingoidTerm2 n A ) )
     1OL2 : (OpInvolutiveRingoidTerm2 n A ) 
     *OL2 : ((OpInvolutiveRingoidTerm2 n A )  → ((OpInvolutiveRingoidTerm2 n A )  → (OpInvolutiveRingoidTerm2 n A ) ))
-    +OL2 : ((OpInvolutiveRingoidTerm2 n A )  → ((OpInvolutiveRingoidTerm2 n A )  → (OpInvolutiveRingoidTerm2 n A ) ))
+    +OL2 : ((OpInvolutiveRingoidTerm2 n A )  → ((OpInvolutiveRingoidTerm2 n A )  → (OpInvolutiveRingoidTerm2 n A ) )) 
+  
+  simplifyB : (InvolutiveRingoidTerm  → InvolutiveRingoidTerm )
+  simplifyB (primL 1L )  = 1L 
+  
+  simplifyB (primL (primL x ) )  = x 
+  
+  simplifyB (+L (primL y ) (primL x ) )  = (primL (+L x y ) )
+  
+  simplifyB (*L (primL y ) (primL x ) )  = (primL (*L x y ) )
+  
+  simplifyB (primL x1 )  = (primL (simplifyB x1 ) )
+  
+  simplifyB 1L  = 1L 
+  
+  simplifyB (*L x1 x2 )  = (*L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB (+L x1 x2 )  = (+L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClInvolutiveRingoidTerm A ) → (ClInvolutiveRingoidTerm A )))
+  simplifyCl _ (primCl 1Cl )  = 1Cl 
+  
+  simplifyCl _ (primCl (primCl x ) )  = x 
+  
+  simplifyCl _ (+Cl (primCl y ) (primCl x ) )  = (primCl (+Cl x y ) )
+  
+  simplifyCl _ (*Cl (primCl y ) (primCl x ) )  = (primCl (*Cl x y ) )
+  
+  simplifyCl _ (primCl x1 )  = (primCl (simplifyCl _ x1 ) )
+  
+  simplifyCl _ 1Cl  = 1Cl 
+  
+  simplifyCl _ (*Cl x1 x2 )  = (*Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (+Cl x1 x2 )  = (+Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpInvolutiveRingoidTerm n ) → (OpInvolutiveRingoidTerm n )))
+  simplifyOp _ (primOL 1OL )  = 1OL 
+  
+  simplifyOp _ (primOL (primOL x ) )  = x 
+  
+  simplifyOp _ (+OL (primOL y ) (primOL x ) )  = (primOL (+OL x y ) )
+  
+  simplifyOp _ (*OL (primOL y ) (primOL x ) )  = (primOL (*OL x y ) )
+  
+  simplifyOp _ (primOL x1 )  = (primOL (simplifyOp _ x1 ) )
+  
+  simplifyOp _ 1OL  = 1OL 
+  
+  simplifyOp _ (*OL x1 x2 )  = (*OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (+OL x1 x2 )  = (+OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpInvolutiveRingoidTerm2 n A ) → (OpInvolutiveRingoidTerm2 n A )))
+  simplifyOpE _ _ (primOL2 1OL2 )  = 1OL2 
+  
+  simplifyOpE _ _ (primOL2 (primOL2 x ) )  = x 
+  
+  simplifyOpE _ _ (+OL2 (primOL2 y ) (primOL2 x ) )  = (primOL2 (+OL2 x y ) )
+  
+  simplifyOpE _ _ (*OL2 (primOL2 y ) (primOL2 x ) )  = (primOL2 (*OL2 x y ) )
+  
+  simplifyOpE _ _ (primOL2 x1 )  = (primOL2 (simplifyOpE _ _ x1 ) )
+  
+  simplifyOpE _ _ 1OL2  = 1OL2 
+  
+  simplifyOpE _ _ (*OL2 x1 x2 )  = (*OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (+OL2 x1 x2 )  = (+OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((InvolutiveRingoid A ) → (InvolutiveRingoidTerm  → A )))
   evalB In (primL x1 )  = ((prim In ) (evalB In x1 ) )
   
@@ -264,4 +350,5 @@ module InvolutiveRingoid  where
       primT : ((Repr A )  → (Repr A ) )
       1T : (Repr A ) 
       *T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
-      +T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      +T : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

@@ -1,4 +1,5 @@
-module PointedPlusMagma  where
+
+ module PointedPlusMagma  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -8,46 +9,83 @@ module PointedPlusMagma  where
     constructor PointedPlusMagmaC
     field
       + : (A  → (A  → A ))
-      e : A 
+      e : A  
+  
   open PointedPlusMagma
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       +S : (AS  → (AS  → AS ))
-      eS : AS 
+      eS : AS  
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       +P : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
-      eP : (Prod AP AP )
+      eP : (Prod AP AP ) 
+  
   record Hom (A1 A2  : Set ) (Po1  : (PointedPlusMagma A1 )) (Po2  : (PointedPlusMagma A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-+ : ({x1  : A1} {x2  : A1}  → (hom ((+ Po1 ) x1 x2 ) ) ≡ ((+ Po2 ) (hom x1 ) (hom x2 ) ))
-      pres-e : (  (hom (e Po1 )  ) ≡ (e Po2 ) )
+      pres-e : (  (hom (e Po1 )  ) ≡ (e Po2 ) ) 
+  
   record RelInterp (A1 A2  : Set ) (Po1  : (PointedPlusMagma A1 )) (Po2  : (PointedPlusMagma A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-+ : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((+ Po1 ) x1 x2 ) ((+ Po2 ) y1 y2 ) ))))
-      interp-e : (  (interp (e Po1 )  (e Po2 )  ))
+      interp-e : (  (interp (e Po1 )  (e Po2 )  )) 
+  
   data PointedPlusMagmaTerm  : Set where
     +L : (PointedPlusMagmaTerm   → (PointedPlusMagmaTerm   → PointedPlusMagmaTerm  ))
-    eL : PointedPlusMagmaTerm  
+    eL : PointedPlusMagmaTerm   
+  
   data ClPointedPlusMagmaTerm (A  : Set )  : Set where
     sing : (A  → (ClPointedPlusMagmaTerm A ) )
     +Cl : ((ClPointedPlusMagmaTerm A )  → ((ClPointedPlusMagmaTerm A )  → (ClPointedPlusMagmaTerm A ) ))
-    eCl : (ClPointedPlusMagmaTerm A ) 
+    eCl : (ClPointedPlusMagmaTerm A )  
+  
   data OpPointedPlusMagmaTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpPointedPlusMagmaTerm n ) )
     +OL : ((OpPointedPlusMagmaTerm n )  → ((OpPointedPlusMagmaTerm n )  → (OpPointedPlusMagmaTerm n ) ))
-    eOL : (OpPointedPlusMagmaTerm n ) 
+    eOL : (OpPointedPlusMagmaTerm n )  
+  
   data OpPointedPlusMagmaTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpPointedPlusMagmaTerm2 n A ) )
     sing2 : (A  → (OpPointedPlusMagmaTerm2 n A ) )
     +OL2 : ((OpPointedPlusMagmaTerm2 n A )  → ((OpPointedPlusMagmaTerm2 n A )  → (OpPointedPlusMagmaTerm2 n A ) ))
-    eOL2 : (OpPointedPlusMagmaTerm2 n A ) 
+    eOL2 : (OpPointedPlusMagmaTerm2 n A )  
+  
+  simplifyB : (PointedPlusMagmaTerm  → PointedPlusMagmaTerm )
+  simplifyB (+L x1 x2 )  = (+L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB eL  = eL 
+  
+  simplifyCl : ((A  : Set )  → ((ClPointedPlusMagmaTerm A ) → (ClPointedPlusMagmaTerm A )))
+  simplifyCl _ (+Cl x1 x2 )  = (+Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ eCl  = eCl 
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpPointedPlusMagmaTerm n ) → (OpPointedPlusMagmaTerm n )))
+  simplifyOp _ (+OL x1 x2 )  = (+OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ eOL  = eOL 
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpPointedPlusMagmaTerm2 n A ) → (OpPointedPlusMagmaTerm2 n A )))
+  simplifyOpE _ _ (+OL2 x1 x2 )  = (+OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ eOL2  = eOL2 
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((PointedPlusMagma A ) → (PointedPlusMagmaTerm  → A )))
   evalB Po (+L x1 x2 )  = ((+ Po ) (evalB Po x1 ) (evalB Po x2 ) )
   
@@ -160,4 +198,5 @@ module PointedPlusMagma  where
     constructor tagless
     field
       +T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
-      eT : (Repr A ) 
+      eT : (Repr A )  
+   

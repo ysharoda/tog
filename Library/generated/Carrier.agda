@@ -1,4 +1,5 @@
-module Carrier  where
+
+ module Carrier  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -6,31 +7,51 @@ module Carrier  where
   open import Data.Vec
   record Carrier (A  : Set )  : Set where
     constructor CarrierC
+   
   
   open Carrier
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
+   
   
   record Product (AP  : Set )  : Set where
     constructor ProductC
+   
   
   record Hom (A1 A2  : Set ) (Ca1  : (Carrier A1 )) (Ca2  : (Carrier A2 ))  : Set where
     constructor HomC
     field
-      hom : (A1 → A2)
+      hom : (A1 → A2) 
+  
   record RelInterp (A1 A2  : Set ) (Ca1  : (Carrier A1 )) (Ca2  : (Carrier A2 ))  : Set₁ where
     constructor RelInterpC
     field
-      interp : (A1 → (A2 → Set))
+      interp : (A1 → (A2 → Set)) 
+  
   data CarrierTerm  : Set where
-    
+     
+  
   data ClCarrierTerm (A  : Set )  : Set where
-    sing : (A  → (ClCarrierTerm A ) )
+    sing : (A  → (ClCarrierTerm A ) ) 
+  
   data OpCarrierTerm (n  : Nat)  : Set where
-    v : ((Fin n ) → (OpCarrierTerm n ) )
+    v : ((Fin n ) → (OpCarrierTerm n ) ) 
+  
   data OpCarrierTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpCarrierTerm2 n A ) )
-    sing2 : (A  → (OpCarrierTerm2 n A ) )
+    sing2 : (A  → (OpCarrierTerm2 n A ) ) 
+  
+  simplifyCl : ((A  : Set )  → ((ClCarrierTerm A ) → (ClCarrierTerm A )))
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpCarrierTerm n ) → (OpCarrierTerm n )))
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpCarrierTerm2 n A ) → (OpCarrierTerm2 n A )))
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalCl : ({A  : Set }  → ((Carrier A ) → ((ClCarrierTerm A ) → A )))
   evalCl Ca (sing x1 )  = x1 
   
@@ -66,4 +87,5 @@ module Carrier  where
   
   record Tagless (A  : Set) (Repr  : (Set  → Set ))  : Set where
     constructor tagless
-  
+   
+   

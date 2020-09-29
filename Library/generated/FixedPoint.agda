@@ -1,4 +1,5 @@
-module FixedPoint  where
+
+ module FixedPoint  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -9,47 +10,92 @@ module FixedPoint  where
     field
       prim : (A  → A )
       e : A 
-      fixes_prim_e : (prim e ) ≡ e 
+      fixes_prim_e : (prim e ) ≡ e  
+  
   open FixedPoint
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       primS : (AS  → AS )
-      eS : AS 
+      eS : AS  
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       primP : ((Prod AP AP ) → (Prod AP AP ))
       eP : (Prod AP AP )
-      fixes_prim_eP : (primP eP ) ≡ eP 
+      fixes_prim_eP : (primP eP ) ≡ eP  
+  
   record Hom (A1 A2  : Set ) (Fi1  : (FixedPoint A1 )) (Fi2  : (FixedPoint A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-prim : ({x1  : A1}  → (hom ((prim Fi1 ) x1 ) ) ≡ ((prim Fi2 ) (hom x1 ) ))
-      pres-e : (  (hom (e Fi1 )  ) ≡ (e Fi2 ) )
+      pres-e : (  (hom (e Fi1 )  ) ≡ (e Fi2 ) ) 
+  
   record RelInterp (A1 A2  : Set ) (Fi1  : (FixedPoint A1 )) (Fi2  : (FixedPoint A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-prim : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((prim Fi1 ) x1 ) ((prim Fi2 ) y1 ) )))
-      interp-e : (  (interp (e Fi1 )  (e Fi2 )  ))
+      interp-e : (  (interp (e Fi1 )  (e Fi2 )  )) 
+  
   data FixedPointTerm  : Set where
     primL : (FixedPointTerm   → FixedPointTerm  )
-    eL : FixedPointTerm  
+    eL : FixedPointTerm   
+  
   data ClFixedPointTerm (A  : Set )  : Set where
     sing : (A  → (ClFixedPointTerm A ) )
     primCl : ((ClFixedPointTerm A )  → (ClFixedPointTerm A ) )
-    eCl : (ClFixedPointTerm A ) 
+    eCl : (ClFixedPointTerm A )  
+  
   data OpFixedPointTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpFixedPointTerm n ) )
     primOL : ((OpFixedPointTerm n )  → (OpFixedPointTerm n ) )
-    eOL : (OpFixedPointTerm n ) 
+    eOL : (OpFixedPointTerm n )  
+  
   data OpFixedPointTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpFixedPointTerm2 n A ) )
     sing2 : (A  → (OpFixedPointTerm2 n A ) )
     primOL2 : ((OpFixedPointTerm2 n A )  → (OpFixedPointTerm2 n A ) )
-    eOL2 : (OpFixedPointTerm2 n A ) 
+    eOL2 : (OpFixedPointTerm2 n A )  
+  
+  simplifyB : (FixedPointTerm  → FixedPointTerm )
+  simplifyB (primL eL )  = eL 
+  
+  simplifyB (primL x1 )  = (primL (simplifyB x1 ) )
+  
+  simplifyB eL  = eL 
+  
+  simplifyCl : ((A  : Set )  → ((ClFixedPointTerm A ) → (ClFixedPointTerm A )))
+  simplifyCl _ (primCl eCl )  = eCl 
+  
+  simplifyCl _ (primCl x1 )  = (primCl (simplifyCl _ x1 ) )
+  
+  simplifyCl _ eCl  = eCl 
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpFixedPointTerm n ) → (OpFixedPointTerm n )))
+  simplifyOp _ (primOL eOL )  = eOL 
+  
+  simplifyOp _ (primOL x1 )  = (primOL (simplifyOp _ x1 ) )
+  
+  simplifyOp _ eOL  = eOL 
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpFixedPointTerm2 n A ) → (OpFixedPointTerm2 n A )))
+  simplifyOpE _ _ (primOL2 eOL2 )  = eOL2 
+  
+  simplifyOpE _ _ (primOL2 x1 )  = (primOL2 (simplifyOpE _ _ x1 ) )
+  
+  simplifyOpE _ _ eOL2  = eOL2 
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((FixedPoint A ) → (FixedPointTerm  → A )))
   evalB Fi (primL x1 )  = ((prim Fi ) (evalB Fi x1 ) )
   
@@ -162,4 +208,5 @@ module FixedPoint  where
     constructor tagless
     field
       primT : ((Repr A )  → (Repr A ) )
-      eT : (Repr A ) 
+      eT : (Repr A )  
+   

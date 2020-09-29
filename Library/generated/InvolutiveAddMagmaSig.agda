@@ -1,4 +1,5 @@
-module InvolutiveAddMagmaSig  where
+
+ module InvolutiveAddMagmaSig  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -8,46 +9,83 @@ module InvolutiveAddMagmaSig  where
     constructor InvolutiveAddMagmaSigC
     field
       + : (A  → (A  → A ))
-      prim : (A  → A )
+      prim : (A  → A ) 
+  
   open InvolutiveAddMagmaSig
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       +S : (AS  → (AS  → AS ))
-      primS : (AS  → AS )
+      primS : (AS  → AS ) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       +P : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
-      primP : ((Prod AP AP ) → (Prod AP AP ))
+      primP : ((Prod AP AP ) → (Prod AP AP )) 
+  
   record Hom (A1 A2  : Set ) (In1  : (InvolutiveAddMagmaSig A1 )) (In2  : (InvolutiveAddMagmaSig A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-+ : ({x1  : A1} {x2  : A1}  → (hom ((+ In1 ) x1 x2 ) ) ≡ ((+ In2 ) (hom x1 ) (hom x2 ) ))
-      pres-prim : ({x1  : A1}  → (hom ((prim In1 ) x1 ) ) ≡ ((prim In2 ) (hom x1 ) ))
+      pres-prim : ({x1  : A1}  → (hom ((prim In1 ) x1 ) ) ≡ ((prim In2 ) (hom x1 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (In1  : (InvolutiveAddMagmaSig A1 )) (In2  : (InvolutiveAddMagmaSig A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-+ : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((+ In1 ) x1 x2 ) ((+ In2 ) y1 y2 ) ))))
-      interp-prim : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((prim In1 ) x1 ) ((prim In2 ) y1 ) )))
+      interp-prim : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((prim In1 ) x1 ) ((prim In2 ) y1 ) ))) 
+  
   data InvolutiveAddMagmaSigTerm  : Set where
     +L : (InvolutiveAddMagmaSigTerm   → (InvolutiveAddMagmaSigTerm   → InvolutiveAddMagmaSigTerm  ))
-    primL : (InvolutiveAddMagmaSigTerm   → InvolutiveAddMagmaSigTerm  )
+    primL : (InvolutiveAddMagmaSigTerm   → InvolutiveAddMagmaSigTerm  ) 
+  
   data ClInvolutiveAddMagmaSigTerm (A  : Set )  : Set where
     sing : (A  → (ClInvolutiveAddMagmaSigTerm A ) )
     +Cl : ((ClInvolutiveAddMagmaSigTerm A )  → ((ClInvolutiveAddMagmaSigTerm A )  → (ClInvolutiveAddMagmaSigTerm A ) ))
-    primCl : ((ClInvolutiveAddMagmaSigTerm A )  → (ClInvolutiveAddMagmaSigTerm A ) )
+    primCl : ((ClInvolutiveAddMagmaSigTerm A )  → (ClInvolutiveAddMagmaSigTerm A ) ) 
+  
   data OpInvolutiveAddMagmaSigTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpInvolutiveAddMagmaSigTerm n ) )
     +OL : ((OpInvolutiveAddMagmaSigTerm n )  → ((OpInvolutiveAddMagmaSigTerm n )  → (OpInvolutiveAddMagmaSigTerm n ) ))
-    primOL : ((OpInvolutiveAddMagmaSigTerm n )  → (OpInvolutiveAddMagmaSigTerm n ) )
+    primOL : ((OpInvolutiveAddMagmaSigTerm n )  → (OpInvolutiveAddMagmaSigTerm n ) ) 
+  
   data OpInvolutiveAddMagmaSigTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpInvolutiveAddMagmaSigTerm2 n A ) )
     sing2 : (A  → (OpInvolutiveAddMagmaSigTerm2 n A ) )
     +OL2 : ((OpInvolutiveAddMagmaSigTerm2 n A )  → ((OpInvolutiveAddMagmaSigTerm2 n A )  → (OpInvolutiveAddMagmaSigTerm2 n A ) ))
-    primOL2 : ((OpInvolutiveAddMagmaSigTerm2 n A )  → (OpInvolutiveAddMagmaSigTerm2 n A ) )
+    primOL2 : ((OpInvolutiveAddMagmaSigTerm2 n A )  → (OpInvolutiveAddMagmaSigTerm2 n A ) ) 
+  
+  simplifyB : (InvolutiveAddMagmaSigTerm  → InvolutiveAddMagmaSigTerm )
+  simplifyB (+L x1 x2 )  = (+L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB (primL x1 )  = (primL (simplifyB x1 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClInvolutiveAddMagmaSigTerm A ) → (ClInvolutiveAddMagmaSigTerm A )))
+  simplifyCl _ (+Cl x1 x2 )  = (+Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (primCl x1 )  = (primCl (simplifyCl _ x1 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpInvolutiveAddMagmaSigTerm n ) → (OpInvolutiveAddMagmaSigTerm n )))
+  simplifyOp _ (+OL x1 x2 )  = (+OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (primOL x1 )  = (primOL (simplifyOp _ x1 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpInvolutiveAddMagmaSigTerm2 n A ) → (OpInvolutiveAddMagmaSigTerm2 n A )))
+  simplifyOpE _ _ (+OL2 x1 x2 )  = (+OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (primOL2 x1 )  = (primOL2 (simplifyOpE _ _ x1 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((InvolutiveAddMagmaSig A ) → (InvolutiveAddMagmaSigTerm  → A )))
   evalB In (+L x1 x2 )  = ((+ In ) (evalB In x1 ) (evalB In x2 ) )
   
@@ -160,4 +198,5 @@ module InvolutiveAddMagmaSig  where
     constructor tagless
     field
       +T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
-      primT : ((Repr A )  → (Repr A ) )
+      primT : ((Repr A )  → (Repr A ) ) 
+   

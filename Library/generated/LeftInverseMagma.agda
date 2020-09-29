@@ -1,4 +1,5 @@
-module LeftInverseMagma  where
+
+ module LeftInverseMagma  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -7,38 +8,67 @@ module LeftInverseMagma  where
   record LeftInverseMagma (A  : Set )  : Set where
     constructor LeftInverseMagmaC
     field
-      linv : (A  → (A  → A ))
+      linv : (A  → (A  → A )) 
+  
   open LeftInverseMagma
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
-      linvS : (AS  → (AS  → AS ))
+      linvS : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
-      linvP : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
+      linvP : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP ))) 
+  
   record Hom (A1 A2  : Set ) (Le1  : (LeftInverseMagma A1 )) (Le2  : (LeftInverseMagma A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
-      pres-linv : ({x1  : A1} {x2  : A1}  → (hom ((linv Le1 ) x1 x2 ) ) ≡ ((linv Le2 ) (hom x1 ) (hom x2 ) ))
+      pres-linv : ({x1  : A1} {x2  : A1}  → (hom ((linv Le1 ) x1 x2 ) ) ≡ ((linv Le2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Le1  : (LeftInverseMagma A1 )) (Le2  : (LeftInverseMagma A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
-      interp-linv : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((linv Le1 ) x1 x2 ) ((linv Le2 ) y1 y2 ) ))))
+      interp-linv : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((linv Le1 ) x1 x2 ) ((linv Le2 ) y1 y2 ) )))) 
+  
   data LeftInverseMagmaTerm  : Set where
-    linvL : (LeftInverseMagmaTerm   → (LeftInverseMagmaTerm   → LeftInverseMagmaTerm  ))
+    linvL : (LeftInverseMagmaTerm   → (LeftInverseMagmaTerm   → LeftInverseMagmaTerm  )) 
+  
   data ClLeftInverseMagmaTerm (A  : Set )  : Set where
     sing : (A  → (ClLeftInverseMagmaTerm A ) )
-    linvCl : ((ClLeftInverseMagmaTerm A )  → ((ClLeftInverseMagmaTerm A )  → (ClLeftInverseMagmaTerm A ) ))
+    linvCl : ((ClLeftInverseMagmaTerm A )  → ((ClLeftInverseMagmaTerm A )  → (ClLeftInverseMagmaTerm A ) )) 
+  
   data OpLeftInverseMagmaTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpLeftInverseMagmaTerm n ) )
-    linvOL : ((OpLeftInverseMagmaTerm n )  → ((OpLeftInverseMagmaTerm n )  → (OpLeftInverseMagmaTerm n ) ))
+    linvOL : ((OpLeftInverseMagmaTerm n )  → ((OpLeftInverseMagmaTerm n )  → (OpLeftInverseMagmaTerm n ) )) 
+  
   data OpLeftInverseMagmaTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpLeftInverseMagmaTerm2 n A ) )
     sing2 : (A  → (OpLeftInverseMagmaTerm2 n A ) )
-    linvOL2 : ((OpLeftInverseMagmaTerm2 n A )  → ((OpLeftInverseMagmaTerm2 n A )  → (OpLeftInverseMagmaTerm2 n A ) ))
+    linvOL2 : ((OpLeftInverseMagmaTerm2 n A )  → ((OpLeftInverseMagmaTerm2 n A )  → (OpLeftInverseMagmaTerm2 n A ) )) 
+  
+  simplifyB : (LeftInverseMagmaTerm  → LeftInverseMagmaTerm )
+  simplifyB (linvL x1 x2 )  = (linvL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClLeftInverseMagmaTerm A ) → (ClLeftInverseMagmaTerm A )))
+  simplifyCl _ (linvCl x1 x2 )  = (linvCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpLeftInverseMagmaTerm n ) → (OpLeftInverseMagmaTerm n )))
+  simplifyOp _ (linvOL x1 x2 )  = (linvOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpLeftInverseMagmaTerm2 n A ) → (OpLeftInverseMagmaTerm2 n A )))
+  simplifyOpE _ _ (linvOL2 x1 x2 )  = (linvOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((LeftInverseMagma A ) → (LeftInverseMagmaTerm  → A )))
   evalB Le (linvL x1 x2 )  = ((linv Le ) (evalB Le x1 ) (evalB Le x2 ) )
   
@@ -114,4 +144,5 @@ module LeftInverseMagma  where
   record Tagless (A  : Set) (Repr  : (Set  → Set ))  : Set where
     constructor tagless
     field
-      linvT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      linvT : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

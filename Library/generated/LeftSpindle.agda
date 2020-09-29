@@ -1,4 +1,5 @@
-module LeftSpindle  where
+
+ module LeftSpindle  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -9,40 +10,69 @@ module LeftSpindle  where
     field
       |> : (A  → (A  → A ))
       leftDistributive : ({x y z  : A }  → (|> x (|> y z ) ) ≡ (|> (|> x y ) (|> x z ) ))
-      idempotent_|> : ({x  : A }  → (|> x x ) ≡ x )
+      idempotent_|> : ({x  : A }  → (|> x x ) ≡ x ) 
+  
   open LeftSpindle
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
-      |>S : (AS  → (AS  → AS ))
+      |>S : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       |>P : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
       leftDistributiveP : ({xP yP zP  : (Prod AP AP )}  → (|>P xP (|>P yP zP ) ) ≡ (|>P (|>P xP yP ) (|>P xP zP ) ))
-      idempotent_|>P : ({xP  : (Prod AP AP )}  → (|>P xP xP ) ≡ xP )
+      idempotent_|>P : ({xP  : (Prod AP AP )}  → (|>P xP xP ) ≡ xP ) 
+  
   record Hom (A1 A2  : Set ) (Le1  : (LeftSpindle A1 )) (Le2  : (LeftSpindle A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
-      pres-|> : ({x1  : A1} {x2  : A1}  → (hom ((|> Le1 ) x1 x2 ) ) ≡ ((|> Le2 ) (hom x1 ) (hom x2 ) ))
+      pres-|> : ({x1  : A1} {x2  : A1}  → (hom ((|> Le1 ) x1 x2 ) ) ≡ ((|> Le2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Le1  : (LeftSpindle A1 )) (Le2  : (LeftSpindle A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
-      interp-|> : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((|> Le1 ) x1 x2 ) ((|> Le2 ) y1 y2 ) ))))
+      interp-|> : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((|> Le1 ) x1 x2 ) ((|> Le2 ) y1 y2 ) )))) 
+  
   data LeftSpindleTerm  : Set where
-    |>L : (LeftSpindleTerm   → (LeftSpindleTerm   → LeftSpindleTerm  ))
+    |>L : (LeftSpindleTerm   → (LeftSpindleTerm   → LeftSpindleTerm  )) 
+  
   data ClLeftSpindleTerm (A  : Set )  : Set where
     sing : (A  → (ClLeftSpindleTerm A ) )
-    |>Cl : ((ClLeftSpindleTerm A )  → ((ClLeftSpindleTerm A )  → (ClLeftSpindleTerm A ) ))
+    |>Cl : ((ClLeftSpindleTerm A )  → ((ClLeftSpindleTerm A )  → (ClLeftSpindleTerm A ) )) 
+  
   data OpLeftSpindleTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpLeftSpindleTerm n ) )
-    |>OL : ((OpLeftSpindleTerm n )  → ((OpLeftSpindleTerm n )  → (OpLeftSpindleTerm n ) ))
+    |>OL : ((OpLeftSpindleTerm n )  → ((OpLeftSpindleTerm n )  → (OpLeftSpindleTerm n ) )) 
+  
   data OpLeftSpindleTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpLeftSpindleTerm2 n A ) )
     sing2 : (A  → (OpLeftSpindleTerm2 n A ) )
-    |>OL2 : ((OpLeftSpindleTerm2 n A )  → ((OpLeftSpindleTerm2 n A )  → (OpLeftSpindleTerm2 n A ) ))
+    |>OL2 : ((OpLeftSpindleTerm2 n A )  → ((OpLeftSpindleTerm2 n A )  → (OpLeftSpindleTerm2 n A ) )) 
+  
+  simplifyB : (LeftSpindleTerm  → LeftSpindleTerm )
+  simplifyB (|>L x1 x2 )  = (|>L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClLeftSpindleTerm A ) → (ClLeftSpindleTerm A )))
+  simplifyCl _ (|>Cl x1 x2 )  = (|>Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpLeftSpindleTerm n ) → (OpLeftSpindleTerm n )))
+  simplifyOp _ (|>OL x1 x2 )  = (|>OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpLeftSpindleTerm2 n A ) → (OpLeftSpindleTerm2 n A )))
+  simplifyOpE _ _ (|>OL2 x1 x2 )  = (|>OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((LeftSpindle A ) → (LeftSpindleTerm  → A )))
   evalB Le (|>L x1 x2 )  = ((|> Le ) (evalB Le x1 ) (evalB Le x2 ) )
   
@@ -118,4 +148,5 @@ module LeftSpindle  where
   record Tagless (A  : Set) (Repr  : (Set  → Set ))  : Set where
     constructor tagless
     field
-      |>T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      |>T : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

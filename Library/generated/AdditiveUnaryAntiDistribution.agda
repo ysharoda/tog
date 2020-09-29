@@ -1,4 +1,5 @@
-module AdditiveUnaryAntiDistribution  where
+
+ module AdditiveUnaryAntiDistribution  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -9,47 +10,92 @@ module AdditiveUnaryAntiDistribution  where
     field
       prim : (A  → A )
       + : (A  → (A  → A ))
-      antidis_prim_+ : ({x y  : A }  → (prim (+ x y ) ) ≡ (+ (prim y ) (prim x ) ))
+      antidis_prim_+ : ({x y  : A }  → (prim (+ x y ) ) ≡ (+ (prim y ) (prim x ) )) 
+  
   open AdditiveUnaryAntiDistribution
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       primS : (AS  → AS )
-      +S : (AS  → (AS  → AS ))
+      +S : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       primP : ((Prod AP AP ) → (Prod AP AP ))
       +P : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
-      antidis_prim_+P : ({xP yP  : (Prod AP AP )}  → (primP (+P xP yP ) ) ≡ (+P (primP yP ) (primP xP ) ))
+      antidis_prim_+P : ({xP yP  : (Prod AP AP )}  → (primP (+P xP yP ) ) ≡ (+P (primP yP ) (primP xP ) )) 
+  
   record Hom (A1 A2  : Set ) (Ad1  : (AdditiveUnaryAntiDistribution A1 )) (Ad2  : (AdditiveUnaryAntiDistribution A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-prim : ({x1  : A1}  → (hom ((prim Ad1 ) x1 ) ) ≡ ((prim Ad2 ) (hom x1 ) ))
-      pres-+ : ({x1  : A1} {x2  : A1}  → (hom ((+ Ad1 ) x1 x2 ) ) ≡ ((+ Ad2 ) (hom x1 ) (hom x2 ) ))
+      pres-+ : ({x1  : A1} {x2  : A1}  → (hom ((+ Ad1 ) x1 x2 ) ) ≡ ((+ Ad2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Ad1  : (AdditiveUnaryAntiDistribution A1 )) (Ad2  : (AdditiveUnaryAntiDistribution A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-prim : ({x1  : A1} {y1  : A2}  → ((interp x1 y1 ) → (interp ((prim Ad1 ) x1 ) ((prim Ad2 ) y1 ) )))
-      interp-+ : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((+ Ad1 ) x1 x2 ) ((+ Ad2 ) y1 y2 ) ))))
+      interp-+ : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((+ Ad1 ) x1 x2 ) ((+ Ad2 ) y1 y2 ) )))) 
+  
   data AdditiveUnaryAntiDistributionTerm  : Set where
     primL : (AdditiveUnaryAntiDistributionTerm   → AdditiveUnaryAntiDistributionTerm  )
-    +L : (AdditiveUnaryAntiDistributionTerm   → (AdditiveUnaryAntiDistributionTerm   → AdditiveUnaryAntiDistributionTerm  ))
+    +L : (AdditiveUnaryAntiDistributionTerm   → (AdditiveUnaryAntiDistributionTerm   → AdditiveUnaryAntiDistributionTerm  )) 
+  
   data ClAdditiveUnaryAntiDistributionTerm (A  : Set )  : Set where
     sing : (A  → (ClAdditiveUnaryAntiDistributionTerm A ) )
     primCl : ((ClAdditiveUnaryAntiDistributionTerm A )  → (ClAdditiveUnaryAntiDistributionTerm A ) )
-    +Cl : ((ClAdditiveUnaryAntiDistributionTerm A )  → ((ClAdditiveUnaryAntiDistributionTerm A )  → (ClAdditiveUnaryAntiDistributionTerm A ) ))
+    +Cl : ((ClAdditiveUnaryAntiDistributionTerm A )  → ((ClAdditiveUnaryAntiDistributionTerm A )  → (ClAdditiveUnaryAntiDistributionTerm A ) )) 
+  
   data OpAdditiveUnaryAntiDistributionTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpAdditiveUnaryAntiDistributionTerm n ) )
     primOL : ((OpAdditiveUnaryAntiDistributionTerm n )  → (OpAdditiveUnaryAntiDistributionTerm n ) )
-    +OL : ((OpAdditiveUnaryAntiDistributionTerm n )  → ((OpAdditiveUnaryAntiDistributionTerm n )  → (OpAdditiveUnaryAntiDistributionTerm n ) ))
+    +OL : ((OpAdditiveUnaryAntiDistributionTerm n )  → ((OpAdditiveUnaryAntiDistributionTerm n )  → (OpAdditiveUnaryAntiDistributionTerm n ) )) 
+  
   data OpAdditiveUnaryAntiDistributionTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpAdditiveUnaryAntiDistributionTerm2 n A ) )
     sing2 : (A  → (OpAdditiveUnaryAntiDistributionTerm2 n A ) )
     primOL2 : ((OpAdditiveUnaryAntiDistributionTerm2 n A )  → (OpAdditiveUnaryAntiDistributionTerm2 n A ) )
-    +OL2 : ((OpAdditiveUnaryAntiDistributionTerm2 n A )  → ((OpAdditiveUnaryAntiDistributionTerm2 n A )  → (OpAdditiveUnaryAntiDistributionTerm2 n A ) ))
+    +OL2 : ((OpAdditiveUnaryAntiDistributionTerm2 n A )  → ((OpAdditiveUnaryAntiDistributionTerm2 n A )  → (OpAdditiveUnaryAntiDistributionTerm2 n A ) )) 
+  
+  simplifyB : (AdditiveUnaryAntiDistributionTerm  → AdditiveUnaryAntiDistributionTerm )
+  simplifyB (+L (primL y ) (primL x ) )  = (primL (+L x y ) )
+  
+  simplifyB (primL x1 )  = (primL (simplifyB x1 ) )
+  
+  simplifyB (+L x1 x2 )  = (+L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClAdditiveUnaryAntiDistributionTerm A ) → (ClAdditiveUnaryAntiDistributionTerm A )))
+  simplifyCl _ (+Cl (primCl y ) (primCl x ) )  = (primCl (+Cl x y ) )
+  
+  simplifyCl _ (primCl x1 )  = (primCl (simplifyCl _ x1 ) )
+  
+  simplifyCl _ (+Cl x1 x2 )  = (+Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpAdditiveUnaryAntiDistributionTerm n ) → (OpAdditiveUnaryAntiDistributionTerm n )))
+  simplifyOp _ (+OL (primOL y ) (primOL x ) )  = (primOL (+OL x y ) )
+  
+  simplifyOp _ (primOL x1 )  = (primOL (simplifyOp _ x1 ) )
+  
+  simplifyOp _ (+OL x1 x2 )  = (+OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpAdditiveUnaryAntiDistributionTerm2 n A ) → (OpAdditiveUnaryAntiDistributionTerm2 n A )))
+  simplifyOpE _ _ (+OL2 (primOL2 y ) (primOL2 x ) )  = (primOL2 (+OL2 x y ) )
+  
+  simplifyOpE _ _ (primOL2 x1 )  = (primOL2 (simplifyOpE _ _ x1 ) )
+  
+  simplifyOpE _ _ (+OL2 x1 x2 )  = (+OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((AdditiveUnaryAntiDistribution A ) → (AdditiveUnaryAntiDistributionTerm  → A )))
   evalB Ad (primL x1 )  = ((prim Ad ) (evalB Ad x1 ) )
   
@@ -162,4 +208,5 @@ module AdditiveUnaryAntiDistribution  where
     constructor tagless
     field
       primT : ((Repr A )  → (Repr A ) )
-      +T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      +T : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

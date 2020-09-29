@@ -1,4 +1,5 @@
-module RightIdempotence  where
+
+ module RightIdempotence  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -8,39 +9,68 @@ module RightIdempotence  where
     constructor RightIdempotenceC
     field
       <| : (A  → (A  → A ))
-      idempotent_<| : ({x  : A }  → (<| x x ) ≡ x )
+      idempotent_<| : ({x  : A }  → (<| x x ) ≡ x ) 
+  
   open RightIdempotence
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
-      <|S : (AS  → (AS  → AS ))
+      <|S : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       <|P : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
-      idempotent_<|P : ({xP  : (Prod AP AP )}  → (<|P xP xP ) ≡ xP )
+      idempotent_<|P : ({xP  : (Prod AP AP )}  → (<|P xP xP ) ≡ xP ) 
+  
   record Hom (A1 A2  : Set ) (Ri1  : (RightIdempotence A1 )) (Ri2  : (RightIdempotence A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
-      pres-<| : ({x1  : A1} {x2  : A1}  → (hom ((<| Ri1 ) x1 x2 ) ) ≡ ((<| Ri2 ) (hom x1 ) (hom x2 ) ))
+      pres-<| : ({x1  : A1} {x2  : A1}  → (hom ((<| Ri1 ) x1 x2 ) ) ≡ ((<| Ri2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Ri1  : (RightIdempotence A1 )) (Ri2  : (RightIdempotence A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
-      interp-<| : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((<| Ri1 ) x1 x2 ) ((<| Ri2 ) y1 y2 ) ))))
+      interp-<| : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((<| Ri1 ) x1 x2 ) ((<| Ri2 ) y1 y2 ) )))) 
+  
   data RightIdempotenceTerm  : Set where
-    <|L : (RightIdempotenceTerm   → (RightIdempotenceTerm   → RightIdempotenceTerm  ))
+    <|L : (RightIdempotenceTerm   → (RightIdempotenceTerm   → RightIdempotenceTerm  )) 
+  
   data ClRightIdempotenceTerm (A  : Set )  : Set where
     sing : (A  → (ClRightIdempotenceTerm A ) )
-    <|Cl : ((ClRightIdempotenceTerm A )  → ((ClRightIdempotenceTerm A )  → (ClRightIdempotenceTerm A ) ))
+    <|Cl : ((ClRightIdempotenceTerm A )  → ((ClRightIdempotenceTerm A )  → (ClRightIdempotenceTerm A ) )) 
+  
   data OpRightIdempotenceTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpRightIdempotenceTerm n ) )
-    <|OL : ((OpRightIdempotenceTerm n )  → ((OpRightIdempotenceTerm n )  → (OpRightIdempotenceTerm n ) ))
+    <|OL : ((OpRightIdempotenceTerm n )  → ((OpRightIdempotenceTerm n )  → (OpRightIdempotenceTerm n ) )) 
+  
   data OpRightIdempotenceTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpRightIdempotenceTerm2 n A ) )
     sing2 : (A  → (OpRightIdempotenceTerm2 n A ) )
-    <|OL2 : ((OpRightIdempotenceTerm2 n A )  → ((OpRightIdempotenceTerm2 n A )  → (OpRightIdempotenceTerm2 n A ) ))
+    <|OL2 : ((OpRightIdempotenceTerm2 n A )  → ((OpRightIdempotenceTerm2 n A )  → (OpRightIdempotenceTerm2 n A ) )) 
+  
+  simplifyB : (RightIdempotenceTerm  → RightIdempotenceTerm )
+  simplifyB (<|L x1 x2 )  = (<|L (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClRightIdempotenceTerm A ) → (ClRightIdempotenceTerm A )))
+  simplifyCl _ (<|Cl x1 x2 )  = (<|Cl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpRightIdempotenceTerm n ) → (OpRightIdempotenceTerm n )))
+  simplifyOp _ (<|OL x1 x2 )  = (<|OL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpRightIdempotenceTerm2 n A ) → (OpRightIdempotenceTerm2 n A )))
+  simplifyOpE _ _ (<|OL2 x1 x2 )  = (<|OL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((RightIdempotence A ) → (RightIdempotenceTerm  → A )))
   evalB Ri (<|L x1 x2 )  = ((<| Ri ) (evalB Ri x1 ) (evalB Ri x2 ) )
   
@@ -116,4 +146,5 @@ module RightIdempotence  where
   record Tagless (A  : Set) (Repr  : (Set  → Set ))  : Set where
     constructor tagless
     field
-      <|T : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      <|T : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

@@ -1,4 +1,5 @@
-module MiddleAbsorption  where
+
+ module MiddleAbsorption  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -8,39 +9,68 @@ module MiddleAbsorption  where
     constructor MiddleAbsorptionC
     field
       op : (A  → (A  → A ))
-      middleAbsorb_* : ({x y z  : A }  → (op (op x y ) z ) ≡ (op x z ))
+      middleAbsorb_* : ({x y z  : A }  → (op (op x y ) z ) ≡ (op x z )) 
+  
   open MiddleAbsorption
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
-      opS : (AS  → (AS  → AS ))
+      opS : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       opP : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
-      middleAbsorb_*P : ({xP yP zP  : (Prod AP AP )}  → (opP (opP xP yP ) zP ) ≡ (opP xP zP ))
+      middleAbsorb_*P : ({xP yP zP  : (Prod AP AP )}  → (opP (opP xP yP ) zP ) ≡ (opP xP zP )) 
+  
   record Hom (A1 A2  : Set ) (Mi1  : (MiddleAbsorption A1 )) (Mi2  : (MiddleAbsorption A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
-      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Mi1 ) x1 x2 ) ) ≡ ((op Mi2 ) (hom x1 ) (hom x2 ) ))
+      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Mi1 ) x1 x2 ) ) ≡ ((op Mi2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Mi1  : (MiddleAbsorption A1 )) (Mi2  : (MiddleAbsorption A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
-      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Mi1 ) x1 x2 ) ((op Mi2 ) y1 y2 ) ))))
+      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Mi1 ) x1 x2 ) ((op Mi2 ) y1 y2 ) )))) 
+  
   data MiddleAbsorptionTerm  : Set where
-    opL : (MiddleAbsorptionTerm   → (MiddleAbsorptionTerm   → MiddleAbsorptionTerm  ))
+    opL : (MiddleAbsorptionTerm   → (MiddleAbsorptionTerm   → MiddleAbsorptionTerm  )) 
+  
   data ClMiddleAbsorptionTerm (A  : Set )  : Set where
     sing : (A  → (ClMiddleAbsorptionTerm A ) )
-    opCl : ((ClMiddleAbsorptionTerm A )  → ((ClMiddleAbsorptionTerm A )  → (ClMiddleAbsorptionTerm A ) ))
+    opCl : ((ClMiddleAbsorptionTerm A )  → ((ClMiddleAbsorptionTerm A )  → (ClMiddleAbsorptionTerm A ) )) 
+  
   data OpMiddleAbsorptionTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpMiddleAbsorptionTerm n ) )
-    opOL : ((OpMiddleAbsorptionTerm n )  → ((OpMiddleAbsorptionTerm n )  → (OpMiddleAbsorptionTerm n ) ))
+    opOL : ((OpMiddleAbsorptionTerm n )  → ((OpMiddleAbsorptionTerm n )  → (OpMiddleAbsorptionTerm n ) )) 
+  
   data OpMiddleAbsorptionTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpMiddleAbsorptionTerm2 n A ) )
     sing2 : (A  → (OpMiddleAbsorptionTerm2 n A ) )
-    opOL2 : ((OpMiddleAbsorptionTerm2 n A )  → ((OpMiddleAbsorptionTerm2 n A )  → (OpMiddleAbsorptionTerm2 n A ) ))
+    opOL2 : ((OpMiddleAbsorptionTerm2 n A )  → ((OpMiddleAbsorptionTerm2 n A )  → (OpMiddleAbsorptionTerm2 n A ) )) 
+  
+  simplifyB : (MiddleAbsorptionTerm  → MiddleAbsorptionTerm )
+  simplifyB (opL x1 x2 )  = (opL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClMiddleAbsorptionTerm A ) → (ClMiddleAbsorptionTerm A )))
+  simplifyCl _ (opCl x1 x2 )  = (opCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpMiddleAbsorptionTerm n ) → (OpMiddleAbsorptionTerm n )))
+  simplifyOp _ (opOL x1 x2 )  = (opOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpMiddleAbsorptionTerm2 n A ) → (OpMiddleAbsorptionTerm2 n A )))
+  simplifyOpE _ _ (opOL2 x1 x2 )  = (opOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((MiddleAbsorption A ) → (MiddleAbsorptionTerm  → A )))
   evalB Mi (opL x1 x2 )  = ((op Mi ) (evalB Mi x1 ) (evalB Mi x2 ) )
   
@@ -116,4 +146,5 @@ module MiddleAbsorption  where
   record Tagless (A  : Set) (Repr  : (Set  → Set ))  : Set where
     constructor tagless
     field
-      opT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      opT : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

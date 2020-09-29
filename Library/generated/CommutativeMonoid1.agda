@@ -1,4 +1,5 @@
-module CommutativeMonoid1  where
+
+ module CommutativeMonoid1  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -12,13 +13,15 @@ module CommutativeMonoid1  where
       lunit_1ᵢ : ({x  : A }  → (op 1ᵢ x ) ≡ x )
       runit_1ᵢ : ({x  : A }  → (op x 1ᵢ ) ≡ x )
       associative_op : ({x y z  : A }  → (op (op x y ) z ) ≡ (op x (op y z ) ))
-      commutative_op : ({x y  : A }  → (op x y ) ≡ (op y x ))
+      commutative_op : ({x y  : A }  → (op x y ) ≡ (op y x )) 
+  
   open CommutativeMonoid1
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       opS : (AS  → (AS  → AS ))
-      1S : AS 
+      1S : AS  
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
@@ -27,35 +30,86 @@ module CommutativeMonoid1  where
       lunit_1P : ({xP  : (Prod AP AP )}  → (opP 1P xP ) ≡ xP )
       runit_1P : ({xP  : (Prod AP AP )}  → (opP xP 1P ) ≡ xP )
       associative_opP : ({xP yP zP  : (Prod AP AP )}  → (opP (opP xP yP ) zP ) ≡ (opP xP (opP yP zP ) ))
-      commutative_opP : ({xP yP  : (Prod AP AP )}  → (opP xP yP ) ≡ (opP yP xP ))
+      commutative_opP : ({xP yP  : (Prod AP AP )}  → (opP xP yP ) ≡ (opP yP xP )) 
+  
   record Hom (A1 A2  : Set ) (Co1  : (CommutativeMonoid1 A1 )) (Co2  : (CommutativeMonoid1 A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Co1 ) x1 x2 ) ) ≡ ((op Co2 ) (hom x1 ) (hom x2 ) ))
-      pres-1 : (  (hom (1ᵢ Co1 )  ) ≡ (1ᵢ Co2 ) )
+      pres-1 : (  (hom (1ᵢ Co1 )  ) ≡ (1ᵢ Co2 ) ) 
+  
   record RelInterp (A1 A2  : Set ) (Co1  : (CommutativeMonoid1 A1 )) (Co2  : (CommutativeMonoid1 A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Co1 ) x1 x2 ) ((op Co2 ) y1 y2 ) ))))
-      interp-1 : (  (interp (1ᵢ Co1 )  (1ᵢ Co2 )  ))
+      interp-1 : (  (interp (1ᵢ Co1 )  (1ᵢ Co2 )  )) 
+  
   data CommutativeMonoid1LTerm  : Set where
     opL : (CommutativeMonoid1LTerm   → (CommutativeMonoid1LTerm   → CommutativeMonoid1LTerm  ))
-    1L : CommutativeMonoid1LTerm  
+    1L : CommutativeMonoid1LTerm   
+  
   data ClCommutativeMonoid1ClTerm (A  : Set )  : Set where
     sing : (A  → (ClCommutativeMonoid1ClTerm A ) )
     opCl : ((ClCommutativeMonoid1ClTerm A )  → ((ClCommutativeMonoid1ClTerm A )  → (ClCommutativeMonoid1ClTerm A ) ))
-    1Cl : (ClCommutativeMonoid1ClTerm A ) 
+    1Cl : (ClCommutativeMonoid1ClTerm A )  
+  
   data OpCommutativeMonoid1OLTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpCommutativeMonoid1OLTerm n ) )
     opOL : ((OpCommutativeMonoid1OLTerm n )  → ((OpCommutativeMonoid1OLTerm n )  → (OpCommutativeMonoid1OLTerm n ) ))
-    1OL : (OpCommutativeMonoid1OLTerm n ) 
+    1OL : (OpCommutativeMonoid1OLTerm n )  
+  
   data OpCommutativeMonoid1OL2Term2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpCommutativeMonoid1OL2Term2 n A ) )
     sing2 : (A  → (OpCommutativeMonoid1OL2Term2 n A ) )
     opOL2 : ((OpCommutativeMonoid1OL2Term2 n A )  → ((OpCommutativeMonoid1OL2Term2 n A )  → (OpCommutativeMonoid1OL2Term2 n A ) ))
-    1OL2 : (OpCommutativeMonoid1OL2Term2 n A ) 
+    1OL2 : (OpCommutativeMonoid1OL2Term2 n A )  
+  
+  simplifyB : (CommutativeMonoid1LTerm  → CommutativeMonoid1LTerm )
+  simplifyB (opL 1L x )  = x 
+  
+  simplifyB (opL x 1L )  = x 
+  
+  simplifyB (opL x1 x2 )  = (opL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB 1L  = 1L 
+  
+  simplifyCl : ((A  : Set )  → ((ClCommutativeMonoid1ClTerm A ) → (ClCommutativeMonoid1ClTerm A )))
+  simplifyCl _ (opCl 1Cl x )  = x 
+  
+  simplifyCl _ (opCl x 1Cl )  = x 
+  
+  simplifyCl _ (opCl x1 x2 )  = (opCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ 1Cl  = 1Cl 
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpCommutativeMonoid1OLTerm n ) → (OpCommutativeMonoid1OLTerm n )))
+  simplifyOp _ (opOL 1OL x )  = x 
+  
+  simplifyOp _ (opOL x 1OL )  = x 
+  
+  simplifyOp _ (opOL x1 x2 )  = (opOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ 1OL  = 1OL 
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpCommutativeMonoid1OL2Term2 n A ) → (OpCommutativeMonoid1OL2Term2 n A )))
+  simplifyOpE _ _ (opOL2 1OL2 x )  = x 
+  
+  simplifyOpE _ _ (opOL2 x 1OL2 )  = x 
+  
+  simplifyOpE _ _ (opOL2 x1 x2 )  = (opOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ 1OL2  = 1OL2 
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((CommutativeMonoid1 A ) → (CommutativeMonoid1LTerm  → A )))
   evalB Co (opL x1 x2 )  = ((op Co ) (evalB Co x1 ) (evalB Co x2 ) )
   
@@ -168,4 +222,5 @@ module CommutativeMonoid1  where
     constructor tagless
     field
       opT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
-      1T : (Repr A ) 
+      1T : (Repr A )  
+   

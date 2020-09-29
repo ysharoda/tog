@@ -1,4 +1,5 @@
-module MiddleCommute  where
+
+ module MiddleCommute  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -8,39 +9,68 @@ module MiddleCommute  where
     constructor MiddleCommuteC
     field
       op : (A  → (A  → A ))
-      middleCommute_* : ({x y z  : A }  → (op (op (op x y ) z ) x ) ≡ (op (op (op x z ) y ) x ))
+      middleCommute_* : ({x y z  : A }  → (op (op (op x y ) z ) x ) ≡ (op (op (op x z ) y ) x )) 
+  
   open MiddleCommute
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
-      opS : (AS  → (AS  → AS ))
+      opS : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       opP : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
-      middleCommute_*P : ({xP yP zP  : (Prod AP AP )}  → (opP (opP (opP xP yP ) zP ) xP ) ≡ (opP (opP (opP xP zP ) yP ) xP ))
+      middleCommute_*P : ({xP yP zP  : (Prod AP AP )}  → (opP (opP (opP xP yP ) zP ) xP ) ≡ (opP (opP (opP xP zP ) yP ) xP )) 
+  
   record Hom (A1 A2  : Set ) (Mi1  : (MiddleCommute A1 )) (Mi2  : (MiddleCommute A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
-      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Mi1 ) x1 x2 ) ) ≡ ((op Mi2 ) (hom x1 ) (hom x2 ) ))
+      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Mi1 ) x1 x2 ) ) ≡ ((op Mi2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Mi1  : (MiddleCommute A1 )) (Mi2  : (MiddleCommute A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
-      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Mi1 ) x1 x2 ) ((op Mi2 ) y1 y2 ) ))))
+      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Mi1 ) x1 x2 ) ((op Mi2 ) y1 y2 ) )))) 
+  
   data MiddleCommuteTerm  : Set where
-    opL : (MiddleCommuteTerm   → (MiddleCommuteTerm   → MiddleCommuteTerm  ))
+    opL : (MiddleCommuteTerm   → (MiddleCommuteTerm   → MiddleCommuteTerm  )) 
+  
   data ClMiddleCommuteTerm (A  : Set )  : Set where
     sing : (A  → (ClMiddleCommuteTerm A ) )
-    opCl : ((ClMiddleCommuteTerm A )  → ((ClMiddleCommuteTerm A )  → (ClMiddleCommuteTerm A ) ))
+    opCl : ((ClMiddleCommuteTerm A )  → ((ClMiddleCommuteTerm A )  → (ClMiddleCommuteTerm A ) )) 
+  
   data OpMiddleCommuteTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpMiddleCommuteTerm n ) )
-    opOL : ((OpMiddleCommuteTerm n )  → ((OpMiddleCommuteTerm n )  → (OpMiddleCommuteTerm n ) ))
+    opOL : ((OpMiddleCommuteTerm n )  → ((OpMiddleCommuteTerm n )  → (OpMiddleCommuteTerm n ) )) 
+  
   data OpMiddleCommuteTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpMiddleCommuteTerm2 n A ) )
     sing2 : (A  → (OpMiddleCommuteTerm2 n A ) )
-    opOL2 : ((OpMiddleCommuteTerm2 n A )  → ((OpMiddleCommuteTerm2 n A )  → (OpMiddleCommuteTerm2 n A ) ))
+    opOL2 : ((OpMiddleCommuteTerm2 n A )  → ((OpMiddleCommuteTerm2 n A )  → (OpMiddleCommuteTerm2 n A ) )) 
+  
+  simplifyB : (MiddleCommuteTerm  → MiddleCommuteTerm )
+  simplifyB (opL x1 x2 )  = (opL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClMiddleCommuteTerm A ) → (ClMiddleCommuteTerm A )))
+  simplifyCl _ (opCl x1 x2 )  = (opCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpMiddleCommuteTerm n ) → (OpMiddleCommuteTerm n )))
+  simplifyOp _ (opOL x1 x2 )  = (opOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpMiddleCommuteTerm2 n A ) → (OpMiddleCommuteTerm2 n A )))
+  simplifyOpE _ _ (opOL2 x1 x2 )  = (opOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((MiddleCommute A ) → (MiddleCommuteTerm  → A )))
   evalB Mi (opL x1 x2 )  = ((op Mi ) (evalB Mi x1 ) (evalB Mi x2 ) )
   
@@ -116,4 +146,5 @@ module MiddleCommute  where
   record Tagless (A  : Set) (Repr  : (Set  → Set ))  : Set where
     constructor tagless
     field
-      opT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      opT : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

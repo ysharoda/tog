@@ -1,4 +1,5 @@
-module QuasiGroup  where
+
+ module QuasiGroup  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -13,14 +14,16 @@ module QuasiGroup  where
       lefCancelOp : ({x y  : A }  → (linv x (op x y ) ) ≡ y )
       rinv : (A  → (A  → A ))
       rightCancel : ({x y  : A }  → (op (rinv y x ) x ) ≡ y )
-      rightCancelOp : ({x y  : A }  → (rinv (op y x ) x ) ≡ y )
+      rightCancelOp : ({x y  : A }  → (rinv (op y x ) x ) ≡ y ) 
+  
   open QuasiGroup
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       opS : (AS  → (AS  → AS ))
       linvS : (AS  → (AS  → AS ))
-      rinvS : (AS  → (AS  → AS ))
+      rinvS : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
@@ -30,41 +33,84 @@ module QuasiGroup  where
       leftCancelP : ({xP yP  : (Prod AP AP )}  → (opP xP (linvP xP yP ) ) ≡ yP )
       lefCancelOpP : ({xP yP  : (Prod AP AP )}  → (linvP xP (opP xP yP ) ) ≡ yP )
       rightCancelP : ({xP yP  : (Prod AP AP )}  → (opP (rinvP yP xP ) xP ) ≡ yP )
-      rightCancelOpP : ({xP yP  : (Prod AP AP )}  → (rinvP (opP yP xP ) xP ) ≡ yP )
+      rightCancelOpP : ({xP yP  : (Prod AP AP )}  → (rinvP (opP yP xP ) xP ) ≡ yP ) 
+  
   record Hom (A1 A2  : Set ) (Qu1  : (QuasiGroup A1 )) (Qu2  : (QuasiGroup A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Qu1 ) x1 x2 ) ) ≡ ((op Qu2 ) (hom x1 ) (hom x2 ) ))
       pres-linv : ({x1  : A1} {x2  : A1}  → (hom ((linv Qu1 ) x1 x2 ) ) ≡ ((linv Qu2 ) (hom x1 ) (hom x2 ) ))
-      pres-rinv : ({x1  : A1} {x2  : A1}  → (hom ((rinv Qu1 ) x1 x2 ) ) ≡ ((rinv Qu2 ) (hom x1 ) (hom x2 ) ))
+      pres-rinv : ({x1  : A1} {x2  : A1}  → (hom ((rinv Qu1 ) x1 x2 ) ) ≡ ((rinv Qu2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Qu1  : (QuasiGroup A1 )) (Qu2  : (QuasiGroup A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Qu1 ) x1 x2 ) ((op Qu2 ) y1 y2 ) ))))
       interp-linv : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((linv Qu1 ) x1 x2 ) ((linv Qu2 ) y1 y2 ) ))))
-      interp-rinv : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((rinv Qu1 ) x1 x2 ) ((rinv Qu2 ) y1 y2 ) ))))
+      interp-rinv : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((rinv Qu1 ) x1 x2 ) ((rinv Qu2 ) y1 y2 ) )))) 
+  
   data QuasiGroupTerm  : Set where
     opL : (QuasiGroupTerm   → (QuasiGroupTerm   → QuasiGroupTerm  ))
     linvL : (QuasiGroupTerm   → (QuasiGroupTerm   → QuasiGroupTerm  ))
-    rinvL : (QuasiGroupTerm   → (QuasiGroupTerm   → QuasiGroupTerm  ))
+    rinvL : (QuasiGroupTerm   → (QuasiGroupTerm   → QuasiGroupTerm  )) 
+  
   data ClQuasiGroupTerm (A  : Set )  : Set where
     sing : (A  → (ClQuasiGroupTerm A ) )
     opCl : ((ClQuasiGroupTerm A )  → ((ClQuasiGroupTerm A )  → (ClQuasiGroupTerm A ) ))
     linvCl : ((ClQuasiGroupTerm A )  → ((ClQuasiGroupTerm A )  → (ClQuasiGroupTerm A ) ))
-    rinvCl : ((ClQuasiGroupTerm A )  → ((ClQuasiGroupTerm A )  → (ClQuasiGroupTerm A ) ))
+    rinvCl : ((ClQuasiGroupTerm A )  → ((ClQuasiGroupTerm A )  → (ClQuasiGroupTerm A ) )) 
+  
   data OpQuasiGroupTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpQuasiGroupTerm n ) )
     opOL : ((OpQuasiGroupTerm n )  → ((OpQuasiGroupTerm n )  → (OpQuasiGroupTerm n ) ))
     linvOL : ((OpQuasiGroupTerm n )  → ((OpQuasiGroupTerm n )  → (OpQuasiGroupTerm n ) ))
-    rinvOL : ((OpQuasiGroupTerm n )  → ((OpQuasiGroupTerm n )  → (OpQuasiGroupTerm n ) ))
+    rinvOL : ((OpQuasiGroupTerm n )  → ((OpQuasiGroupTerm n )  → (OpQuasiGroupTerm n ) )) 
+  
   data OpQuasiGroupTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpQuasiGroupTerm2 n A ) )
     sing2 : (A  → (OpQuasiGroupTerm2 n A ) )
     opOL2 : ((OpQuasiGroupTerm2 n A )  → ((OpQuasiGroupTerm2 n A )  → (OpQuasiGroupTerm2 n A ) ))
     linvOL2 : ((OpQuasiGroupTerm2 n A )  → ((OpQuasiGroupTerm2 n A )  → (OpQuasiGroupTerm2 n A ) ))
-    rinvOL2 : ((OpQuasiGroupTerm2 n A )  → ((OpQuasiGroupTerm2 n A )  → (OpQuasiGroupTerm2 n A ) ))
+    rinvOL2 : ((OpQuasiGroupTerm2 n A )  → ((OpQuasiGroupTerm2 n A )  → (OpQuasiGroupTerm2 n A ) )) 
+  
+  simplifyB : (QuasiGroupTerm  → QuasiGroupTerm )
+  simplifyB (opL x1 x2 )  = (opL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB (linvL x1 x2 )  = (linvL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB (rinvL x1 x2 )  = (rinvL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClQuasiGroupTerm A ) → (ClQuasiGroupTerm A )))
+  simplifyCl _ (opCl x1 x2 )  = (opCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (linvCl x1 x2 )  = (linvCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (rinvCl x1 x2 )  = (rinvCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpQuasiGroupTerm n ) → (OpQuasiGroupTerm n )))
+  simplifyOp _ (opOL x1 x2 )  = (opOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (linvOL x1 x2 )  = (linvOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (rinvOL x1 x2 )  = (rinvOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpQuasiGroupTerm2 n A ) → (OpQuasiGroupTerm2 n A )))
+  simplifyOpE _ _ (opOL2 x1 x2 )  = (opOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (linvOL2 x1 x2 )  = (linvOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (rinvOL2 x1 x2 )  = (rinvOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((QuasiGroup A ) → (QuasiGroupTerm  → A )))
   evalB Qu (opL x1 x2 )  = ((op Qu ) (evalB Qu x1 ) (evalB Qu x2 ) )
   
@@ -214,4 +260,5 @@ module QuasiGroup  where
     field
       opT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
       linvT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
-      rinvT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      rinvT : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

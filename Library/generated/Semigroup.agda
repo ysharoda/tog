@@ -1,4 +1,5 @@
-module Semigroup  where
+
+ module Semigroup  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -8,39 +9,68 @@ module Semigroup  where
     constructor SemigroupC
     field
       op : (A  → (A  → A ))
-      associative_op : ({x y z  : A }  → (op (op x y ) z ) ≡ (op x (op y z ) ))
+      associative_op : ({x y z  : A }  → (op (op x y ) z ) ≡ (op x (op y z ) )) 
+  
   open Semigroup
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
-      opS : (AS  → (AS  → AS ))
+      opS : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       opP : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
-      associative_opP : ({xP yP zP  : (Prod AP AP )}  → (opP (opP xP yP ) zP ) ≡ (opP xP (opP yP zP ) ))
+      associative_opP : ({xP yP zP  : (Prod AP AP )}  → (opP (opP xP yP ) zP ) ≡ (opP xP (opP yP zP ) )) 
+  
   record Hom (A1 A2  : Set ) (Se1  : (Semigroup A1 )) (Se2  : (Semigroup A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
-      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Se1 ) x1 x2 ) ) ≡ ((op Se2 ) (hom x1 ) (hom x2 ) ))
+      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Se1 ) x1 x2 ) ) ≡ ((op Se2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Se1  : (Semigroup A1 )) (Se2  : (Semigroup A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
-      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Se1 ) x1 x2 ) ((op Se2 ) y1 y2 ) ))))
+      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Se1 ) x1 x2 ) ((op Se2 ) y1 y2 ) )))) 
+  
   data SemigroupTerm  : Set where
-    opL : (SemigroupTerm   → (SemigroupTerm   → SemigroupTerm  ))
+    opL : (SemigroupTerm   → (SemigroupTerm   → SemigroupTerm  )) 
+  
   data ClSemigroupTerm (A  : Set )  : Set where
     sing : (A  → (ClSemigroupTerm A ) )
-    opCl : ((ClSemigroupTerm A )  → ((ClSemigroupTerm A )  → (ClSemigroupTerm A ) ))
+    opCl : ((ClSemigroupTerm A )  → ((ClSemigroupTerm A )  → (ClSemigroupTerm A ) )) 
+  
   data OpSemigroupTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpSemigroupTerm n ) )
-    opOL : ((OpSemigroupTerm n )  → ((OpSemigroupTerm n )  → (OpSemigroupTerm n ) ))
+    opOL : ((OpSemigroupTerm n )  → ((OpSemigroupTerm n )  → (OpSemigroupTerm n ) )) 
+  
   data OpSemigroupTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpSemigroupTerm2 n A ) )
     sing2 : (A  → (OpSemigroupTerm2 n A ) )
-    opOL2 : ((OpSemigroupTerm2 n A )  → ((OpSemigroupTerm2 n A )  → (OpSemigroupTerm2 n A ) ))
+    opOL2 : ((OpSemigroupTerm2 n A )  → ((OpSemigroupTerm2 n A )  → (OpSemigroupTerm2 n A ) )) 
+  
+  simplifyB : (SemigroupTerm  → SemigroupTerm )
+  simplifyB (opL x1 x2 )  = (opL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClSemigroupTerm A ) → (ClSemigroupTerm A )))
+  simplifyCl _ (opCl x1 x2 )  = (opCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpSemigroupTerm n ) → (OpSemigroupTerm n )))
+  simplifyOp _ (opOL x1 x2 )  = (opOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpSemigroupTerm2 n A ) → (OpSemigroupTerm2 n A )))
+  simplifyOpE _ _ (opOL2 x1 x2 )  = (opOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((Semigroup A ) → (SemigroupTerm  → A )))
   evalB Se (opL x1 x2 )  = ((op Se ) (evalB Se x1 ) (evalB Se x2 ) )
   
@@ -116,4 +146,5 @@ module Semigroup  where
   record Tagless (A  : Set) (Repr  : (Set  → Set ))  : Set where
     constructor tagless
     field
-      opT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      opT : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

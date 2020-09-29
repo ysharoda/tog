@@ -1,4 +1,5 @@
-module RightCancellative  where
+
+ module RightCancellative  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -9,47 +10,84 @@ module RightCancellative  where
     field
       op : (A  → (A  → A ))
       rinv : (A  → (A  → A ))
-      rightCancel : ({x y  : A }  → (op (rinv y x ) x ) ≡ y )
+      rightCancel : ({x y  : A }  → (op (rinv y x ) x ) ≡ y ) 
+  
   open RightCancellative
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       opS : (AS  → (AS  → AS ))
-      rinvS : (AS  → (AS  → AS ))
+      rinvS : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       opP : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
       rinvP : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
-      rightCancelP : ({xP yP  : (Prod AP AP )}  → (opP (rinvP yP xP ) xP ) ≡ yP )
+      rightCancelP : ({xP yP  : (Prod AP AP )}  → (opP (rinvP yP xP ) xP ) ≡ yP ) 
+  
   record Hom (A1 A2  : Set ) (Ri1  : (RightCancellative A1 )) (Ri2  : (RightCancellative A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Ri1 ) x1 x2 ) ) ≡ ((op Ri2 ) (hom x1 ) (hom x2 ) ))
-      pres-rinv : ({x1  : A1} {x2  : A1}  → (hom ((rinv Ri1 ) x1 x2 ) ) ≡ ((rinv Ri2 ) (hom x1 ) (hom x2 ) ))
+      pres-rinv : ({x1  : A1} {x2  : A1}  → (hom ((rinv Ri1 ) x1 x2 ) ) ≡ ((rinv Ri2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Ri1  : (RightCancellative A1 )) (Ri2  : (RightCancellative A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Ri1 ) x1 x2 ) ((op Ri2 ) y1 y2 ) ))))
-      interp-rinv : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((rinv Ri1 ) x1 x2 ) ((rinv Ri2 ) y1 y2 ) ))))
+      interp-rinv : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((rinv Ri1 ) x1 x2 ) ((rinv Ri2 ) y1 y2 ) )))) 
+  
   data RightCancellativeTerm  : Set where
     opL : (RightCancellativeTerm   → (RightCancellativeTerm   → RightCancellativeTerm  ))
-    rinvL : (RightCancellativeTerm   → (RightCancellativeTerm   → RightCancellativeTerm  ))
+    rinvL : (RightCancellativeTerm   → (RightCancellativeTerm   → RightCancellativeTerm  )) 
+  
   data ClRightCancellativeTerm (A  : Set )  : Set where
     sing : (A  → (ClRightCancellativeTerm A ) )
     opCl : ((ClRightCancellativeTerm A )  → ((ClRightCancellativeTerm A )  → (ClRightCancellativeTerm A ) ))
-    rinvCl : ((ClRightCancellativeTerm A )  → ((ClRightCancellativeTerm A )  → (ClRightCancellativeTerm A ) ))
+    rinvCl : ((ClRightCancellativeTerm A )  → ((ClRightCancellativeTerm A )  → (ClRightCancellativeTerm A ) )) 
+  
   data OpRightCancellativeTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpRightCancellativeTerm n ) )
     opOL : ((OpRightCancellativeTerm n )  → ((OpRightCancellativeTerm n )  → (OpRightCancellativeTerm n ) ))
-    rinvOL : ((OpRightCancellativeTerm n )  → ((OpRightCancellativeTerm n )  → (OpRightCancellativeTerm n ) ))
+    rinvOL : ((OpRightCancellativeTerm n )  → ((OpRightCancellativeTerm n )  → (OpRightCancellativeTerm n ) )) 
+  
   data OpRightCancellativeTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpRightCancellativeTerm2 n A ) )
     sing2 : (A  → (OpRightCancellativeTerm2 n A ) )
     opOL2 : ((OpRightCancellativeTerm2 n A )  → ((OpRightCancellativeTerm2 n A )  → (OpRightCancellativeTerm2 n A ) ))
-    rinvOL2 : ((OpRightCancellativeTerm2 n A )  → ((OpRightCancellativeTerm2 n A )  → (OpRightCancellativeTerm2 n A ) ))
+    rinvOL2 : ((OpRightCancellativeTerm2 n A )  → ((OpRightCancellativeTerm2 n A )  → (OpRightCancellativeTerm2 n A ) )) 
+  
+  simplifyB : (RightCancellativeTerm  → RightCancellativeTerm )
+  simplifyB (opL x1 x2 )  = (opL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyB (rinvL x1 x2 )  = (rinvL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClRightCancellativeTerm A ) → (ClRightCancellativeTerm A )))
+  simplifyCl _ (opCl x1 x2 )  = (opCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (rinvCl x1 x2 )  = (rinvCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpRightCancellativeTerm n ) → (OpRightCancellativeTerm n )))
+  simplifyOp _ (opOL x1 x2 )  = (opOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (rinvOL x1 x2 )  = (rinvOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpRightCancellativeTerm2 n A ) → (OpRightCancellativeTerm2 n A )))
+  simplifyOpE _ _ (opOL2 x1 x2 )  = (opOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (rinvOL2 x1 x2 )  = (rinvOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((RightCancellative A ) → (RightCancellativeTerm  → A )))
   evalB Ri (opL x1 x2 )  = ((op Ri ) (evalB Ri x1 ) (evalB Ri x2 ) )
   
@@ -162,4 +200,5 @@ module RightCancellative  where
     constructor tagless
     field
       opT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
-      rinvT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      rinvT : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   

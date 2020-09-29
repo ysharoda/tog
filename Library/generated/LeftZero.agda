@@ -1,4 +1,5 @@
-module LeftZero  where
+
+ module LeftZero  where
   open import Prelude
   open import Agda.Builtin.Equality
   open import Agda.Builtin.Nat
@@ -9,47 +10,84 @@ module LeftZero  where
     field
       e : A 
       op : (A  → (A  → A ))
-      leftZero_op_e : ({x  : A }  → (op e x ) ≡ e )
+      leftZero_op_e : ({x  : A }  → (op e x ) ≡ e ) 
+  
   open LeftZero
   record Sig (AS  : Set )  : Set where
     constructor SigSigC
     field
       eS : AS 
-      opS : (AS  → (AS  → AS ))
+      opS : (AS  → (AS  → AS )) 
+  
   record Product (AP  : Set )  : Set where
     constructor ProductC
     field
       eP : (Prod AP AP )
       opP : ((Prod AP AP ) → ((Prod AP AP ) → (Prod AP AP )))
-      leftZero_op_eP : ({xP  : (Prod AP AP )}  → (opP eP xP ) ≡ eP )
+      leftZero_op_eP : ({xP  : (Prod AP AP )}  → (opP eP xP ) ≡ eP ) 
+  
   record Hom (A1 A2  : Set ) (Le1  : (LeftZero A1 )) (Le2  : (LeftZero A2 ))  : Set where
     constructor HomC
     field
       hom : (A1 → A2)
       pres-e : (  (hom (e Le1 )  ) ≡ (e Le2 ) )
-      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Le1 ) x1 x2 ) ) ≡ ((op Le2 ) (hom x1 ) (hom x2 ) ))
+      pres-op : ({x1  : A1} {x2  : A1}  → (hom ((op Le1 ) x1 x2 ) ) ≡ ((op Le2 ) (hom x1 ) (hom x2 ) )) 
+  
   record RelInterp (A1 A2  : Set ) (Le1  : (LeftZero A1 )) (Le2  : (LeftZero A2 ))  : Set₁ where
     constructor RelInterpC
     field
       interp : (A1 → (A2 → Set))
       interp-e : (  (interp (e Le1 )  (e Le2 )  ))
-      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Le1 ) x1 x2 ) ((op Le2 ) y1 y2 ) ))))
+      interp-op : ({x1  : A1} {x2  : A1} {y1  : A2} {y2  : A2}  → ((interp x1 y1 ) → ((interp x2 y2 ) → (interp ((op Le1 ) x1 x2 ) ((op Le2 ) y1 y2 ) )))) 
+  
   data LeftZeroTerm  : Set where
     eL : LeftZeroTerm  
-    opL : (LeftZeroTerm   → (LeftZeroTerm   → LeftZeroTerm  ))
+    opL : (LeftZeroTerm   → (LeftZeroTerm   → LeftZeroTerm  )) 
+  
   data ClLeftZeroTerm (A  : Set )  : Set where
     sing : (A  → (ClLeftZeroTerm A ) )
     eCl : (ClLeftZeroTerm A ) 
-    opCl : ((ClLeftZeroTerm A )  → ((ClLeftZeroTerm A )  → (ClLeftZeroTerm A ) ))
+    opCl : ((ClLeftZeroTerm A )  → ((ClLeftZeroTerm A )  → (ClLeftZeroTerm A ) )) 
+  
   data OpLeftZeroTerm (n  : Nat)  : Set where
     v : ((Fin n ) → (OpLeftZeroTerm n ) )
     eOL : (OpLeftZeroTerm n ) 
-    opOL : ((OpLeftZeroTerm n )  → ((OpLeftZeroTerm n )  → (OpLeftZeroTerm n ) ))
+    opOL : ((OpLeftZeroTerm n )  → ((OpLeftZeroTerm n )  → (OpLeftZeroTerm n ) )) 
+  
   data OpLeftZeroTerm2 (n  : Nat ) (A  : Set )  : Set where
     v2 : ((Fin n ) → (OpLeftZeroTerm2 n A ) )
     sing2 : (A  → (OpLeftZeroTerm2 n A ) )
     eOL2 : (OpLeftZeroTerm2 n A ) 
-    opOL2 : ((OpLeftZeroTerm2 n A )  → ((OpLeftZeroTerm2 n A )  → (OpLeftZeroTerm2 n A ) ))
+    opOL2 : ((OpLeftZeroTerm2 n A )  → ((OpLeftZeroTerm2 n A )  → (OpLeftZeroTerm2 n A ) )) 
+  
+  simplifyB : (LeftZeroTerm  → LeftZeroTerm )
+  simplifyB eL  = eL 
+  
+  simplifyB (opL x1 x2 )  = (opL (simplifyB x1 ) (simplifyB x2 ) )
+  
+  simplifyCl : ((A  : Set )  → ((ClLeftZeroTerm A ) → (ClLeftZeroTerm A )))
+  simplifyCl _ eCl  = eCl 
+  
+  simplifyCl _ (opCl x1 x2 )  = (opCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
+  
+  simplifyCl _ (sing x1 )  = (sing x1 )
+  
+  simplifyOp : ((n  : Nat)  → ((OpLeftZeroTerm n ) → (OpLeftZeroTerm n )))
+  simplifyOp _ eOL  = eOL 
+  
+  simplifyOp _ (opOL x1 x2 )  = (opOL (simplifyOp _ x1 ) (simplifyOp _ x2 ) )
+  
+  simplifyOp _ (v x1 )  = (v x1 )
+  
+  simplifyOpE : ((n  : Nat ) (A  : Set )  → ((OpLeftZeroTerm2 n A ) → (OpLeftZeroTerm2 n A )))
+  simplifyOpE _ _ eOL2  = eOL2 
+  
+  simplifyOpE _ _ (opOL2 x1 x2 )  = (opOL2 (simplifyOpE _ _ x1 ) (simplifyOpE _ _ x2 ) )
+  
+  simplifyOpE _ _ (v2 x1 )  = (v2 x1 )
+  
+  simplifyOpE _ _ (sing2 x1 )  = (sing2 x1 )
+  
   evalB : ({A  : Set }  → ((LeftZero A ) → (LeftZeroTerm  → A )))
   evalB Le eL  = (e Le ) 
   
@@ -162,4 +200,5 @@ module LeftZero  where
     constructor tagless
     field
       eT : (Repr A ) 
-      opT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
+      opT : ((Repr A )  → ((Repr A )  → (Repr A ) )) 
+   
