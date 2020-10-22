@@ -10,7 +10,7 @@ import Tog.Deriving.TUtils (getArgExpr, getArgName, getName)
 import Control.Lens ((^.))
 import Text.PrettyPrint.Leijen as PP 
 import Data.Generics hiding (Constr, empty)
-import Data.List (concat, dropWhileEnd, takeWhile)
+import Data.List (concat, dropWhileEnd, takeWhile, (\\))
 import Data.List.Split (splitOn)
 import Data.Char (toUpper) 
 
@@ -72,7 +72,7 @@ instance PrintAgda Expr where
     printAgda e1 <+> text equality_symbol <+> printAgda e2
  -- printAgda (App (Arg ((App [ident,qual]):xs))) = -- the case of a qualified function name 
   printAgda (App args) =
-    let (App newargs) = callLookup (App args) 
+    let (App newargs) = callFunc (App args) 
         pr = foldr (<+>) empty $ map (printAgda) newargs
     in if length args == 1 then pr else parens pr     
   printAgda (Id qname) = printAgda qname
@@ -153,12 +153,12 @@ instance PrintAgda Module where
 
 -- Utils functions --
 addOpenDecl :: Module -> Module 
-addOpenDecl (Module nm params (Decl_ (x:xs))) =
-  Module nm params (Decl_ (imprts ++ ((head rest) : (Open $ NotQual nm) : (tail rest)))) 
-  where (imprts,rest) = ([i | i <- (x:xs), isImport i], [d | d <- (x:xs), not (isImport d)])
-        isImport (Import _) = True
-        isImport (OpenImport _) = True
-        isImport _ = False 
+addOpenDecl (Module nm params (Decl_ decls)) =
+  Module nm params (Decl_ (firstPart ++ [Open $ NotQual nm] ++ rest)) 
+  where firstPart = takeWhile (not . hasModuleName) decls ++ filter hasModuleName decls
+        rest = decls \\ firstPart 
+        hasModuleName (Record rnm _ _) = rnm == nm
+        hasModuleName _ = False 
 addOpenDecl m = m
     
 emptyTel :: Telescope -> Bool
@@ -257,10 +257,10 @@ replaceVec = Nothing
 replaceLookup = Nothing -} 
 -- from all the prelude, we only call lookup, Staged and Code.
 
-callLookup :: Expr -> Expr
-callLookup a@(App [nm,_,a2,a3]) =
+callFunc :: Expr -> Expr
+callFunc a@(App [nm,_,a2,a3]) =
   if (getArgName nm == "lookup") then App [nm,a3,a2] else a
-callLookup e = e
+callFunc e = e
 
 replace :: String -> String
 replace nm =
