@@ -10,8 +10,8 @@ import Data.Map as Map (Map,fromList,toList)
 import Tog.Deriving.Lenses (name)
 import Control.Lens ((^.))
 
-taglessName :: EqTheory -> Name_
-taglessName eq = "Tagless"
+taglessName :: Name_
+taglessName = "Tagless"
 
 reprTypeName :: String 
 reprTypeName = "Repr"
@@ -25,7 +25,7 @@ taglessRep :: EqTheory -> Decl
 taglessRep eq =
  let carrierNm = getConstrName (eq ^. sort)
      fdecls = foldren eq (Map.toList $ mapping eq) ^. funcTypes
- in Record (mkName $ taglessName eq)
+ in Record (mkName $ taglessName)
   (ParamDecl [Bind [mkArg carrierNm] setTypeAsId,
               Bind [mkArg reprTypeName] $ Fun (App [mkArg "Set"]) (App [mkArg "Set"])]) $ 
   RecordDeclDef setType (mkName "tagless") $

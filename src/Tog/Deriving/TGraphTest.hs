@@ -86,8 +86,8 @@ renPairsToMapping rplist = Map.fromList $ map (\(RenPair x y) -> (x^.name,y^.nam
 
 rensToMappings :: Rens -> Rename
 --rensToMappings (NameRens n) = (gs^.mappings) Map.! (n^.name)
-rensToMappings NoRens = Map.empty
 rensToMappings (Rens rlist) = Map.fromList $ map (\(RenPair x y) -> (x^.name,y^.name)) rlist
+rensToMappings _ = Map.empty
 
 findRename :: Library -> Rens -> Rename
 findRename lib (NameRens n) = (lib^.mappings) Map.! (n^.name)

@@ -1,6 +1,6 @@
 module Test where
 
-import Tog.Deriving.Main  (processDefs, defsToModule)
+import Tog.Deriving.Main  (processDefs)
 import Tog.Exporting.Agda
 import Tog.Raw                  
 import Tog.Parse
@@ -22,22 +22,9 @@ test dirName file = do
         mkPrelude dirName prelude
         internalModule dirName modules 
         where (prelude,modules) = splitDecls $ filterDecls imods
-      _ -> error "wrong file structure" 
-{-
-test2 :: [Char] -> FilePath -> IO ()
-test2 dirName file = do
- s <- readFile file
- case parseModule s of
-   Left err -> putDoc err
-   Right (Module _ _ (Lang_ defs)) -> 
-    case defsToModule defs of
-      (Module _ _ (Decl_ imods)) -> do 
-        internalModule dirName allModules
-        where (prelude,modules) = splitDecls $ filterDecls imods
-              allModules = (preludeModule prelude) :
-                           (map (agdaModuleWithImports ("Prelude" : importNames)) modules) 
-      _ -> error "wrong file structure" 
--}
+      _ -> error "wrong file structure"
+   _ -> error "wrong file structure"
+
 -- prints Prelude to a file 
 mkPrelude :: PrintAgda a => [Char] -> [a] -> IO ()        
 mkPrelude dirName ds = do

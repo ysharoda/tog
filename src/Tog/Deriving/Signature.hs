@@ -3,7 +3,7 @@ module Tog.Deriving.Signature
   , sigToDecl
   ) where
 
-import           Control.Lens ((^.), over, set)
+import           Control.Lens ((^.), set)
 
 import Tog.Raw.Abs
 import Tog.Deriving.EqTheory as Eq

@@ -4,9 +4,9 @@ module Tog.Exporting.AgdaStdLib where
 
 import Tog.Raw.Abs
 import Tog.Deriving.Types
-import Tog.Deriving.TypeConversions (recordToEqTheory, getEqTheories, theoryToRecord)
+import Tog.Deriving.TypeConversions (getEqTheories, theoryToRecord)
 import Tog.Deriving.Utils (isSort, isFunc, isAxiom)
-import Tog.Deriving.TUtils (setType, constrToBinding,  mkName, mkArg, strToDecl)  
+import Tog.Deriving.TUtils (mkName, mkArg, strToDecl)  
 import Tog.Deriving.GenEverything (leverageThry)
 import Tog.Deriving.TogPrelude (prelude)
 import qualified Data.Map as Map

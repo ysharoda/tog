@@ -9,11 +9,11 @@ import qualified Data.Map              as Map
 import           Control.Lens (view)
 
 import           Tog.Raw.Abs           as Abs
-import qualified Tog.Deriving.EqTheory as Eq
+-- import qualified Tog.Deriving.EqTheory as Eq
 import           Tog.Deriving.TGraphTest 
 import           Tog.Deriving.TypeConversions
 import           Tog.Deriving.Types
-import           Tog.Deriving.TUtils  (mkName, setType,strToDecl, constrToBinding)
+import           Tog.Deriving.TUtils  (mkName, strToDecl)
 import           Tog.Deriving.TogPrelude (prelude)
 import           Tog.Deriving.GenEverything
 

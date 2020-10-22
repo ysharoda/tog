@@ -10,7 +10,7 @@ import Tog.Deriving.TUtils (getArgExpr, getArgName, getName)
 import Control.Lens ((^.))
 import Text.PrettyPrint.Leijen as PP 
 import Data.Generics hiding (Constr, empty)
-import Data.List (concat, dropWhileEnd, takeWhile, (\\))
+import Data.List (concat, takeWhile, (\\))
 import Data.List.Split (splitOn)
 import Data.Char (toUpper) 
 
@@ -309,15 +309,15 @@ filterDecls ds =
   filterOneDecl includeLookup "lookup" ds 
  
 exportAgda :: String → Module -> Doc
-exportAgda moduleName (Module nm params (Decl_ decls)) =
+exportAgda moduleName (Module _ params (Decl_ decls)) =
  let dropLast [] = [] 
-     dropLast [x] = []
+     dropLast [_] = []
      dropLast (x:xs) = x : dropLast xs 
      tempName = last $ splitOn "/" $ concat $ dropLast $ splitOn "." moduleName 
-     name = (toUpper $ head tempName) : tail tempName
+     nm = (toUpper $ head tempName) : tail tempName
  in 
    text module_ <+>
-   printAgda (Name ((0,0),name)) <+>
+   printAgda (Name ((0,0),nm)) <+>
    printAgda params <+>
    text module_beforeDecls PP.<$>
    (indent 2 $
