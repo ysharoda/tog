@@ -15,8 +15,11 @@ import Tog.Deriving.TUtils
 evalFuncName :: Term -> String
 evalFuncName Basic         = "evalB"
 evalFuncName (Closed _)    = "evalCl"
-evalFuncName (Open _)      = "evalOp"
-evalFuncName (ExtOpen _ _) = "evalOpE" 
+evalFuncName (BasicOpen _)      = "evalOpB"
+evalFuncName (Open _ _) = "evalOp" 
+
+envName :: String 
+envName = "vars"
 
 {-
 eval : {A : Set} -> Monoid A -> MonTerm -> A
@@ -44,41 +47,45 @@ evalOpE _ n mon (v fin) vars = lookup
 mkPattern constr --- functor 
 -}
 
+-- the type signature for the evaluation function 
+typeSig :: EqTheory -> TermLang -> TypeSig
+typeSig thry termlang =
+ let
+   (eqbind,eqinst) = eqInstance thry Nothing
+   (tbind,tinst) = tlangInstance termlang
+   newBinds = unionBindings eqbind tbind
+   sortExpr = projectConstr thry ""  (thry ^. sort)
+   trmTy = getTermType termlang
+ in Sig (mkName $ evalFuncName trmTy) $
+   if null newBinds then Fun eqinst (Fun tinst sortExpr)
+   else Pi (Tel newBinds) $
+         Fun eqinst $
+            case trmTy of
+              Basic -> Fun tinst sortExpr
+              Closed _ -> Fun tinst sortExpr 
+              BasicOpen n -> Fun (vecApp (getConstrName $ thry ^. sort) n) $ Fun tinst sortExpr 
+              Open n c -> Fun (vecApp c n) $ Fun tinst sortExpr  
+
 vecApp :: Name_ -> Name_ -> Expr
 vecApp carrierName natName = App [mkArg "Vec", mkArg carrierName, mkArg natName] 
 
 -- Problem: If the carrier is not a param to the theory, the type might be
 -- Monoid -> MonTerm -> XXX how do we refer to the carrier of the monoid here? 
-ftype :: EqTheory -> TermLang -> TypeSig
-ftype thry termlang =
- let
-   (tbind,tinst) = eqApp thry Nothing
-   DTApp lbind linst = tapp (tlToDecl termlang) Nothing
-   newBinds = unionBindings tbind lbind
-   sortExpr = projectConstr thry ""  (thry ^. sort)
-   trmTy = getTermType termlang
- in Sig (mkName $ evalFuncName trmTy) $
-   if null newBinds then Fun tinst (Fun linst sortExpr)
-   else Pi (Tel newBinds) $
-         Fun tinst $
-            case trmTy of
-              Basic -> Fun linst sortExpr
-              Closed _ -> Fun linst sortExpr 
-              Open n -> Fun (vecApp (getConstrName $ thry ^. sort) n) $ Fun linst sortExpr 
-              ExtOpen n c -> Fun (vecApp c n) $ Fun linst sortExpr  
 
-cpattern :: Name_ -> Name_ -> Term -> Constr -> [Pattern]
-cpattern tinstName envName term c =
+
+-- pattern matching on the constructors 
+cpattern :: Name_ -> Term -> Constr -> [Pattern]
+cpattern tinstName term c =
  let base = [IdP $ mkQName tinstName, mkPattern c]
      extBase i = [IdP $ mkQName i, IdP $ mkQName tinstName, IdP $ mkQName envName, mkPattern c]
  in case term of
     Basic -> base 
     (Closed _) -> base
-    (Open n) -> extBase n
-    (ExtOpen n _ ) -> extBase n
+    (BasicOpen n) -> extBase n
+    (Open n _ ) -> extBase n
                 
-funcDef :: EqTheory -> Name_ -> Name_ -> Term -> Constr -> FunDefBody 
-funcDef thry instName envName term constr = 
+funcDef :: EqTheory -> Name_ -> Term -> Constr -> FunDefBody 
+funcDef thry instName term constr = 
  let cexpr = applyProjConstr thry instName constr
      basicArgs = App [mkArg $ evalFuncName term, mkArg instName]
      extArgs i = App [mkArg $ evalFuncName term, mkArg i, mkArg instName, mkArg envName]
@@ -86,13 +93,13 @@ funcDef thry instName envName term constr =
        case term of
         Basic -> functor' basicArgs cexpr 
         Closed _ -> functor' basicArgs cexpr 
-        Open n -> functor' (extArgs n) cexpr 
-        ExtOpen n _ -> functor' (extArgs n) cexpr 
+        BasicOpen n -> functor' (extArgs n) cexpr 
+        Open n _ -> functor' (extArgs n) cexpr 
   in FunDefBody funBody NoWhere 
 
 lookup' :: Name_ -> Name_ -> FunDefBody
-lookup' natVarName envName =
-  FunDefBody (App [mkArg "lookup", mkArg natVarName, mkArg "x1", mkArg envName]) NoWhere
+lookup' natVarName vName =
+  FunDefBody (App [mkArg "lookup", mkArg natVarName, mkArg "x1", mkArg vName]) NoWhere
 
 constFunc :: FunDefBody
 constFunc =
@@ -101,25 +108,26 @@ constFunc =
 oneEvalFunc :: EqTheory -> TermLang -> [Decl]
 oneEvalFunc _ (TermLang _ _ _ []) = []
 oneEvalFunc eq termLang@(TermLang term _ _ constrs) =
-  let instName= twoCharName (eq ^. thyName) 0 
-      envName = "vars"
-      checkVar c = getConstrName c == v1 || getConstrName c == v2
-      checkConstant c = getConstrName c == sing || getConstrName c == sing2
-      vs = filter checkVar  constrs
-      constants = filter checkConstant constrs
-      fdecls = filter (\c -> not (checkVar c || checkConstant c)) constrs --  constrs \\ (vars `union` constants)
-      funcs = eq ^. funcTypes 
+  let instName= twoCharName (eq ^. thyName) 0    
+      vs = filter isVarDecl  constrs
+      constants = filter isConstDecl constrs
+      tDecls = filter (not . isConstOrVar) constrs 
+      eqDecls = eq ^. funcTypes 
   in 
-  [TypeSig $ ftype eq termLang] ++
-     [FunDef (mkName $ evalFuncName term)
-         (concatMap (cpattern instName envName term) vs)
+  [TypeSig $ typeSig eq termLang] ++ -- type 
+     [FunDef (mkName $ evalFuncName term) -- call for vars
+         (concatMap (cpattern instName term) vs)
          (lookup' "n" envName) | not (null vs)] ++ 
-     [FunDef (mkName $ evalFuncName term)
-         (concatMap (cpattern instName envName term) constants)
+     [FunDef (mkName $ evalFuncName term) -- call for constants 
+         (concatMap (cpattern instName term) constants)
          constFunc | not (null constants)] ++ 
-     zipWith (FunDef (mkName $ evalFuncName term))
-             (map (cpattern instName envName term) fdecls)
-             (map (funcDef eq instName envName term) funcs)
+     zipWith (FunDef (mkName $ evalFuncName term)) -- call for every func symbol 
+             (map (cpattern instName term) tDecls)
+             (map (funcDef eq instName term) eqDecls)
 
 evalFuncs :: EqTheory -> [TermLang] -> [Decl]
-evalFuncs eq = concatMap (oneEvalFunc eq) 
+evalFuncs eq = concatMap (oneEvalFunc eq)
+
+--evalOpenTerm : {A : Set} -> (n : Nat) -> Monoid A -> OpenMonTerm n -> Vec A n -> A
+--evalOpenTerm n mon (v fin) vars = lookup n fin vars
+--evalOpenTerm n mon (op' x y) vars = (op mon) (evalOpenTerm n mon x vars) (evalOpenTerm n mon y vars)

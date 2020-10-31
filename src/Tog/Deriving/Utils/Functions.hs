@@ -123,5 +123,8 @@ mkPiTypeSig fname [] args = mkSimpTypeSig fname args
 mkPiTypeSig fname binds args =
   Sig (mkName fname) (Pi (Tel binds) (curry' args)) 
 
-mkFunDef :: Expr -> FunDefBody
-mkFunDef e = FunDefBody e NoWhere 
+mkFunDefBody :: Expr -> FunDefBody
+mkFunDefBody e = FunDefBody e NoWhere 
+
+mkFunDef :: Name_ -> [Pattern] -> Expr -> Decl
+mkFunDef n p e = FunDef (mkName n) p (FunDefBody e NoWhere) 

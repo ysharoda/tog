@@ -4,6 +4,7 @@ import Tog.Raw.Abs hiding (Open)
 import Tog.Deriving.Types (Name_,gmap)
 import Tog.Deriving.Utils.Functions (liftType')
 import Tog.Deriving.Utils.Renames (foldren)
+import Tog.Deriving.Utils.Types (tinstance) 
 import Tog.Deriving.TUtils (mkName, mkQName, mkArg, setType, getConstrName)
 import Tog.Deriving.EqTheory
 import Tog.Deriving.Lenses (name)
@@ -17,8 +18,8 @@ import Data.Map as Map (Map,fromList, toList)
 -- The definition of an extended term lang is parameterized by both. 
 data Term = Basic
           | Closed Name_
-          | Open Name_
-          | ExtOpen Name_ Name_ deriving (Eq,Show)
+          | BasicOpen Name_
+          | Open Name_ Name_ deriving (Eq,Show)
 
 data TermLang = TermLang {
   termTy  :: Term,
@@ -33,7 +34,24 @@ getTermConstructors :: TermLang -> [Constr]
 getTermConstructors (TermLang _ _ _ cs) = cs
 
 getLangName :: TermLang -> Name_
-getLangName (TermLang _ n _ _) = n 
+getLangName (TermLang _ n _ _) = n
+
+-- Utils 
+isVarDecl :: Constr -> Bool
+isVarDecl c = getConstrName c == v1 || getConstrName c == v2
+
+isConstDecl :: Constr -> Bool
+isConstDecl c = getConstrName c == sing || getConstrName c == sing2
+
+isConstOrVar :: Constr -> Bool
+isConstOrVar c = isVarDecl c || isConstDecl c
+
+tlToDecl :: TermLang -> Decl
+tlToDecl (TermLang _ nm pars constrs) =
+ Data (mkName nm) pars (DataDeclDef setType constrs)
+
+tlangInstance :: TermLang -> ([Binding],Expr)
+tlangInstance tl = tinstance (tlToDecl tl) Nothing  
 
 -- step1: rename all constrs of the thoery
 v1,v2, sing, sing2 :: String
@@ -45,8 +63,8 @@ sing2 = "sing2"
 mapping :: EqTheory -> Term -> Map Name_ Name_
 mapping eq Basic = mappingHelper eq "L"
 mapping eq (Closed _) = mappingHelper eq "Cl"
-mapping eq (Open _) = mappingHelper eq "OL"
-mapping eq (ExtOpen _ _) = mappingHelper eq "OL2"
+mapping eq (BasicOpen _) = mappingHelper eq "OL"
+mapping eq (Open _ _) = mappingHelper eq "OL2"
 
 mappingHelper :: EqTheory -> String ->  Map Name_ Name_
 mappingHelper eq suffix =
@@ -57,15 +75,15 @@ mappingHelper eq suffix =
 declName :: Name_ -> Term -> Name_
 declName nm Basic = nm ++ "Term"
 declName nm (Closed _) = "Cl" ++ nm ++ "Term"
-declName nm (Open _) = "Op" ++ nm ++ "Term"
-declName nm (ExtOpen _ _) = "Op" ++ nm ++ "Term2"
+declName nm (BasicOpen _) = "Op" ++ nm ++ "Term"
+declName nm (Open _ _) = "Op" ++ nm ++ "Term2"
 
 -- step3: construct the type of terms in each case
 termType :: Name_ -> Term -> Expr
 termType thryNm Basic = App [liftType' (declName thryNm Basic) []]
 termType thryNm t@(Closed carrierNm) = App [liftType' (declName thryNm t) [mkArg carrierNm]]
-termType thryNm t@(Open natVarNm) = App [liftType' (declName thryNm t) [mkArg natVarNm]]
-termType thryNm t@(ExtOpen natVarNm carrierNm) =
+termType thryNm t@(BasicOpen natVarNm) = App [liftType' (declName thryNm t) [mkArg natVarNm]]
+termType thryNm t@(Open natVarNm carrierNm) =
   App [liftType' (declName thryNm t) $ map mkArg [natVarNm, carrierNm]]
 
 -- step 4: construct the declaration
@@ -73,8 +91,8 @@ termType thryNm t@(ExtOpen natVarNm carrierNm) =
 mkParams :: Term -> Params
 mkParams Basic = mkParamsHelper []
 mkParams (Closed carrierNm) = mkParamsHelper [(carrierNm,App [mkArg "Set"])]
-mkParams (Open natVarNm) = mkParamsHelper [(natVarNm,Id (mkQName "Nat"))]
-mkParams (ExtOpen natVarNm carrierNm) =
+mkParams (BasicOpen natVarNm) = mkParamsHelper [(natVarNm,Id (mkQName "Nat"))]
+mkParams (Open natVarNm carrierNm) =
   mkParamsHelper [(natVarNm,App [mkArg "Nat"]),(carrierNm,App [mkArg "Set"])]
 
 mkParamsHelper :: [(Name_,Expr)] -> Params
@@ -88,8 +106,8 @@ constructors t thryNm cs =
  in case t of
    Basic -> constrs
    (Closed carrierNm) -> (singleton sing carrierNm typ) : constrs
-   (Open natVarNm) -> (vars v1 natVarNm typ) : constrs
-   (ExtOpen natVarNm carrierNm) -> (vars v2 natVarNm typ) : (singleton "sing2" carrierNm typ) : constrs 
+   (BasicOpen natVarNm) -> (vars v1 natVarNm typ) : constrs
+   (Open natVarNm carrierNm) -> (vars v2 natVarNm typ) : (singleton "sing2" carrierNm typ) : constrs 
 
 constructorsHelper :: Expr -> Constr -> Constr
 constructorsHelper (App as) c = gmap (\_ -> as) c
@@ -122,7 +140,7 @@ tlang eq term =
 termLangs :: EqTheory -> [TermLang]
 termLangs eq = 
  let nm = getConstrName $ eq ^. sort
- in map (tlang eq) [Basic, Closed nm, Open "n", ExtOpen "n" nm]
+ in map (tlang eq) [Basic, Closed nm, BasicOpen "n", Open "n" nm]
 
     
 decl :: EqTheory -> Term -> Decl 
@@ -130,10 +148,6 @@ decl eq term  =
  let neq = foldren eq $ Map.toList (mapping eq term) 
  in Data (mkName $ declName (neq ^. thyName) term) (mkParams term) $
      DataDeclDef setType $ constructors term  (neq ^. thyName) (neq ^. funcTypes) 
-
-tlToDecl :: TermLang -> Decl
-tlToDecl (TermLang _ nm pars constrs) =
- Data (mkName nm) pars (DataDeclDef setType constrs)
 
 termLangsToDecls :: [TermLang] -> [Decl]
 termLangsToDecls tls = map tlToDecl tls 
@@ -175,11 +189,11 @@ data MonTerm' (n : ℕ) (A : Set) : Set where
 underscorePattern :: Term -> [Pattern]
 underscorePattern Basic = []
 underscorePattern (Closed _) = [IdP $ mkQName "_"]
-underscorePattern (Open _) = [IdP $ mkQName "_"]
-underscorePattern (ExtOpen _ _) = take 2 $ repeat (IdP $ mkQName "_") 
+underscorePattern (BasicOpen _) = [IdP $ mkQName "_"]
+underscorePattern (Open _ _) = take 2 $ repeat (IdP $ mkQName "_") 
 
 underscoreArgs :: Term -> [Arg]
 underscoreArgs Basic = []
 underscoreArgs (Closed _) = [mkArg "_"] 
-underscoreArgs (Open _)   = [mkArg "_"]
-underscoreArgs (ExtOpen _ _) = [mkArg "_",mkArg "_"] 
+underscoreArgs (BasicOpen _)   = [mkArg "_"]
+underscoreArgs (Open _ _) = [mkArg "_",mkArg "_"] 

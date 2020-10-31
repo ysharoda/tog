@@ -22,7 +22,7 @@ import           Tog.Exporting.AgdaStdLib (makeOneBigModule)
 data OperatingMode = Generate | AgdaStdLibLike 
 
 operatingMode :: OperatingMode
-operatingMode = AgdaStdLibLike 
+operatingMode = Generate 
 
 processDefs :: [Language] -> Module
 processDefs =

@@ -43,14 +43,36 @@ monoidOpExt_ind
        forall m : monoidOpExt n A, P m
 -}
 
+-- The type signature for the induction functions. 
+{-
+inductionOpE : {A : Set} {n : ℕ} → (P : MonTerm' n A → Set) →
+          ({fin : Fin n} → P (v fin)) →
+          ({x : A} → P (singleton x)) →
+          (P e) → 
+          ({x y : MonTerm' n A} → P x → P y → P (op x y)) → ((x : MonTerm' n A) → P x)
+-} 
+typeSig :: TermLang -> TypeSig 
+typeSig tl =
+ let
+  (binds,texpr) = tinstance (tlToDecl tl) Nothing
+  fdecls = filter (not . isConstOrVar) (getTermConstructors tl)
+  predApp = Pi (Tel [Bind [mkArg "x"] texpr]) (applyPred (App [mkArg "x"]))
+ in Sig (mkName $ inducFuncNm $ getTermType tl) $ 
+    Pi (Tel $ binds ++ [Bind [mkArg predicateName] (Fun texpr setTypeExpr)]) $
+      case getTermType tl of
+        Basic -> curryExpr $ map typeFun fdecls ++ [predApp]
+        Closed _ -> curryExpr $ typeSingleton sing : map typeFun fdecls ++ [predApp]
+        BasicOpen _ -> curryExpr $ typeVar v1 : map typeFun fdecls ++ [predApp]
+        Open _ _ -> curryExpr $ typeVar v2 : typeSingleton sing2 : map typeFun fdecls ++ [predApp]
+
 predicateName :: String
 predicateName = "P"
 
 inducFuncNm :: Term -> String
 inducFuncNm Basic         = "inductionB"
 inducFuncNm (Closed _)    = "inductionCl"
-inducFuncNm (Open _)      = "inductionOp"
-inducFuncNm (ExtOpen _ _) = "inductionOpE" 
+inducFuncNm (BasicOpen _)      = "inductionOpB"
+inducFuncNm (Open _ _) = "inductionOp" 
 
 
 -- ({fin : Fin n} → P (v fin))
@@ -90,27 +112,7 @@ typeFun constr =
  in if null binds then applyPred fexpr
     else Pi (Tel binds) $
          curryExpr $ concatMap applyPredToBindings binds ++ [applyPred fexpr]
-{-
-inductionOpE : {A : Set} {n : ℕ} → (P : MonTerm' n A → Set) →
-          ({fin : Fin n} → P (v fin)) →
-          ({x : A} → P (singleton x)) →
-          (P e) → 
-          ({x y : MonTerm' n A} → P x → P y → P (op x y)) → ((x : MonTerm' n A) → P x)
--} 
-typeSig :: TermLang -> TypeSig 
-typeSig tl =
- let
-  (DTApp binds texpr) = tapp (tlToDecl tl) Nothing
-  check c = (getConstrName c == v1 || getConstrName c == v2 || getConstrName c == sing || getConstrName c == sing2)
-  fdecls = filter (not . check) (getTermConstructors tl)
-  predApp = Pi (Tel [Bind [mkArg "x"] texpr]) (applyPred (App [mkArg "x"]))
- in Sig (mkName $ inducFuncNm $ getTermType tl) $ 
-    Pi (Tel $ binds ++ [Bind [mkArg predicateName] (Fun texpr setTypeExpr)]) $
-      case getTermType tl of
-        Basic -> curryExpr $ map typeFun fdecls ++ [predApp]
-        Closed _ -> curryExpr $ typeSingleton sing : map typeFun fdecls ++ [predApp]
-        Open _ -> curryExpr $ typeVar v1 : map typeFun fdecls ++ [predApp]
-        ExtOpen _ _ -> curryExpr $ typeVar v2 : typeSingleton sing2 : map typeFun fdecls ++ [predApp]
+
 
       {-
 fdecl :: Constr -> (Pattern, FunDefBody)
@@ -153,7 +155,6 @@ oneInducDef :: TermLang -> [Decl]
 oneInducDef (TermLang _ _ _ []) = []
 oneInducDef tl =
  let tconstrs = getTermConstructors tl
-  --   constantDecl = filter (getConstrName c == sing || getConstrName c == sing2) constructors
      ttyp = getTermType tl
      constrPatterns = patterns tconstrs
      check c = (getConstrName c == v1 || getConstrName c == v2 || getConstrName c == sing || getConstrName c == sing2)
@@ -166,7 +167,7 @@ oneInducDef tl =
        FunDef (mkName $ inducFuncNm ttyp)
         (underscorePattern ttyp ++ constrPatterns ++ [mkPattern c])
         (FunDefBody (constrFunc i c) NoWhere)
- in (TypeSig $ typeSig tl) : zipWith mkDecl [1 .. (length tconstrs)] tconstrs
+ in (TypeSig (typeSig tl)) : zipWith mkDecl [1 .. (length tconstrs)] tconstrs
 
 inductionFuncs :: [TermLang] -> [Decl]
 inductionFuncs tlangs = 

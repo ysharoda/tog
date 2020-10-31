@@ -2,33 +2,25 @@ module Tog.Deriving.StagedTerms where
 
 import Tog.Raw.Abs hiding (Open)
 
---import Tog.Deriving.Utils.Variables
 import Tog.Deriving.Utils.Functions (farity)
 import Tog.Deriving.Utils.Bindings (hiddenBind) 
-import Tog.Deriving.Utils.Types (tapp)
 import Tog.Deriving.Types (Name_)
---import Tog.Deriving.EqTheory
 import Tog.Deriving.TUtils (mkName, mkQName, mkArg, exprArity, genVars, getConstrName)
 import Tog.Deriving.Lenses
-
 import Tog.Deriving.Terms
-import Tog.Deriving.Utils.Types
 import Tog.Deriving.Utils.Functions
---import Tog.Deriving.Utils.Bindings 
 
 import Control.Lens ((^.))
-
--- Staged definition For closed terms, it is simple. 
 
 stagedFuncName :: Term -> String
 stagedFuncName Basic         = "stageB"
 stagedFuncName (Closed _)    = "stageCl"
-stagedFuncName (Open _)      = "stageOp"
-stagedFuncName (ExtOpen _ _) = "stageOpE" 
+stagedFuncName (BasicOpen _)      = "stageOpB"
+stagedFuncName (Open _ _) = "stageOp" 
 
 typeSig :: TermLang -> TypeSig 
 typeSig tl =
- let DTApp binds texpr = tapp (tlToDecl tl) Nothing
+ let (binds,texpr) = tlangInstance tl 
      stagedFuncTyp = Fun (texpr) (App [mkArg "Staged", Arg texpr])
  in Sig (mkName $ stagedFuncName $ getTermType tl) $
      if binds == [] then stagedFuncTyp
@@ -52,7 +44,7 @@ opDeclToFunc tl c@(Constr n expr) =
  let cname = n ^. name
      newname = opDeclToFuncName cname
      -- typName = getLangName tl 
-     DTApp binds texpr = tapp (tlToDecl tl) Nothing 
+     (binds,texpr) = tlangInstance tl  
  in (TypeSig $ Sig (mkName newname) $
      Pi (Tel (map hiddenBind binds)) $   
      curry' $ take (farity expr + 1) $ repeat (Arg $ texpr)) : 
@@ -80,26 +72,23 @@ liftFunc term c =
 -- collecting patterns and expressions for all declarations
 patternsExprs :: TermLang -> [(Pattern,Expr)]
 patternsExprs tl = 
-  let checkConst c = getConstrName c == sing || getConstrName c == sing2
-      checkVars c = getConstrName c == v1 || getConstrName c == v2
-      tconstrs = getTermConstructors tl
-      constants = filter checkConst tconstrs
-      variables = filter checkVars tconstrs 
-      functions = filter (not . (\c -> checkConst c || checkVars c)) tconstrs
+  let tconstrs = getTermConstructors tl
+      constants = filter isConstDecl tconstrs
+      variables = filter isVarDecl tconstrs 
+      functions = filter (not . isConstOrVar) tconstrs
    in (map liftConstant constants) ++ (map liftVariable variables) ++ (map (liftFunc $ getTermType tl) functions)   
 
 oneStagedFunc :: TermLang -> [Decl]
 oneStagedFunc (TermLang _ _ _ []) = []
 oneStagedFunc tl =
   let pe = patternsExprs tl
-      checkConst c = getConstrName c == sing || getConstrName c == sing2
-      checkVars c = getConstrName c == v1 || getConstrName c == v2
       tconstrs = getTermConstructors tl
-      functions = filter (not . (\c -> checkConst c || checkVars c)) tconstrs
+      functions = filter (not . isConstOrVar) tconstrs
   in  (concatMap (opDeclToFunc tl)functions) ++ 
       ((TypeSig $ typeSig tl) :
-       map (\(p,e) -> FunDef (mkName $ stagedFuncName (getTermType tl)) ((underscorePattern $ getTermType tl) ++ [p])
-             (FunDefBody e  NoWhere)) pe)
+       map (\(p,e) -> FunDef (mkName $ stagedFuncName (getTermType tl))
+                             ((underscorePattern $ getTermType tl) ++ [p])
+                             (FunDefBody e  NoWhere)) pe)
 
 stagedFuncs :: [TermLang] -> [Decl]
 stagedFuncs langs =

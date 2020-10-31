@@ -19,15 +19,15 @@ getPiBinds _ = error "not a Pi type"
 -- a representation of a datatype
 type DTDef = Decl
 
-data DTApp = DTApp [Binding] Expr 
+type DTInst = ([Binding],Expr) 
 
-tapp :: DTDef -> Maybe Int -> DTApp 
-tapp (Data nm NoParams _) _ = DTApp [] $ App [mkArg $ nm ^. name]
-tapp (Data nm (ParamDecl binds) _) Nothing =
+tinstance :: DTDef -> Maybe Int -> DTInst 
+tinstance (Data nm NoParams _) _ = ([],App [mkArg $ nm ^. name])
+tinstance (Data nm (ParamDecl binds) _) Nothing =
   let names = getBindingsNames binds 
-  in DTApp binds $ App $ (mkArg (nm ^. name)) : map mkArg names  
-tapp (Data nm (ParamDecl binds) _) (Just i) =
+  in (binds,App $ (mkArg (nm ^. name)) : map mkArg names)  
+tinstance (Data nm (ParamDecl binds) _) (Just i) =
   let newBinds = indexBindings True i binds
       names = getBindingsNames newBinds 
-  in DTApp binds $ App $ (mkArg (nm ^. name)) : map mkArg names  
-tapp _ _ = error "unable to generate data type application" 
+  in (binds,App $ (mkArg (nm ^. name)) : map mkArg names) 
+tinstance _ _ = error "unable to generate data type application" 

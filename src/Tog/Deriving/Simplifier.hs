@@ -4,7 +4,6 @@ import Tog.Raw.Abs hiding (Open)
 import Tog.Deriving.Utils.Functions 
 import Tog.Deriving.TUtils (mkName, mkArg, getConstrName)
 import Tog.Deriving.EqTheory 
-import Tog.Deriving.Utils.Types
 import Tog.Deriving.Terms
 import Tog.Deriving.Utils.Renames (foldrenConstrs)
 import Tog.Deriving.Utils.Bindings (getBindingArgs)
@@ -19,8 +18,8 @@ type Rule = Constr
 simpFuncNm :: Term -> String
 simpFuncNm Basic       = "simplifyB"
 simpFuncNm (Closed _)    = "simplifyCl"
-simpFuncNm (Open _)      = "simplifyOp"
-simpFuncNm (ExtOpen _ _) = "simplifyOpE" 
+simpFuncNm (BasicOpen _)      = "simplifyOpB"
+simpFuncNm (Open _ _) = "simplifyOp" 
 
 explength :: Expr -> Int
 explength e = everything (+) (mkQ 0 $ \(Name _) -> 1) e
@@ -48,6 +47,22 @@ isLinear (Pi tel e) =
   in null $ filter (/= 1) occurences
 isLinear _ = True 
 
+-- The type signature of the simplifier functions
+{-
+simplifyB :: MonTerm -> MonTerm
+simplifyCl :: {A : Term} -> MonTerm A -> MonTerm A
+simplifyOp :: {n : Nat} -> MonTerm n -> MonTerm n
+simplifyOpExt :: {A : Term} {n : Nat} -> MonTerm n A -> MonTerm n A 
+-} 
+typesig :: Term -> TermLang -> TypeSig
+typesig term tl =
+ Sig (mkName (simpFuncNm term)) $ typeExpr term 
+ where
+  (binds,typApp) = tlangInstance tl
+  typeExpr Basic = Fun typApp typApp
+  typeExpr _     = Pi (Tel binds) (Fun typApp typApp)
+
+
 -- Given a Constr that is an equality , if one of the sides have length less than the other, then we create a pattern match 
 simplify :: Constr -> Maybe (Pattern,FunDefBody) 
 simplify (Constr _ e) = 
@@ -63,23 +78,25 @@ simplify (Constr _ e) =
      case minMax e1 e2 of
        Nothing -> Nothing
        Just (mn,mx) ->
-         Just (mkPattern mx,mkFunDef mn)
+         Just (mkPattern mx,mkFunDefBody mn)
 
 -- ---------------------------------------------------------------- 
 
 adjustFuncCalls :: Term -> Expr
 adjustFuncCalls Basic = App [mkArg $ simpFuncNm Basic]
 adjustFuncCalls (Closed x) = App $ (mkArg $ simpFuncNm (Closed x)):(mkArg "_"):[]
-adjustFuncCalls (Open x)   = App $ (mkArg $ simpFuncNm (Open x)):(mkArg "_"):[]
-adjustFuncCalls (ExtOpen x y) = App $ (mkArg $ simpFuncNm (ExtOpen x y)):(mkArg "_"):(mkArg "_"):[]
+adjustFuncCalls (BasicOpen x)   = App $ (mkArg $ simpFuncNm (BasicOpen x)):(mkArg "_"):[]
+adjustFuncCalls (Open x y) = App $ (mkArg $ simpFuncNm (Open x y)):(mkArg "_"):(mkArg "_"):[]
 
+adjustPattern :: Term -> Pattern -> [Pattern]
+adjustPattern term x = (underscorePattern term) ++ [x]
 
 -- simplification rules 
 simpRules :: Term -> [Constr] -> [Decl]
 simpRules term axms=
  let
   rules = filter (/= Nothing) $ map simplify axms
- in map (\(Just (x,y)) -> FunDef (mkName $ simpFuncNm term) (underscorePattern term ++ [x]) y) rules 
+ in map (\(Just (x,y)) -> FunDef (mkName $ simpFuncNm term) (adjustPattern term x) y) rules
 
 -- the recursive cases 
 simpDecls :: Term -> [Constr] -> [Decl]
@@ -87,38 +104,23 @@ simpDecls term ftyps =
   let patterns = map mkPattern ftyps
       fundefs = map (functor' (adjustFuncCalls term) . fappExpr) ftyps
   in
-    zipWith (\x y -> FunDef (mkName $ simpFuncNm term) (underscorePattern term ++ [x]) (FunDefBody y NoWhere)) patterns fundefs     
+    zipWith (mkFunDef $ simpFuncNm term) (map (adjustPattern term) patterns) fundefs  
 
 simpVarsConsts :: Term -> [Constr] -> [Decl]
 simpVarsConsts term cs =
-  map (\c -> FunDef (mkName $ simpFuncNm term) (underscorePattern term ++ [mkPattern c]) (FunDefBody (fappExpr c) NoWhere)) cs  
+  zipWith (mkFunDef (simpFuncNm term)) (map (adjustPattern term . mkPattern) cs) (map fappExpr cs)
   
-simpFuncType :: Term -> Decl -> Decl
-simpFuncType term datatype =
- TypeSig $ Sig (mkName (simpFuncNm term)) $ typeExpr term datatype
- where
-  typeExpr Basic dt =
-   let DTApp _ typApp = tapp dt Nothing
-   in Fun typApp typApp
-  typeExpr _ dt =
-   let DTApp binds typApp = tapp dt Nothing
-   in  Pi (Tel binds) (Fun typApp typApp)
-{-
-simplifyB :: MonTerm -> MonTerm
-simplifyCl :: {A : Term} -> MonTerm A -> MonTerm A
-simplifyOp :: {n : Nat} -> MonTerm n -> MonTerm n
-simplifyOpExt :: {A : Term} {n : Nat} -> MonTerm n A -> MonTerm n A 
--} 
+
 
 oneSimpFunc :: EqTheory -> TermLang -> [Decl]
 oneSimpFunc _ (TermLang _ _ _ []) = []
 oneSimpFunc thry termLang@(TermLang term _ _ constrs) =
  let axms = map (foldrenConstrs (Map.toList $ mapping thry term)) (thry ^. axioms) 
-     check c = (getConstrName c == v1 || getConstrName c == v2 || getConstrName c == sing || getConstrName c == sing2)
+     check c = elem (getConstrName c) [v1,v2,sing,sing2]
      varsConsts = filter check  constrs
      fdecls = filter (not . check) constrs
  in 
-  (simpFuncType term $ tlToDecl termLang) : 
+  TypeSig (typesig term termLang) : 
   (simpRules term axms ++
    simpDecls term fdecls ++
    simpVarsConsts term varsConsts)
@@ -128,11 +130,3 @@ simplifyFuncs :: EqTheory -> [TermLang] -> [Decl]
 simplifyFuncs thry tlangs =
   concatMap (oneSimpFunc thry) tlangs
   
--- simplifyB :: MonTerm -> MonTerm
--- simplifyB (op e x) = x
--- simplifyB (op x e) = x
--- simplifyB (op x y) = op (simplifyB x) (simplifyB y) 
--- simplifyB x = x 
-
--- simplifyCl (opC e x) = x
--- simplifyCl (opC x e) = x

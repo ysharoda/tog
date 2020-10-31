@@ -10,7 +10,7 @@ module Tog.Deriving.EqTheory
   , params
   , toDecl
   , build
-  , eqApp
+  , eqInstance
   , projectConstr
   , applyProjConstr
   , mkPConstrs 
@@ -68,12 +68,12 @@ build = EqTheory
 
 -- varName : The name of the variable representing the theory
 -- Maybe Int : In case the application is indexed (mon A) or (Mon A1) 
-eqApp :: EqTheory -> Maybe Int -> ([Binding],Expr) 
-eqApp thry Nothing =
+eqInstance :: EqTheory -> Maybe Int -> ([Binding],Expr) 
+eqInstance thry Nothing =
   let binds  = map fldsToHiddenBinds (args thry)
       bnames = getBindingsNames binds
   in (binds, App $ mkArg (thry ^. thyName) : map mkArg bnames)
-eqApp thry (Just i) =
+eqInstance thry (Just i) =
   let binds  = indexBindings True i $ map fldsToHiddenBinds (args thry)
       bnames = getBindingsNames binds
   in (binds, App $ mkArg (thry ^. thyName) : map mkArg bnames)   
