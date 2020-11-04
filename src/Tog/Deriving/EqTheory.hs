@@ -21,7 +21,7 @@ import Control.Lens
 
 import Tog.Raw.Abs   
 import Tog.Deriving.Types  (Name_)
-import Tog.Deriving.TUtils (mkArg, mkParams, genVars, fldsToBinding, fldsToHiddenBinds, mkName, mkField, setType)
+import Tog.Deriving.TUtils (mkArg, mkParams, genVars, fldsToBinding, fldsToHiddenBinds, mkName, mkField, setType, twoCharName)
 import Tog.Deriving.Utils.Bindings
 import Tog.Deriving.Utils.Functions 
 import Tog.Deriving.Utils.QualDecls
@@ -68,15 +68,15 @@ build = EqTheory
 
 -- varName : The name of the variable representing the theory
 -- Maybe Int : In case the application is indexed (mon A) or (Mon A1) 
-eqInstance :: EqTheory -> Maybe Int -> ([Binding],Expr) 
+eqInstance :: EqTheory -> Maybe Int -> (Name_,[Binding],Expr) 
 eqInstance thry Nothing =
   let binds  = map fldsToHiddenBinds (args thry)
       bnames = getBindingsNames binds
-  in (binds, App $ mkArg (thry ^. thyName) : map mkArg bnames)
+  in (twoCharName (thry ^. thyName) 0, binds, App $ mkArg (thry ^. thyName) : map mkArg bnames)
 eqInstance thry (Just i) =
   let binds  = indexBindings True i $ map fldsToHiddenBinds (args thry)
       bnames = getBindingsNames binds
-  in (binds, App $ mkArg (thry ^. thyName) : map mkArg bnames)   
+  in (twoCharName (thry ^. thyName) i, binds, App $ mkArg (thry ^. thyName) : map mkArg bnames)   
   
 
 -- Given a theory, the name of an instance of the theory, and a constr,

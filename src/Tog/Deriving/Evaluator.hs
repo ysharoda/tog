@@ -5,7 +5,6 @@ import Control.Lens ((^.))
 import Tog.Raw.Abs hiding (Open)
 import Tog.Deriving.EqTheory as Eq
 import Tog.Deriving.Terms
-import Tog.Deriving.Utils.Types
 import Tog.Deriving.Utils.Functions
 import Tog.Deriving.Utils.Bindings (unionBindings)
 
@@ -51,7 +50,7 @@ mkPattern constr --- functor
 typeSig :: EqTheory -> TermLang -> TypeSig
 typeSig thry termlang =
  let
-   (eqbind,eqinst) = eqInstance thry Nothing
+   (_,eqbind,eqinst) = eqInstance thry Nothing
    (tbind,tinst) = tlangInstance termlang
    newBinds = unionBindings eqbind tbind
    sortExpr = projectConstr thry ""  (thry ^. sort)
@@ -74,45 +73,62 @@ vecApp carrierName natName = App [mkArg "Vec", mkArg carrierName, mkArg natName]
 
 
 -- pattern matching on the constructors 
-cpattern :: Name_ -> Term -> Constr -> [Pattern]
-cpattern tinstName term c =
- let base = [IdP $ mkQName tinstName, mkPattern c]
-     extBase i = [IdP $ mkQName i, IdP $ mkQName tinstName, IdP $ mkQName envName, mkPattern c]
+adjustPattern :: Name_ -> Term -> Pattern -> [Pattern]
+adjustPattern tinstName term pat =
+ let base = [IdP $ mkQName tinstName, pat]
+     extBase i = [IdP $ mkQName i, IdP $ mkQName tinstName, IdP $ mkQName envName, pat]
  in case term of
     Basic -> base 
     (Closed _) -> base
     (BasicOpen n) -> extBase n
     (Open n _ ) -> extBase n
                 
-funcDef :: EqTheory -> Name_ -> Term -> Constr -> FunDefBody 
+funcDef :: EqTheory -> Name_ -> Term -> Constr -> Expr  
 funcDef thry instName term constr = 
  let cexpr = applyProjConstr thry instName constr
      basicArgs = App [mkArg $ evalFuncName term, mkArg instName]
      extArgs i = App [mkArg $ evalFuncName term, mkArg i, mkArg instName, mkArg envName]
-     funBody =
-       case term of
-        Basic -> functor' basicArgs cexpr 
-        Closed _ -> functor' basicArgs cexpr 
-        BasicOpen n -> functor' (extArgs n) cexpr 
-        Open n _ -> functor' (extArgs n) cexpr 
-  in FunDefBody funBody NoWhere 
+  in case term of
+       Basic -> functor' basicArgs cexpr 
+       Closed _ -> functor' basicArgs cexpr 
+       BasicOpen n -> functor' (extArgs n) cexpr 
+       Open n _ -> functor' (extArgs n) cexpr 
 
-lookup' :: Name_ -> Name_ -> FunDefBody
+patternsExprs :: EqTheory -> TermLang -> Name_ -> [(Pattern,Expr)]
+patternsExprs thry (TermLang term _ _ constrs) thryInstName =
+{-  if not (null vs) then [(mkPattern $ head vs, lookup' "n" envName)] else []
+  ++ if not (null cs) then [(mkPattern $ head cs, constFunc)] else []
+  ++ zipWith ((,)) (map mkPattern typDecls) (map (funcDef thry thryInstName term) thryDecls)-}
+  zipWith ((,)) (map mkPattern (vs ++ cs ++ typDecls)) $ 
+                [lookup' "n" envName | not (null vs)] 
+                ++ [constFunc | not (null cs)] 
+                ++ map (funcDef thry thryInstName term) thryDecls 
+  where vs = filter isVarDecl  constrs
+        cs = filter isConstDecl constrs
+        thryDecls = (thry ^. funcTypes)
+        typDecls  = filter (not . isConstOrVar) constrs
+
+lookup' :: Name_ -> Name_ -> Expr
 lookup' natVarName vName =
-  FunDefBody (App [mkArg "lookup", mkArg natVarName, mkArg "x1", mkArg vName]) NoWhere
+  App [mkArg "lookup", mkArg natVarName, mkArg "x1", mkArg vName]
 
-constFunc :: FunDefBody
-constFunc =
-    FunDefBody (App [mkArg "x1"]) NoWhere
+constFunc :: Expr
+constFunc = App [mkArg "x1"]
 
 oneEvalFunc :: EqTheory -> TermLang -> [Decl]
 oneEvalFunc _ (TermLang _ _ _ []) = []
-oneEvalFunc eq termLang@(TermLang term _ _ constrs) =
-  let instName= twoCharName (eq ^. thyName) 0    
-      vs = filter isVarDecl  constrs
-      constants = filter isConstDecl constrs
-      tDecls = filter (not . isConstOrVar) constrs 
-      eqDecls = eq ^. funcTypes 
+oneEvalFunc eq tl =
+  (TypeSig $ typeSig eq tl) :
+  map (\(p,e) -> FunDef (mkName $ evalFuncName term) (adjustPattern thryInstName term p) (mkFunDefBody e))
+      (patternsExprs eq tl thryInstName)
+  where thryInstName = twoCharName (eq ^. thyName) 0
+        term = getTermType tl
+
+{-
+  zipWith (FunDef (mkName $ evalFuncNames) 
+
+  let    
+ 
   in 
   [TypeSig $ typeSig eq termLang] ++ -- type 
      [FunDef (mkName $ evalFuncName term) -- call for vars
@@ -124,7 +140,7 @@ oneEvalFunc eq termLang@(TermLang term _ _ constrs) =
      zipWith (FunDef (mkName $ evalFuncName term)) -- call for every func symbol 
              (map (cpattern instName term) tDecls)
              (map (funcDef eq instName term) eqDecls)
-
+-}
 evalFuncs :: EqTheory -> [TermLang] -> [Decl]
 evalFuncs eq = concatMap (oneEvalFunc eq)
 
