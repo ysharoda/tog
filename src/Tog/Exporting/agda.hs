@@ -70,7 +70,6 @@ instance PrintAgda Expr where
     parens $ printAgda e1 <+> text fun_sep <+> printAgda e2
   printAgda (Eq e1 e2) = -- might need to have a bracket here 
     printAgda e1 <+> text equality_symbol <+> printAgda e2
- -- printAgda (App (Arg ((App [ident,qual]):xs))) = -- the case of a qualified function name 
   printAgda (App args) =
     let (App newargs) = callFunc (App args) 
         pr = foldr (<+>) empty $ map (printAgda) newargs
@@ -127,8 +126,7 @@ instance PrintAgda Decl where
   printAgda (Data nm params body) =
     (text type_keyword) <+> printAgda nm <+> printAgda params <+> printAgda body <+> linebreak 
   printAgda (Record nm params body) =
-    (text record_keyword) <+> printAgda nm <+> printAgda params <+> printAgda body <+> linebreak 
-  --  (text open) <+> printAgda nm -- have to open every record type to be able to access those of the type of the theory. 
+    (text record_keyword) <+> printAgda nm <+> printAgda params <+> printAgda body <+> linebreak  
   printAgda (Open imp) = text open <+> printAgda imp
   printAgda (Import imp) = text import_ <+> printAgda imp
   printAgda (OpenImport imp) = text open_import <+> printAgda imp

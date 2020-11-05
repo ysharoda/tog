@@ -45,9 +45,10 @@ adjustTheory :: Name_ -> GTheory -> GTheory
 adjustTheory thryName (GTheory constrs wst) =
   let isXName = "Is"++thryName
       fsyms = notAxiom constrs
-      fsymNames = map (\(Constr (Name (_,nm)) _) -> nm) fsyms 
+      fsymNames = map (\(Constr (Name (_,nm)) _) -> nm) fsyms
+      processName n = if elem n ["+","-","*"] then "("++n++")" else n 
       callIsX = [Constr (mkName $ "is"++thryName)
-                   (App $ (mkArg isXName) : (map mkArg fsymNames))]
+                   (App $ (mkArg isXName) : (map (mkArg . processName) fsymNames))]
   in GTheory (fsyms ++ callIsX) wst 
 
 createTheoryModule :: Name_ -> GTheory -> Decl 
