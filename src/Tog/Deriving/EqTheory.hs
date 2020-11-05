@@ -1,6 +1,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 module Tog.Deriving.EqTheory
   ( EqTheory
+  , EqInstance
   , thyName
   , waist
   , sort
@@ -18,10 +19,11 @@ module Tog.Deriving.EqTheory
 
 import Data.Generics as Generics(Data)
 import Control.Lens
+import Data.List (isPrefixOf) 
 
 import Tog.Raw.Abs   
 import Tog.Deriving.Types  (Name_)
-import Tog.Deriving.TUtils (mkArg, mkParams, genVars, fldsToBinding, fldsToHiddenBinds, mkName, mkField, setType, twoCharName)
+import Tog.Deriving.TUtils (mkArg, mkParams, genVars, fldsToBinding, fldsToHiddenBinds, mkName, mkField, setType, twoCharName, genVarsWSymb)
 import Tog.Deriving.Utils.Bindings
 import Tog.Deriving.Utils.Functions 
 import Tog.Deriving.Utils.QualDecls
@@ -43,6 +45,8 @@ data EqTheory = EqTheory {
   deriving (Data)
 
 makeLenses ''EqTheory
+
+type EqInstance = (Name_,[Binding],Expr) 
 
 decls :: EqTheory -> [Constr]
 decls t = t^.sort : t^.funcTypes ++ t^.axioms
@@ -68,7 +72,7 @@ build = EqTheory
 
 -- varName : The name of the variable representing the theory
 -- Maybe Int : In case the application is indexed (mon A) or (Mon A1) 
-eqInstance :: EqTheory -> Maybe Int -> (Name_,[Binding],Expr) 
+eqInstance :: EqTheory -> Maybe Int -> EqInstance 
 eqInstance thry Nothing =
   let binds  = map fldsToHiddenBinds (args thry)
       bnames = getBindingsNames binds
@@ -77,20 +81,32 @@ eqInstance thry (Just i) =
   let binds  = indexBindings True i $ map fldsToHiddenBinds (args thry)
       bnames = getBindingsNames binds
   in (twoCharName (thry ^. thyName) i, binds, App $ mkArg (thry ^. thyName) : map mkArg bnames)   
-  
+
+-- called after checking that the constr is an argument   
+findInBindings :: [Binding] -> Constr -> Name_
+findInBindings binds (Constr n _) =
+ case filter (isPrefixOf $ n ^. name) (getBindingsNames binds) of
+   [] -> error "cannot locate argument"
+   [a] -> a
+   (a:_) -> a 
 
 -- Given a theory, the name of an instance of the theory, and a constr,
 -- the function returns the expression corresponding to the name of the operation
 -- for example (op) or (op M1) 
-projectConstr :: EqTheory -> String -> Constr -> Expr 
-projectConstr thry instName c@(Constr n _)  =
-  if isArg thry c then App [mkArg (n ^. name)]
+projectConstr :: EqTheory -> EqInstance -> Constr -> Expr 
+projectConstr thry (instName,binds,_) c@(Constr n _)  =
+  if isArg thry c then App [mkArg $ findInBindings binds c]
   else App [mkArg (n ^. name),mkArg instName]
 
-applyProjConstr :: EqTheory -> String -> Constr -> Expr
-applyProjConstr thry instName c@(Constr _ e) =
-  let vars = genVars $ farity e 
-  in App $ (Arg $ projectConstr thry instName c) : map mkArg vars 
+
+applyProjConstr :: EqTheory -> EqInstance -> Constr -> Maybe Char -> FApp
+applyProjConstr thry i@(_,binds,_) c@(Constr _ typ) varName =
+  let vars = case varName of
+        Nothing -> genVars $ farity typ
+        Just s -> genVarsWSymb s $ farity typ
+      bindingsType = projectConstr thry i (thry ^. sort) 
+  in  ([HBind (map mkArg vars) bindingsType],
+      App $ (Arg $ projectConstr thry i c) : map mkArg vars) 
 
 mkPConstrs :: EqTheory -> (PConstr,[PConstr],[PConstr])
 mkPConstrs t =

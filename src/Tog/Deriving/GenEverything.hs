@@ -16,24 +16,25 @@ import           Tog.Deriving.Tagless
 
 leverageThry :: Eq.EqTheory -> [Decl]
 leverageThry thry =
- let sigs = (sigToDecl . signature_) thry
+ let
+     sigs = (sigToDecl . signature_) thry
      prodthry = (prodTheoryToDecl . productThry) thry
      hom = homomorphism thry
-     relInterp = relationalInterp thry
+     relInterp = relationalInterp thry 
      trmLangs = termLangs thry
      temLangsDecls = termLangsToDecls trmLangs
-     simplifiers = simplifyFuncs thry trmLangs
+     simplifiers = simplifyFuncs thry trmLangs 
      evaluators = evalFuncs thry trmLangs
      inductions = inductionFuncs trmLangs
      stagedTLs = stagedFuncs trmLangs
      tagless = taglessRep thry 
- in -- [sigs] 
-    [sigs, prodthry, hom, relInterp] ++ temLangsDecls 
-    ++ simplifiers
-    ++ evaluators ++ inductions  ++ stagedTLs ++ [tagless] 
-    
-    --[trmlang, openTrmLang] ++ evalTrmLang ++ evalOpenTrmLang ++ simplifier ++
-    --stagedClosedTerms ++ stagedOpenTerms ++ [tagless] 
+ in
+     [sigs, prodthry, hom, relInterp] 
+     ++ temLangsDecls 
+     ++  simplifiers
+     ++ evaluators
+     ++ inductions
+     ++ stagedTLs ++ [tagless] 
 
 genEverything :: Decl -> Decl
 genEverything m@(Module_ (Module n p (Decl_ decls))) =

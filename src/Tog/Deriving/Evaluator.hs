@@ -50,10 +50,10 @@ mkPattern constr --- functor
 typeSig :: EqTheory -> TermLang -> TypeSig
 typeSig thry termlang =
  let
-   (_,eqbind,eqinst) = eqInstance thry Nothing
+   (instNm,eqbind,eqinst) = eqInstance thry Nothing
    (tbind,tinst) = tlangInstance termlang
    newBinds = unionBindings eqbind tbind
-   sortExpr = projectConstr thry ""  (thry ^. sort)
+   sortExpr = projectConstr thry (instNm,eqbind,eqinst)  (thry ^. sort)
    trmTy = getTermType termlang
  in Sig (mkName $ evalFuncName trmTy) $
    if null newBinds then Fun eqinst (Fun tinst sortExpr)
@@ -85,7 +85,7 @@ adjustPattern tinstName term pat =
                 
 funcDef :: EqTheory -> Name_ -> Term -> Constr -> Expr  
 funcDef thry instName term constr = 
- let cexpr = applyProjConstr thry instName constr
+ let (_,cexpr) = applyProjConstr thry (instName,[],Id (mkQName "x")) constr Nothing 
      basicArgs = App [mkArg $ evalFuncName term, mkArg instName]
      extArgs i = App [mkArg $ evalFuncName term, mkArg i, mkArg instName, mkArg envName]
   in case term of

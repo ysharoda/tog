@@ -4,61 +4,55 @@ import           Control.Lens ((^.))
 
 import           Tog.Raw.Abs 
 import           Tog.Deriving.TUtils
-import           Tog.Deriving.Types (Name_)
 import qualified Tog.Deriving.EqTheory as Eq
 import           Tog.Deriving.Lenses   (name)
-import           Tog.Deriving.Utils.Bindings
-import           Tog.Deriving.Utils.Parameters
-import           Tog.Deriving.Utils.QualDecls
+import           Tog.Deriving.Utils.Functions 
 
 homFuncName :: String 
 homFuncName = "hom"
 
 {- ---------------- The  Hom Function ------------------ -}
 
-genHomFunc :: PConstr -> Name_ -> Name_ -> Constr 
-genHomFunc srt inst1Name inst2Name =
-  Constr (mkName homFuncName) $ 
-   Fun (mkPExpr srt (inst1Name,1)) (mkPExpr srt (inst2Name,2))            
+genHomFunc :: Eq.EqTheory -> Eq.EqInstance -> Eq.EqInstance -> Constr -> Constr 
+genHomFunc thry i1 i2 carrier =
+  Constr (mkName homFuncName) $
+    Fun (Eq.projectConstr thry i1 carrier) (Eq.projectConstr thry i2 carrier)  
 
 {- ------------ Preservation Axioms -------------------- -}
 
-oneAxiom :: Constr -> PConstr -> Name_ -> Name_ ->  PConstr -> Constr
-oneAxiom homFunc carrier inst1 inst2 fsym@(PConstr nm _ _) =
-  let binds = mkBinding carrier fsym (inst1,1) 'x'
-      args = concatMap getBindingArgs binds 
-  in Constr (mkName $ "pres-" ++ nm) $
-      Pi (Tel binds) (genEq homFunc args inst1 inst2 fsym)
-      
-genLHS :: Constr -> [Arg] -> Name_ -> PConstr -> Expr
-genLHS (Constr fnm _) vars inst1 func =
-  let hom = mkArg $ fnm ^. name
-      fnm1 = mkPExpr func (inst1,1)
-      farg1 = App $ Arg fnm1 : vars
-  in App [hom,Arg farg1] 
+presAxiom :: Eq.EqTheory -> Eq.EqInstance -> Eq.EqInstance -> Constr -> Constr -> Constr 
+presAxiom thry i1 i2 homFunc c@(Constr n _) =
+  Constr (mkName $ "pres-" ++ n ^. name) $
+     equation thry i1 i2 homFunc c 
+       
+-- the first argument is the hom function.
+-- the second argument is the expression resulting from fapp 
+lhs :: Constr -> Expr -> Expr
+lhs (Constr n _) fexpr =
+  App [mkArg (n ^. name),Arg fexpr]
 
-genRHS :: Constr -> [Arg] -> Name_ -> PConstr -> Expr
-genRHS (Constr fnm _) vars inst2 fsym =
-  let hom = mkArg $ fnm ^. name
-      func = mkPExpr fsym (inst2,2)
-      fargs = map (\x -> App [hom,x]) vars
-  in App $ Arg func : map Arg fargs
+rhs :: Constr -> Expr -> Expr
+rhs (Constr n _) fexpr =
+  functor (n ^. name) fexpr 
 
-genEq :: Constr -> [Arg] -> Name_ -> Name_ -> PConstr -> Expr
-genEq homFunc args inst1 inst2 pconstr =
-  Eq (genLHS homFunc args inst1 pconstr)
-     (genRHS homFunc args inst2 pconstr) -- (mkDecl inst2) pconstr) 
+equation :: Eq.EqTheory -> Eq.EqInstance -> Eq.EqInstance -> Constr -> Constr -> Expr 
+equation thry i1 i2 homFunc constr =
+  let (bind1,expr1) = Eq.applyProjConstr thry i1 constr Nothing
+      (_,expr2) = Eq.applyProjConstr thry i2 constr Nothing 
+  in if bind1 == [] then Eq (lhs homFunc expr1) (rhs homFunc expr2)
+     else Pi (Tel bind1) $ Eq (lhs homFunc expr1) (rhs homFunc expr2)
 
 {- ------------ The Hom Record -------------------- -}
 
 homomorphism :: Eq.EqTheory -> Decl
-homomorphism t =
-  let nm = "Hom" -- t ^. Eq.thyName ++ "Hom"
-      (psort,pfuncs,_) = Eq.mkPConstrs t
-      ((i1, n1), (i2, n2)) = createThryInsts t
-      a = Eq.args t 
-      fnc = genHomFunc psort n1 n2
-      axioms = map (oneAxiom fnc psort n1 n2) pfuncs 
+homomorphism thry =
+  let nm = "Hom" 
+      i1@(n1,b1,e1) = Eq.eqInstance thry (Just 1) 
+      i2@(n2,b2,e2) = Eq.eqInstance thry (Just 2)
+      fnc = genHomFunc thry i1 i2 (thry ^. Eq.sort)
+      axioms = map (presAxiom thry i1 i2 fnc) (thry ^. Eq.funcTypes)  
   in Record (mkName nm)
-   (mkParams $ map (recordParams Bind) a ++ [i1,i2])
+   (mkParams $ b1 ++ b2 ++ map (\(n,e) -> Bind [mkArg n] e) [(n1,e1),(n2,e2)])
    (RecordDeclDef setType (mkName $ nm ++ "C") (mkField $ fnc : axioms))
+
+   

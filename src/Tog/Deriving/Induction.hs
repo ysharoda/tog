@@ -107,20 +107,11 @@ applyPredToBindings (HBind as e) =
 -- ({x y : MonTerm' n A} → P x → P y → P (op x y))     
 typeFun :: Constr -> Expr
 typeFun constr =
- let (FApp b fexpr) = fapp constr
+ let (b,fexpr) = fapp constr
      binds = map explicitBind b
  in if null binds then applyPred fexpr
     else Pi (Tel binds) $
          curryExpr $ concatMap applyPredToBindings binds ++ [applyPred fexpr]
-
-
-      {-
-fdecl :: Constr -> (Pattern, FunDefBody)
-fdecl constr =
- let pattern  
-  (mkPattern constr,
-   FunDefBody (fappExpr constr) NoWhere)
--}
 
 predicateVar :: String
 predicateVar = map toLower predicateName
@@ -128,7 +119,7 @@ predicateVar = map toLower predicateName
 patternName :: Name_ -> Name_
 patternName n = map toLower (predicateName ++ n)
 
--- the patterns for one function declaration 
+-- the patterns (inputs) for one function declaration 
 patterns :: [Constr] -> [Pattern] 
 patterns cs =
   IdP (mkQName predicateVar) : map (IdP . mkQName . patternName . getConstrName) cs
@@ -150,13 +141,30 @@ adjustFuncCalls _ (Id x) = Id x
 adjustFuncCalls n (App (a:as)) = App $ a : replicate n (mkArg "_") ++ as 
 adjustFuncCalls _ _ = error "not a function application" 
 
-  
+adjustPattern :: TermLang -> Pattern -> [Pattern] 
+adjustPattern (TermLang term _ _ tconstrs) p  =
+  underscorePattern term ++ patterns tconstrs ++ [p] 
+
+patternsExprs :: TermLang -> [(Pattern,Expr)]
+patternsExprs (TermLang term _ _ tconstrs) =
+  zipWith ((,)) (map mkPattern tconstrs)
+                 (zipWith constrFunc [1 .. (length tconstrs)] tconstrs)
+  where ps = patterns tconstrs 
+        constrFunc i c@(Constr _ e)=
+         let newConstr = Constr (mkName $ getPatternName (ps !! i)) e 
+         in if (isConstOrVar c || farity e == 0) then fappExpr newConstr
+            else adjustFuncCalls (farity e) $ functor' (recExpr term tconstrs) (fappExpr newConstr)
+      
 oneInducDef :: TermLang -> [Decl]
 oneInducDef (TermLang _ _ _ []) = []
 oneInducDef tl =
- let tconstrs = getTermConstructors tl
-     ttyp = getTermType tl
-     constrPatterns = patterns tconstrs
+  TypeSig (typeSig tl) : 
+  map (\(p,e) -> FunDef (mkName $ inducFuncNm term) (adjustPattern tl p) (mkFunDefBody e))
+      (patternsExprs tl)
+  where term = getTermType tl
+{- let --tconstrs = getTermConstructors tl
+     Term = getTermType tl
+     --constrPatterns = patterns tconstrs
      check c = (getConstrName c == v1 || getConstrName c == v2 || getConstrName c == sing || getConstrName c == sing2)
      constrFunc index c@(Constr _ e) =
        let pName = getPatternName $ constrPatterns !! index
@@ -165,9 +173,10 @@ oneInducDef tl =
           else adjustFuncCalls (farity e) $ functor' (recExpr ttyp tconstrs) (fappExpr newConstr)
      mkDecl i c =
        FunDef (mkName $ inducFuncNm ttyp)
-        (underscorePattern ttyp ++ constrPatterns ++ [mkPattern c])
+        (underscorePattern term ++ constrPatterns ++ [mkPattern c])
         (FunDefBody (constrFunc i c) NoWhere)
  in (TypeSig (typeSig tl)) : zipWith mkDecl [1 .. (length tconstrs)] tconstrs
+-}
 
 inductionFuncs :: [TermLang] -> [Decl]
 inductionFuncs tlangs = 

@@ -4,7 +4,7 @@ import Tog.Raw.Abs hiding (Open)
 import Tog.Deriving.Types (Name_,gmap)
 import Tog.Deriving.Utils.Functions (liftType')
 import Tog.Deriving.Utils.Renames (foldren)
-import Tog.Deriving.Utils.Types (tinstance) 
+import Tog.Deriving.Utils.Types (tinstance)
 import Tog.Deriving.TUtils (mkName, mkQName, mkArg, setType, getConstrName)
 import Tog.Deriving.EqTheory
 import Tog.Deriving.Lenses (name)

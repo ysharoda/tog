@@ -9,10 +9,10 @@ import Control.Lens ((^.))
 
 type FType = Constr
 
-data FApp = FApp [Binding] Expr
+type FApp = ([Binding],Expr)
 
 getExpr :: FApp -> Expr 
-getExpr (FApp _ e) = e 
+getExpr (_,e) = e 
 
 farity :: Expr -> Int
 farity e = farityH e -1
@@ -59,18 +59,13 @@ fapp (Constr n typ) =
      etyp (Fun e _) = e -- this works because we are in unisorted setup
      etyp (App args) = App args
      etyp _ = error "not a function"
- in if (arity == 0) then FApp [] $ App [mkArg nm]
-    else FApp [HBind (map mkArg vars) (etyp typ)]$
-          App $ mkArg nm : map mkArg vars         
+ in if (arity == 0) then ([],App [mkArg nm])
+    else ([HBind (map mkArg vars) (etyp typ)],
+          App $ mkArg nm : map mkArg vars)         
 
 fappExpr :: FType -> Expr
 fappExpr c = getExpr $ fapp c
-{-  let (FApp b (App $ a:as)) = fapp c
-  in case b of
-    [Bind binds e] = App $ [a] ++ (take (length as) $ repeat (mkArg "_")) ++ as
-    
-  getExpr $ fapp c
--}
+
 -- given an expression that is a function application (like op x y)
 -- it maps a unary function to every argument of the function (like: op (f x) (f y)) 
 functor :: Name_ -> Expr -> Expr

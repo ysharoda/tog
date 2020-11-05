@@ -24,7 +24,7 @@ typeSig tl =
      stagedFuncTyp = Fun (texpr) (App [mkArg "Staged", Arg texpr])
  in Sig (mkName $ stagedFuncName $ getTermType tl) $
      if binds == [] then stagedFuncTyp
-     else Pi (Tel binds)  stagedFuncTyp
+     else Pi (Tel binds) stagedFuncTyp
 
 liftConstant :: Constr -> (Pattern,Expr) 
 liftConstant c = (mkPattern c, App [mkArg "Now",Arg $ fappExpr c])
@@ -69,6 +69,9 @@ liftFunc :: Term -> Constr -> (Pattern,Expr)
 liftFunc term c =
   (mkPattern c, stage term c)
 
+adjustPatterns :: TermLang -> Pattern -> [Pattern]
+adjustPatterns tl p = underscorePattern (getTermType tl) ++ [p]
+
 -- collecting patterns and expressions for all declarations
 patternsExprs :: TermLang -> [(Pattern,Expr)]
 patternsExprs tl = 
@@ -87,7 +90,7 @@ oneStagedFunc tl =
   in  (concatMap (opDeclToFunc tl)functions) ++ 
       ((TypeSig $ typeSig tl) :
        map (\(p,e) -> FunDef (mkName $ stagedFuncName (getTermType tl))
-                             ((underscorePattern $ getTermType tl) ++ [p])
+                             (adjustPatterns tl p)
                              (FunDefBody e  NoWhere)) pe)
 
 stagedFuncs :: [TermLang] -> [Decl]
