@@ -1,6 +1,5 @@
 module Tog.Deriving.Utils.Bindings
-  (mkBinding,
-   indexOneBind,
+  (indexOneBind,
    indexBindings, 
    repeatBinds,
    getOneBindNames,
@@ -13,26 +12,9 @@ module Tog.Deriving.Utils.Bindings
 
 import Tog.Raw.Abs
 
-import Tog.Deriving.Utils.QualDecls 
 import Tog.Deriving.Types (Name_)
 import Tog.Deriving.TUtils
 import Tog.Deriving.Types (gmap)
-
-
-mkBindExpr :: PConstr -> PConstr -> (Name_,Int) -> [Expr]
-mkBindExpr carrier (PConstr _ typ _) (instName,index) =
-  let argNm = mkPExpr carrier (instName,index)
-  in replicate (exprArity typ) argNm 
-    
-mkBindVars :: PConstr -> Char -> [Arg]
-mkBindVars (PConstr _ typ _) sym = map mkArg $ genVarsWSymb sym $ exprArity typ
-
--- function bindings 
-mkBinding :: PConstr -> PConstr -> (Name_,Int) -> Char -> [Binding]
-mkBinding carrier fdecl (instName, index) sym  =
-  let vars = mkBindVars fdecl sym
-      typs = mkBindExpr carrier fdecl (instName, index)
-  in zipWith (\v ty -> HBind [v] ty) vars typs
 
 -- we need the isHidden flag, because we cannot infer if a function argument is hidden or not based on whether it is hidden or not in the datatype (eg: in the case of closed term langauge)  
 indexOneBind :: Bool -> Int -> Binding -> Binding 

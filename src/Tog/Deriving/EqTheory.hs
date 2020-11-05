@@ -14,7 +14,6 @@ module Tog.Deriving.EqTheory
   , eqInstance
   , projectConstr
   , applyProjConstr
-  , mkPConstrs 
   ) where 
 
 import Data.Generics as Generics(Data)
@@ -26,7 +25,6 @@ import Tog.Deriving.Types  (Name_)
 import Tog.Deriving.TUtils (mkArg, mkParams, genVars, fldsToBinding, fldsToHiddenBinds, mkName, mkField, setType, twoCharName, genVarsWSymb)
 import Tog.Deriving.Utils.Bindings
 import Tog.Deriving.Utils.Functions 
-import Tog.Deriving.Utils.QualDecls
 import Tog.Deriving.Lenses (name)
 
 -- uni sorted equational theory
@@ -107,14 +105,3 @@ applyProjConstr thry i@(_,binds,_) c@(Constr _ typ) varName =
       bindingsType = projectConstr thry i (thry ^. sort) 
   in  ([HBind (map mkArg vars) bindingsType],
       App $ (Arg $ projectConstr thry i c) : map mkArg vars) 
-
-mkPConstrs :: EqTheory -> (PConstr,[PConstr],[PConstr])
-mkPConstrs t =
-  let wst = t ^. waist
-      axms  = t ^. axioms
-      funcs = t ^. funcTypes
-      constrs = (t ^. sort) : (funcs ++ axms)
-      pconstrs = map (\(c,i) -> mkPConstr c wst i) $ zip  constrs [0..length constrs]
-   in (head pconstrs,
-       take (length funcs) (drop 1 pconstrs),
-       take (length axms)  (drop (1 + length funcs) pconstrs)) 

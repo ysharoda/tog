@@ -39,7 +39,6 @@ library
                      , Tog.Deriving.RelationalInterp
                      , Tog.Deriving.Utils.Bindings
                      , Tog.Deriving.Utils.Parameters
-                     , Tog.Deriving.Utils.QualDecls
                      , Tog.Deriving.Utils.Renames
                      , Tog.Deriving.Evaluator
                      , Tog.Deriving.TogPrelude
@@ -51,7 +50,9 @@ library
                      , Tog.Deriving.Terms
                      , Tog.Deriving.Induction
                      , Tog.Deriving.StagedTerms
-                     , Tog.Exporting.Agda 
+                     , Tog.Deriving.GenEverything
+                     , Tog.Exporting.Agda
+                     , Tog.Exporting.AgdaStdLib
                      
   other-modules:       Data.Collect
                      , Tog.Instrumentation.Conf
