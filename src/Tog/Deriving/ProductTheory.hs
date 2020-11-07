@@ -15,31 +15,22 @@ import           Tog.Deriving.Utils.Renames (simpleRen)
 productThry :: Eq.EqTheory -> Eq.EqTheory
 productThry t =
   let -- apply renames to avoid the shadowing problem of Tog
-      -- ren x = if x^.name == "Set" then x else over name (++"P") x
-      t' = gmap (simpleRen "P") t
-      mkProd = productField $ getConstrName (t' ^. Eq.sort)
+      sortName = getConstrName (t' ^. Eq.sort) 
+      t' = gmap (simpleRen "P" (Eq.args t)) t
+      mkProd = productField sortName
   in 
    set  Eq.thyName ("Product") $
    over Eq.funcTypes (map mkProd) $
    over Eq.axioms (map mkProd)
    t'
 
-{-
--- prod type declaration 
--- data Prod (A : Set) (B : Set) : Set
-prodType :: Decl 
-prodType =
-  Data (mkName "Prod")
-  (ParamDecl [Bind [mkArg "A", mkArg "B"] $ notQualDecl "Set"])
-  (DataDeclDef setType [])  
--}
 prodTyp :: Name_ -> Expr
 prodTyp nm = let n = mkArg nm in App [mkArg "Prod", n, n]
 
 productField :: Name_ -> Constr -> Constr
 productField origSort constr =
-  let adjustSort arg@(App [Arg (Id (NotQual (Name (_,srt))))]) =
-        if srt == origSort then prodTyp srt else arg
+  let adjustSort expr@(App [a]) = 
+        if srt == origSort then prodTyp srt else expr where srt = getArgName a
       adjustSort x = x  
   in gmap adjustSort constr
 

@@ -3,20 +3,21 @@ module Tog.Deriving.Signature
   , sigToDecl
   ) where
 
-import           Control.Lens ((^.), set)
-
 import Tog.Raw.Abs
 import Tog.Deriving.EqTheory as Eq
 import Tog.Deriving.TUtils
 import Tog.Deriving.Types    (gmap)
 import Tog.Deriving.Lenses   (name)
 
+import Control.Lens ((^.), set)
+
 ren :: Name -> Name
 ren n = mkName $ if nam == "Set" then nam else nam ++ "S"
   where nam = n^.name
 
+
 signature_ :: Eq.EqTheory -> Eq.EqTheory
-signature_ = set Eq.thyName ("Sig") . set Eq.axioms [] .  gmap ren
+signature_ = set Eq.thyName ("Sig") . set Eq.axioms [] .  gmap ren 
 
 sigToDecl :: Eq.EqTheory -> Decl
 sigToDecl = Eq.toDecl (++ "SigC")

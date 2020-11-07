@@ -58,7 +58,7 @@ typesig :: TermLang -> TypeSig
 typesig tl =
  Sig (mkName (simpFuncNm term)) $ typeExpr term 
  where
-  (binds,typApp) = tlangInstance tl
+  (_,binds,typApp) = tlangInstance tl
   typeExpr Basic = Fun typApp typApp
   typeExpr _     = Pi (Tel binds) (Fun typApp typApp)
   term = getTermType tl 

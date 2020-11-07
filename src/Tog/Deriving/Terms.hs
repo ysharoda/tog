@@ -16,10 +16,13 @@ import Data.Map as Map (Map,fromList, toList)
 -- The definition of closed term lang is parameterized by the name of the carrier
 -- The definition of an open term lang is parameterized by the name of a variable of type `Nat`
 -- The definition of an extended term lang is parameterized by both. 
+type NumOfVars = Name_
+type CarrierName = Name_ 
+
 data Term = Basic
-          | Closed Name_
-          | BasicOpen Name_
-          | Open Name_ Name_ deriving (Eq,Show)
+          | Closed CarrierName
+          | BasicOpen NumOfVars
+          | Open NumOfVars CarrierName deriving (Eq,Show)
 
 data TermLang = TermLang {
   termTy  :: Term,
@@ -50,7 +53,7 @@ tlToDecl :: TermLang -> Decl
 tlToDecl (TermLang _ nm pars constrs) =
  Data (mkName nm) pars (DataDeclDef setType constrs)
 
-tlangInstance :: TermLang -> ([Binding],Expr)
+tlangInstance :: TermLang -> (Name_,[Binding],Expr)
 tlangInstance tl = tinstance (tlToDecl tl) Nothing  
 
 -- step1: rename all constrs of the thoery
@@ -100,9 +103,9 @@ mkParamsHelper [] = NoParams
 mkParamsHelper xs = ParamDecl $ map (\(n,e) -> (Bind [mkArg n] e)) xs
 
 constructors :: Term -> Name_ -> [Constr] -> [Constr]
-constructors t thryNm cs =
+constructors t thryNm fsyms =
  let typ = termType thryNm t
-     constrs = map (constructorsHelper $ termType thryNm t) cs
+     constrs = map (constructorsHelper $ termType thryNm t) fsyms
  in case t of
    Basic -> constrs
    (Closed carrierNm) -> (singleton sing carrierNm typ) : constrs

@@ -54,7 +54,7 @@ inductionOpE : {A : Set} {n : ℕ} → (P : MonTerm' n A → Set) →
 typeSig :: TermLang -> TypeSig 
 typeSig tl =
  let
-  (binds,texpr) = tinstance (tlToDecl tl) Nothing
+  (_,binds,texpr) = tinstance (tlToDecl tl) Nothing
   fdecls = filter (not . isConstOrVar) (getTermConstructors tl)
   predApp = Pi (Tel [Bind [mkArg "x"] texpr]) (applyPred (App [mkArg "x"]))
  in Sig (mkName $ inducFuncNm $ getTermType tl) $ 
@@ -162,21 +162,6 @@ oneInducDef tl =
   map (\(p,e) -> FunDef (mkName $ inducFuncNm term) (adjustPattern tl p) (mkFunDefBody e))
       (patternsExprs tl)
   where term = getTermType tl
-{- let --tconstrs = getTermConstructors tl
-     Term = getTermType tl
-     --constrPatterns = patterns tconstrs
-     check c = (getConstrName c == v1 || getConstrName c == v2 || getConstrName c == sing || getConstrName c == sing2)
-     constrFunc index c@(Constr _ e) =
-       let pName = getPatternName $ constrPatterns !! index
-           newConstr = Constr (mkName pName) e 
-       in if check c || farity e == 0 then fappExpr newConstr
-          else adjustFuncCalls (farity e) $ functor' (recExpr ttyp tconstrs) (fappExpr newConstr)
-     mkDecl i c =
-       FunDef (mkName $ inducFuncNm ttyp)
-        (underscorePattern term ++ constrPatterns ++ [mkPattern c])
-        (FunDefBody (constrFunc i c) NoWhere)
- in (TypeSig (typeSig tl)) : zipWith mkDecl [1 .. (length tconstrs)] tconstrs
--}
 
 inductionFuncs :: [TermLang] -> [Decl]
 inductionFuncs tlangs = 

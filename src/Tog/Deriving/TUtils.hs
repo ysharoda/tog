@@ -98,7 +98,8 @@ mkFunc (x:xs) = Fun x (mkFunc xs)
 
 -- For Name Monoid and number 1, the output is M1 
 shortName :: Name_ -> Int -> Name_
-shortName declName num = take 1 declName ++ show num
+shortName declName num =
+  if num == 0 then take 1 declName else take 1 declName ++ show num
 
 -- using two characters for theory instance name to avoid name clashes with carriers.
 twoCharName :: Name_ -> Int -> Name_

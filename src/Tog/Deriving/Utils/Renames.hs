@@ -31,5 +31,8 @@ foldrenConstrs [] c = c
 foldrenConstrs ((old,new):rens) c =
   foldrenConstrs rens (gmap (\x -> if x == old then new else x) c)
 
-simpleRen :: String -> Name -> Name
-simpleRen suff nm = if nm^.name == "Set" then nm else over name (++suff) nm
+-- adds suffix to all elements of the theory except the carrier 
+simpleRen :: String -> [Constr] -> Name -> Name
+simpleRen suff as nm =
+  if elem (nm^.name) ("Set": map getConstrName as)
+  then nm else over name (++suff) nm

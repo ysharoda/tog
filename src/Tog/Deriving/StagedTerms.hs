@@ -20,7 +20,7 @@ stagedFuncName (Open _ _) = "stageOp"
 
 typeSig :: TermLang -> TypeSig 
 typeSig tl =
- let (binds,texpr) = tlangInstance tl 
+ let (_,binds,texpr) = tlangInstance tl 
      stagedFuncTyp = Fun (texpr) (App [mkArg "Staged", Arg texpr])
  in Sig (mkName $ stagedFuncName $ getTermType tl) $
      if binds == [] then stagedFuncTyp
@@ -44,7 +44,7 @@ opDeclToFunc tl c@(Constr n expr) =
  let cname = n ^. name
      newname = opDeclToFuncName cname
      -- typName = getLangName tl 
-     (binds,texpr) = tlangInstance tl  
+     (_,binds,texpr) = tlangInstance tl  
  in (TypeSig $ Sig (mkName newname) $
      Pi (Tel (map hiddenBind binds)) $   
      curry' $ take (farity expr + 1) $ repeat (Arg $ texpr)) : 

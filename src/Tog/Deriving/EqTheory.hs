@@ -98,7 +98,7 @@ projectConstr thry (instName,binds,_) c@(Constr n _)  =
 
 
 applyProjConstr :: EqTheory -> EqInstance -> Constr -> Maybe Char -> FApp
-applyProjConstr thry i@(_,binds,_) c@(Constr _ typ) varName =
+applyProjConstr thry i c@(Constr _ typ) varName =
   let vars = case varName of
         Nothing -> genVars $ farity typ
         Just s -> genVarsWSymb s $ farity typ

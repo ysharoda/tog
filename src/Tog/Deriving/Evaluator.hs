@@ -51,7 +51,7 @@ typeSig :: EqTheory -> TermLang -> TypeSig
 typeSig thry termlang =
  let
    (instNm,eqbind,eqinst) = eqInstance thry Nothing
-   (tbind,tinst) = tlangInstance termlang
+   (_,tbind,tinst) = tlangInstance termlang
    newBinds = unionBindings eqbind tbind
    sortExpr = projectConstr thry (instNm,eqbind,eqinst)  (thry ^. sort)
    trmTy = getTermType termlang
