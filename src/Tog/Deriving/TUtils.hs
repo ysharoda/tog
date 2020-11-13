@@ -77,6 +77,7 @@ getConstrName (Constr n _) = n ^. name
 
 getArgName :: Arg -> Name_
 getArgName (Arg (Id (NotQual (Name (_,n))))) = n
+getArgName (Arg (App (a:_))) = getArgName a
 getArgName _ = error "Not an identifier"
 
 getArgExpr :: Arg -> Expr

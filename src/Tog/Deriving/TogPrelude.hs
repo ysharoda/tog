@@ -190,15 +190,16 @@ stage2 =
 codeLift1 :: [String]
 codeLift1 =
   "codeLift1 : {A B : Set} -> (A -> B) -> (CodeRep A s1 -> CodeRep B s1)" : 
- "codeLift1 f (Q x) = Q (f x)" : []
+ "codeLift1 f x = code (f (uncode x))" : []
 
 codeLift2 :: [String]
 codeLift2 = 
  "codeLift2 : {A B C : Set} -> (A -> B -> C) -> (CodeRep A s1 -> CodeRep B s1 -> CodeRep C s1)" : 
- "codeLift2 f (Q x) (Q y) = Q (f x y)" : []
+ "codeLift2 f x y = code (f (uncode x) (uncode y))" : []
 
 stagingModule :: [String]
 stagingModule =
   choice ++ comp ++ staged ++
   expr ++ const' ++
   stage0 ++ stage1 ++ stage2 ++ codeLift1 ++ codeLift2  
+
