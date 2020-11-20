@@ -65,7 +65,7 @@ instance PrintAgda Expr where
      text lambdaArrow <+>
      printAgda expr
   printAgda (Pi tel expr) =
-    parens $ printAgda tel <+> (if emptyTel tel then empty else text pi_representation) <+> printAgda expr
+    parens $ (if emptyTel tel then empty else printAgda tel <+> text pi_representation) <+> printAgda expr
   printAgda (Fun e1 e2) =
     parens $ printAgda e1 <+> text fun_sep <+> printAgda e2
   printAgda (Eq e1 e2) = -- might need to have a bracket here 
