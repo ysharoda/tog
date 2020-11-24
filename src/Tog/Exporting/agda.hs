@@ -5,6 +5,7 @@ module Tog.Exporting.Agda
   , filterDecls
   , imports
   , importNames
+  , exportAgda
   ) where
 
 import Tog.Raw.Abs
