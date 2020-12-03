@@ -11,7 +11,7 @@ import Tog.Deriving.Lenses (name)
 import Control.Lens ((^.))
 
 taglessName :: Name_
-taglessName = "Tagless"
+taglessName = "StagedRepr"
 
 reprTypeName :: String 
 reprTypeName = "Repr"
@@ -28,6 +28,6 @@ taglessRep eq =
  in Record (mkName $ taglessName)
   (ParamDecl [Bind [mkArg carrierNm] setTypeAsId,
               Bind [mkArg reprTypeName] $ Fun (App [mkArg "Set"]) (App [mkArg "Set"])]) $ 
-  RecordDeclDef setType (mkName "tagless") $
+  RecordDeclDef setType (mkName "repr") $
    Fields $ map (liftConstr reprTypeName) fdecls
 

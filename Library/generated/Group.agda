@@ -1,4 +1,3 @@
-
  module Group  where
   open import Prelude
   open import Agda.Builtin.Equality
@@ -87,19 +86,18 @@
   simplifyB (opL x1 x2 )  = (opL (simplifyB x1 ) (simplifyB x2 ) )
   
   simplifyB (invL x1 )  = (invL (simplifyB x1 ) )
-  
+
   simplifyCl : ((A  : Set )  → ((ClGroupTerm A ) → (ClGroupTerm A )))
-  simplifyCl _ (opCl eCl x )  = x 
-  
+  simplifyCl _ (opCl eCl x )  = x   
   simplifyCl _ (opCl x eCl )  = x 
-  
   simplifyCl _ eCl  = eCl 
-  
   simplifyCl _ (opCl x1 x2 )  = (opCl (simplifyCl _ x1 ) (simplifyCl _ x2 ) )
-  
   simplifyCl _ (invCl x1 )  = (invCl (simplifyCl _ x1 ) )
-  
   simplifyCl _ (sing x1 )  = (sing x1 )
+--  simplifyCl _ (opCl x₁ (invCl x₂)) = case
+  --  x₁ = x₂ -> eCl
+  --  _ -> (opCl x₁ (invCl x₂))
+  -- simplifyCl _ (opCl x (invCl x)) = eCl 
   
   simplifyOp : ((n  : Nat)  → ((OpGroupTerm n ) → (OpGroupTerm n )))
   simplifyOp _ (opOL eOL x )  = x 

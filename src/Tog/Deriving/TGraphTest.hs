@@ -78,8 +78,8 @@ modExpr nam mexpr lib =
     Transport t1 t2 -> 
      let s = findApex (lib^.graph) (look t1) (look t2)
      in combineOver (look t1) NoRens (look t2) NoRens s
-    Arrow src dest maps ->
-     over graph (addArrow n $ GView (look src) (look dest) (rens maps)) lib
+    Arrow src dest ->
+     over graph (addArrow n $ GView (look src) (look dest) Map.empty) lib
 
 renPairsToMapping :: [RenPair] -> Rename
 renPairsToMapping rplist = Map.fromList $ map (\(RenPair x y) -> (x^.name,y^.name)) rplist 
