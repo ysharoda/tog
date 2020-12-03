@@ -8,6 +8,8 @@ module Tog.Instrumentation.Conf
   , defaultConf
   , writeConf
   , readConf
+  , Mode (..) 
+  , setConf 
   ) where
 
 import           System.IO.Unsafe                 (unsafePerformIO)
@@ -17,6 +19,8 @@ import           Tog.Prelude
 
 -- Configuration
 ------------------------------------------------------------------------
+
+data Mode = Tog | Agda | AgdaPredStyle 
 
 data Conf = Conf
   { confTermType                :: String
@@ -36,6 +40,7 @@ data Conf = Conf
   , confWhnfApplySubst          :: Bool
   , confTimeSections            :: Bool
   , confWhnfEliminate           :: Bool
+  , outputMode                  :: Mode 
   }
 
 data DebugLabels
@@ -60,7 +65,10 @@ instance Monoid DebugLabels where
   mempty = DLSome []
 
 defaultConf :: Conf
-defaultConf = Conf "S" "Simple" mempty False False False False False False False False False False False False False False
+defaultConf = Conf "S" "Simple" mempty False False False False False False False False False False False False False False Tog 
+
+setConf :: Mode -> Conf
+setConf m = Conf "S" "Simple" mempty False False False False False False False False False False False False False False m 
 
 {-# NOINLINE confRef #-}
 confRef :: IORef (Maybe Conf)

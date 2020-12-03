@@ -52,7 +52,7 @@ debugInit = do
 
 rawDebug :: (MonadIO m) => DebugStack -> PP.Doc -> PP.Doc -> m String
 rawDebug stack label doc = do
-  let s  = PP.renderPretty 100 $ label $$ doc
+  let s  = PP.renderPretty 250 $ label $$ doc
   let pad = replicate (length stack * _ERROR_INDENT) ' '
   return $ unlines $ map (pad ++) $ lines s
 

@@ -17,7 +17,6 @@ import           Tog.CheckFile
 import           Tog.Parse
 import           Tog.ScopeCheck
 
-
 parseTypeCheckConf :: Parser Conf
 parseTypeCheckConf = Conf
   <$> strOption
@@ -86,7 +85,16 @@ parseTypeCheckConf = Conf
       ( long "whnfEliminate" <>
         help "Reduce term when eliminating a term"
       )
-
+  <*> outputModeOption
+      (long "outputMode" <> short 'o' <> help "enter one of: tog, agda, agda-pred-style")
+{-
+alternativeConfig :: Parser Conf
+alternativeConfig = Conf
+  <$> strOption
+      (long "outputMode" <> short 'o' <> value "Tog" <>
+        help "Available types: S (Simple), GR (GraphReduce), GRS (GraphReduceSub), GRU (GraphReduceUnpack), H (Hashed)."
+      )
+-}
 debugLabelsOption
   :: Mod OptionFields DebugLabels
   -> Parser DebugLabels
@@ -95,6 +103,17 @@ debugLabelsOption = option $ do
   case s of
     [] -> return DLAll
     _  -> return $ DLSome $ splitOn "|" s
+
+outputModeOption :: Mod OptionFields Mode
+  -> Parser Mode
+outputModeOption = option $ do
+  s <- readerAsk
+  case s of
+    "tog" -> return Tog
+    "agda" -> return Agda
+    "agda-pred-style" -> return AgdaPredStyle
+    _ -> return Tog 
+    
 
 parseMain :: Parser (IO ())
 parseMain =
