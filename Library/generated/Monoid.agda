@@ -172,7 +172,6 @@
   
   stageB : (MonoidTerm  → (Staged MonoidTerm  ))
   stageB (opL x1 x2 )  = (stage2 opL' (codeLift2 opL' ) (stageB  x1 ) (stageB  x2 ) )
-  
   stageB eL  = (Now eL )
   
   opCl' : ({A  : Set }  → ((ClMonoidTerm A )  → ((ClMonoidTerm A )  → (ClMonoidTerm A ) )))
@@ -222,3 +221,4 @@
       opT : ((Repr A )  → ((Repr A )  → (Repr A ) ))
       eT : (Repr A )  
    
+ 
