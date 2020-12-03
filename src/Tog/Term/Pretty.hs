@@ -63,7 +63,7 @@ instance PrettyM t QName where
 
 instance PrettyM t (Pattern t) where
   prettyM e = case e of
-    VarP      -> return $ PP.text "_"
+    VarP      -> return $ PP.text "{_}"
     ConP c es -> do cDoc <- prettyM c
                     esDoc <- mapM prettyM es
                     return $ prettyApp 10 cDoc esDoc
