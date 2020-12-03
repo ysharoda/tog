@@ -99,9 +99,10 @@ projectConstr thry (instName,binds,_) c@(Constr n _)  =
 
 applyProjConstr :: EqTheory -> EqInstance -> Constr -> Maybe Char -> FApp
 applyProjConstr thry i c@(Constr _ typ) varName =
-  let vars = case varName of
-        Nothing -> genVars $ farity typ
-        Just s -> genVarsWSymb s $ farity typ
-      bindingsType = projectConstr thry i (thry ^. sort) 
-  in  ([HBind (map mkArg vars) bindingsType],
-      App $ (Arg $ projectConstr thry i c) : map mkArg vars) 
+  let ari = farity typ in
+  if ari == 0 then ([], App [ Arg $ projectConstr thry i c ])
+  else
+    let vars = maybe genVars genVarsWSymb varName ari
+        bindingsType = projectConstr thry i (thry ^. sort) 
+    in  ([HBind (map mkArg vars) bindingsType],
+        App $ (Arg $ projectConstr thry i c) : map mkArg vars) 
