@@ -41,7 +41,7 @@ RenameUsing. ModExpr ::= "rename" Name "using" Name;
 CombineOver. ModExpr ::= "combine" Name Rens Name Rens "over" Name;
 Combine.     ModExpr ::= Name "||" Name;
 Transport.   ModExpr ::= Name "@" Name;
-Arrow.       ModExpr ::= "from" Name "to" Name "using" Rens; 
+Arrow.       ModExpr ::= "id from" Name "to" Name; 
 
 NoRens.   Rens ::= "{" "}";
 Rens.     Rens ::= "{" [RenPair] "}";
