@@ -67,7 +67,7 @@ instance PrintAgda Expr where
   printAgda (Pi tel expr) =
     parens $ (if emptyTel tel then empty else printAgda tel <+> text pi_representation) <+> printAgda expr
   printAgda (Fun e1 e2) =
-    printAgda e1 <+> text fun_sep <+> printAgda e2
+    parens $ printAgda e1 <+> text fun_sep <+> printAgda e2
   printAgda (Eq e1 e2) = -- might need to have a bracket here
     printAgda e1 <+> text equality_symbol <+> printAgda e2
   printAgda (App args) =
