@@ -48,7 +48,7 @@ modules.pdf: $(bnfc_output) $(hs_sources)
 
 .PHONY: install-prof
 install-prof: $(bnfc_output) $(hs_sources)
-	stack build --library-profiling --executable-profiling
+	stack build --library-profiling --executable-profiling 
 
 .PHONY: install
 install: $(build-deps) $(bnfc_output) $(hs_source)
