@@ -16,6 +16,7 @@ import           Tog.Term
 import           Tog.CheckFile
 import           Tog.Parse
 import           Tog.ScopeCheck
+import           Tog.Exporting.Main 
 
 parseTypeCheckConf :: Parser Conf
 parseTypeCheckConf = Conf
@@ -86,15 +87,13 @@ parseTypeCheckConf = Conf
         help "Reduce term when eliminating a term"
       )
   <*> outputModeOption
-      (long "outputMode" <> short 'o' <> help "enter one of: tog, agda, agda-pred-style")
-{-
-alternativeConfig :: Parser Conf
-alternativeConfig = Conf
-  <$> strOption
-      (long "outputMode" <> short 'o' <> value "Tog" <>
-        help "Available types: S (Simple), GR (GraphReduce), GRS (GraphReduceSub), GRU (GraphReduceUnpack), H (Hashed)."
+      (long "outputMode" <> short 'o' <> value Tog <> 
+       help "enter one of: tog, agda, agda-pred-style")
+  <*> strOption
+      ( long "destFolder" <> short 'f' <> value "./output-generated" <>
+        help "enter the destination folder"
       )
--}
+
 debugLabelsOption
   :: Mod OptionFields DebugLabels
   -> Parser DebugLabels
@@ -123,31 +122,39 @@ parseMain =
   where
     typeCheck file conf = do
       instrument conf $ do
-        processFile file $ \_ mbErr -> do
-          forM_ mbErr $ \err -> do
-            silent <- confQuiet <$> readConf
-            unless silent $ putStrLn (PP.render err)
-            exitFailure
+        omode <- outputMode <$> readConf
+        case omode of
+          Tog -> 
+            processFile file $ \_ mbErr -> do
+              forM_ mbErr $ \err -> do
+                silent <- confQuiet <$> readConf
+                unless silent $ putStrLn (PP.render err)
+                exitFailure
+          _ -> do 
+            dir <- destFolder <$> readConf 
+            export dir omode file  
 
 processFile
   :: FilePath
   -> (forall t. (IsTerm t) => Signature t -> Maybe PP.Doc -> IO a)
   -> IO a
-processFile file ret = do
-  mbErr <- runExceptT $ do
-    s   <- lift $ readFile file
-    raw <- exceptShowErr "Parse" $ parseModule s
-    exceptShowErr "Scope" $ scopeCheckModule raw
-  case mbErr of
-    Left err  -> ret (sigEmpty :: Signature Simple) (Just err)
-    Right int -> checkFile int $ \sig mbErr' ->
-                 ret sig (showError "Type" <$> mbErr')
+processFile file ret =
+  do
+    mbErr <- runExceptT $ do
+      s   <- lift $ readFile file
+      raw <- exceptShowErr "Parse" $ parseModule s 
+      exceptShowErr "Scope" $ scopeCheckModule raw
+    case mbErr of
+      Left err  -> ret (sigEmpty :: Signature Simple) (Just err)
+      Right int -> checkFile int $ \sig mbErr' ->
+                      ret sig (showError "Type" <$> mbErr')
   where
     showError errType err =
       PP.text errType <+> "error: " $$ PP.nest 2 err
 
     exceptShowErr errType =
       ExceptT . return . either (Left . showError errType) Right
+
 
 main :: IO ()
 main = do

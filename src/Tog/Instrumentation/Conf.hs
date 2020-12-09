@@ -20,8 +20,6 @@ import           Tog.Prelude
 -- Configuration
 ------------------------------------------------------------------------
 
-data Mode = Tog | Agda | AgdaPredStyle 
-
 data Conf = Conf
   { confTermType                :: String
   , confSolver                  :: String
@@ -40,12 +38,15 @@ data Conf = Conf
   , confWhnfApplySubst          :: Bool
   , confTimeSections            :: Bool
   , confWhnfEliminate           :: Bool
-  , outputMode                  :: Mode 
+  , outputMode                  :: Mode
+  , destFolder                  :: FilePath
   }
 
 data DebugLabels
   = DLAll
   | DLSome [String]
+
+data Mode = Tog | Agda | AgdaPredStyle   
 
 confDebug :: Conf -> Bool
 confDebug conf = case confDebugLabels conf of
@@ -65,10 +66,10 @@ instance Monoid DebugLabels where
   mempty = DLSome []
 
 defaultConf :: Conf
-defaultConf = Conf "S" "Simple" mempty False False False False False False False False False False False False False False Tog 
+defaultConf = Conf "S" "Simple" mempty False False False False False False False False False False False False False False Tog "~/" 
 
 setConf :: Mode -> Conf
-setConf m = Conf "S" "Simple" mempty False False False False False False False False False False False False False False m 
+setConf m = Conf "S" "Simple" mempty False False False False False False False False False False False False False False m "~/"
 
 {-# NOINLINE confRef #-}
 confRef :: IORef (Maybe Conf)

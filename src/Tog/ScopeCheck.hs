@@ -206,7 +206,7 @@
 -- >   import M.N
 -- >   open M.N
 -- >   postulate M.bar : M.N.X -> M.N.X
-module Tog.ScopeCheck (scopeCheckModule, scopeCheckFile) where
+module Tog.ScopeCheck (scopeCheckModule) where
 
 import           Prelude hiding (length, replicate)
 
@@ -221,13 +221,12 @@ import           Data.List.NonEmpty (NonEmpty(..), (<|))
 import           Tog.Prelude
 import           Tog.Instrumentation
 import           Tog.Names                hiding (mkName)
-import           Tog.Parse
 import qualified Tog.Raw                  as C
 import           Tog.Abstract
 import qualified Tog.PrettyPrint          as PP
 import           Tog.PrettyPrint          (render, Pretty(..), (<+>), ($$), (//>))
 
-import           Tog.Deriving.Main        (processDefs)
+import Tog.Deriving.Main 
 
 #include "impossible.h"
 
@@ -514,11 +513,10 @@ scopeCheckModule (C.Module (C.Name ((l, c), s)) pars (C.Decl_ ds)) =
   where
     q = QName (Name (SrcLoc l c) s) []
 scopeCheckModule (C.Module _ _ (C.Lang_ defs)) =
-  scopeCheckModule $ processDefs defs    
-
-{- -------- for testing ------- -}
+  scopeCheckModule (processDefs defs)   
 
 -- Useful for debugging.
+{- -- -------- for testing ------- 
 scopeCheckFile :: FilePath -> IO ()
 scopeCheckFile fp = do
   s <- readFile fp
@@ -527,6 +525,7 @@ scopeCheckFile fp = do
     Right raw -> case scopeCheckModule raw of
       Left err -> putStrLn $ render err
       Right abs -> putStrLn $ render abs
+-}
 
 -- | Scope checks a module.  Returns the generated module, and possibly
 -- some declarations containing auto-imports and the like.
