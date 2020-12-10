@@ -1,5 +1,6 @@
 module Tog.Deriving.Main
   ( processDefs
+  , processModule
   , theoryToRecord
   , defsToModule
   , leverageThry
