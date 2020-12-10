@@ -18,6 +18,8 @@ import           Tog.Parse
 import           Tog.ScopeCheck
 import           Tog.Exporting.Main 
 
+import System.TimeIt 
+
 parseTypeCheckConf :: Parser Conf
 parseTypeCheckConf = Conf
   <$> strOption
@@ -124,16 +126,24 @@ parseMain =
       instrument conf $ do
         omode <- outputMode <$> readConf
         case omode of
-          Tog -> 
-            processFile file $ \_ mbErr -> do
-              forM_ mbErr $ \err -> do
-                silent <- confQuiet <$> readConf
-                unless silent $ putStrLn (PP.render err)
-                exitFailure
+          Tog ->
+              processFile file $ \_ mbErr -> do
+                forM_ mbErr $ \err -> do
+                  silent <- confQuiet <$> readConf
+                  unless silent $ putStrLn (PP.render err)
+                  exitFailure
           _ -> do 
             dir <- destFolder <$> readConf 
             export dir omode file  
 
+{- The processing of the file goes as follows: 
+     s <- readFile file
+     raw <- parseModule s
+     mod <- scopeCheckModule raw
+     case mod of
+       Left err -> putStrLn $ show $ err 
+       Right int -> putStrLn $ show $ SA.morePretty int 
+-} 
 processFile
   :: FilePath
   -> (forall t. (IsTerm t) => Signature t -> Maybe PP.Doc -> IO a)
@@ -143,10 +153,11 @@ processFile file ret =
     mbErr <- runExceptT $ do
       s   <- lift $ readFile file
       raw <- exceptShowErr "Parse" $ parseModule s 
-      exceptShowErr "Scope" $ scopeCheckModule raw
+      exceptShowErr "Scope" $ scopeCheckModule $ process raw
     case mbErr of
       Left err  -> ret (sigEmpty :: Signature Simple) (Just err)
-      Right int -> checkFile int $ \sig mbErr' ->
+      Right int -> timeIt $
+                    checkFile int $ \sig mbErr' ->
                       ret sig (showError "Type" <$> mbErr')
   where
     showError errType err =
@@ -154,7 +165,6 @@ processFile file ret =
 
     exceptShowErr errType =
       ExceptT . return . either (Left . showError errType) Right
-
 
 main :: IO ()
 main = do

@@ -206,7 +206,7 @@
 -- >   import M.N
 -- >   open M.N
 -- >   postulate M.bar : M.N.X -> M.N.X
-module Tog.ScopeCheck (scopeCheckModule) where
+module Tog.ScopeCheck (scopeCheckModule, process) where
 
 import           Prelude hiding (length, replicate)
 
@@ -226,7 +226,7 @@ import           Tog.Abstract
 import qualified Tog.PrettyPrint          as PP
 import           Tog.PrettyPrint          (render, Pretty(..), (<+>), ($$), (//>))
 
-import Tog.Deriving.Main 
+import Tog.Deriving.Main (processDefs, processModule) 
 
 #include "impossible.h"
 
@@ -512,8 +512,11 @@ scopeCheckModule (C.Module (C.Name ((l, c), s)) pars (C.Decl_ ds)) =
     Right (x, _) -> Right x
   where
     q = QName (Name (SrcLoc l c) s) []
-scopeCheckModule (C.Module _ _ (C.Lang_ defs)) =
-  scopeCheckModule (processDefs defs)   
+scopeCheckModule _ = Left $ PP.text "Theory declarations need to be flattened before scope checking" 
+
+process :: C.Module -> C.Module
+process (C.Module _ _ (C.Lang_ defs)) = processDefs defs
+process m  = processModule m 
 
 -- Useful for debugging.
 {- -- -------- for testing ------- 

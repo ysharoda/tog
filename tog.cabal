@@ -52,7 +52,8 @@ library
                      , Tog.Deriving.StagedTerms
                      , Tog.Deriving.GenEverything
                      , Tog.Exporting.Agda
-                     , Tog.Exporting.AgdaStdLib
+                     , Tog.Exporting.AgdaPredStyle
+                     , Tog.Exporting.Main
                      
   other-modules:       Data.Collect
                      , Tog.Instrumentation.Conf
@@ -106,6 +107,10 @@ library
                      , unordered-containers >= 0.2.5
                      , wl-pprint >= 1.1
                      , BNFC >= 2.8
+                     , directory >= 1.3.5.0
+                     , timeit >= 2.0
+                     , clock>=0.8
+                     , formatting>=7.1.1
 
   hs-source-dirs:      src, bnfc
   include-dirs:        src
