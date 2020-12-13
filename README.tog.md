@@ -1,5 +1,3 @@
-# Leveraging Information Contained in Theory Presentations 
-
 Tog - A prototypical implementation of dependent types
 
 Right now this is a laboratory to experiment in implementing dependent
