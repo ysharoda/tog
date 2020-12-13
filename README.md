@@ -1,4 +1,4 @@
-Deriving Library Definitions from Theory Expressions
+#Deriving Library Definitions from Theory Expressions
 
 This projects aim to eliminate the boilerplate associated with building libraries of Algebra in formal systems. Instead of library builders providing every definition of the library, they write theory expressions and an interpreter generates the described theories and many of their constructions. 
 
@@ -14,11 +14,17 @@ This projects aim to eliminate the boilerplate associated with building librarie
   tog [options] [file] 
 ```
 `tog --help` gives the full options. Of specific interest are the following options:
-  - `-o` determines the output mode, which can be one of
-     -- `tog`: The output is displayed in tog's syntax. 
-     -- `agda`: The output is displayed in Agda's syntax. 
-     -- `agd-pred-style`: The output is displayed in Agda's syntax. The theories presentations are in predicate style, as in its Agda's standard library. 
+  - `-o` to choose the output mode, which can be one of
+    - `tog`: The output is displayed in tog's syntax. This is the default output mode. 
+    - `agda`: The output is displayed in Agda's syntax. 
+    - `agd-pred-style`: The output is displayed in Agda's syntax. The theories presentations are in predicate style, as in its Agda's standard library.
+  - `-f` to determine the destiantion folder. This folder is used with the `agda` and `agda-pred-style` in which every theory with its related constructions are a module. In the case of `tog`, all theories are part of the same module, because tog lacks proper import. The default destination folder is `./output-generated`. 
   
+## Input Syntax
+
+## The Interpreter 
+
+## Generated Constructions 
 
 ## References
 [1]
