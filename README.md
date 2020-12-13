@@ -39,6 +39,7 @@ To generate a library from the expressions above, we extend [tog](https://github
 
 ## References
 [1] Carette, J., O'Connor, R. and Sharoda, Y., 2019. Building on the Diamonds between Theories: Theory Presentation Combinators. arXiv preprint arXiv:1812.08079.
+
 [2] Carette, J., Farmer, W.M. and Sharoda, Y., 2020, July. Leveraging the information contained in theory presentations. In International Conference on Intelligent Computer Mathematics (pp. 55-70). Springer, Cham.
 
 
