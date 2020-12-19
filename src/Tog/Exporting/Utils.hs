@@ -14,7 +14,8 @@ import qualified Tog.Exporting.Lean.Preprocess as LP
 import qualified Tog.Exporting.Agda.Preprocess as AP 
 
 preprocessDecls :: Config -> [Decl] -> [Decl]
-preprocessDecls conf decls = if target conf == Lean then LP.preprocessDecls decls else AP.preprocessDecls decls
+preprocessDecls conf decls =
+  if target conf == Lean then LP.preprocessDecls decls else AP.preprocessDecls decls
 
 callFunc :: Config -> Expr -> Expr
 callFunc conf e =
@@ -43,11 +44,18 @@ openTheory _ m = m
 
 mkImports :: Config -> [String] -> [Decl]
 mkImports conf imprts =
-  let getNames prefix = drop (length prefix) $ filter (isPrefixOf prefix) imprts
+  let getNames prefix =
+        if prefix == "" then [] else removePrefix conf $ filter (isPrefixOf prefix) imprts
       createImport x = ImportNoArgs $ mkQName x
-  in map (\x -> Import $ createImport x) (getNames $ import_ conf)
+  in map (\x -> Import $ createImport x) ((getNames $ import_ conf) \\ (getNames $ openimport conf))
      ++ map (\x -> OpenImport $ createImport x) (getNames $ openimport conf)
      ++ map (\x -> Open $ mkQName x) ((getNames $ open_ conf) \\ (getNames $ openimport conf))
+
+removePrefix :: Config -> [String] -> [String] 
+removePrefix conf lst =
+  let cond x = x /= (open_ conf) && x /= (import_ conf) && x /= (openimport conf)
+  in concat $ map (filter cond . words) lst 
+
 
 splitDecls :: [Decl] -> ([Decl], [Decl])
 splitDecls ds = ([d | d <- ds, not (isModule d)],
