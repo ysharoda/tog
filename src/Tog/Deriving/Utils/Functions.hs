@@ -91,8 +91,8 @@ liftType' tconstr types =
   Arg $ App $ mkArg tconstr : types
 
 liftExprType :: Expr -> Arg -> Arg
-liftExprType expr typ =
-  Arg $ App $ (Arg expr) : [typ] 
+liftExprType (App args) typ = Arg $ App (args ++ [typ])
+liftExprType expr typ = Arg $ App $ (Arg expr) : [typ] 
 
 -- 
 liftConstr :: Name_ -> Constr -> Constr

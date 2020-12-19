@@ -46,7 +46,7 @@ data DebugLabels
   = DLAll
   | DLSome [String]
 
-data Mode = Tog | Agda | AgdaPredStyle   
+data Mode = Tog | Agda | AgdaPredStyle | Lean deriving Eq 
 
 confDebug :: Conf -> Bool
 confDebug conf = case confDebugLabels conf of

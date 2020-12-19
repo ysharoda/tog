@@ -16,7 +16,7 @@ import           Tog.Term
 import           Tog.CheckFile
 import           Tog.Parse
 import           Tog.ScopeCheck
-import           Tog.Exporting.Main 
+import qualified Tog.Exporting.Main as Export 
 
 import System.TimeIt 
 
@@ -90,7 +90,7 @@ parseTypeCheckConf = Conf
       )
   <*> outputModeOption
       (long "outputMode" <> short 'o' <> value Tog <> 
-       help "enter one of: tog, agda, agda-pred-style")
+       help "enter one of: tog, lean, agda, agda-pred-style")
   <*> strOption
       ( long "destFolder" <> short 'f' <> value "./output-generated" <>
         help "enter the destination folder"
@@ -113,6 +113,7 @@ outputModeOption = option $ do
     "tog" -> return Tog
     "agda" -> return Agda
     "agda-pred-style" -> return AgdaPredStyle
+    "lean" -> return Lean 
     _ -> return Tog 
     
 
@@ -134,7 +135,7 @@ parseMain =
                   exitFailure
           _ -> do 
             dir <- destFolder <$> readConf 
-            export dir omode file  
+            Export.main dir omode file  
 
 {- The processing of the file goes as follows: 
      s <- readFile file

@@ -54,6 +54,13 @@ library
                      , Tog.Exporting.Agda
                      , Tog.Exporting.AgdaPredStyle
                      , Tog.Exporting.Main
+                     , Tog.Exporting.Agda.Preprocess
+                     , Tog.Exporting.Config
+                     , Tog.Exporting.Export
+                     , Tog.Exporting.FormatOutput
+                     , Tog.Exporting.Lean.Preprocess
+                     , Tog.Exporting.Prelude
+                     , Tog.Exporting.Utils
                      
   other-modules:       Data.Collect
                      , Tog.Instrumentation.Conf
@@ -111,6 +118,7 @@ library
                      , timeit >= 2.0
                      , clock>=0.8
                      , formatting>=7.1.1
+                     , deepseq>=1.4.4.0
 
   hs-source-dirs:      src, bnfc
   include-dirs:        src

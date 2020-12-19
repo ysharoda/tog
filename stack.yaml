@@ -79,6 +79,7 @@ extra-deps:
 - integer-logarithms-1.0.3.1
 - clock-0.8
 - formatting-7.1.1
+- deepseq-1.4.4.0
 
 
 # Override default flag values for local packages and extra-deps
