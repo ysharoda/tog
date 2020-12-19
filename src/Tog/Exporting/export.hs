@@ -86,8 +86,11 @@ instance Export RecordBody where
     recordHeader conf (Just flds) <+> recordConstructor conf constructor <+> recordFields conf flds
 
 recordHeader :: Config ->  Maybe Fields -> Doc
-recordHeader conf flds = universe <+> text (s4 conf) <+> linebreak 
-  where universe = maybe (text (level0 conf)) (universeLevel conf) flds
+recordHeader conf flds =
+  universe <+> text (s4 conf isEmpty) <+> linebreak 
+  where
+    isEmpty = flds == Nothing || flds == Just NoFields || flds == Just (Fields [])
+    universe = maybe (text (level0 conf)) (universeLevel conf) flds
   
 -- nm is the constructor name
 recordConstructor ::  Config -> Name -> Doc
@@ -103,13 +106,13 @@ recordFields conf (Fields cs) =
          vsep $ map (printEnclose (s9 conf) (s10 conf) . export conf) cs) <+> linebreak    
 
 instance Export DataBody where
-  export conf (DataDecl nm) = dataHeader conf nm
+  export conf (DataDecl nm) = dataHeader conf nm True 
   export conf (DataDef cs) = dataConstructors conf cs 
   export conf (DataDeclDef nm cs) =
-    dataHeader conf nm <+> (indent 2 $ dataConstructors conf cs)
+    dataHeader conf nm (cs == []) <+> (indent 2 $ dataConstructors conf cs)
 
-dataHeader ∷  Config -> Name -> Doc
-dataHeader conf nm = export conf nm <+> text (d4 conf) <+> linebreak
+dataHeader ∷  Config -> Name -> Bool -> Doc
+dataHeader conf nm isEmptyType = export conf nm <+> text (d4 conf isEmptyType) <+> linebreak
 
 dataConstructors ::  Config -> [Constr] -> Doc
 dataConstructors conf cs =
@@ -159,8 +162,7 @@ instance Export Decl where
   export conf (Import imp) = text (import_ conf) <+> export conf imp
   export conf (OpenImport imp) = text (openimport conf) <+> export conf imp
   export conf (Module_ m) =
-    linebreak <+>
-    (export conf $ if open_theory conf then openTheory conf m else m)  <+> linebreak -- to open the first declaration, which represents the equational theory.
+    linebreak <+> export conf m  <+> linebreak -- to open the first declaration, which represents the equational theory.
   export _ _ = empty
 
 instance Export DeclOrLE where
@@ -171,10 +173,10 @@ instance Export Module where
   export conf (Module nm params (Decl_ decls)) =
     export conf (Decl_ imprts) <$$>
     text (m1 conf) <+> export conf nm <+> text (m2 conf) <+> 
-    export conf params <+> text (m3 conf) PP.<$>
+    export conf params <+> text (m3 conf (decls == [])) PP.<$>
     (indent 2 $ export conf $ Decl_ defs) PP.<$>
     text (m4 conf) <+> (if module_end_has_name conf then export conf nm else empty)
-    where imprts = if import_before_module conf then filter isImport decls else [] 
+    where imprts = if import_before_module conf then takeWhile isImport decls else [] 
           defs   = if import_before_module conf then decls \\ imprts else decls 
           isImport (Import _) = True
           isImport (Open _) = True

@@ -61,6 +61,7 @@ library
                      , Tog.Exporting.Lean.Preprocess
                      , Tog.Exporting.Prelude
                      , Tog.Exporting.Utils
+                     , Tog.Exporting.LeanPrelude
                      
   other-modules:       Data.Collect
                      , Tog.Instrumentation.Conf

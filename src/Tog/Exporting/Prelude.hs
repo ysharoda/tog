@@ -4,17 +4,21 @@ import Tog.Raw.Abs
 import Tog.Deriving.TUtils (mkName, getName) 
 import Tog.Deriving.Lenses (name)
 import Tog.Exporting.Config
-import Tog.Exporting.Utils (mkImports) 
+import Tog.Exporting.Utils (mkImports)
+import Tog.Exporting.LeanPrelude
 
 import Control.Lens ((^.))
 import Text.PrettyPrint.Leijen (Doc, hPutDoc)
 import System.Directory
 import System.IO (openFile, IOMode(WriteMode), hClose)
 
-writePrelude :: Either FilePath Doc -> FilePath -> IO ()
-writePrelude (Left prld) dst = copyFile prld $ dst ++ "/" ++ "Prelude.agda" 
-writePrelude (Right doc) dst = do
-  handle <- openFile (dst ++ "/" ++ "Prelude.agda") WriteMode
+writePrelude :: Config -> Either FilePath Doc -> FilePath -> IO ()
+writePrelude conf (Left prld) dst =
+  let ext = file_extension conf
+  in if ext == "lean" then writePrelude conf (Right leanPrelude) dst 
+     else copyFile prld $ dst ++ "/" ++ "Prelude." ++ ext 
+writePrelude conf (Right doc) dst = do
+  handle <- openFile (dst ++ "/" ++ "Prelude."++ file_extension conf) WriteMode
   hPutDoc handle $ doc
   hClose handle
 

@@ -38,37 +38,3 @@ exportHelper dir mode modules@(Module n p _) gtheories =
 config :: Mode -> Config
 config Lean = leanConfig
 config _ = agdaConfig 
-{-
--- -------------------- Prelude File --------------------
--- prints Prelude to a file 
-mkPrelude :: PrintAgda a => [Char] -> [a] -> IO ()        
-mkPrelude dir ds = do
-  handle <- openFile (dir ++ "/" ++ "Prelude.agda") AppendMode
-  hPutDoc handle $ text "module Prelude where\n" <> (vsep imports) <> linebreak
-  hPutDoc handle $ vsep $ map printAgda ds
-  hClose handle
-
--- creates the Prelude module
-preludeModule :: [Decl] -> Decl 
-preludeModule prelude =
-  let importDecls i = OpenImport (ImportNoArgs (mkQName i))
-  in Module_ (Module (mkName "Prelude") NoParams
-                 (Decl_ $ (map importDecls importNames) ++ prelude))     
-
--- ----------- Writing the modules to files --------------
-
--- AgdaFlatTheories.agdaModuleWithImports :: [String] -> Decl -> Decl
--- AgdaPredStyle.agdaModuleWithImports :: [String] -> Name_ -> GTheory -> Decl 
-
-flatModules :: Foldable t => [Char] -> t Decl -> IO ()
-flatModules dir modules =
-  mapM_ (files dir) modules
-
-predModules :: FilePath -> Map.Map Name_ GTheory -> IO ()
-predModules dir thrs =
-  mapM_ (files dir) $ PStyle.makeInnerModules thrs  
-
-
--- ------------------- Utils ------------------------------------
-
--}

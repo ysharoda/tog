@@ -1,11 +1,40 @@
 {-# OPTIONS_GHC -fno-warn-missing-signatures #-}
 
+{-
+% configuration of a class:
+c1 nm c2 params c3 type c4
+  c5 constructor c6
+  c7 fields c8
+    c9 constr c10
+
+% configuration of a structure: 
+s1 nm s2 params s3 type s4
+  s5 constructor s6
+  s7 fields s8
+    s9 constr s10
+
+% configuration of a datatype:
+d1 nm d2 params d3 type d4 
+  d5 constr d6
+
+% configuration of a function def:
+f1 nm f2 binds f3 type f4
+  f5 pattern f6 func_call f7
+
+%configuration of a module
+m1 nm m2 params m3 
+
+m3 
+-}
+
+
 module Tog.Exporting.Config where
 
 import Tog.Instrumentation.Conf (Mode(..)) 
 
 data Config = Config {
   target :: Mode,
+  file_extension::String,
   equality :: String, 
   theory   :: String,
   open_theory :: Bool, 
@@ -29,7 +58,7 @@ data Config = Config {
   c1 :: String,
   c2 :: String,
   c3 :: String, 
-  c4 :: String, 
+  c4 :: Bool -> String, 
   c5 :: String, 
   c6 :: String, 
   c7 :: String, 
@@ -39,7 +68,7 @@ data Config = Config {
   s1 :: String, 
   s2 :: String, 
   s3 :: String,
-  s4 :: String, 
+  s4 :: Bool -> String, 
   s5 :: String, 
   s6 :: String, 
   s7 :: String, 
@@ -49,7 +78,7 @@ data Config = Config {
   d1 :: String, 
   d2 :: String, 
   d3 :: String, 
-  d4 :: String, 
+  d4 :: Bool -> String, 
   d5 :: String, 
   d6 :: String, 
   f1 :: String, 
@@ -65,7 +94,7 @@ data Config = Config {
   import_before_module::Bool,
   m1 :: String, 
   m2 :: String, 
-  m3 :: String, 
+  m3 :: Bool -> String, 
   m4 :: String, 
   module_end_has_name :: Bool,
   prelude_includes :: Either FilePath ([String],[String]),
@@ -75,6 +104,7 @@ data Config = Config {
 agdaConfig :: Config
 agdaConfig = Config {
   target = Agda,
+  file_extension="agda",
   equality="≡",
   theory="record", 
   open_theory=True,
@@ -98,7 +128,7 @@ agdaConfig = Config {
   c1="record",
   c2="",
   c3=":",
-  c4="where",
+  c4= (\_ -> "where"),
   c5="",
   c6="",
   c7="",
@@ -108,7 +138,7 @@ agdaConfig = Config {
   s1="record",
   s2="",
   s3=":",
-  s4="where",
+  s4= (\_ -> "where"),
   s5="",
   s6="",
   s7="",
@@ -118,7 +148,7 @@ agdaConfig = Config {
   d1="data",
   d2="",
   d3=":",
-  d4="where",
+  d4= (\_ -> "where"),
   d5="",
   d6="",
   f1="",
@@ -134,7 +164,7 @@ agdaConfig = Config {
   import_before_module=False,
   m1="module",
   m2="",
-  m3="where",
+  m3=(\_ -> "where"),
   m4="",
   module_end_has_name=False,
   -- To create Prelude, one can:
@@ -158,6 +188,7 @@ agdaConfig = Config {
 
 leanConfig = Config {
   target = Lean,
+  file_extension="lean",
   equality="=",
   theory="class", 
   open_theory=True,
@@ -181,7 +212,7 @@ leanConfig = Config {
   c1="class",
   c2="",
   c3=":",
-  c4=":=",
+  c4= (\empty -> if empty then "" else ":="),
   c5="",
   c6="",
   c7="",
@@ -191,7 +222,7 @@ leanConfig = Config {
   s1="structure",
   s2="",
   s3=":",
-  s4=":=",
+  s4= (\empty -> if empty then "" else ":="),
   s5="",
   s6="",
   s7="",
@@ -201,13 +232,13 @@ leanConfig = Config {
   d1="inductive",
   d2="",
   d3=":",
-  d4="",
+  d4= (\_ -> ""),
   d5="|",
   d6="",
   f1="def",
   f2="",
   f3=":",
-  f4="",
+  f4= "",
   f5="|",
   f6=":=",
   f7="",
@@ -217,7 +248,7 @@ leanConfig = Config {
   import_before_module=True,
   m1="section",
   m2="",
-  m3="",
+  m3= (\_ -> ""),
   m4="end",
   module_end_has_name=True,
   -- the list of definitions from tog prelude to be exported
@@ -230,7 +261,7 @@ leanConfig = Config {
       "open Staged",
       "open nat",
       "open fin", 
-      "open vector (nth)"]
+      "open vector"]
 }
   
   
