@@ -8,6 +8,7 @@ import Tog.Deriving.Utils.Bindings (getBindingArgs, getBindingExpr)
 import Tog.Deriving.TUtils (getArgExpr)
 
 import Control.Lens ((^.))
+import Data.List ((\\)) 
 import Text.PrettyPrint.Leijen as PP
 
 import Tog.Exporting.Config
@@ -135,7 +136,7 @@ instance Export FunDefBody where
   export conf (FunDefBody e wher) = export conf e PP.<+> export conf wher
 
 instance Export Pattern where
-  export _ (EmptyP _) = empty
+  export _    (EmptyP _) = empty
   export conf (ConP qnm ptrns) = parens $ export conf qnm <+> (hsep $ map (export conf) ptrns)
   export conf (IdP qnm) = export conf qnm
   export conf (HideP ptrn) = braces $ export conf ptrn
@@ -162,20 +163,29 @@ instance Export Decl where
     (export conf $ if open_theory conf then openTheory conf m else m)  <+> linebreak -- to open the first declaration, which represents the equational theory.
   export _ _ = empty
 
-
-
 instance Export DeclOrLE where
   export conf (Decl_ decls) = vsep $ map (export conf) $ preprocessDecls conf decls
   export _ (Lang_ _) = error "theory expressions not accepted by Agda"
 
 instance Export Module where
-  export conf (Module nm params decls) =
+  export conf (Module nm params (Decl_ decls)) =
+    export conf (Decl_ imprts) <$$>
     text (m1 conf) <+> export conf nm <+> text (m2 conf) <+> 
     export conf params <+> text (m3 conf) PP.<$>
-    (indent 2 $ export conf decls) PP.<$>
+    (indent 2 $ export conf $ Decl_ defs) PP.<$>
     text (m4 conf) <+> (if module_end_has_name conf then export conf nm else empty)
-      
-
+    where imprts = if import_before_module conf then filter isImport decls else [] 
+          defs   = if import_before_module conf then decls \\ imprts else decls 
+          isImport (Import _) = True
+          isImport (Open _) = True
+          isImport (OpenImport _) = True
+          isImport _ = False
+  export _ _ = error "theory expressions not accepted by Agda"
+{-
+imprts =
+            if import_before_module conf then (Decl_ $ filter isImport decls, Decl_ $ decls \\ imprts)
+            else (Decl_ [], d)
+-} 
   
 {- ---------- testing ---------- -}
 {-
