@@ -7,6 +7,7 @@ import Tog.Deriving.EqTheory
 import Tog.Deriving.Types (gmap)
 
 import Control.Lens ((^.),over)
+import qualified Data.Generics as Generics
 
 -- renames sn to newName and adds suffix "L" to all other names. 
 ren :: String -> (String,String) -> Name -> Name
@@ -26,7 +27,7 @@ foldren eq [] = eq
 foldren eq ((old,new):rens) =
   foldren (gmap (\x -> if x == old then new else x) eq) rens 
 
-foldrenConstrs ::  [(String,String)] -> Constr -> Constr
+foldrenConstrs :: (Generics.Typeable a, Generics.Data a) => [(String,String)] -> a -> a
 foldrenConstrs [] c = c
 foldrenConstrs ((old,new):rens) c =
   foldrenConstrs rens (gmap (\x -> if x == old then new else x) c)

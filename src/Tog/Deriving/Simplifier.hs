@@ -130,5 +130,5 @@ oneSimpFunc thry tl =
 
 simplifyFuncs :: EqTheory -> [TermLang] -> [Decl] 
 simplifyFuncs thry tlangs =
-  concatMap (oneSimpFunc thry) tlangs
+  concatMap (oneSimpFunc thry) (filter (\t -> getTermType t /= Basic) tlangs)
   

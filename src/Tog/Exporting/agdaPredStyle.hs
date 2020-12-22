@@ -8,12 +8,15 @@ import Tog.Deriving.TypeConversions (getEqTheories, theoryToRecord)
 import Tog.Deriving.Utils (isSort, isFunc, isAxiom)
 import Tog.Deriving.TUtils (mkName, mkArg)  
 import Tog.Deriving.GenEverything (leverageThry)
+import Tog.Deriving.TogPrelude (prelude)
+import Tog.Deriving.TUtils (strToDecl) 
 import Control.Lens ((^.))
 import qualified Data.Map as Map
 
 makeInnerModules :: Map.Map Name_ GTheory -> [Decl]
 makeInnerModules theories =
-  Map.elems $ Map.mapWithKey agdaPredModule theories
+  (map strToDecl prelude) ++ 
+  (Map.elems $ Map.mapWithKey agdaPredModule theories)
 
 agdaPredModule :: Name_ -> GTheory -> Decl 
 agdaPredModule thryName thry =
