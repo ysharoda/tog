@@ -107,9 +107,9 @@ recordFields conf (Fields cs) =
 
 instance Export DataBody where
   export conf (DataDecl nm) = dataHeader conf nm True 
-  export conf (DataDef cs) = dataConstructors conf cs 
+  export conf (DataDef cs) = dataConstructors conf cs
   export conf (DataDeclDef nm cs) =
-    dataHeader conf nm (cs == []) <+> (indent 2 $ dataConstructors conf cs)
+    dataHeader conf nm (cs == []) <+> (indent 2 $ dataConstructors conf cs) 
 
 dataHeader ∷  Config -> Name -> Bool -> Doc
 dataHeader conf nm isEmptyType = export conf nm <+> text (d4 conf isEmptyType) <+> linebreak
@@ -155,7 +155,7 @@ instance Export Decl where
     funcHeader (f5 conf) nm <+> (hsep $ map (export conf) ps) <+> text (f6 conf) <+> export conf body <+> text (f7 conf)
     where funcHeader flag fname = if flag =="fname" then export conf fname else text flag    
   export conf (Data nm ps body) =
-    text (d1 conf) <+> export conf nm <+> text (d2 conf) <+> export conf ps <+> text (d3 conf) <+> export conf body <+> openDatatype conf nm
+    text (d1 conf) <+> export conf nm <+> text (d2 conf) <+> export conf ps <+> text (d3 conf) <+> export conf body <+> openDatatype conf nm 
   export conf (Record nm ps body) =
     text (s1 conf) <+> export conf nm <+> text (s2 conf) <+> export conf ps <+> text (s3 conf) <+> export conf body 
   export conf (Open imp) = text (open_ conf) <+> export conf imp
@@ -166,7 +166,7 @@ instance Export Decl where
   export _ _ = empty
 
 instance Export DeclOrLE where
-  export conf (Decl_ decls) = vsep $ map (export conf) $ preprocessDecls conf decls
+  export conf (Decl_ decls) = vsep $ map (export conf) $ constructorsAsFunctions conf $ preprocessDecls conf decls
   export _ (Lang_ _) = error "theory expressions not accepted by Agda"
 
 instance Export Module where

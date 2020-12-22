@@ -65,7 +65,13 @@ replace nm =
   else replaceNumber $ replaceSymbol $ replaceDash nm
   where
     checkNumber x = if x == '0' then "zero" else if x == '1' then "one" else [x]
-    checkSymbol x = if x == '+' then "plus" else if x == '*' then "times" else [x]
+    checkSymbol x =
+      if x == '+' then "plus"
+      else if x == '*' then "times"
+      else if x == '>' then "linv"
+      else if x == '<' then "rinv"
+      else if x == '|' then ""
+      else [x]
     replaceDash str = map (\x -> if x == '-' then '_' else x) str
     replaceNumber str =
      let helper x = if (length x == 1) then checkNumber (head x) else x 

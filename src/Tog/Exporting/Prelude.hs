@@ -1,13 +1,11 @@
 module Tog.Exporting.Prelude where 
 
 import Tog.Raw.Abs
-import Tog.Deriving.TUtils (mkName, getName) 
-import Tog.Deriving.Lenses (name)
+import Tog.Deriving.TUtils (mkName) 
 import Tog.Exporting.Config
-import Tog.Exporting.Utils (mkImports)
+import Tog.Exporting.Utils (mkImports, declName)
 import Tog.Exporting.LeanPrelude
 
-import Control.Lens ((^.))
 import Text.PrettyPrint.Leijen (Doc, hPutDoc)
 import System.Directory
 import System.IO (openFile, IOMode(WriteMode), hClose)
@@ -32,17 +30,4 @@ prelude conf decls =
                  Decl_ $ mkImports conf imprts ++ isIncluded toExport decls 
         
 isIncluded :: [String] -> [Decl] -> [Decl]
-isIncluded toExport decls =
-  let declName d = case d of
-        TypeSig (Sig n _) -> n^.name 
-        FunDef n _ _ -> n^.name
-        Data n _ _ -> n^.name
-        Record n _ _ -> n^.name
-        Open qn -> getName qn
-        OpenImport (ImportNoArgs qn) -> getName qn
-        OpenImport (ImportArgs qn _) -> getName qn
-        Import  (ImportNoArgs qn) -> getName qn
-        Import (ImportArgs qn _)  -> getName qn
-        Postulate _ -> ""
-        Module_ (Module n _ _ ) -> n^.name 
-  in filter (\x -> elem (declName x) toExport) decls  
+isIncluded toExport decls = filter (\x -> elem (declName x) toExport) decls  
