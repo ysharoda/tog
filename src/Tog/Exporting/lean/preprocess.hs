@@ -9,6 +9,8 @@ import Tog.Deriving.Types (gmap)
 import Tog.Exporting.Config
 
 import Control.Lens ((^.))
+import Data.List (intersperse)
+import Data.List.Split (splitOn) 
 
 -- drops the bindings from the pattern matching list and the function call list 
 explicitArgsNum :: [Binding] -> Int
@@ -60,8 +62,19 @@ replace nm =
   else if (nm == "Nat") then "ℕ"
   else if (nm == "Vec") then "vector"
   else if (nm == "Fin") then "fin"
-  else if (elem '-' nm) then map (\x -> if x =='-' then '_' else x) nm 
-  else nm
+  else replaceNumber $ replaceSymbol $ replaceDash nm
+  where
+    checkNumber x = if x == '0' then "zero" else if x == '1' then "one" else [x]
+    checkSymbol x = if x == '+' then "plus" else if x == '*' then "times" else [x]
+    replaceDash str = map (\x -> if x == '-' then '_' else x) str
+    replaceNumber str =
+     let helper x = if (length x == 1) then checkNumber (head x) else x 
+     in if (str == []) then [] 
+        else replaceFirst $  
+             concat $ (intersperse "_") $ map helper $ splitOn "_" str
+    replaceFirst [] = [] 
+    replaceFirst (x:xs) = (checkNumber x) ++ xs
+    replaceSymbol str = concat $ map checkSymbol str 
 
 callFunc :: Expr -> Expr
 callFunc a@(App [nm,_,a2,a3]) =

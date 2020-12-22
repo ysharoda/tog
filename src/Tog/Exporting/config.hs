@@ -24,7 +24,7 @@ f1 nm f2 binds f3 type f4
 %configuration of a module
 m1 nm m2 params m3 
 
-m3 
+m4
 -}
 
 

@@ -162,7 +162,7 @@ instance Export Decl where
   export conf (Import imp) = text (import_ conf) <+> export conf imp
   export conf (OpenImport imp) = text (openimport conf) <+> export conf imp
   export conf (Module_ m) =
-    linebreak <+> export conf m  <+> linebreak -- to open the first declaration, which represents the equational theory.
+    linebreak <+> export conf m  <+> linebreak
   export _ _ = empty
 
 instance Export DeclOrLE where
@@ -170,37 +170,34 @@ instance Export DeclOrLE where
   export _ (Lang_ _) = error "theory expressions not accepted by Agda"
 
 instance Export Module where
-  export conf (Module nm params (Decl_ decls)) =
-    export conf (Decl_ imprts) <$$>
+  export conf (Module nm params decls) =
+    export conf imprts <$$>
     text (m1 conf) <+> export conf nm <+> text (m2 conf) <+> 
-    export conf params <+> text (m3 conf (decls == [])) PP.<$>
-    (indent 2 $ export conf $ Decl_ defs) PP.<$>
-    text (m4 conf) <+> (if module_end_has_name conf then export conf nm else empty)
-    where imprts = if import_before_module conf then takeWhile isImport decls else [] 
-          defs   = if import_before_module conf then decls \\ imprts else decls 
-          isImport (Import _) = True
-          isImport (Open _) = True
-          isImport (OpenImport _) = True
-          isImport _ = False
-  export _ _ = error "theory expressions not accepted by Agda"
-{-
-imprts =
-            if import_before_module conf then (Decl_ $ filter isImport decls, Decl_ $ decls \\ imprts)
-            else (Decl_ [], d)
--} 
-  
-{- ---------- testing ---------- -}
-{-
-export conf :: Module -> IO () 
-export conf file = do 
-  s <- readFile file
-  case parseModule s of
-    Right (Module _ _ (Lang_ defs)) -> 
-      putDoc $ export conf $ processDefs defs --  dirName mode (processDefs defs) (theories defs)
-    Left err -> putDoc err   
-    _ -> error "wrong file structure" 
--}
+    export conf params <+> text (m3 conf (isEmpty decls)) <$$>
+    (indent 2 $ export conf defs) <$$>
+    moduleEnd conf nm 
+    where (imprts,defs) = split conf decls
+          isEmpty (Decl_ []) = True
+          isEmpty _ = False 
+          
 -- Utils functions --
+moduleEnd :: Config -> Name -> Doc
+moduleEnd conf nm =
+  text (m4 conf) <+>
+  if module_end_has_name conf then export conf nm else empty
+
+-- splits a list of declarations into (imports, the rest of the definitions) 
+split :: Config -> DeclOrLE -> (DeclOrLE,DeclOrLE)
+split conf (Decl_ decls) =
+  let imprts = if import_before_module conf then takeWhile isImport decls else [] 
+      defs   = if import_before_module conf then decls \\ imprts else decls
+      isImport (Import _) = True
+      isImport (Open _) = True
+      isImport (OpenImport _) = True
+      isImport _ = False
+  in (Decl_ imprts,Decl_ defs)
+split _ _ = error "theory expressions not accepted by Agda"
+
 printEnclose :: String -> String -> (Doc -> Doc) 
 printEnclose prefix suffix =
   if prefix == "(" && suffix == ")" then parens 
