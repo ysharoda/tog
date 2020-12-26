@@ -51,9 +51,9 @@ mkImports conf imprts =
   let getNames prefix =
         if prefix == "" then [] else removePrefix conf $ filter (isPrefixOf prefix) imprts
       createImport x = ImportNoArgs $ mkQName x
-  in map (\x -> Import $ createImport x) ((getNames $ import_ conf) \\ (getNames $ openimport conf))
-     ++ map (\x -> OpenImport $ createImport x) (getNames $ openimport conf)
-     ++ map (\x -> Open $ mkQName x) ((getNames $ open_ conf) \\ (getNames $ openimport conf))
+  in (map (Import . createImport) $ (getNames $ import_ conf) \\ (getNames $ openimport conf))
+     ++ (map (OpenImport . createImport) $ getNames (openimport conf))
+     ++ (map (Open . mkQName) $ (getNames $ open_ conf) \\ (getNames $ openimport conf))
 
 removePrefix :: Config -> [String] -> [String] 
 removePrefix conf lst =

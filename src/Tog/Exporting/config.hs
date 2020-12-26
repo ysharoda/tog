@@ -27,10 +27,11 @@ m1 nm m2 params m3
 m4
 -}
 
-
 module Tog.Exporting.Config where
 
-import Tog.Instrumentation.Conf (Mode(..)) 
+import Tog.Instrumentation.Conf (Mode(..))
+
+type ImportDecl = String
 
 data Config = Config {
   target :: Mode,
@@ -98,7 +99,7 @@ data Config = Config {
   m3 :: Bool -> String, 
   m4 :: String, 
   module_end_has_name :: Bool,
-  prelude_includes :: Either FilePath ([String],[String]),
+  prelude_includes :: Either FilePath ([ImportDecl],[String]),
   imports :: [String] }
 
 
