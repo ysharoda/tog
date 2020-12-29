@@ -14,12 +14,15 @@ This projects aim to eliminate the boilerplate associated with building librarie
   tog [options] [file] 
 ```
 `tog --help` gives the full options. Of specific interest are the following options:
-  - `-o` to choose the output mode, which can be one of
+  - `-m` to choose the operatinf mode.
+    - `i` or `interpreter`: calls the interpreter on theory expressions. When calling the interpreter, a target language need to be choosen, see `-t` option
+    - `tc` ot `typecheck`: calls the type checker on an input tog file. 
+  - `-t` to choose the target language of the interpreter, which can be one of
     - `tog`: The output is printed in tog's syntax. This is the default output mode. 
     - `agda`: The output is printed in Agda's syntax. 
     - `agd-pred-style`: The output is printed in Agda's syntax. The theories presentations are in predicate style, as in its Agda's standard library.
     - `lean`: The output is printed in Lean's syntax.  
-  - `-f` to determine the destiantion folder. This folder is used with the `agda`, `agda-pred-style`, and `lean` in which every theory with its related constructions are a module. In the case of `tog`, all theories are part of the same module, because tog lacks proper import. The default destination folder is `./output-generated`. 
+  - `-f` to determine the destiantion folder. This folder is used with the `agda`, `agda-pred-style`, and `lean` in which every theory with its related constructions are a module. In the case of `tog`, all theories are part of the same module, because tog lacks proper import. The value passed to `-f` is the name of the file containing the moduels. The default destination folder is `./output-generated`. 
   
 ## Input Syntax
 The Syntax of the expressions is adapted from [1].
