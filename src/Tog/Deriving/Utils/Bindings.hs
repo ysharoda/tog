@@ -65,7 +65,7 @@ unionBindings b1 b2 =
       b = head nb2 
   in if elem b nb1 || elem (alterBind b) nb1
      then unionBindings b1 (tail b2)
-     else (unionBindings b1 (tail b2)) ++ [b]
+     else (unionBindings b1 (tail b2)) ++ [hiddenBind b]
 
 getBindingArgs :: Binding -> [Arg]
 getBindingArgs (Bind as _) = as

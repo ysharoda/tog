@@ -15,8 +15,8 @@ import Control.Lens ((^.))
 stagedFuncName :: Term -> String
 stagedFuncName Basic         = "stageB"
 stagedFuncName (Closed _)    = "stageCl"
-stagedFuncName (BasicOpen _)      = "stageOpB"
-stagedFuncName (Open _ _) = "stageOp" 
+stagedFuncName (BasicOpen _) = "stageOpB"
+stagedFuncName (Open _ _)    = "stageOp" 
 
 typeSig :: TermLang -> TypeSig 
 typeSig tl =
@@ -24,7 +24,7 @@ typeSig tl =
      stagedFuncTyp = Fun (texpr) (App [mkArg "Staged", Arg texpr])
  in Sig (mkName $ stagedFuncName $ getTermType tl) $
      if binds == [] then stagedFuncTyp
-     else Pi (Tel binds) stagedFuncTyp
+     else Pi (Tel $ map hiddenBind binds) stagedFuncTyp
 
 liftConstant :: Constr -> (Pattern,Expr) 
 liftConstant c = (mkPattern c, App [mkArg "Now",Arg $ fappExpr c])
@@ -43,7 +43,6 @@ opDeclToFunc :: TermLang -> Constr -> [Decl]
 opDeclToFunc tl c@(Constr n expr) =
  let cname = n ^. name
      newname = opDeclToFuncName cname
-     -- typName = getLangName tl 
      (_,binds,texpr) = tlangInstance tl  
  in (TypeSig $ Sig (mkName newname) $
      Pi (Tel (map hiddenBind binds)) $   
@@ -58,7 +57,7 @@ stage term (Constr n expr) =
         App $ [mkArg fname,
               mkArg (opDeclToFuncName $ n^.name),
               Arg $ App [mkArg liftF, mkArg (opDeclToFuncName $ n^.name)]] ++
-               map (liftExprType (App $ [mkArg $ stagedFuncName term] ++ underscoreArgs term)) (map mkArg $ genVars $ farity expr)
+               map (liftExprType (App $ [mkArg $ stagedFuncName term])) (map mkArg $ genVars $ farity expr)
   in case exprArity expr of
    0 -> App [mkArg "Now",mkArg $ n ^. name]
    1 -> stageH "stage1" "codeLift1"
@@ -69,8 +68,8 @@ liftFunc :: Term -> Constr -> (Pattern,Expr)
 liftFunc term c =
   (mkPattern c, stage term c)
 
-adjustPatterns :: TermLang -> Pattern -> [Pattern]
-adjustPatterns tl p = underscorePattern (getTermType tl) ++ [p]
+adjustPatterns :: Pattern -> [Pattern]
+adjustPatterns p = [p]
 
 -- collecting patterns and expressions for all declarations
 patternsExprs :: TermLang -> [(Pattern,Expr)]
@@ -90,27 +89,10 @@ oneStagedFunc tl =
   in  (concatMap (opDeclToFunc tl)functions) ++ 
       ((TypeSig $ typeSig tl) :
        map (\(p,e) -> FunDef (mkName $ stagedFuncName (getTermType tl))
-                             (adjustPatterns tl p)
+                             (adjustPatterns p)
                              (FunDefBody e  NoWhere)) pe)
 
 stagedFuncs :: [TermLang] -> [Decl]
 stagedFuncs langs =
   concatMap oneStagedFunc langs 
    
-{-
-liftAdditiveMonoidLang : AdditiveMonoidLang -> Staged AdditiveMonoidLang
-liftAdditiveMonoidLang x = Now x
-
-liftAdditiveMonoidLangCl : {A : Set} -> AdditiveMonoidLang A -> Staged (AdditiveMonoidLang A) 
-liftAdditiveMonoidLang _ x = Now x
-
-liftAdditiveMonoidOpenLang : (n : Nat) -> AdditiveMonoidOpenLang n -> Staged (AdditiveMonoidOpenLang n)
-liftAdditiveMonoidOpenLang _ (v fin) = const _ (code _ (v fin))
-liftAdditiveMonoidOpenLang _ (+OL x1 x2) =
-  stage2 _ _ _ (+OL' _) (codeLift2 _ _ _ (+OL' _))
-        (liftAdditiveMonoidOpenLang _ x1)
-        (liftAdditiveMonoidOpenLang _ x2)
-liftAdditiveMonoidOpenLang _ (0OL) = Now 0OL
-
--} 
-

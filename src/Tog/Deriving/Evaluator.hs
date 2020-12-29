@@ -76,31 +76,28 @@ vecApp carrierName natName = App [mkArg "Vec", mkArg carrierName, mkArg natName]
 adjustPattern :: Name_ -> Term -> Pattern -> [Pattern]
 adjustPattern tinstName term pat =
  let base = [IdP $ mkQName tinstName, pat]
-     extBase i = [IdP $ mkQName i, IdP $ mkQName tinstName, IdP $ mkQName envName, pat]
+     extBase = [IdP $ mkQName tinstName, IdP $ mkQName envName, pat]
  in case term of
     Basic -> base 
     (Closed _) -> base
-    (BasicOpen n) -> extBase n
-    (Open n _ ) -> extBase n
+    (BasicOpen _) -> extBase
+    (Open _ _ ) -> extBase
                 
 funcDef :: EqTheory -> Name_ -> Term -> Constr -> Expr  
 funcDef thry instName term constr = 
  let (_,cexpr) = applyProjConstr thry (instName,[],Id (mkQName "x")) constr Nothing 
      basicArgs = App [mkArg $ evalFuncName term, mkArg instName]
-     extArgs i = App [mkArg $ evalFuncName term, mkArg i, mkArg instName, mkArg envName]
+     extArgs = App [mkArg $ evalFuncName term, mkArg instName, mkArg envName]
   in case term of
        Basic -> functor' basicArgs cexpr 
        Closed _ -> functor' basicArgs cexpr 
-       BasicOpen n -> functor' (extArgs n) cexpr 
-       Open n _ -> functor' (extArgs n) cexpr 
-
+       BasicOpen _ -> functor' extArgs cexpr 
+       Open _ _ -> functor' extArgs cexpr 
+ 
 patternsExprs :: EqTheory -> TermLang -> Name_ -> [(Pattern,Expr)]
 patternsExprs thry (TermLang term _ _ constrs) thryInstName =
-{-  if not (null vs) then [(mkPattern $ head vs, lookup' "n" envName)] else []
-  ++ if not (null cs) then [(mkPattern $ head cs, constFunc)] else []
-  ++ zipWith ((,)) (map mkPattern typDecls) (map (funcDef thry thryInstName term) thryDecls)-}
   zipWith ((,)) (map mkPattern (vs ++ cs ++ typDecls)) $ 
-                [lookup' "n" envName | not (null vs)] 
+                [lookup' envName | not (null vs)] 
                 ++ [constFunc | not (null cs)] 
                 ++ map (funcDef thry thryInstName term) thryDecls 
   where vs = filter isVarDecl  constrs
@@ -108,9 +105,9 @@ patternsExprs thry (TermLang term _ _ constrs) thryInstName =
         thryDecls = (thry ^. funcTypes)
         typDecls  = filter (not . isConstOrVar) constrs
 
-lookup' :: Name_ -> Name_ -> Expr
-lookup' natVarName vName =
-  App [mkArg "lookup", mkArg natVarName, mkArg "x1", mkArg vName]
+lookup' :: Name_ -> Expr
+lookup' vName =
+  App [mkArg "lookup", mkArg "x1", mkArg vName]
 
 constFunc :: Expr
 constFunc = App [mkArg "x1"]
@@ -118,32 +115,12 @@ constFunc = App [mkArg "x1"]
 oneEvalFunc :: EqTheory -> TermLang -> [Decl]
 oneEvalFunc _ (TermLang _ _ _ []) = []
 oneEvalFunc eq tl =
-  (TypeSig $ typeSig eq tl) :
+  (TypeSig $ typeSig eq tl) : 
   map (\(p,e) -> FunDef (mkName $ evalFuncName term) (adjustPattern thryInstName term p) (mkFunDefBody e))
       (patternsExprs eq tl thryInstName)
   where thryInstName = twoCharName (eq ^. thyName) 0
         term = getTermType tl
 
-{-
-  zipWith (FunDef (mkName $ evalFuncNames) 
-
-  let    
- 
-  in 
-  [TypeSig $ typeSig eq termLang] ++ -- type 
-     [FunDef (mkName $ evalFuncName term) -- call for vars
-         (concatMap (cpattern instName term) vs)
-         (lookup' "n" envName) | not (null vs)] ++ 
-     [FunDef (mkName $ evalFuncName term) -- call for constants 
-         (concatMap (cpattern instName term) constants)
-         constFunc | not (null constants)] ++ 
-     zipWith (FunDef (mkName $ evalFuncName term)) -- call for every func symbol 
-             (map (cpattern instName term) tDecls)
-             (map (funcDef eq instName term) eqDecls)
--}
 evalFuncs :: EqTheory -> [TermLang] -> [Decl]
 evalFuncs eq = concatMap (oneEvalFunc eq)
 
---evalOpenTerm : {A : Set} -> (n : Nat) -> Monoid A -> OpenMonTerm n -> Vec A n -> A
---evalOpenTerm n mon (v fin) vars = lookup n fin vars
---evalOpenTerm n mon (op' x y) vars = (op mon) (evalOpenTerm n mon x vars) (evalOpenTerm n mon y vars)

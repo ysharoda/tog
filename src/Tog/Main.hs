@@ -16,7 +16,7 @@ import           Tog.Term
 import           Tog.CheckFile
 import           Tog.Parse
 import           Tog.ScopeCheck
-import qualified Tog.Exporting.Main as Export 
+import qualified Tog.Exporting.Main as Export
 
 import System.TimeIt 
 
@@ -89,12 +89,14 @@ parseTypeCheckConf = Conf
         help "Reduce term when eliminating a term"
       )
   <*> outputModeOption
-      (long "outputMode" <> short 'o' <> value Tog <> 
-       help "enter one of: tog, lean, agda, agda-pred-style")
+      (long "outputMode" <> short 'm' <> value Interpret <> 
+       help "enter tc/typcheck for type checking or i/interpret for interpreting the expression into a target language.")
+  <*> targetLanguageOption
+      (long "targetLanguage" <> short 'l' <> value Tog <>
+       help "choose a target language: tog, lean, agda, agda-pred-style")
   <*> strOption
       ( long "destFolder" <> short 'f' <> value "./output-generated" <>
-        help "enter the destination folder"
-      )
+        help "enter the path to the destination folder")
 
 debugLabelsOption
   :: Mod OptionFields DebugLabels
@@ -110,11 +112,22 @@ outputModeOption :: Mod OptionFields Mode
 outputModeOption = option $ do
   s <- readerAsk
   case s of
+    "i" -> return Interpret
+    "interpret" -> return Interpret
+    "tc" -> return TypeCheck
+    "typecheck" -> return TypeCheck 
+    _ -> return Interpret 
+  
+targetLanguageOption :: Mod OptionFields TargetLanguage
+  -> Parser TargetLanguage
+targetLanguageOption = option $ do
+  s <- readerAsk
+  case s of
     "tog" -> return Tog
     "agda" -> return Agda
     "agda-pred-style" -> return AgdaPredStyle
-    "lean" -> return Lean 
-    _ -> return Tog 
+    "lean" -> return Lean
+    _ -> return Tog
     
 
 parseMain :: Parser (IO ())
@@ -127,19 +140,20 @@ parseMain =
       instrument conf $ do
         omode <- outputMode <$> readConf
         case omode of
-          Tog ->
-              processFile file $ \_ mbErr -> do
+          TypeCheck ->
+            processFile file $ \_ mbErr -> do
                 forM_ mbErr $ \err -> do
                   silent <- confQuiet <$> readConf
                   unless silent $ putStrLn (PP.render err)
                   exitFailure
-          _ -> do 
+          Interpret -> do
+            target <- targetLang <$> readConf 
             dir <- destFolder <$> readConf 
-            Export.main dir omode file  
+            Export.main dir target file  
 
 {- The processing of the file goes as follows: 
      s <- readFile file
-     raw <- parseModule s
+     raw <- parseModule 
      mod <- scopeCheckModule raw
      case mod of
        Left err -> putStrLn $ show $ err 
@@ -153,11 +167,11 @@ processFile file ret =
   do
     mbErr <- runExceptT $ do
       s   <- lift $ readFile file
-      raw <- exceptShowErr "Parse" $ parseModule s 
+      raw <- exceptShowErr "Parse" $ parseModule s
       exceptShowErr "Scope" $ scopeCheckModule $ process raw
     case mbErr of
       Left err  -> ret (sigEmpty :: Signature Simple) (Just err)
-      Right int -> timeIt $
+      Right int -> -- timeIt $
                     checkFile int $ \sig mbErr' ->
                       ret sig (showError "Type" <$> mbErr')
   where

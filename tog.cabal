@@ -51,6 +51,7 @@ library
                      , Tog.Deriving.Induction
                      , Tog.Deriving.StagedTerms
                      , Tog.Deriving.GenEverything
+                     , Tog.Deriving.Print
                      , Tog.Exporting.Agda
                      , Tog.Exporting.AgdaPredStyle
                      , Tog.Exporting.Main
@@ -62,6 +63,7 @@ library
                      , Tog.Exporting.Prelude
                      , Tog.Exporting.Utils
                      , Tog.Exporting.LeanPrelude
+                      
                      
   other-modules:       Data.Collect
                      , Tog.Instrumentation.Conf

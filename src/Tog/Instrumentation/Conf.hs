@@ -8,7 +8,8 @@ module Tog.Instrumentation.Conf
   , defaultConf
   , writeConf
   , readConf
-  , Mode (..) 
+  , Mode (..)
+  , TargetLanguage(..)
   , setConf 
   ) where
 
@@ -39,6 +40,7 @@ data Conf = Conf
   , confTimeSections            :: Bool
   , confWhnfEliminate           :: Bool
   , outputMode                  :: Mode
+  , targetLang                  :: TargetLanguage
   , destFolder                  :: FilePath
   }
 
@@ -46,7 +48,11 @@ data DebugLabels
   = DLAll
   | DLSome [String]
 
-data Mode = Tog | Agda | AgdaPredStyle | Lean deriving Eq 
+-- TC is type checking mode
+-- all other are target export languages 
+data Mode = Interpret | TypeCheck deriving Eq 
+
+data TargetLanguage = Tog | Agda | AgdaPredStyle | Lean deriving Eq 
 
 confDebug :: Conf -> Bool
 confDebug conf = case confDebugLabels conf of
@@ -66,10 +72,10 @@ instance Monoid DebugLabels where
   mempty = DLSome []
 
 defaultConf :: Conf
-defaultConf = Conf "S" "Simple" mempty False False False False False False False False False False False False False False Tog "~/" 
+defaultConf = Conf "S" "Simple" mempty False False False False False False False False False False False False False False Interpret Tog "~/" 
 
 setConf :: Mode -> Conf
-setConf m = Conf "S" "Simple" mempty False False False False False False False False False False False False False False m "~/"
+setConf m = Conf "S" "Simple" mempty False False False False False False False False False False False False False False m Tog "~/"
 
 {-# NOINLINE confRef #-}
 confRef :: IORef (Maybe Conf)

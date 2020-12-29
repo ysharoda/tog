@@ -11,59 +11,6 @@ import Tog.Deriving.Types  (Name_)
 import Tog.Deriving.Lenses (name)
 import Control.Lens ((^.))
 import Data.Char (toLower) 
-{-
-induction : (P : MonTerm -> Set) -> P ee -> ((x y : MonTerm) -> P x -> P y -> P (opp x y)) -> ((x : MonTerm) -> P x)
-
-monoid_ind
-     : forall P : monoid -> Prop,
-       P e' ->
-       (forall m : monoid, P m -> forall m0 : monoid, P m0 -> P (op' m m0)) ->
-       forall m : monoid, P m
-monoidCl_ind
-     : forall (A : Set) (P : monoidCl A -> Prop),
-       (forall a : A, P (singleton' A a)) ->
-       P (eCl' A) ->
-       (forall m : monoidCl A,
-        P m -> forall m0 : monoidCl A, P m0 -> P (opCl' A m m0)) ->
-       forall m : monoidCl A, P m
-monoidOp_ind
-     : forall (n : nat) (P : monoidOp n -> Prop),
-       (forall t : Fin.t n, P (v' n t)) ->
-       P (eOp' n) ->
-       (forall m : monoidOp n,
-        P m -> forall m0 : monoidOp n, P m0 -> P (opOp' n m m0)) ->
-       forall m : monoidOp n, P m
-monoidOpExt_ind
-     : forall (n : nat) (A : Set) (P : monoidOpExt n A -> Prop),
-       (forall t : Fin.t n, P (vOpE' n A t)) ->
-       (forall a : A, P (singletonOpE' n A a)) ->
-       P (eOpE' n A) ->
-       (forall m : monoidOpExt n A,
-        P m -> forall m0 : monoidOpExt n A, P m0 -> P (opOpE' n A m m0)) ->
-       forall m : monoidOpExt n A, P m
--}
-
--- The type signature for the induction functions. 
-{-
-inductionOpE : {A : Set} {n : ℕ} → (P : MonTerm' n A → Set) →
-          ({fin : Fin n} → P (v fin)) →
-          ({x : A} → P (singleton x)) →
-          (P e) → 
-          ({x y : MonTerm' n A} → P x → P y → P (op x y)) → ((x : MonTerm' n A) → P x)
--} 
-typeSig :: TermLang -> TypeSig 
-typeSig tl =
- let
-  (_,binds,texpr) = tinstance (tlToDecl tl) Nothing
-  fdecls = filter (not . isConstOrVar) (getTermConstructors tl)
-  predApp = Pi (Tel [Bind [mkArg "x"] texpr]) (applyPred (App [mkArg "x"]))
- in Sig (mkName $ inducFuncNm $ getTermType tl) $ 
-    Pi (Tel $ binds ++ [Bind [mkArg predicateName] (Fun texpr setTypeExpr)]) $
-      case getTermType tl of
-        Basic -> curryExpr $ map typeFun fdecls ++ [predApp]
-        Closed _ -> curryExpr $ typeSingleton sing : map typeFun fdecls ++ [predApp]
-        BasicOpen _ -> curryExpr $ typeVar v1 : map typeFun fdecls ++ [predApp]
-        Open _ _ -> curryExpr $ typeVar v2 : typeSingleton sing2 : map typeFun fdecls ++ [predApp]
 
 predicateName :: String
 predicateName = "P"
@@ -71,8 +18,24 @@ predicateName = "P"
 inducFuncNm :: Term -> String
 inducFuncNm Basic         = "inductionB"
 inducFuncNm (Closed _)    = "inductionCl"
-inducFuncNm (BasicOpen _)      = "inductionOpB"
-inducFuncNm (Open _ _) = "inductionOp" 
+inducFuncNm (BasicOpen _) = "inductionOpB"
+inducFuncNm (Open _ _)    = "inductionOp" 
+
+-- ----------------------------------------------------------------------------- 
+-- the type signatures of the induction functions. 
+typeSig :: TermLang -> TypeSig 
+typeSig tl =
+ let
+  (_,binds,texpr) = tinstance (tlToDecl tl) Nothing
+  fdecls = filter (not . isConstOrVar) (getTermConstructors tl)
+  predApp = Pi (Tel [Bind [mkArg "x"] texpr]) (applyPred (App [mkArg "x"]))
+ in Sig (mkName $ inducFuncNm $ getTermType tl) $ 
+    Pi (Tel $ (map hiddenBind binds) ++ [HBind [mkArg predicateName] (Fun texpr setTypeExpr)]) $
+      case getTermType tl of
+        Basic -> curryExpr $ map typeFun fdecls ++ [predApp]
+        Closed _ -> curryExpr $ typeSingleton sing : map typeFun fdecls ++ [predApp]
+        BasicOpen _ -> curryExpr $ typeVar v1 : map typeFun fdecls ++ [predApp]
+        Open _ _ -> curryExpr $ typeVar v2 : typeSingleton sing2 : map typeFun fdecls ++ [predApp]
 
 
 -- ({fin : Fin n} → P (v fin))
@@ -112,6 +75,7 @@ typeFun constr =
  in if null binds then applyPred fexpr
     else Pi (Tel binds) $
          curryExpr $ concatMap applyPredToBindings binds ++ [applyPred fexpr]
+-- -------------------------------------------------------------------------- 
 
 predicateVar :: String
 predicateVar = map toLower predicateName
@@ -122,15 +86,22 @@ patternName n = map toLower (predicateName ++ n)
 -- the patterns (inputs) for one function declaration 
 patterns :: [Constr] -> [Pattern] 
 patterns cs =
-  IdP (mkQName predicateVar) : map (IdP . mkQName . patternName . getConstrName) cs
+  map (IdP . mkQName . patternName . getConstrName) cs
 
 -- the expression to be passed over in recursive calls 
 recExpr :: Term -> [Constr] -> Expr 
 recExpr term cs =
  App $
-   [mkArg $ inducFuncNm term] ++
-   underscoreArgs term ++
-   (map mkArg $ predicateVar : map (patternName . getConstrName) cs) 
+   (mkArg $ inducFuncNm term) :
+   ((map mkArg $ implicit_ term) ++ 
+     [mkArg $ "{"++predicateVar++"}"] ++ 
+     (map mkArg $ map (patternName . getConstrName) cs))
+
+implicit_ :: Term -> [String] 
+implicit_ Basic = []
+implicit_ (Closed _) = ["{_}"]
+implicit_ (BasicOpen _) = ["{_}"]
+implicit_ (Open _ _) = ["{_}","{_}"]
   
 -- tog does not allow hidden arguments within the a type expression. For example, we cannot have the binding for x1 and x2 in the following definitions to be hidden. This means that we cannot have x1 and x2 be hidden as follows 
 -- induction : ... -> ({x1 x2 : A} -> P x1 -> P x2 -> P (op x1 x2)) -> ..
@@ -143,12 +114,13 @@ adjustFuncCalls _ _ = error "not a function application"
 
 adjustPattern :: TermLang -> Pattern -> [Pattern] 
 adjustPattern (TermLang term _ _ tconstrs) p  =
-  underscorePattern term ++ patterns tconstrs ++ [p] 
-
+  (map (\x -> IdP $ mkQName x) $ implicit_ term) ++ [IdP (mkQName $ "{"++predicateVar++"}")] ++ 
+  patterns tconstrs ++ [p]
+ 
 patternsExprs :: TermLang -> [(Pattern,Expr)]
 patternsExprs (TermLang term _ _ tconstrs) =
   zipWith ((,)) (map mkPattern tconstrs)
-                 (zipWith constrFunc [1 .. (length tconstrs)] tconstrs)
+                 (zipWith constrFunc [0 .. (length tconstrs)] tconstrs)
   where ps = patterns tconstrs 
         constrFunc i c@(Constr _ e)=
          let newConstr = Constr (mkName $ getPatternName (ps !! i)) e 

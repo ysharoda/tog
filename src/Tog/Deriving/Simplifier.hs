@@ -6,7 +6,7 @@ import Tog.Deriving.TUtils (mkName, mkArg)
 import Tog.Deriving.EqTheory 
 import Tog.Deriving.Terms
 import Tog.Deriving.Utils.Renames (foldrenConstrs)
-import Tog.Deriving.Utils.Bindings (getBindingArgs)
+import Tog.Deriving.Utils.Bindings (getBindingArgs, hiddenBind)
 
 import Control.Lens ((^.))
 import Data.Generics (everything, mkQ)
@@ -60,7 +60,7 @@ typesig tl =
  where
   (_,binds,typApp) = tlangInstance tl
   typeExpr Basic = Fun typApp typApp
-  typeExpr _     = Pi (Tel binds) (Fun typApp typApp)
+  typeExpr _     = Pi (Tel $ map hiddenBind binds) (Fun typApp typApp)
   term = getTermType tl 
 
 
@@ -85,12 +85,12 @@ simplify (Constr _ e) =
 
 adjustFuncCalls :: Term -> Expr
 adjustFuncCalls Basic = App [mkArg $ simpFuncNm Basic]
-adjustFuncCalls (Closed x) = App $ (mkArg $ simpFuncNm (Closed x)):(mkArg "_"):[]
-adjustFuncCalls (BasicOpen x)   = App $ (mkArg $ simpFuncNm (BasicOpen x)):(mkArg "_"):[]
-adjustFuncCalls (Open x y) = App $ (mkArg $ simpFuncNm (Open x y)):(mkArg "_"):(mkArg "_"):[]
+adjustFuncCalls (Closed x) = App $ [mkArg $ simpFuncNm (Closed x)]
+adjustFuncCalls (BasicOpen x)   = App $ [mkArg $ simpFuncNm (BasicOpen x)]
+adjustFuncCalls (Open x y) = App $ [mkArg $ simpFuncNm (Open x y)]
 
-adjustPattern :: Term -> Pattern -> [Pattern]
-adjustPattern term x = (underscorePattern term) ++ [x]
+adjustPattern :: Pattern -> [Pattern]
+adjustPattern x = [x] 
 
 -- simplification rules
 -- the type of the term language is used to select the mapping to apply 
@@ -124,7 +124,7 @@ oneSimpFunc :: EqTheory -> TermLang -> [Decl]
 oneSimpFunc _ (TermLang _ _ _ []) = []
 oneSimpFunc thry tl =
   TypeSig (typesig tl) :  
-  map (\(p,e) -> FunDef (mkName $ simpFuncNm term) (adjustPattern term p) (mkFunDefBody e))
+  map (\(p,e) -> FunDef (mkName $ simpFuncNm term) (adjustPattern p) (mkFunDefBody e))
       (patternsExprs thry tl)
   where term = getTermType tl 
 

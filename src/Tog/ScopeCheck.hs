@@ -226,7 +226,7 @@ import           Tog.Abstract
 import qualified Tog.PrettyPrint          as PP
 import           Tog.PrettyPrint          (render, Pretty(..), (<+>), ($$), (//>))
 
-import Tog.Deriving.Main (processDefs, processModule) 
+import Tog.Deriving.Main (processDefs) 
 
 #include "impossible.h"
 
@@ -516,7 +516,7 @@ scopeCheckModule _ = Left $ PP.text "Theory declarations need to be flattened be
 
 process :: C.Module -> C.Module
 process (C.Module _ _ (C.Lang_ defs)) = processDefs defs
-process m  = processModule m 
+process m  =  m 
 
 -- Useful for debugging.
 {- -- -------- for testing ------- 

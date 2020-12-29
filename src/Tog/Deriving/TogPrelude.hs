@@ -94,11 +94,11 @@ sucInj =
 
 lookup' :: [String]
 lookup' =
-  "lookup : {A : Set} (n : Nat) (i : Fin n) (v : Vec A n) -> A " : 
-  "lookup {A} n (fzero {m} p) (nil q) = lemma p q A " : 
-  "lookup {A} n (fzero {m} p) (cons {l} q x xs)  = x "           : 
-  "lookup {A} n (fsuc {m} p i) (nil q) = lemma p q A " : 
-  "lookup {A} n (fsuc {m} p i) (cons {l} q x xs) = lookup m i (subst (Vec A) (sucInj (trans (sym q) p)) xs) "    : []
+  "lookup : {A : Set} {n : Nat} (i : Fin n) (v : Vec A n) -> A " : 
+  "lookup {A} {n} (fzero {m} p) (nil q) = lemma p q A " : 
+  "lookup {A} {n} (fzero {m} p) (cons {l} q x xs)  = x "           : 
+  "lookup {A} {n} (fsuc {m} p i) (nil q) = lemma p q A " : 
+  "lookup {A} {n} (fsuc {m} p i) (cons {l} q x xs) = lookup i (subst (Vec A) (sucInj (trans (sym q) p)) xs) "    : []
 
 -- Code Module  
 
