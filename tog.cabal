@@ -8,12 +8,12 @@ build-type:          Simple
 tested-with:         GHC == 8.6.5
 
 library
-  exposed-modules:     Tog.Abstract
+  exposed-modules:     Interpret.Main
+                     , Tog.Abstract
                      , Tog.CheckFile
                      , Tog.Elaborate
                      , Tog.Error
                      , Tog.Instrumentation
-                     , Tog.Main
                      , Tog.Monad
                      , Tog.Names
                      , Tog.Parse
@@ -23,46 +23,43 @@ library
                      , Tog.Term
                      , Tog.TypeCheck
                      , Tog.Unify
-                     -- new for 0.2.0
-                     , Tog.Deriving.Utils
-                     , Tog.Deriving.TGraph
-                     , Tog.Deriving.TGraphTest
-                     , Tog.Deriving.Hom
-                     , Tog.Deriving.Main
-                     , Tog.Deriving.EqTheory
-                     , Tog.Deriving.TUtils
-                     , Tog.Deriving.TypeConversions
-                     , Tog.Deriving.ProductTheory
-                     , Tog.Deriving.Signature 
-                     , Tog.Deriving.Types 
-                     , Tog.Deriving.Lenses 
-                     , Tog.Deriving.RelationalInterp
-                     , Tog.Deriving.Utils.Bindings
-                     , Tog.Deriving.Utils.Parameters
-                     , Tog.Deriving.Utils.Renames
-                     , Tog.Deriving.Evaluator
-                     , Tog.Deriving.TogPrelude
-                     , Tog.Deriving.Utils.Functions
-                     , Tog.Deriving.Simplifier
-                     , Tog.Deriving.Utils.Variables
-                     , Tog.Deriving.Utils.Types
-                     , Tog.Deriving.Tagless
-                     , Tog.Deriving.Terms
-                     , Tog.Deriving.Induction
-                     , Tog.Deriving.StagedTerms
-                     , Tog.Deriving.GenEverything
-                     , Tog.Deriving.Print
-                     , Tog.Exporting.Agda
-                     , Tog.Exporting.AgdaPredStyle
-                     , Tog.Exporting.Main
-                     , Tog.Exporting.Agda.Preprocess
-                     , Tog.Exporting.Config
-                     , Tog.Exporting.Export
-                     , Tog.Exporting.FormatOutput
-                     , Tog.Exporting.Lean.Preprocess
-                     , Tog.Exporting.Prelude
-                     , Tog.Exporting.Utils
-                     , Tog.Exporting.LeanPrelude
+                     , Tog.Print
+                     , Interpret.Utils.TypeConversions                     
+                     , Interpret.Utils.Utils
+                     , Interpret.Utils.TUtils                    
+                     , Interpret.Utils.Bindings
+                     , Interpret.Utils.Parameters
+                     , Interpret.Utils.Renames
+                     , Interpret.Utils.Types
+                     , Interpret.Utils.Functions
+                     , Interpret.Utils.Lenses
+                     , Interpret.Flattener.TGraph
+                     , Interpret.Flattener.Main
+                     , Interpret.Flattener.Types
+                     , Interpret.Deriving.Hom
+                     , Interpret.Deriving.Main
+                     , Interpret.Deriving.EqTheory
+                     , Interpret.Deriving.ProductTheory
+                     , Interpret.Deriving.Signature 
+                     , Interpret.Deriving.RelationalInterp
+                     , Interpret.Deriving.Evaluator
+                     , Interpret.Deriving.TogPrelude
+                     , Interpret.Deriving.Simplifier
+                     , Interpret.Deriving.Tagless
+                     , Interpret.Deriving.Terms
+                     , Interpret.Deriving.Induction
+                     , Interpret.Deriving.StagedTerms
+                     , Interpret.Deriving.GenEverything
+                     , Interpret.Exporting.AgdaPredStyle
+                     , Interpret.Exporting.Main
+                     , Interpret.Exporting.Agda.Preprocess
+                     , Interpret.Exporting.Config
+                     , Interpret.Exporting.Export
+                     , Interpret.Exporting.FormatOutput
+                     , Interpret.Exporting.Lean.Preprocess
+                     , Interpret.Exporting.Prelude
+                     , Interpret.Exporting.Utils
+                     , Interpret.Exporting.LeanPrelude
                       
                      
   other-modules:       Data.Collect
@@ -92,7 +89,6 @@ library
                      , Tog.Raw.Par
                      , Tog.Raw.Print
                      , Tog.DerivingInsts
-                  --   , Tog.TGraphState 
 
   build-depends:       array >= 0.4
                      , base >= 4.6

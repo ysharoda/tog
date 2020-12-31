@@ -1,4 +1,4 @@
-import qualified Tog.Main
+import qualified Interpret.Main
 
 main :: IO ()
-main = Tog.Main.main
+main = Interpret.Main.main

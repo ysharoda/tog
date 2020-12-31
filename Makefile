@@ -44,7 +44,7 @@ test: $(executable)
 	stack exec -- time ./test
 
 modules.pdf: $(bnfc_output) $(hs_sources)
-	graphmod -i src -i bnfc src/Tog/Main.hs | dot -T pdf -o modules.pdf
+	graphmod -i src -i bnfc src/Main.hs | dot -T pdf -o modules.pdf
 
 .PHONY: install-prof
 install-prof: $(bnfc_output) $(hs_sources)

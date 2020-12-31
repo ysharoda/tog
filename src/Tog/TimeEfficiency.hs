@@ -49,8 +49,8 @@ module Tog.TimeEfficiency where
 import Tog.Raw.Abs
 import Tog.Parse 
 import Tog.ScopeCheck
-import Tog.Deriving.Main 
-import Tog.Exporting.Agda
+import Interpret.Deriving.Main 
+import Interpret.Exporting.Agda
 
 import Formatting
 import Formatting.Clock
