@@ -22,20 +22,34 @@ AdditivePointedMagma = combine Pointed0Magma plus PointedPlusMagma zero over Poi
 Semigroup = extend Magma {associative_op : {x y z : A} -> op (op x y) z == op x (op y z) }
 AdditiveSemigroup = combine AdditiveMagma {} Semigroup plus over Magma
 
---PointedSemigroup = combine Semigroup {} PointedMagma {} over Magma
---AdditivePointedSemigroup = combine AdditivePointedMagma {} PointedSemigroup plus-zero over PointedMagma 
+PointedSemigroup = combine Semigroup {} PointedMagma {} over Magma
+APointedSG1 = combine PointedSemigroup plus-zero AdditiveSemigroup {} over Semigroup
+APointedSG2 = combine PointedSemigroup plus-zero AdditivePointedMagma {} over PointedMagma
+AdditivePointedSemigroup = combine APointedSG1 {} APointedSG2 {} over PointedSemigroup
 
 LeftUnital = extend PointedMagma { lunit_e : {x : A} -> op e x == x }
 RightUnital = extend PointedMagma { runit_e : {x : A} -> op x e == x }
-
 AdditiveLeftUnital = combine AdditivePointedMagma {} LeftUnital plus-zero over PointedMagma 
 AdditiveRightUnital = combine AdditivePointedMagma {} RightUnital plus-zero over PointedMagma 
 
 Unital = combine LeftUnital {} RightUnital {} over PointedMagma
-AdditiveUnital = combine AdditivePointedMagma {} Unital plus-zero over PointedMagma
-idUnital = id from AdditiveRightUnital to AdditiveUnital 
+AUnital1 = combine AdditiveLeftUnital {} Unital plus-zero over LeftUnital
+AUnital2 = combine AdditiveRightUnital {} Unital plus-zero over RightUnital 
+AdditiveUnital = combine AUnital1 {} AUnital2 {} over Unital 
+-- AdditiveUnital = combine AdditivePointedMagma {} Unital plus-zero over PointedMagma
 
-Monoid = combine Unital {} Semigroup {} over Magma
+idUnital = id from AdditiveRightUnital to AdditiveUnital
+
+
+Monoid = combine Unital {} PointedSemigroup {} over PointedMagma 
+
+
+-- AddPointedSemigroup = combine AdditivePointedMagma {} AdditiveSemigroup {} over AdditiveMagma 
+AMonoid1 = combine Monoid plus-zero AdditivePointedSemigroup {} over PointedSemigroup
+AMonoid2 = combine Monoid plus-zero AdditiveUnital {} over Unital
+AdditiveMonoid = combine AMonoid1 {} AMonoid2 {} over Monoid  
+{-
+
 AdditiveMonoid = combine AdditiveUnital {} Monoid plus-zero over Unital 
 idMonoid = id from AdditiveSemigroup to AdditiveMonoid 
 
@@ -45,3 +59,4 @@ CommutativeMagma = extend Magma {commutative_op : {x y : A} -> op x y == op y x}
 CommutativeSemigroup = combine CommutativeMagma {} Semigroup {} over Magma
 CommutativeMonoid = combine Monoid {} CommutativeSemigroup {} over Semigroup
 AdditiveCommutativeSemigroup = combine AdditiveMagma {} CommutativeSemigroup plus over Magma
+-}
