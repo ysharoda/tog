@@ -96,7 +96,7 @@ section IdempotentSemiring
      | oneOL2 : OpIdempotentSemiringTerm2  
       open OpIdempotentSemiringTerm2 
   
-  def simplifyCl   (A : Type)  : ((ClIdempotentSemiringTerm A) → (ClIdempotentSemiringTerm A)) 
+  def simplifyCl   {A : Type}  : ((ClIdempotentSemiringTerm A) → (ClIdempotentSemiringTerm A)) 
   | (timesCl oneCl x) := x  
   | (timesCl x oneCl) := x  
   | (plusCl zeroCl x) := x  
@@ -106,7 +106,7 @@ section IdempotentSemiring
   | (timesCl x1 x2) := (timesCl (simplifyCl x1) (simplifyCl x2))  
   | oneCl := oneCl  
   | (sing x1) := (sing x1)  
-  def simplifyOpB   (n : ℕ)  : ((OpIdempotentSemiringTerm n) → (OpIdempotentSemiringTerm n)) 
+  def simplifyOpB   {n : ℕ}  : ((OpIdempotentSemiringTerm n) → (OpIdempotentSemiringTerm n)) 
   | (timesOL oneOL x) := x  
   | (timesOL x oneOL) := x  
   | (plusOL zeroOL x) := x  
@@ -116,7 +116,7 @@ section IdempotentSemiring
   | (timesOL x1 x2) := (timesOL (simplifyOpB x1) (simplifyOpB x2))  
   | oneOL := oneOL  
   | (v x1) := (v x1)  
-  def simplifyOp   (n : ℕ) (A : Type)  : ((OpIdempotentSemiringTerm2 n A) → (OpIdempotentSemiringTerm2 n A)) 
+  def simplifyOp   {n : ℕ} {A : Type}  : ((OpIdempotentSemiringTerm2 n A) → (OpIdempotentSemiringTerm2 n A)) 
   | (timesOL2 oneOL2 x) := x  
   | (timesOL2 x oneOL2) := x  
   | (plusOL2 zeroOL2 x) := x  
@@ -138,37 +138,37 @@ section IdempotentSemiring
   | Id zeroCl := (zero Id)  
   | Id (timesCl x1 x2) := ((times Id) (evalCl Id x1) (evalCl Id x2))  
   | Id oneCl := (one Id)  
-  def evalOpB   {A : Type} (n : ℕ)  : ((IdempotentSemiring A) → ((vector A n) → ((OpIdempotentSemiringTerm n) → A))) 
+  def evalOpB   {A : Type} {n : ℕ}  : ((IdempotentSemiring A) → ((vector A n) → ((OpIdempotentSemiringTerm n) → A))) 
   | Id vars (v x1) := (nth vars x1)  
   | Id vars (plusOL x1 x2) := ((plus Id) (evalOpB Id vars x1) (evalOpB Id vars x2))  
   | Id vars zeroOL := (zero Id)  
   | Id vars (timesOL x1 x2) := ((times Id) (evalOpB Id vars x1) (evalOpB Id vars x2))  
   | Id vars oneOL := (one Id)  
-  def evalOp   {A : Type} (n : ℕ)  : ((IdempotentSemiring A) → ((vector A n) → ((OpIdempotentSemiringTerm2 n A) → A))) 
+  def evalOp   {A : Type} {n : ℕ}  : ((IdempotentSemiring A) → ((vector A n) → ((OpIdempotentSemiringTerm2 n A) → A))) 
   | Id vars (v2 x1) := (nth vars x1)  
   | Id vars (sing2 x1) := x1  
   | Id vars (plusOL2 x1 x2) := ((plus Id) (evalOp Id vars x1) (evalOp Id vars x2))  
   | Id vars zeroOL2 := (zero Id)  
   | Id vars (timesOL2 x1 x2) := ((times Id) (evalOp Id vars x1) (evalOp Id vars x2))  
   | Id vars oneOL2 := (one Id)  
-  def inductionB   (P : (IdempotentSemiringTerm → Type))  : ((∀ (x1 x2 : IdempotentSemiringTerm) , ((P x1) → ((P x2) → (P (plusL x1 x2))))) → ((P zeroL) → ((∀ (x1 x2 : IdempotentSemiringTerm) , ((P x1) → ((P x2) → (P (timesL x1 x2))))) → ((P oneL) → (∀ (x : IdempotentSemiringTerm) , (P x)))))) 
+  def inductionB   {P : (IdempotentSemiringTerm → Type)}  : ((∀ (x1 x2 : IdempotentSemiringTerm) , ((P x1) → ((P x2) → (P (plusL x1 x2))))) → ((P zeroL) → ((∀ (x1 x2 : IdempotentSemiringTerm) , ((P x1) → ((P x2) → (P (timesL x1 x2))))) → ((P oneL) → (∀ (x : IdempotentSemiringTerm) , (P x)))))) 
   | pplusl p0l ptimesl p1l (plusL x1 x2) := (pplusl _ _ (inductionB pplusl p0l ptimesl p1l x1) (inductionB pplusl p0l ptimesl p1l x2))  
   | pplusl p0l ptimesl p1l zeroL := p0l  
   | pplusl p0l ptimesl p1l (timesL x1 x2) := (ptimesl _ _ (inductionB pplusl p0l ptimesl p1l x1) (inductionB pplusl p0l ptimesl p1l x2))  
   | pplusl p0l ptimesl p1l oneL := p1l  
-  def inductionCl   (A : Type) (P : ((ClIdempotentSemiringTerm A) → Type))  : ((∀ (x1 : A) , (P (sing x1))) → ((∀ (x1 x2 : (ClIdempotentSemiringTerm A)) , ((P x1) → ((P x2) → (P (plusCl x1 x2))))) → ((P zeroCl) → ((∀ (x1 x2 : (ClIdempotentSemiringTerm A)) , ((P x1) → ((P x2) → (P (timesCl x1 x2))))) → ((P oneCl) → (∀ (x : (ClIdempotentSemiringTerm A)) , (P x))))))) 
+  def inductionCl   {A : Type} {P : ((ClIdempotentSemiringTerm A) → Type)}  : ((∀ (x1 : A) , (P (sing x1))) → ((∀ (x1 x2 : (ClIdempotentSemiringTerm A)) , ((P x1) → ((P x2) → (P (plusCl x1 x2))))) → ((P zeroCl) → ((∀ (x1 x2 : (ClIdempotentSemiringTerm A)) , ((P x1) → ((P x2) → (P (timesCl x1 x2))))) → ((P oneCl) → (∀ (x : (ClIdempotentSemiringTerm A)) , (P x))))))) 
   | psing ppluscl p0cl ptimescl p1cl (sing x1) := (psing x1)  
   | psing ppluscl p0cl ptimescl p1cl (plusCl x1 x2) := (ppluscl _ _ (inductionCl psing ppluscl p0cl ptimescl p1cl x1) (inductionCl psing ppluscl p0cl ptimescl p1cl x2))  
   | psing ppluscl p0cl ptimescl p1cl zeroCl := p0cl  
   | psing ppluscl p0cl ptimescl p1cl (timesCl x1 x2) := (ptimescl _ _ (inductionCl psing ppluscl p0cl ptimescl p1cl x1) (inductionCl psing ppluscl p0cl ptimescl p1cl x2))  
   | psing ppluscl p0cl ptimescl p1cl oneCl := p1cl  
-  def inductionOpB   (n : ℕ) (P : ((OpIdempotentSemiringTerm n) → Type))  : ((∀ (fin : (fin n)) , (P (v fin))) → ((∀ (x1 x2 : (OpIdempotentSemiringTerm n)) , ((P x1) → ((P x2) → (P (plusOL x1 x2))))) → ((P zeroOL) → ((∀ (x1 x2 : (OpIdempotentSemiringTerm n)) , ((P x1) → ((P x2) → (P (timesOL x1 x2))))) → ((P oneOL) → (∀ (x : (OpIdempotentSemiringTerm n)) , (P x))))))) 
+  def inductionOpB   {n : ℕ} {P : ((OpIdempotentSemiringTerm n) → Type)}  : ((∀ (fin : (fin n)) , (P (v fin))) → ((∀ (x1 x2 : (OpIdempotentSemiringTerm n)) , ((P x1) → ((P x2) → (P (plusOL x1 x2))))) → ((P zeroOL) → ((∀ (x1 x2 : (OpIdempotentSemiringTerm n)) , ((P x1) → ((P x2) → (P (timesOL x1 x2))))) → ((P oneOL) → (∀ (x : (OpIdempotentSemiringTerm n)) , (P x))))))) 
   | pv pplusol p0ol ptimesol p1ol (v x1) := (pv x1)  
   | pv pplusol p0ol ptimesol p1ol (plusOL x1 x2) := (pplusol _ _ (inductionOpB pv pplusol p0ol ptimesol p1ol x1) (inductionOpB pv pplusol p0ol ptimesol p1ol x2))  
   | pv pplusol p0ol ptimesol p1ol zeroOL := p0ol  
   | pv pplusol p0ol ptimesol p1ol (timesOL x1 x2) := (ptimesol _ _ (inductionOpB pv pplusol p0ol ptimesol p1ol x1) (inductionOpB pv pplusol p0ol ptimesol p1ol x2))  
   | pv pplusol p0ol ptimesol p1ol oneOL := p1ol  
-  def inductionOp   (n : ℕ) (A : Type) (P : ((OpIdempotentSemiringTerm2 n A) → Type))  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((∀ (x1 x2 : (OpIdempotentSemiringTerm2 n A)) , ((P x1) → ((P x2) → (P (plusOL2 x1 x2))))) → ((P zeroOL2) → ((∀ (x1 x2 : (OpIdempotentSemiringTerm2 n A)) , ((P x1) → ((P x2) → (P (timesOL2 x1 x2))))) → ((P oneOL2) → (∀ (x : (OpIdempotentSemiringTerm2 n A)) , (P x)))))))) 
+  def inductionOp   {n : ℕ} {A : Type} {P : ((OpIdempotentSemiringTerm2 n A) → Type)}  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((∀ (x1 x2 : (OpIdempotentSemiringTerm2 n A)) , ((P x1) → ((P x2) → (P (plusOL2 x1 x2))))) → ((P zeroOL2) → ((∀ (x1 x2 : (OpIdempotentSemiringTerm2 n A)) , ((P x1) → ((P x2) → (P (timesOL2 x1 x2))))) → ((P oneOL2) → (∀ (x : (OpIdempotentSemiringTerm2 n A)) , (P x)))))))) 
   | pv2 psing2 pplusol2 p0ol2 ptimesol2 p1ol2 (v2 x1) := (pv2 x1)  
   | pv2 psing2 pplusol2 p0ol2 ptimesol2 p1ol2 (sing2 x1) := (psing2 x1)  
   | pv2 psing2 pplusol2 p0ol2 ptimesol2 p1ol2 (plusOL2 x1 x2) := (pplusol2 _ _ (inductionOp pv2 psing2 pplusol2 p0ol2 ptimesol2 p1ol2 x1) (inductionOp pv2 psing2 pplusol2 p0ol2 ptimesol2 p1ol2 x2))  
@@ -180,19 +180,19 @@ section IdempotentSemiring
   | zeroL := (Now zeroL)  
   | (timesL x1 x2) := (stage2 timesL (codeLift2 timesL) (stageB x1) (stageB x2))  
   | oneL := (Now oneL)  
-  def stageCl   (A : Type)  : ((ClIdempotentSemiringTerm A) → (Staged (ClIdempotentSemiringTerm A))) 
+  def stageCl   {A : Type}  : ((ClIdempotentSemiringTerm A) → (Staged (ClIdempotentSemiringTerm A))) 
   | (sing x1) := (Now (sing x1))  
   | (plusCl x1 x2) := (stage2 plusCl (codeLift2 plusCl) (stageCl x1) (stageCl x2))  
   | zeroCl := (Now zeroCl)  
   | (timesCl x1 x2) := (stage2 timesCl (codeLift2 timesCl) (stageCl x1) (stageCl x2))  
   | oneCl := (Now oneCl)  
-  def stageOpB   (n : ℕ)  : ((OpIdempotentSemiringTerm n) → (Staged (OpIdempotentSemiringTerm n))) 
+  def stageOpB   {n : ℕ}  : ((OpIdempotentSemiringTerm n) → (Staged (OpIdempotentSemiringTerm n))) 
   | (v x1) := (const (code (v x1)))  
   | (plusOL x1 x2) := (stage2 plusOL (codeLift2 plusOL) (stageOpB x1) (stageOpB x2))  
   | zeroOL := (Now zeroOL)  
   | (timesOL x1 x2) := (stage2 timesOL (codeLift2 timesOL) (stageOpB x1) (stageOpB x2))  
   | oneOL := (Now oneOL)  
-  def stageOp   (n : ℕ) (A : Type)  : ((OpIdempotentSemiringTerm2 n A) → (Staged (OpIdempotentSemiringTerm2 n A))) 
+  def stageOp   {n : ℕ} {A : Type}  : ((OpIdempotentSemiringTerm2 n A) → (Staged (OpIdempotentSemiringTerm2 n A))) 
   | (sing2 x1) := (Now (sing2 x1))  
   | (v2 x1) := (const (code (v2 x1)))  
   | (plusOL2 x1 x2) := (stage2 plusOL2 (codeLift2 plusOL2) (stageOp x1) (stageOp x2))  

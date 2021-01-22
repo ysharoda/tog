@@ -57,25 +57,25 @@ module Unital   where
       eOL2 : (OpUnitalTerm2 n A) 
       opOL2 : ((OpUnitalTerm2 n A) → ((OpUnitalTerm2 n A) → (OpUnitalTerm2 n A)))  
       
-  simplifyCl :  (A : Set) →  ((ClUnitalTerm A) → (ClUnitalTerm A)) 
-  simplifyCl _ (opCl eCl x) = x  
-  simplifyCl _ (opCl x eCl) = x  
-  simplifyCl _ eCl = eCl  
-  simplifyCl _ (opCl x1 x2) = (opCl (simplifyCl _ x1) (simplifyCl _ x2))  
-  simplifyCl _ (sing x1) = (sing x1)  
-  simplifyOpB :  (n : Nat) →  ((OpUnitalTerm n) → (OpUnitalTerm n)) 
-  simplifyOpB _ (opOL eOL x) = x  
-  simplifyOpB _ (opOL x eOL) = x  
-  simplifyOpB _ eOL = eOL  
-  simplifyOpB _ (opOL x1 x2) = (opOL (simplifyOpB _ x1) (simplifyOpB _ x2))  
-  simplifyOpB _ (v x1) = (v x1)  
-  simplifyOp :  (n : Nat) (A : Set) →  ((OpUnitalTerm2 n A) → (OpUnitalTerm2 n A)) 
-  simplifyOp _ _ (opOL2 eOL2 x) = x  
-  simplifyOp _ _ (opOL2 x eOL2) = x  
-  simplifyOp _ _ eOL2 = eOL2  
-  simplifyOp _ _ (opOL2 x1 x2) = (opOL2 (simplifyOp _ _ x1) (simplifyOp _ _ x2))  
-  simplifyOp _ _ (v2 x1) = (v2 x1)  
-  simplifyOp _ _ (sing2 x1) = (sing2 x1)  
+  simplifyCl :  {A : Set} →  ((ClUnitalTerm A) → (ClUnitalTerm A)) 
+  simplifyCl (opCl eCl x) = x  
+  simplifyCl (opCl x eCl) = x  
+  simplifyCl eCl = eCl  
+  simplifyCl (opCl x1 x2) = (opCl (simplifyCl x1) (simplifyCl x2))  
+  simplifyCl (sing x1) = (sing x1)  
+  simplifyOpB :  {n : Nat} →  ((OpUnitalTerm n) → (OpUnitalTerm n)) 
+  simplifyOpB (opOL eOL x) = x  
+  simplifyOpB (opOL x eOL) = x  
+  simplifyOpB eOL = eOL  
+  simplifyOpB (opOL x1 x2) = (opOL (simplifyOpB x1) (simplifyOpB x2))  
+  simplifyOpB (v x1) = (v x1)  
+  simplifyOp :  {n : Nat} {A : Set} →  ((OpUnitalTerm2 n A) → (OpUnitalTerm2 n A)) 
+  simplifyOp (opOL2 eOL2 x) = x  
+  simplifyOp (opOL2 x eOL2) = x  
+  simplifyOp eOL2 = eOL2  
+  simplifyOp (opOL2 x1 x2) = (opOL2 (simplifyOp x1) (simplifyOp x2))  
+  simplifyOp (v2 x1) = (v2 x1)  
+  simplifyOp (sing2 x1) = (sing2 x1)  
   evalB :  {A : Set} →  ((Unital A) → (UnitalTerm → A)) 
   evalB Un eL = (e Un)  
   evalB Un (opL x1 x2) = ((op Un) (evalB Un x1) (evalB Un x2))  
@@ -83,47 +83,47 @@ module Unital   where
   evalCl Un (sing x1) = x1  
   evalCl Un eCl = (e Un)  
   evalCl Un (opCl x1 x2) = ((op Un) (evalCl Un x1) (evalCl Un x2))  
-  evalOpB :  {A : Set} (n : Nat) →  ((Unital A) → ((Vec A n) → ((OpUnitalTerm n) → A))) 
-  evalOpB n Un vars (v x1) = (lookup vars x1)  
-  evalOpB n Un vars eOL = (e Un)  
-  evalOpB n Un vars (opOL x1 x2) = ((op Un) (evalOpB n Un vars x1) (evalOpB n Un vars x2))  
-  evalOp :  {A : Set} (n : Nat) →  ((Unital A) → ((Vec A n) → ((OpUnitalTerm2 n A) → A))) 
-  evalOp n Un vars (v2 x1) = (lookup vars x1)  
-  evalOp n Un vars (sing2 x1) = x1  
-  evalOp n Un vars eOL2 = (e Un)  
-  evalOp n Un vars (opOL2 x1 x2) = ((op Un) (evalOp n Un vars x1) (evalOp n Un vars x2))  
-  inductionB :  (P : (UnitalTerm → Set)) →  ((P eL) → (( (x1 x2 : UnitalTerm) → ((P x1) → ((P x2) → (P (opL x1 x2))))) → ( (x : UnitalTerm) → (P x)))) 
-  inductionB p pel popl eL = pel  
-  inductionB p pel popl (opL x1 x2) = (popl _ _ (inductionB p pel popl x1) (inductionB p pel popl x2))  
-  inductionCl :  (A : Set) (P : ((ClUnitalTerm A) → Set)) →  (( (x1 : A) → (P (sing x1))) → ((P eCl) → (( (x1 x2 : (ClUnitalTerm A)) → ((P x1) → ((P x2) → (P (opCl x1 x2))))) → ( (x : (ClUnitalTerm A)) → (P x))))) 
-  inductionCl _ p psing pecl popcl (sing x1) = (psing x1)  
-  inductionCl _ p psing pecl popcl eCl = pecl  
-  inductionCl _ p psing pecl popcl (opCl x1 x2) = (popcl _ _ (inductionCl _ p psing pecl popcl x1) (inductionCl _ p psing pecl popcl x2))  
-  inductionOpB :  (n : Nat) (P : ((OpUnitalTerm n) → Set)) →  (( (fin : (Fin n)) → (P (v fin))) → ((P eOL) → (( (x1 x2 : (OpUnitalTerm n)) → ((P x1) → ((P x2) → (P (opOL x1 x2))))) → ( (x : (OpUnitalTerm n)) → (P x))))) 
-  inductionOpB _ p pv peol popol (v x1) = (pv x1)  
-  inductionOpB _ p pv peol popol eOL = peol  
-  inductionOpB _ p pv peol popol (opOL x1 x2) = (popol _ _ (inductionOpB _ p pv peol popol x1) (inductionOpB _ p pv peol popol x2))  
-  inductionOp :  (n : Nat) (A : Set) (P : ((OpUnitalTerm2 n A) → Set)) →  (( (fin : (Fin n)) → (P (v2 fin))) → (( (x1 : A) → (P (sing2 x1))) → ((P eOL2) → (( (x1 x2 : (OpUnitalTerm2 n A)) → ((P x1) → ((P x2) → (P (opOL2 x1 x2))))) → ( (x : (OpUnitalTerm2 n A)) → (P x)))))) 
-  inductionOp _ _ p pv2 psing2 peol2 popol2 (v2 x1) = (pv2 x1)  
-  inductionOp _ _ p pv2 psing2 peol2 popol2 (sing2 x1) = (psing2 x1)  
-  inductionOp _ _ p pv2 psing2 peol2 popol2 eOL2 = peol2  
-  inductionOp _ _ p pv2 psing2 peol2 popol2 (opOL2 x1 x2) = (popol2 _ _ (inductionOp _ _ p pv2 psing2 peol2 popol2 x1) (inductionOp _ _ p pv2 psing2 peol2 popol2 x2))  
+  evalOpB :  {A : Set} {n : Nat} →  ((Unital A) → ((Vec A n) → ((OpUnitalTerm n) → A))) 
+  evalOpB Un vars (v x1) = (lookup vars x1)  
+  evalOpB Un vars eOL = (e Un)  
+  evalOpB Un vars (opOL x1 x2) = ((op Un) (evalOpB Un vars x1) (evalOpB Un vars x2))  
+  evalOp :  {A : Set} {n : Nat} →  ((Unital A) → ((Vec A n) → ((OpUnitalTerm2 n A) → A))) 
+  evalOp Un vars (v2 x1) = (lookup vars x1)  
+  evalOp Un vars (sing2 x1) = x1  
+  evalOp Un vars eOL2 = (e Un)  
+  evalOp Un vars (opOL2 x1 x2) = ((op Un) (evalOp Un vars x1) (evalOp Un vars x2))  
+  inductionB :  {P : (UnitalTerm → Set)} →  ((P eL) → (( (x1 x2 : UnitalTerm) → ((P x1) → ((P x2) → (P (opL x1 x2))))) → ( (x : UnitalTerm) → (P x)))) 
+  inductionB pel popl eL = pel  
+  inductionB pel popl (opL x1 x2) = (popl _ _ (inductionB pel popl x1) (inductionB pel popl x2))  
+  inductionCl :  {A : Set} {P : ((ClUnitalTerm A) → Set)} →  (( (x1 : A) → (P (sing x1))) → ((P eCl) → (( (x1 x2 : (ClUnitalTerm A)) → ((P x1) → ((P x2) → (P (opCl x1 x2))))) → ( (x : (ClUnitalTerm A)) → (P x))))) 
+  inductionCl psing pecl popcl (sing x1) = (psing x1)  
+  inductionCl psing pecl popcl eCl = pecl  
+  inductionCl psing pecl popcl (opCl x1 x2) = (popcl _ _ (inductionCl psing pecl popcl x1) (inductionCl psing pecl popcl x2))  
+  inductionOpB :  {n : Nat} {P : ((OpUnitalTerm n) → Set)} →  (( (fin : (Fin n)) → (P (v fin))) → ((P eOL) → (( (x1 x2 : (OpUnitalTerm n)) → ((P x1) → ((P x2) → (P (opOL x1 x2))))) → ( (x : (OpUnitalTerm n)) → (P x))))) 
+  inductionOpB pv peol popol (v x1) = (pv x1)  
+  inductionOpB pv peol popol eOL = peol  
+  inductionOpB pv peol popol (opOL x1 x2) = (popol _ _ (inductionOpB pv peol popol x1) (inductionOpB pv peol popol x2))  
+  inductionOp :  {n : Nat} {A : Set} {P : ((OpUnitalTerm2 n A) → Set)} →  (( (fin : (Fin n)) → (P (v2 fin))) → (( (x1 : A) → (P (sing2 x1))) → ((P eOL2) → (( (x1 x2 : (OpUnitalTerm2 n A)) → ((P x1) → ((P x2) → (P (opOL2 x1 x2))))) → ( (x : (OpUnitalTerm2 n A)) → (P x)))))) 
+  inductionOp pv2 psing2 peol2 popol2 (v2 x1) = (pv2 x1)  
+  inductionOp pv2 psing2 peol2 popol2 (sing2 x1) = (psing2 x1)  
+  inductionOp pv2 psing2 peol2 popol2 eOL2 = peol2  
+  inductionOp pv2 psing2 peol2 popol2 (opOL2 x1 x2) = (popol2 _ _ (inductionOp pv2 psing2 peol2 popol2 x1) (inductionOp pv2 psing2 peol2 popol2 x2))  
   stageB :  (UnitalTerm → (Staged UnitalTerm))
   stageB eL = (Now eL)  
   stageB (opL x1 x2) = (stage2 opL (codeLift2 opL) (stageB x1) (stageB x2))  
-  stageCl :  (A : Set) →  ((ClUnitalTerm A) → (Staged (ClUnitalTerm A))) 
-  stageCl _ (sing x1) = (Now (sing x1))  
-  stageCl _ eCl = (Now eCl)  
-  stageCl _ (opCl x1 x2) = (stage2 opCl (codeLift2 opCl) (stageCl _ x1) (stageCl _ x2))  
-  stageOpB :  (n : Nat) →  ((OpUnitalTerm n) → (Staged (OpUnitalTerm n))) 
-  stageOpB _ (v x1) = (const (code (v x1)))  
-  stageOpB _ eOL = (Now eOL)  
-  stageOpB _ (opOL x1 x2) = (stage2 opOL (codeLift2 opOL) (stageOpB _ x1) (stageOpB _ x2))  
-  stageOp :  (n : Nat) (A : Set) →  ((OpUnitalTerm2 n A) → (Staged (OpUnitalTerm2 n A))) 
-  stageOp _ _ (sing2 x1) = (Now (sing2 x1))  
-  stageOp _ _ (v2 x1) = (const (code (v2 x1)))  
-  stageOp _ _ eOL2 = (Now eOL2)  
-  stageOp _ _ (opOL2 x1 x2) = (stage2 opOL2 (codeLift2 opOL2) (stageOp _ _ x1) (stageOp _ _ x2))  
+  stageCl :  {A : Set} →  ((ClUnitalTerm A) → (Staged (ClUnitalTerm A))) 
+  stageCl (sing x1) = (Now (sing x1))  
+  stageCl eCl = (Now eCl)  
+  stageCl (opCl x1 x2) = (stage2 opCl (codeLift2 opCl) (stageCl x1) (stageCl x2))  
+  stageOpB :  {n : Nat} →  ((OpUnitalTerm n) → (Staged (OpUnitalTerm n))) 
+  stageOpB (v x1) = (const (code (v x1)))  
+  stageOpB eOL = (Now eOL)  
+  stageOpB (opOL x1 x2) = (stage2 opOL (codeLift2 opOL) (stageOpB x1) (stageOpB x2))  
+  stageOp :  {n : Nat} {A : Set} →  ((OpUnitalTerm2 n A) → (Staged (OpUnitalTerm2 n A))) 
+  stageOp (sing2 x1) = (Now (sing2 x1))  
+  stageOp (v2 x1) = (const (code (v2 x1)))  
+  stageOp eOL2 = (Now eOL2)  
+  stageOp (opOL2 x1 x2) = (stage2 opOL2 (codeLift2 opOL2) (stageOp x1) (stageOp x2))  
   record StagedRepr  (A : Set) (Repr : (Set → Set)) : Set where 
      field  
       eT : (Repr A) 

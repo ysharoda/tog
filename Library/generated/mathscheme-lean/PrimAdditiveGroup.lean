@@ -75,21 +75,21 @@ section PrimAdditiveGroup
      | inv_OL2 : (OpPrimAdditiveGroupTerm2 → OpPrimAdditiveGroupTerm2)  
       open OpPrimAdditiveGroupTerm2 
   
-  def simplifyCl   (A : Type)  : ((ClPrimAdditiveGroupTerm A) → (ClPrimAdditiveGroupTerm A)) 
+  def simplifyCl   {A : Type}  : ((ClPrimAdditiveGroupTerm A) → (ClPrimAdditiveGroupTerm A)) 
   | (times_Cl zero_Cl x) := x  
   | (times_Cl x zero_Cl) := x  
   | zero_Cl := zero_Cl  
   | (times_Cl x1 x2) := (times_Cl (simplifyCl x1) (simplifyCl x2))  
   | (inv_Cl x1) := (inv_Cl (simplifyCl x1))  
   | (sing x1) := (sing x1)  
-  def simplifyOpB   (n : ℕ)  : ((OpPrimAdditiveGroupTerm n) → (OpPrimAdditiveGroupTerm n)) 
+  def simplifyOpB   {n : ℕ}  : ((OpPrimAdditiveGroupTerm n) → (OpPrimAdditiveGroupTerm n)) 
   | (times_OL zero_OL x) := x  
   | (times_OL x zero_OL) := x  
   | zero_OL := zero_OL  
   | (times_OL x1 x2) := (times_OL (simplifyOpB x1) (simplifyOpB x2))  
   | (inv_OL x1) := (inv_OL (simplifyOpB x1))  
   | (v x1) := (v x1)  
-  def simplifyOp   (n : ℕ) (A : Type)  : ((OpPrimAdditiveGroupTerm2 n A) → (OpPrimAdditiveGroupTerm2 n A)) 
+  def simplifyOp   {n : ℕ} {A : Type}  : ((OpPrimAdditiveGroupTerm2 n A) → (OpPrimAdditiveGroupTerm2 n A)) 
   | (times_OL2 zero_OL2 x) := x  
   | (times_OL2 x zero_OL2) := x  
   | zero_OL2 := zero_OL2  
@@ -106,32 +106,32 @@ section PrimAdditiveGroup
   | Pr zero_Cl := (zero_ Pr)  
   | Pr (times_Cl x1 x2) := ((times_ Pr) (evalCl Pr x1) (evalCl Pr x2))  
   | Pr (inv_Cl x1) := ((inv_ Pr) (evalCl Pr x1))  
-  def evalOpB   {A : Type} (n : ℕ)  : ((PrimAdditiveGroup A) → ((vector A n) → ((OpPrimAdditiveGroupTerm n) → A))) 
+  def evalOpB   {A : Type} {n : ℕ}  : ((PrimAdditiveGroup A) → ((vector A n) → ((OpPrimAdditiveGroupTerm n) → A))) 
   | Pr vars (v x1) := (nth vars x1)  
   | Pr vars zero_OL := (zero_ Pr)  
   | Pr vars (times_OL x1 x2) := ((times_ Pr) (evalOpB Pr vars x1) (evalOpB Pr vars x2))  
   | Pr vars (inv_OL x1) := ((inv_ Pr) (evalOpB Pr vars x1))  
-  def evalOp   {A : Type} (n : ℕ)  : ((PrimAdditiveGroup A) → ((vector A n) → ((OpPrimAdditiveGroupTerm2 n A) → A))) 
+  def evalOp   {A : Type} {n : ℕ}  : ((PrimAdditiveGroup A) → ((vector A n) → ((OpPrimAdditiveGroupTerm2 n A) → A))) 
   | Pr vars (v2 x1) := (nth vars x1)  
   | Pr vars (sing2 x1) := x1  
   | Pr vars zero_OL2 := (zero_ Pr)  
   | Pr vars (times_OL2 x1 x2) := ((times_ Pr) (evalOp Pr vars x1) (evalOp Pr vars x2))  
   | Pr vars (inv_OL2 x1) := ((inv_ Pr) (evalOp Pr vars x1))  
-  def inductionB   (P : (PrimAdditiveGroupTerm → Type))  : ((P zero_L) → ((∀ (x1 x2 : PrimAdditiveGroupTerm) , ((P x1) → ((P x2) → (P (times_L x1 x2))))) → ((∀ (x1 : PrimAdditiveGroupTerm) , ((P x1) → (P (inv_L x1)))) → (∀ (x : PrimAdditiveGroupTerm) , (P x))))) 
+  def inductionB   {P : (PrimAdditiveGroupTerm → Type)}  : ((P zero_L) → ((∀ (x1 x2 : PrimAdditiveGroupTerm) , ((P x1) → ((P x2) → (P (times_L x1 x2))))) → ((∀ (x1 : PrimAdditiveGroupTerm) , ((P x1) → (P (inv_L x1)))) → (∀ (x : PrimAdditiveGroupTerm) , (P x))))) 
   | p0_l ptimes_l pinv_l zero_L := p0_l  
   | p0_l ptimes_l pinv_l (times_L x1 x2) := (ptimes_l _ _ (inductionB p0_l ptimes_l pinv_l x1) (inductionB p0_l ptimes_l pinv_l x2))  
   | p0_l ptimes_l pinv_l (inv_L x1) := (pinv_l _ (inductionB p0_l ptimes_l pinv_l x1))  
-  def inductionCl   (A : Type) (P : ((ClPrimAdditiveGroupTerm A) → Type))  : ((∀ (x1 : A) , (P (sing x1))) → ((P zero_Cl) → ((∀ (x1 x2 : (ClPrimAdditiveGroupTerm A)) , ((P x1) → ((P x2) → (P (times_Cl x1 x2))))) → ((∀ (x1 : (ClPrimAdditiveGroupTerm A)) , ((P x1) → (P (inv_Cl x1)))) → (∀ (x : (ClPrimAdditiveGroupTerm A)) , (P x)))))) 
+  def inductionCl   {A : Type} {P : ((ClPrimAdditiveGroupTerm A) → Type)}  : ((∀ (x1 : A) , (P (sing x1))) → ((P zero_Cl) → ((∀ (x1 x2 : (ClPrimAdditiveGroupTerm A)) , ((P x1) → ((P x2) → (P (times_Cl x1 x2))))) → ((∀ (x1 : (ClPrimAdditiveGroupTerm A)) , ((P x1) → (P (inv_Cl x1)))) → (∀ (x : (ClPrimAdditiveGroupTerm A)) , (P x)))))) 
   | psing p0_cl ptimes_cl pinv_cl (sing x1) := (psing x1)  
   | psing p0_cl ptimes_cl pinv_cl zero_Cl := p0_cl  
   | psing p0_cl ptimes_cl pinv_cl (times_Cl x1 x2) := (ptimes_cl _ _ (inductionCl psing p0_cl ptimes_cl pinv_cl x1) (inductionCl psing p0_cl ptimes_cl pinv_cl x2))  
   | psing p0_cl ptimes_cl pinv_cl (inv_Cl x1) := (pinv_cl _ (inductionCl psing p0_cl ptimes_cl pinv_cl x1))  
-  def inductionOpB   (n : ℕ) (P : ((OpPrimAdditiveGroupTerm n) → Type))  : ((∀ (fin : (fin n)) , (P (v fin))) → ((P zero_OL) → ((∀ (x1 x2 : (OpPrimAdditiveGroupTerm n)) , ((P x1) → ((P x2) → (P (times_OL x1 x2))))) → ((∀ (x1 : (OpPrimAdditiveGroupTerm n)) , ((P x1) → (P (inv_OL x1)))) → (∀ (x : (OpPrimAdditiveGroupTerm n)) , (P x)))))) 
+  def inductionOpB   {n : ℕ} {P : ((OpPrimAdditiveGroupTerm n) → Type)}  : ((∀ (fin : (fin n)) , (P (v fin))) → ((P zero_OL) → ((∀ (x1 x2 : (OpPrimAdditiveGroupTerm n)) , ((P x1) → ((P x2) → (P (times_OL x1 x2))))) → ((∀ (x1 : (OpPrimAdditiveGroupTerm n)) , ((P x1) → (P (inv_OL x1)))) → (∀ (x : (OpPrimAdditiveGroupTerm n)) , (P x)))))) 
   | pv p0_ol ptimes_ol pinv_ol (v x1) := (pv x1)  
   | pv p0_ol ptimes_ol pinv_ol zero_OL := p0_ol  
   | pv p0_ol ptimes_ol pinv_ol (times_OL x1 x2) := (ptimes_ol _ _ (inductionOpB pv p0_ol ptimes_ol pinv_ol x1) (inductionOpB pv p0_ol ptimes_ol pinv_ol x2))  
   | pv p0_ol ptimes_ol pinv_ol (inv_OL x1) := (pinv_ol _ (inductionOpB pv p0_ol ptimes_ol pinv_ol x1))  
-  def inductionOp   (n : ℕ) (A : Type) (P : ((OpPrimAdditiveGroupTerm2 n A) → Type))  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((P zero_OL2) → ((∀ (x1 x2 : (OpPrimAdditiveGroupTerm2 n A)) , ((P x1) → ((P x2) → (P (times_OL2 x1 x2))))) → ((∀ (x1 : (OpPrimAdditiveGroupTerm2 n A)) , ((P x1) → (P (inv_OL2 x1)))) → (∀ (x : (OpPrimAdditiveGroupTerm2 n A)) , (P x))))))) 
+  def inductionOp   {n : ℕ} {A : Type} {P : ((OpPrimAdditiveGroupTerm2 n A) → Type)}  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((P zero_OL2) → ((∀ (x1 x2 : (OpPrimAdditiveGroupTerm2 n A)) , ((P x1) → ((P x2) → (P (times_OL2 x1 x2))))) → ((∀ (x1 : (OpPrimAdditiveGroupTerm2 n A)) , ((P x1) → (P (inv_OL2 x1)))) → (∀ (x : (OpPrimAdditiveGroupTerm2 n A)) , (P x))))))) 
   | pv2 psing2 p0_ol2 ptimes_ol2 pinv_ol2 (v2 x1) := (pv2 x1)  
   | pv2 psing2 p0_ol2 ptimes_ol2 pinv_ol2 (sing2 x1) := (psing2 x1)  
   | pv2 psing2 p0_ol2 ptimes_ol2 pinv_ol2 zero_OL2 := p0_ol2  
@@ -141,17 +141,17 @@ section PrimAdditiveGroup
   | zero_L := (Now zero_L)  
   | (times_L x1 x2) := (stage2 times_L (codeLift2 times_L) (stageB x1) (stageB x2))  
   | (inv_L x1) := (stage1 inv_L (codeLift1 inv_L) (stageB x1))  
-  def stageCl   (A : Type)  : ((ClPrimAdditiveGroupTerm A) → (Staged (ClPrimAdditiveGroupTerm A))) 
+  def stageCl   {A : Type}  : ((ClPrimAdditiveGroupTerm A) → (Staged (ClPrimAdditiveGroupTerm A))) 
   | (sing x1) := (Now (sing x1))  
   | zero_Cl := (Now zero_Cl)  
   | (times_Cl x1 x2) := (stage2 times_Cl (codeLift2 times_Cl) (stageCl x1) (stageCl x2))  
   | (inv_Cl x1) := (stage1 inv_Cl (codeLift1 inv_Cl) (stageCl x1))  
-  def stageOpB   (n : ℕ)  : ((OpPrimAdditiveGroupTerm n) → (Staged (OpPrimAdditiveGroupTerm n))) 
+  def stageOpB   {n : ℕ}  : ((OpPrimAdditiveGroupTerm n) → (Staged (OpPrimAdditiveGroupTerm n))) 
   | (v x1) := (const (code (v x1)))  
   | zero_OL := (Now zero_OL)  
   | (times_OL x1 x2) := (stage2 times_OL (codeLift2 times_OL) (stageOpB x1) (stageOpB x2))  
   | (inv_OL x1) := (stage1 inv_OL (codeLift1 inv_OL) (stageOpB x1))  
-  def stageOp   (n : ℕ) (A : Type)  : ((OpPrimAdditiveGroupTerm2 n A) → (Staged (OpPrimAdditiveGroupTerm2 n A))) 
+  def stageOp   {n : ℕ} {A : Type}  : ((OpPrimAdditiveGroupTerm2 n A) → (Staged (OpPrimAdditiveGroupTerm2 n A))) 
   | (sing2 x1) := (Now (sing2 x1))  
   | (v2 x1) := (const (code (v2 x1)))  
   | zero_OL2 := (Now zero_OL2)  

@@ -45,13 +45,13 @@ section PointedZero
      | zeroOL2 : OpPointedZeroTerm2  
       open OpPointedZeroTerm2 
   
-  def simplifyCl   (A : Type)  : ((ClPointedZeroTerm A) → (ClPointedZeroTerm A)) 
+  def simplifyCl   {A : Type}  : ((ClPointedZeroTerm A) → (ClPointedZeroTerm A)) 
   | zeroCl := zeroCl  
   | (sing x1) := (sing x1)  
-  def simplifyOpB   (n : ℕ)  : ((OpPointedZeroTerm n) → (OpPointedZeroTerm n)) 
+  def simplifyOpB   {n : ℕ}  : ((OpPointedZeroTerm n) → (OpPointedZeroTerm n)) 
   | zeroOL := zeroOL  
   | (v x1) := (v x1)  
-  def simplifyOp   (n : ℕ) (A : Type)  : ((OpPointedZeroTerm2 n A) → (OpPointedZeroTerm2 n A)) 
+  def simplifyOp   {n : ℕ} {A : Type}  : ((OpPointedZeroTerm2 n A) → (OpPointedZeroTerm2 n A)) 
   | zeroOL2 := zeroOL2  
   | (v2 x1) := (v2 x1)  
   | (sing2 x1) := (sing2 x1)  
@@ -60,34 +60,34 @@ section PointedZero
   def evalCl   {A : Type}  : ((PointedZero A) → ((ClPointedZeroTerm A) → A)) 
   | Po (sing x1) := x1  
   | Po zeroCl := (zero Po)  
-  def evalOpB   {A : Type} (n : ℕ)  : ((PointedZero A) → ((vector A n) → ((OpPointedZeroTerm n) → A))) 
+  def evalOpB   {A : Type} {n : ℕ}  : ((PointedZero A) → ((vector A n) → ((OpPointedZeroTerm n) → A))) 
   | Po vars (v x1) := (nth vars x1)  
   | Po vars zeroOL := (zero Po)  
-  def evalOp   {A : Type} (n : ℕ)  : ((PointedZero A) → ((vector A n) → ((OpPointedZeroTerm2 n A) → A))) 
+  def evalOp   {A : Type} {n : ℕ}  : ((PointedZero A) → ((vector A n) → ((OpPointedZeroTerm2 n A) → A))) 
   | Po vars (v2 x1) := (nth vars x1)  
   | Po vars (sing2 x1) := x1  
   | Po vars zeroOL2 := (zero Po)  
-  def inductionB   (P : (PointedZeroTerm → Type))  : ((P zeroL) → (∀ (x : PointedZeroTerm) , (P x))) 
+  def inductionB   {P : (PointedZeroTerm → Type)}  : ((P zeroL) → (∀ (x : PointedZeroTerm) , (P x))) 
   | p0l zeroL := p0l  
-  def inductionCl   (A : Type) (P : ((ClPointedZeroTerm A) → Type))  : ((∀ (x1 : A) , (P (sing x1))) → ((P zeroCl) → (∀ (x : (ClPointedZeroTerm A)) , (P x)))) 
+  def inductionCl   {A : Type} {P : ((ClPointedZeroTerm A) → Type)}  : ((∀ (x1 : A) , (P (sing x1))) → ((P zeroCl) → (∀ (x : (ClPointedZeroTerm A)) , (P x)))) 
   | psing p0cl (sing x1) := (psing x1)  
   | psing p0cl zeroCl := p0cl  
-  def inductionOpB   (n : ℕ) (P : ((OpPointedZeroTerm n) → Type))  : ((∀ (fin : (fin n)) , (P (v fin))) → ((P zeroOL) → (∀ (x : (OpPointedZeroTerm n)) , (P x)))) 
+  def inductionOpB   {n : ℕ} {P : ((OpPointedZeroTerm n) → Type)}  : ((∀ (fin : (fin n)) , (P (v fin))) → ((P zeroOL) → (∀ (x : (OpPointedZeroTerm n)) , (P x)))) 
   | pv p0ol (v x1) := (pv x1)  
   | pv p0ol zeroOL := p0ol  
-  def inductionOp   (n : ℕ) (A : Type) (P : ((OpPointedZeroTerm2 n A) → Type))  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((P zeroOL2) → (∀ (x : (OpPointedZeroTerm2 n A)) , (P x))))) 
+  def inductionOp   {n : ℕ} {A : Type} {P : ((OpPointedZeroTerm2 n A) → Type)}  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((P zeroOL2) → (∀ (x : (OpPointedZeroTerm2 n A)) , (P x))))) 
   | pv2 psing2 p0ol2 (v2 x1) := (pv2 x1)  
   | pv2 psing2 p0ol2 (sing2 x1) := (psing2 x1)  
   | pv2 psing2 p0ol2 zeroOL2 := p0ol2  
   def stageB  : (PointedZeroTerm → (Staged PointedZeroTerm))
   | zeroL := (Now zeroL)  
-  def stageCl   (A : Type)  : ((ClPointedZeroTerm A) → (Staged (ClPointedZeroTerm A))) 
+  def stageCl   {A : Type}  : ((ClPointedZeroTerm A) → (Staged (ClPointedZeroTerm A))) 
   | (sing x1) := (Now (sing x1))  
   | zeroCl := (Now zeroCl)  
-  def stageOpB   (n : ℕ)  : ((OpPointedZeroTerm n) → (Staged (OpPointedZeroTerm n))) 
+  def stageOpB   {n : ℕ}  : ((OpPointedZeroTerm n) → (Staged (OpPointedZeroTerm n))) 
   | (v x1) := (const (code (v x1)))  
   | zeroOL := (Now zeroOL)  
-  def stageOp   (n : ℕ) (A : Type)  : ((OpPointedZeroTerm2 n A) → (Staged (OpPointedZeroTerm2 n A))) 
+  def stageOp   {n : ℕ} {A : Type}  : ((OpPointedZeroTerm2 n A) → (Staged (OpPointedZeroTerm2 n A))) 
   | (sing2 x1) := (Now (sing2 x1))  
   | (v2 x1) := (const (code (v2 x1)))  
   | zeroOL2 := (Now zeroOL2)  

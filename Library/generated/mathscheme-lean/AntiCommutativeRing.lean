@@ -109,7 +109,7 @@ section AntiCommutativeRing
      | oneOL2 : OpAntiCommutativeRingTerm2  
       open OpAntiCommutativeRingTerm2 
   
-  def simplifyCl   (A : Type)  : ((ClAntiCommutativeRingTerm A) → (ClAntiCommutativeRingTerm A)) 
+  def simplifyCl   {A : Type}  : ((ClAntiCommutativeRingTerm A) → (ClAntiCommutativeRingTerm A)) 
   | (plusCl zeroCl x) := x  
   | (plusCl x zeroCl) := x  
   | (timesCl oneCl x) := x  
@@ -121,7 +121,7 @@ section AntiCommutativeRing
   | (negCl x1) := (negCl (simplifyCl x1))  
   | oneCl := oneCl  
   | (sing x1) := (sing x1)  
-  def simplifyOpB   (n : ℕ)  : ((OpAntiCommutativeRingTerm n) → (OpAntiCommutativeRingTerm n)) 
+  def simplifyOpB   {n : ℕ}  : ((OpAntiCommutativeRingTerm n) → (OpAntiCommutativeRingTerm n)) 
   | (plusOL zeroOL x) := x  
   | (plusOL x zeroOL) := x  
   | (timesOL oneOL x) := x  
@@ -133,7 +133,7 @@ section AntiCommutativeRing
   | (negOL x1) := (negOL (simplifyOpB x1))  
   | oneOL := oneOL  
   | (v x1) := (v x1)  
-  def simplifyOp   (n : ℕ) (A : Type)  : ((OpAntiCommutativeRingTerm2 n A) → (OpAntiCommutativeRingTerm2 n A)) 
+  def simplifyOp   {n : ℕ} {A : Type}  : ((OpAntiCommutativeRingTerm2 n A) → (OpAntiCommutativeRingTerm2 n A)) 
   | (plusOL2 zeroOL2 x) := x  
   | (plusOL2 x zeroOL2) := x  
   | (timesOL2 oneOL2 x) := x  
@@ -159,14 +159,14 @@ section AntiCommutativeRing
   | An zeroCl := (zero An)  
   | An (negCl x1) := ((neg An) (evalCl An x1))  
   | An oneCl := (one An)  
-  def evalOpB   {A : Type} (n : ℕ)  : ((AntiCommutativeRing A) → ((vector A n) → ((OpAntiCommutativeRingTerm n) → A))) 
+  def evalOpB   {A : Type} {n : ℕ}  : ((AntiCommutativeRing A) → ((vector A n) → ((OpAntiCommutativeRingTerm n) → A))) 
   | An vars (v x1) := (nth vars x1)  
   | An vars (timesOL x1 x2) := ((times An) (evalOpB An vars x1) (evalOpB An vars x2))  
   | An vars (plusOL x1 x2) := ((plus An) (evalOpB An vars x1) (evalOpB An vars x2))  
   | An vars zeroOL := (zero An)  
   | An vars (negOL x1) := ((neg An) (evalOpB An vars x1))  
   | An vars oneOL := (one An)  
-  def evalOp   {A : Type} (n : ℕ)  : ((AntiCommutativeRing A) → ((vector A n) → ((OpAntiCommutativeRingTerm2 n A) → A))) 
+  def evalOp   {A : Type} {n : ℕ}  : ((AntiCommutativeRing A) → ((vector A n) → ((OpAntiCommutativeRingTerm2 n A) → A))) 
   | An vars (v2 x1) := (nth vars x1)  
   | An vars (sing2 x1) := x1  
   | An vars (timesOL2 x1 x2) := ((times An) (evalOp An vars x1) (evalOp An vars x2))  
@@ -174,27 +174,27 @@ section AntiCommutativeRing
   | An vars zeroOL2 := (zero An)  
   | An vars (negOL2 x1) := ((neg An) (evalOp An vars x1))  
   | An vars oneOL2 := (one An)  
-  def inductionB   (P : (AntiCommutativeRingTerm → Type))  : ((∀ (x1 x2 : AntiCommutativeRingTerm) , ((P x1) → ((P x2) → (P (timesL x1 x2))))) → ((∀ (x1 x2 : AntiCommutativeRingTerm) , ((P x1) → ((P x2) → (P (plusL x1 x2))))) → ((P zeroL) → ((∀ (x1 : AntiCommutativeRingTerm) , ((P x1) → (P (negL x1)))) → ((P oneL) → (∀ (x : AntiCommutativeRingTerm) , (P x))))))) 
+  def inductionB   {P : (AntiCommutativeRingTerm → Type)}  : ((∀ (x1 x2 : AntiCommutativeRingTerm) , ((P x1) → ((P x2) → (P (timesL x1 x2))))) → ((∀ (x1 x2 : AntiCommutativeRingTerm) , ((P x1) → ((P x2) → (P (plusL x1 x2))))) → ((P zeroL) → ((∀ (x1 : AntiCommutativeRingTerm) , ((P x1) → (P (negL x1)))) → ((P oneL) → (∀ (x : AntiCommutativeRingTerm) , (P x))))))) 
   | ptimesl pplusl p0l pnegl p1l (timesL x1 x2) := (ptimesl _ _ (inductionB ptimesl pplusl p0l pnegl p1l x1) (inductionB ptimesl pplusl p0l pnegl p1l x2))  
   | ptimesl pplusl p0l pnegl p1l (plusL x1 x2) := (pplusl _ _ (inductionB ptimesl pplusl p0l pnegl p1l x1) (inductionB ptimesl pplusl p0l pnegl p1l x2))  
   | ptimesl pplusl p0l pnegl p1l zeroL := p0l  
   | ptimesl pplusl p0l pnegl p1l (negL x1) := (pnegl _ (inductionB ptimesl pplusl p0l pnegl p1l x1))  
   | ptimesl pplusl p0l pnegl p1l oneL := p1l  
-  def inductionCl   (A : Type) (P : ((ClAntiCommutativeRingTerm A) → Type))  : ((∀ (x1 : A) , (P (sing x1))) → ((∀ (x1 x2 : (ClAntiCommutativeRingTerm A)) , ((P x1) → ((P x2) → (P (timesCl x1 x2))))) → ((∀ (x1 x2 : (ClAntiCommutativeRingTerm A)) , ((P x1) → ((P x2) → (P (plusCl x1 x2))))) → ((P zeroCl) → ((∀ (x1 : (ClAntiCommutativeRingTerm A)) , ((P x1) → (P (negCl x1)))) → ((P oneCl) → (∀ (x : (ClAntiCommutativeRingTerm A)) , (P x)))))))) 
+  def inductionCl   {A : Type} {P : ((ClAntiCommutativeRingTerm A) → Type)}  : ((∀ (x1 : A) , (P (sing x1))) → ((∀ (x1 x2 : (ClAntiCommutativeRingTerm A)) , ((P x1) → ((P x2) → (P (timesCl x1 x2))))) → ((∀ (x1 x2 : (ClAntiCommutativeRingTerm A)) , ((P x1) → ((P x2) → (P (plusCl x1 x2))))) → ((P zeroCl) → ((∀ (x1 : (ClAntiCommutativeRingTerm A)) , ((P x1) → (P (negCl x1)))) → ((P oneCl) → (∀ (x : (ClAntiCommutativeRingTerm A)) , (P x)))))))) 
   | psing ptimescl ppluscl p0cl pnegcl p1cl (sing x1) := (psing x1)  
   | psing ptimescl ppluscl p0cl pnegcl p1cl (timesCl x1 x2) := (ptimescl _ _ (inductionCl psing ptimescl ppluscl p0cl pnegcl p1cl x1) (inductionCl psing ptimescl ppluscl p0cl pnegcl p1cl x2))  
   | psing ptimescl ppluscl p0cl pnegcl p1cl (plusCl x1 x2) := (ppluscl _ _ (inductionCl psing ptimescl ppluscl p0cl pnegcl p1cl x1) (inductionCl psing ptimescl ppluscl p0cl pnegcl p1cl x2))  
   | psing ptimescl ppluscl p0cl pnegcl p1cl zeroCl := p0cl  
   | psing ptimescl ppluscl p0cl pnegcl p1cl (negCl x1) := (pnegcl _ (inductionCl psing ptimescl ppluscl p0cl pnegcl p1cl x1))  
   | psing ptimescl ppluscl p0cl pnegcl p1cl oneCl := p1cl  
-  def inductionOpB   (n : ℕ) (P : ((OpAntiCommutativeRingTerm n) → Type))  : ((∀ (fin : (fin n)) , (P (v fin))) → ((∀ (x1 x2 : (OpAntiCommutativeRingTerm n)) , ((P x1) → ((P x2) → (P (timesOL x1 x2))))) → ((∀ (x1 x2 : (OpAntiCommutativeRingTerm n)) , ((P x1) → ((P x2) → (P (plusOL x1 x2))))) → ((P zeroOL) → ((∀ (x1 : (OpAntiCommutativeRingTerm n)) , ((P x1) → (P (negOL x1)))) → ((P oneOL) → (∀ (x : (OpAntiCommutativeRingTerm n)) , (P x)))))))) 
+  def inductionOpB   {n : ℕ} {P : ((OpAntiCommutativeRingTerm n) → Type)}  : ((∀ (fin : (fin n)) , (P (v fin))) → ((∀ (x1 x2 : (OpAntiCommutativeRingTerm n)) , ((P x1) → ((P x2) → (P (timesOL x1 x2))))) → ((∀ (x1 x2 : (OpAntiCommutativeRingTerm n)) , ((P x1) → ((P x2) → (P (plusOL x1 x2))))) → ((P zeroOL) → ((∀ (x1 : (OpAntiCommutativeRingTerm n)) , ((P x1) → (P (negOL x1)))) → ((P oneOL) → (∀ (x : (OpAntiCommutativeRingTerm n)) , (P x)))))))) 
   | pv ptimesol pplusol p0ol pnegol p1ol (v x1) := (pv x1)  
   | pv ptimesol pplusol p0ol pnegol p1ol (timesOL x1 x2) := (ptimesol _ _ (inductionOpB pv ptimesol pplusol p0ol pnegol p1ol x1) (inductionOpB pv ptimesol pplusol p0ol pnegol p1ol x2))  
   | pv ptimesol pplusol p0ol pnegol p1ol (plusOL x1 x2) := (pplusol _ _ (inductionOpB pv ptimesol pplusol p0ol pnegol p1ol x1) (inductionOpB pv ptimesol pplusol p0ol pnegol p1ol x2))  
   | pv ptimesol pplusol p0ol pnegol p1ol zeroOL := p0ol  
   | pv ptimesol pplusol p0ol pnegol p1ol (negOL x1) := (pnegol _ (inductionOpB pv ptimesol pplusol p0ol pnegol p1ol x1))  
   | pv ptimesol pplusol p0ol pnegol p1ol oneOL := p1ol  
-  def inductionOp   (n : ℕ) (A : Type) (P : ((OpAntiCommutativeRingTerm2 n A) → Type))  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((∀ (x1 x2 : (OpAntiCommutativeRingTerm2 n A)) , ((P x1) → ((P x2) → (P (timesOL2 x1 x2))))) → ((∀ (x1 x2 : (OpAntiCommutativeRingTerm2 n A)) , ((P x1) → ((P x2) → (P (plusOL2 x1 x2))))) → ((P zeroOL2) → ((∀ (x1 : (OpAntiCommutativeRingTerm2 n A)) , ((P x1) → (P (negOL2 x1)))) → ((P oneOL2) → (∀ (x : (OpAntiCommutativeRingTerm2 n A)) , (P x))))))))) 
+  def inductionOp   {n : ℕ} {A : Type} {P : ((OpAntiCommutativeRingTerm2 n A) → Type)}  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((∀ (x1 x2 : (OpAntiCommutativeRingTerm2 n A)) , ((P x1) → ((P x2) → (P (timesOL2 x1 x2))))) → ((∀ (x1 x2 : (OpAntiCommutativeRingTerm2 n A)) , ((P x1) → ((P x2) → (P (plusOL2 x1 x2))))) → ((P zeroOL2) → ((∀ (x1 : (OpAntiCommutativeRingTerm2 n A)) , ((P x1) → (P (negOL2 x1)))) → ((P oneOL2) → (∀ (x : (OpAntiCommutativeRingTerm2 n A)) , (P x))))))))) 
   | pv2 psing2 ptimesol2 pplusol2 p0ol2 pnegol2 p1ol2 (v2 x1) := (pv2 x1)  
   | pv2 psing2 ptimesol2 pplusol2 p0ol2 pnegol2 p1ol2 (sing2 x1) := (psing2 x1)  
   | pv2 psing2 ptimesol2 pplusol2 p0ol2 pnegol2 p1ol2 (timesOL2 x1 x2) := (ptimesol2 _ _ (inductionOp pv2 psing2 ptimesol2 pplusol2 p0ol2 pnegol2 p1ol2 x1) (inductionOp pv2 psing2 ptimesol2 pplusol2 p0ol2 pnegol2 p1ol2 x2))  
@@ -208,21 +208,21 @@ section AntiCommutativeRing
   | zeroL := (Now zeroL)  
   | (negL x1) := (stage1 negL (codeLift1 negL) (stageB x1))  
   | oneL := (Now oneL)  
-  def stageCl   (A : Type)  : ((ClAntiCommutativeRingTerm A) → (Staged (ClAntiCommutativeRingTerm A))) 
+  def stageCl   {A : Type}  : ((ClAntiCommutativeRingTerm A) → (Staged (ClAntiCommutativeRingTerm A))) 
   | (sing x1) := (Now (sing x1))  
   | (timesCl x1 x2) := (stage2 timesCl (codeLift2 timesCl) (stageCl x1) (stageCl x2))  
   | (plusCl x1 x2) := (stage2 plusCl (codeLift2 plusCl) (stageCl x1) (stageCl x2))  
   | zeroCl := (Now zeroCl)  
   | (negCl x1) := (stage1 negCl (codeLift1 negCl) (stageCl x1))  
   | oneCl := (Now oneCl)  
-  def stageOpB   (n : ℕ)  : ((OpAntiCommutativeRingTerm n) → (Staged (OpAntiCommutativeRingTerm n))) 
+  def stageOpB   {n : ℕ}  : ((OpAntiCommutativeRingTerm n) → (Staged (OpAntiCommutativeRingTerm n))) 
   | (v x1) := (const (code (v x1)))  
   | (timesOL x1 x2) := (stage2 timesOL (codeLift2 timesOL) (stageOpB x1) (stageOpB x2))  
   | (plusOL x1 x2) := (stage2 plusOL (codeLift2 plusOL) (stageOpB x1) (stageOpB x2))  
   | zeroOL := (Now zeroOL)  
   | (negOL x1) := (stage1 negOL (codeLift1 negOL) (stageOpB x1))  
   | oneOL := (Now oneOL)  
-  def stageOp   (n : ℕ) (A : Type)  : ((OpAntiCommutativeRingTerm2 n A) → (Staged (OpAntiCommutativeRingTerm2 n A))) 
+  def stageOp   {n : ℕ} {A : Type}  : ((OpAntiCommutativeRingTerm2 n A) → (Staged (OpAntiCommutativeRingTerm2 n A))) 
   | (sing2 x1) := (Now (sing2 x1))  
   | (v2 x1) := (const (code (v2 x1)))  
   | (timesOL2 x1 x2) := (stage2 timesOL2 (codeLift2 timesOL2) (stageOp x1) (stageOp x2))  

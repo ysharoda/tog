@@ -83,21 +83,21 @@ section BoundedJoinLattice
      | timesOL2 : (OpBoundedJoinLatticeTerm2 → (OpBoundedJoinLatticeTerm2 → OpBoundedJoinLatticeTerm2))  
       open OpBoundedJoinLatticeTerm2 
   
-  def simplifyCl   (A : Type)  : ((ClBoundedJoinLatticeTerm A) → (ClBoundedJoinLatticeTerm A)) 
+  def simplifyCl   {A : Type}  : ((ClBoundedJoinLatticeTerm A) → (ClBoundedJoinLatticeTerm A)) 
   | (plusCl zeroCl x) := x  
   | (plusCl x zeroCl) := x  
   | (plusCl x1 x2) := (plusCl (simplifyCl x1) (simplifyCl x2))  
   | zeroCl := zeroCl  
   | (timesCl x1 x2) := (timesCl (simplifyCl x1) (simplifyCl x2))  
   | (sing x1) := (sing x1)  
-  def simplifyOpB   (n : ℕ)  : ((OpBoundedJoinLatticeTerm n) → (OpBoundedJoinLatticeTerm n)) 
+  def simplifyOpB   {n : ℕ}  : ((OpBoundedJoinLatticeTerm n) → (OpBoundedJoinLatticeTerm n)) 
   | (plusOL zeroOL x) := x  
   | (plusOL x zeroOL) := x  
   | (plusOL x1 x2) := (plusOL (simplifyOpB x1) (simplifyOpB x2))  
   | zeroOL := zeroOL  
   | (timesOL x1 x2) := (timesOL (simplifyOpB x1) (simplifyOpB x2))  
   | (v x1) := (v x1)  
-  def simplifyOp   (n : ℕ) (A : Type)  : ((OpBoundedJoinLatticeTerm2 n A) → (OpBoundedJoinLatticeTerm2 n A)) 
+  def simplifyOp   {n : ℕ} {A : Type}  : ((OpBoundedJoinLatticeTerm2 n A) → (OpBoundedJoinLatticeTerm2 n A)) 
   | (plusOL2 zeroOL2 x) := x  
   | (plusOL2 x zeroOL2) := x  
   | (plusOL2 x1 x2) := (plusOL2 (simplifyOp x1) (simplifyOp x2))  
@@ -114,32 +114,32 @@ section BoundedJoinLattice
   | Bo (plusCl x1 x2) := ((plus Bo) (evalCl Bo x1) (evalCl Bo x2))  
   | Bo zeroCl := (zero Bo)  
   | Bo (timesCl x1 x2) := ((times Bo) (evalCl Bo x1) (evalCl Bo x2))  
-  def evalOpB   {A : Type} (n : ℕ)  : ((BoundedJoinLattice A) → ((vector A n) → ((OpBoundedJoinLatticeTerm n) → A))) 
+  def evalOpB   {A : Type} {n : ℕ}  : ((BoundedJoinLattice A) → ((vector A n) → ((OpBoundedJoinLatticeTerm n) → A))) 
   | Bo vars (v x1) := (nth vars x1)  
   | Bo vars (plusOL x1 x2) := ((plus Bo) (evalOpB Bo vars x1) (evalOpB Bo vars x2))  
   | Bo vars zeroOL := (zero Bo)  
   | Bo vars (timesOL x1 x2) := ((times Bo) (evalOpB Bo vars x1) (evalOpB Bo vars x2))  
-  def evalOp   {A : Type} (n : ℕ)  : ((BoundedJoinLattice A) → ((vector A n) → ((OpBoundedJoinLatticeTerm2 n A) → A))) 
+  def evalOp   {A : Type} {n : ℕ}  : ((BoundedJoinLattice A) → ((vector A n) → ((OpBoundedJoinLatticeTerm2 n A) → A))) 
   | Bo vars (v2 x1) := (nth vars x1)  
   | Bo vars (sing2 x1) := x1  
   | Bo vars (plusOL2 x1 x2) := ((plus Bo) (evalOp Bo vars x1) (evalOp Bo vars x2))  
   | Bo vars zeroOL2 := (zero Bo)  
   | Bo vars (timesOL2 x1 x2) := ((times Bo) (evalOp Bo vars x1) (evalOp Bo vars x2))  
-  def inductionB   (P : (BoundedJoinLatticeTerm → Type))  : ((∀ (x1 x2 : BoundedJoinLatticeTerm) , ((P x1) → ((P x2) → (P (plusL x1 x2))))) → ((P zeroL) → ((∀ (x1 x2 : BoundedJoinLatticeTerm) , ((P x1) → ((P x2) → (P (timesL x1 x2))))) → (∀ (x : BoundedJoinLatticeTerm) , (P x))))) 
+  def inductionB   {P : (BoundedJoinLatticeTerm → Type)}  : ((∀ (x1 x2 : BoundedJoinLatticeTerm) , ((P x1) → ((P x2) → (P (plusL x1 x2))))) → ((P zeroL) → ((∀ (x1 x2 : BoundedJoinLatticeTerm) , ((P x1) → ((P x2) → (P (timesL x1 x2))))) → (∀ (x : BoundedJoinLatticeTerm) , (P x))))) 
   | pplusl p0l ptimesl (plusL x1 x2) := (pplusl _ _ (inductionB pplusl p0l ptimesl x1) (inductionB pplusl p0l ptimesl x2))  
   | pplusl p0l ptimesl zeroL := p0l  
   | pplusl p0l ptimesl (timesL x1 x2) := (ptimesl _ _ (inductionB pplusl p0l ptimesl x1) (inductionB pplusl p0l ptimesl x2))  
-  def inductionCl   (A : Type) (P : ((ClBoundedJoinLatticeTerm A) → Type))  : ((∀ (x1 : A) , (P (sing x1))) → ((∀ (x1 x2 : (ClBoundedJoinLatticeTerm A)) , ((P x1) → ((P x2) → (P (plusCl x1 x2))))) → ((P zeroCl) → ((∀ (x1 x2 : (ClBoundedJoinLatticeTerm A)) , ((P x1) → ((P x2) → (P (timesCl x1 x2))))) → (∀ (x : (ClBoundedJoinLatticeTerm A)) , (P x)))))) 
+  def inductionCl   {A : Type} {P : ((ClBoundedJoinLatticeTerm A) → Type)}  : ((∀ (x1 : A) , (P (sing x1))) → ((∀ (x1 x2 : (ClBoundedJoinLatticeTerm A)) , ((P x1) → ((P x2) → (P (plusCl x1 x2))))) → ((P zeroCl) → ((∀ (x1 x2 : (ClBoundedJoinLatticeTerm A)) , ((P x1) → ((P x2) → (P (timesCl x1 x2))))) → (∀ (x : (ClBoundedJoinLatticeTerm A)) , (P x)))))) 
   | psing ppluscl p0cl ptimescl (sing x1) := (psing x1)  
   | psing ppluscl p0cl ptimescl (plusCl x1 x2) := (ppluscl _ _ (inductionCl psing ppluscl p0cl ptimescl x1) (inductionCl psing ppluscl p0cl ptimescl x2))  
   | psing ppluscl p0cl ptimescl zeroCl := p0cl  
   | psing ppluscl p0cl ptimescl (timesCl x1 x2) := (ptimescl _ _ (inductionCl psing ppluscl p0cl ptimescl x1) (inductionCl psing ppluscl p0cl ptimescl x2))  
-  def inductionOpB   (n : ℕ) (P : ((OpBoundedJoinLatticeTerm n) → Type))  : ((∀ (fin : (fin n)) , (P (v fin))) → ((∀ (x1 x2 : (OpBoundedJoinLatticeTerm n)) , ((P x1) → ((P x2) → (P (plusOL x1 x2))))) → ((P zeroOL) → ((∀ (x1 x2 : (OpBoundedJoinLatticeTerm n)) , ((P x1) → ((P x2) → (P (timesOL x1 x2))))) → (∀ (x : (OpBoundedJoinLatticeTerm n)) , (P x)))))) 
+  def inductionOpB   {n : ℕ} {P : ((OpBoundedJoinLatticeTerm n) → Type)}  : ((∀ (fin : (fin n)) , (P (v fin))) → ((∀ (x1 x2 : (OpBoundedJoinLatticeTerm n)) , ((P x1) → ((P x2) → (P (plusOL x1 x2))))) → ((P zeroOL) → ((∀ (x1 x2 : (OpBoundedJoinLatticeTerm n)) , ((P x1) → ((P x2) → (P (timesOL x1 x2))))) → (∀ (x : (OpBoundedJoinLatticeTerm n)) , (P x)))))) 
   | pv pplusol p0ol ptimesol (v x1) := (pv x1)  
   | pv pplusol p0ol ptimesol (plusOL x1 x2) := (pplusol _ _ (inductionOpB pv pplusol p0ol ptimesol x1) (inductionOpB pv pplusol p0ol ptimesol x2))  
   | pv pplusol p0ol ptimesol zeroOL := p0ol  
   | pv pplusol p0ol ptimesol (timesOL x1 x2) := (ptimesol _ _ (inductionOpB pv pplusol p0ol ptimesol x1) (inductionOpB pv pplusol p0ol ptimesol x2))  
-  def inductionOp   (n : ℕ) (A : Type) (P : ((OpBoundedJoinLatticeTerm2 n A) → Type))  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((∀ (x1 x2 : (OpBoundedJoinLatticeTerm2 n A)) , ((P x1) → ((P x2) → (P (plusOL2 x1 x2))))) → ((P zeroOL2) → ((∀ (x1 x2 : (OpBoundedJoinLatticeTerm2 n A)) , ((P x1) → ((P x2) → (P (timesOL2 x1 x2))))) → (∀ (x : (OpBoundedJoinLatticeTerm2 n A)) , (P x))))))) 
+  def inductionOp   {n : ℕ} {A : Type} {P : ((OpBoundedJoinLatticeTerm2 n A) → Type)}  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((∀ (x1 x2 : (OpBoundedJoinLatticeTerm2 n A)) , ((P x1) → ((P x2) → (P (plusOL2 x1 x2))))) → ((P zeroOL2) → ((∀ (x1 x2 : (OpBoundedJoinLatticeTerm2 n A)) , ((P x1) → ((P x2) → (P (timesOL2 x1 x2))))) → (∀ (x : (OpBoundedJoinLatticeTerm2 n A)) , (P x))))))) 
   | pv2 psing2 pplusol2 p0ol2 ptimesol2 (v2 x1) := (pv2 x1)  
   | pv2 psing2 pplusol2 p0ol2 ptimesol2 (sing2 x1) := (psing2 x1)  
   | pv2 psing2 pplusol2 p0ol2 ptimesol2 (plusOL2 x1 x2) := (pplusol2 _ _ (inductionOp pv2 psing2 pplusol2 p0ol2 ptimesol2 x1) (inductionOp pv2 psing2 pplusol2 p0ol2 ptimesol2 x2))  
@@ -149,17 +149,17 @@ section BoundedJoinLattice
   | (plusL x1 x2) := (stage2 plusL (codeLift2 plusL) (stageB x1) (stageB x2))  
   | zeroL := (Now zeroL)  
   | (timesL x1 x2) := (stage2 timesL (codeLift2 timesL) (stageB x1) (stageB x2))  
-  def stageCl   (A : Type)  : ((ClBoundedJoinLatticeTerm A) → (Staged (ClBoundedJoinLatticeTerm A))) 
+  def stageCl   {A : Type}  : ((ClBoundedJoinLatticeTerm A) → (Staged (ClBoundedJoinLatticeTerm A))) 
   | (sing x1) := (Now (sing x1))  
   | (plusCl x1 x2) := (stage2 plusCl (codeLift2 plusCl) (stageCl x1) (stageCl x2))  
   | zeroCl := (Now zeroCl)  
   | (timesCl x1 x2) := (stage2 timesCl (codeLift2 timesCl) (stageCl x1) (stageCl x2))  
-  def stageOpB   (n : ℕ)  : ((OpBoundedJoinLatticeTerm n) → (Staged (OpBoundedJoinLatticeTerm n))) 
+  def stageOpB   {n : ℕ}  : ((OpBoundedJoinLatticeTerm n) → (Staged (OpBoundedJoinLatticeTerm n))) 
   | (v x1) := (const (code (v x1)))  
   | (plusOL x1 x2) := (stage2 plusOL (codeLift2 plusOL) (stageOpB x1) (stageOpB x2))  
   | zeroOL := (Now zeroOL)  
   | (timesOL x1 x2) := (stage2 timesOL (codeLift2 timesOL) (stageOpB x1) (stageOpB x2))  
-  def stageOp   (n : ℕ) (A : Type)  : ((OpBoundedJoinLatticeTerm2 n A) → (Staged (OpBoundedJoinLatticeTerm2 n A))) 
+  def stageOp   {n : ℕ} {A : Type}  : ((OpBoundedJoinLatticeTerm2 n A) → (Staged (OpBoundedJoinLatticeTerm2 n A))) 
   | (sing2 x1) := (Now (sing2 x1))  
   | (v2 x1) := (const (code (v2 x1)))  
   | (plusOL2 x1 x2) := (stage2 plusOL2 (codeLift2 plusOL2) (stageOp x1) (stageOp x2))  

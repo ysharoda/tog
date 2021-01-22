@@ -84,7 +84,7 @@ section DoubleMonoid
      | timesOL2 : (OpDoubleMonoidTerm2 → (OpDoubleMonoidTerm2 → OpDoubleMonoidTerm2))  
       open OpDoubleMonoidTerm2 
   
-  def simplifyCl   (A : Type)  : ((ClDoubleMonoidTerm A) → (ClDoubleMonoidTerm A)) 
+  def simplifyCl   {A : Type}  : ((ClDoubleMonoidTerm A) → (ClDoubleMonoidTerm A)) 
   | (plusCl zeroCl x) := x  
   | (plusCl x zeroCl) := x  
   | (timesCl oneCl x) := x  
@@ -94,7 +94,7 @@ section DoubleMonoid
   | oneCl := oneCl  
   | (timesCl x1 x2) := (timesCl (simplifyCl x1) (simplifyCl x2))  
   | (sing x1) := (sing x1)  
-  def simplifyOpB   (n : ℕ)  : ((OpDoubleMonoidTerm n) → (OpDoubleMonoidTerm n)) 
+  def simplifyOpB   {n : ℕ}  : ((OpDoubleMonoidTerm n) → (OpDoubleMonoidTerm n)) 
   | (plusOL zeroOL x) := x  
   | (plusOL x zeroOL) := x  
   | (timesOL oneOL x) := x  
@@ -104,7 +104,7 @@ section DoubleMonoid
   | oneOL := oneOL  
   | (timesOL x1 x2) := (timesOL (simplifyOpB x1) (simplifyOpB x2))  
   | (v x1) := (v x1)  
-  def simplifyOp   (n : ℕ) (A : Type)  : ((OpDoubleMonoidTerm2 n A) → (OpDoubleMonoidTerm2 n A)) 
+  def simplifyOp   {n : ℕ} {A : Type}  : ((OpDoubleMonoidTerm2 n A) → (OpDoubleMonoidTerm2 n A)) 
   | (plusOL2 zeroOL2 x) := x  
   | (plusOL2 x zeroOL2) := x  
   | (timesOL2 oneOL2 x) := x  
@@ -126,37 +126,37 @@ section DoubleMonoid
   | Do (plusCl x1 x2) := ((plus Do) (evalCl Do x1) (evalCl Do x2))  
   | Do oneCl := (one Do)  
   | Do (timesCl x1 x2) := ((times Do) (evalCl Do x1) (evalCl Do x2))  
-  def evalOpB   {A : Type} (n : ℕ)  : ((DoubleMonoid A) → ((vector A n) → ((OpDoubleMonoidTerm n) → A))) 
+  def evalOpB   {A : Type} {n : ℕ}  : ((DoubleMonoid A) → ((vector A n) → ((OpDoubleMonoidTerm n) → A))) 
   | Do vars (v x1) := (nth vars x1)  
   | Do vars zeroOL := (zero Do)  
   | Do vars (plusOL x1 x2) := ((plus Do) (evalOpB Do vars x1) (evalOpB Do vars x2))  
   | Do vars oneOL := (one Do)  
   | Do vars (timesOL x1 x2) := ((times Do) (evalOpB Do vars x1) (evalOpB Do vars x2))  
-  def evalOp   {A : Type} (n : ℕ)  : ((DoubleMonoid A) → ((vector A n) → ((OpDoubleMonoidTerm2 n A) → A))) 
+  def evalOp   {A : Type} {n : ℕ}  : ((DoubleMonoid A) → ((vector A n) → ((OpDoubleMonoidTerm2 n A) → A))) 
   | Do vars (v2 x1) := (nth vars x1)  
   | Do vars (sing2 x1) := x1  
   | Do vars zeroOL2 := (zero Do)  
   | Do vars (plusOL2 x1 x2) := ((plus Do) (evalOp Do vars x1) (evalOp Do vars x2))  
   | Do vars oneOL2 := (one Do)  
   | Do vars (timesOL2 x1 x2) := ((times Do) (evalOp Do vars x1) (evalOp Do vars x2))  
-  def inductionB   (P : (DoubleMonoidTerm → Type))  : ((P zeroL) → ((∀ (x1 x2 : DoubleMonoidTerm) , ((P x1) → ((P x2) → (P (plusL x1 x2))))) → ((P oneL) → ((∀ (x1 x2 : DoubleMonoidTerm) , ((P x1) → ((P x2) → (P (timesL x1 x2))))) → (∀ (x : DoubleMonoidTerm) , (P x)))))) 
+  def inductionB   {P : (DoubleMonoidTerm → Type)}  : ((P zeroL) → ((∀ (x1 x2 : DoubleMonoidTerm) , ((P x1) → ((P x2) → (P (plusL x1 x2))))) → ((P oneL) → ((∀ (x1 x2 : DoubleMonoidTerm) , ((P x1) → ((P x2) → (P (timesL x1 x2))))) → (∀ (x : DoubleMonoidTerm) , (P x)))))) 
   | p0l pplusl p1l ptimesl zeroL := p0l  
   | p0l pplusl p1l ptimesl (plusL x1 x2) := (pplusl _ _ (inductionB p0l pplusl p1l ptimesl x1) (inductionB p0l pplusl p1l ptimesl x2))  
   | p0l pplusl p1l ptimesl oneL := p1l  
   | p0l pplusl p1l ptimesl (timesL x1 x2) := (ptimesl _ _ (inductionB p0l pplusl p1l ptimesl x1) (inductionB p0l pplusl p1l ptimesl x2))  
-  def inductionCl   (A : Type) (P : ((ClDoubleMonoidTerm A) → Type))  : ((∀ (x1 : A) , (P (sing x1))) → ((P zeroCl) → ((∀ (x1 x2 : (ClDoubleMonoidTerm A)) , ((P x1) → ((P x2) → (P (plusCl x1 x2))))) → ((P oneCl) → ((∀ (x1 x2 : (ClDoubleMonoidTerm A)) , ((P x1) → ((P x2) → (P (timesCl x1 x2))))) → (∀ (x : (ClDoubleMonoidTerm A)) , (P x))))))) 
+  def inductionCl   {A : Type} {P : ((ClDoubleMonoidTerm A) → Type)}  : ((∀ (x1 : A) , (P (sing x1))) → ((P zeroCl) → ((∀ (x1 x2 : (ClDoubleMonoidTerm A)) , ((P x1) → ((P x2) → (P (plusCl x1 x2))))) → ((P oneCl) → ((∀ (x1 x2 : (ClDoubleMonoidTerm A)) , ((P x1) → ((P x2) → (P (timesCl x1 x2))))) → (∀ (x : (ClDoubleMonoidTerm A)) , (P x))))))) 
   | psing p0cl ppluscl p1cl ptimescl (sing x1) := (psing x1)  
   | psing p0cl ppluscl p1cl ptimescl zeroCl := p0cl  
   | psing p0cl ppluscl p1cl ptimescl (plusCl x1 x2) := (ppluscl _ _ (inductionCl psing p0cl ppluscl p1cl ptimescl x1) (inductionCl psing p0cl ppluscl p1cl ptimescl x2))  
   | psing p0cl ppluscl p1cl ptimescl oneCl := p1cl  
   | psing p0cl ppluscl p1cl ptimescl (timesCl x1 x2) := (ptimescl _ _ (inductionCl psing p0cl ppluscl p1cl ptimescl x1) (inductionCl psing p0cl ppluscl p1cl ptimescl x2))  
-  def inductionOpB   (n : ℕ) (P : ((OpDoubleMonoidTerm n) → Type))  : ((∀ (fin : (fin n)) , (P (v fin))) → ((P zeroOL) → ((∀ (x1 x2 : (OpDoubleMonoidTerm n)) , ((P x1) → ((P x2) → (P (plusOL x1 x2))))) → ((P oneOL) → ((∀ (x1 x2 : (OpDoubleMonoidTerm n)) , ((P x1) → ((P x2) → (P (timesOL x1 x2))))) → (∀ (x : (OpDoubleMonoidTerm n)) , (P x))))))) 
+  def inductionOpB   {n : ℕ} {P : ((OpDoubleMonoidTerm n) → Type)}  : ((∀ (fin : (fin n)) , (P (v fin))) → ((P zeroOL) → ((∀ (x1 x2 : (OpDoubleMonoidTerm n)) , ((P x1) → ((P x2) → (P (plusOL x1 x2))))) → ((P oneOL) → ((∀ (x1 x2 : (OpDoubleMonoidTerm n)) , ((P x1) → ((P x2) → (P (timesOL x1 x2))))) → (∀ (x : (OpDoubleMonoidTerm n)) , (P x))))))) 
   | pv p0ol pplusol p1ol ptimesol (v x1) := (pv x1)  
   | pv p0ol pplusol p1ol ptimesol zeroOL := p0ol  
   | pv p0ol pplusol p1ol ptimesol (plusOL x1 x2) := (pplusol _ _ (inductionOpB pv p0ol pplusol p1ol ptimesol x1) (inductionOpB pv p0ol pplusol p1ol ptimesol x2))  
   | pv p0ol pplusol p1ol ptimesol oneOL := p1ol  
   | pv p0ol pplusol p1ol ptimesol (timesOL x1 x2) := (ptimesol _ _ (inductionOpB pv p0ol pplusol p1ol ptimesol x1) (inductionOpB pv p0ol pplusol p1ol ptimesol x2))  
-  def inductionOp   (n : ℕ) (A : Type) (P : ((OpDoubleMonoidTerm2 n A) → Type))  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((P zeroOL2) → ((∀ (x1 x2 : (OpDoubleMonoidTerm2 n A)) , ((P x1) → ((P x2) → (P (plusOL2 x1 x2))))) → ((P oneOL2) → ((∀ (x1 x2 : (OpDoubleMonoidTerm2 n A)) , ((P x1) → ((P x2) → (P (timesOL2 x1 x2))))) → (∀ (x : (OpDoubleMonoidTerm2 n A)) , (P x)))))))) 
+  def inductionOp   {n : ℕ} {A : Type} {P : ((OpDoubleMonoidTerm2 n A) → Type)}  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((P zeroOL2) → ((∀ (x1 x2 : (OpDoubleMonoidTerm2 n A)) , ((P x1) → ((P x2) → (P (plusOL2 x1 x2))))) → ((P oneOL2) → ((∀ (x1 x2 : (OpDoubleMonoidTerm2 n A)) , ((P x1) → ((P x2) → (P (timesOL2 x1 x2))))) → (∀ (x : (OpDoubleMonoidTerm2 n A)) , (P x)))))))) 
   | pv2 psing2 p0ol2 pplusol2 p1ol2 ptimesol2 (v2 x1) := (pv2 x1)  
   | pv2 psing2 p0ol2 pplusol2 p1ol2 ptimesol2 (sing2 x1) := (psing2 x1)  
   | pv2 psing2 p0ol2 pplusol2 p1ol2 ptimesol2 zeroOL2 := p0ol2  
@@ -168,19 +168,19 @@ section DoubleMonoid
   | (plusL x1 x2) := (stage2 plusL (codeLift2 plusL) (stageB x1) (stageB x2))  
   | oneL := (Now oneL)  
   | (timesL x1 x2) := (stage2 timesL (codeLift2 timesL) (stageB x1) (stageB x2))  
-  def stageCl   (A : Type)  : ((ClDoubleMonoidTerm A) → (Staged (ClDoubleMonoidTerm A))) 
+  def stageCl   {A : Type}  : ((ClDoubleMonoidTerm A) → (Staged (ClDoubleMonoidTerm A))) 
   | (sing x1) := (Now (sing x1))  
   | zeroCl := (Now zeroCl)  
   | (plusCl x1 x2) := (stage2 plusCl (codeLift2 plusCl) (stageCl x1) (stageCl x2))  
   | oneCl := (Now oneCl)  
   | (timesCl x1 x2) := (stage2 timesCl (codeLift2 timesCl) (stageCl x1) (stageCl x2))  
-  def stageOpB   (n : ℕ)  : ((OpDoubleMonoidTerm n) → (Staged (OpDoubleMonoidTerm n))) 
+  def stageOpB   {n : ℕ}  : ((OpDoubleMonoidTerm n) → (Staged (OpDoubleMonoidTerm n))) 
   | (v x1) := (const (code (v x1)))  
   | zeroOL := (Now zeroOL)  
   | (plusOL x1 x2) := (stage2 plusOL (codeLift2 plusOL) (stageOpB x1) (stageOpB x2))  
   | oneOL := (Now oneOL)  
   | (timesOL x1 x2) := (stage2 timesOL (codeLift2 timesOL) (stageOpB x1) (stageOpB x2))  
-  def stageOp   (n : ℕ) (A : Type)  : ((OpDoubleMonoidTerm2 n A) → (Staged (OpDoubleMonoidTerm2 n A))) 
+  def stageOp   {n : ℕ} {A : Type}  : ((OpDoubleMonoidTerm2 n A) → (Staged (OpDoubleMonoidTerm2 n A))) 
   | (sing2 x1) := (Now (sing2 x1))  
   | (v2 x1) := (const (code (v2 x1)))  
   | zeroOL2 := (Now zeroOL2)  

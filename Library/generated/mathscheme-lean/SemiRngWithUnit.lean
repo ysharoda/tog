@@ -90,7 +90,7 @@ section SemiRngWithUnit
      | zeroOL2 : OpSemiRngWithUnitTerm2  
       open OpSemiRngWithUnitTerm2 
   
-  def simplifyCl   (A : Type)  : ((ClSemiRngWithUnitTerm A) → (ClSemiRngWithUnitTerm A)) 
+  def simplifyCl   {A : Type}  : ((ClSemiRngWithUnitTerm A) → (ClSemiRngWithUnitTerm A)) 
   | (timesCl oneCl x) := x  
   | (timesCl x oneCl) := x  
   | (plusCl zeroCl x) := x  
@@ -100,7 +100,7 @@ section SemiRngWithUnit
   | (plusCl x1 x2) := (plusCl (simplifyCl x1) (simplifyCl x2))  
   | zeroCl := zeroCl  
   | (sing x1) := (sing x1)  
-  def simplifyOpB   (n : ℕ)  : ((OpSemiRngWithUnitTerm n) → (OpSemiRngWithUnitTerm n)) 
+  def simplifyOpB   {n : ℕ}  : ((OpSemiRngWithUnitTerm n) → (OpSemiRngWithUnitTerm n)) 
   | (timesOL oneOL x) := x  
   | (timesOL x oneOL) := x  
   | (plusOL zeroOL x) := x  
@@ -110,7 +110,7 @@ section SemiRngWithUnit
   | (plusOL x1 x2) := (plusOL (simplifyOpB x1) (simplifyOpB x2))  
   | zeroOL := zeroOL  
   | (v x1) := (v x1)  
-  def simplifyOp   (n : ℕ) (A : Type)  : ((OpSemiRngWithUnitTerm2 n A) → (OpSemiRngWithUnitTerm2 n A)) 
+  def simplifyOp   {n : ℕ} {A : Type}  : ((OpSemiRngWithUnitTerm2 n A) → (OpSemiRngWithUnitTerm2 n A)) 
   | (timesOL2 oneOL2 x) := x  
   | (timesOL2 x oneOL2) := x  
   | (plusOL2 zeroOL2 x) := x  
@@ -132,37 +132,37 @@ section SemiRngWithUnit
   | Se oneCl := (one Se)  
   | Se (plusCl x1 x2) := ((plus Se) (evalCl Se x1) (evalCl Se x2))  
   | Se zeroCl := (zero Se)  
-  def evalOpB   {A : Type} (n : ℕ)  : ((SemiRngWithUnit A) → ((vector A n) → ((OpSemiRngWithUnitTerm n) → A))) 
+  def evalOpB   {A : Type} {n : ℕ}  : ((SemiRngWithUnit A) → ((vector A n) → ((OpSemiRngWithUnitTerm n) → A))) 
   | Se vars (v x1) := (nth vars x1)  
   | Se vars (timesOL x1 x2) := ((times Se) (evalOpB Se vars x1) (evalOpB Se vars x2))  
   | Se vars oneOL := (one Se)  
   | Se vars (plusOL x1 x2) := ((plus Se) (evalOpB Se vars x1) (evalOpB Se vars x2))  
   | Se vars zeroOL := (zero Se)  
-  def evalOp   {A : Type} (n : ℕ)  : ((SemiRngWithUnit A) → ((vector A n) → ((OpSemiRngWithUnitTerm2 n A) → A))) 
+  def evalOp   {A : Type} {n : ℕ}  : ((SemiRngWithUnit A) → ((vector A n) → ((OpSemiRngWithUnitTerm2 n A) → A))) 
   | Se vars (v2 x1) := (nth vars x1)  
   | Se vars (sing2 x1) := x1  
   | Se vars (timesOL2 x1 x2) := ((times Se) (evalOp Se vars x1) (evalOp Se vars x2))  
   | Se vars oneOL2 := (one Se)  
   | Se vars (plusOL2 x1 x2) := ((plus Se) (evalOp Se vars x1) (evalOp Se vars x2))  
   | Se vars zeroOL2 := (zero Se)  
-  def inductionB   (P : (SemiRngWithUnitTerm → Type))  : ((∀ (x1 x2 : SemiRngWithUnitTerm) , ((P x1) → ((P x2) → (P (timesL x1 x2))))) → ((P oneL) → ((∀ (x1 x2 : SemiRngWithUnitTerm) , ((P x1) → ((P x2) → (P (plusL x1 x2))))) → ((P zeroL) → (∀ (x : SemiRngWithUnitTerm) , (P x)))))) 
+  def inductionB   {P : (SemiRngWithUnitTerm → Type)}  : ((∀ (x1 x2 : SemiRngWithUnitTerm) , ((P x1) → ((P x2) → (P (timesL x1 x2))))) → ((P oneL) → ((∀ (x1 x2 : SemiRngWithUnitTerm) , ((P x1) → ((P x2) → (P (plusL x1 x2))))) → ((P zeroL) → (∀ (x : SemiRngWithUnitTerm) , (P x)))))) 
   | ptimesl p1l pplusl p0l (timesL x1 x2) := (ptimesl _ _ (inductionB ptimesl p1l pplusl p0l x1) (inductionB ptimesl p1l pplusl p0l x2))  
   | ptimesl p1l pplusl p0l oneL := p1l  
   | ptimesl p1l pplusl p0l (plusL x1 x2) := (pplusl _ _ (inductionB ptimesl p1l pplusl p0l x1) (inductionB ptimesl p1l pplusl p0l x2))  
   | ptimesl p1l pplusl p0l zeroL := p0l  
-  def inductionCl   (A : Type) (P : ((ClSemiRngWithUnitTerm A) → Type))  : ((∀ (x1 : A) , (P (sing x1))) → ((∀ (x1 x2 : (ClSemiRngWithUnitTerm A)) , ((P x1) → ((P x2) → (P (timesCl x1 x2))))) → ((P oneCl) → ((∀ (x1 x2 : (ClSemiRngWithUnitTerm A)) , ((P x1) → ((P x2) → (P (plusCl x1 x2))))) → ((P zeroCl) → (∀ (x : (ClSemiRngWithUnitTerm A)) , (P x))))))) 
+  def inductionCl   {A : Type} {P : ((ClSemiRngWithUnitTerm A) → Type)}  : ((∀ (x1 : A) , (P (sing x1))) → ((∀ (x1 x2 : (ClSemiRngWithUnitTerm A)) , ((P x1) → ((P x2) → (P (timesCl x1 x2))))) → ((P oneCl) → ((∀ (x1 x2 : (ClSemiRngWithUnitTerm A)) , ((P x1) → ((P x2) → (P (plusCl x1 x2))))) → ((P zeroCl) → (∀ (x : (ClSemiRngWithUnitTerm A)) , (P x))))))) 
   | psing ptimescl p1cl ppluscl p0cl (sing x1) := (psing x1)  
   | psing ptimescl p1cl ppluscl p0cl (timesCl x1 x2) := (ptimescl _ _ (inductionCl psing ptimescl p1cl ppluscl p0cl x1) (inductionCl psing ptimescl p1cl ppluscl p0cl x2))  
   | psing ptimescl p1cl ppluscl p0cl oneCl := p1cl  
   | psing ptimescl p1cl ppluscl p0cl (plusCl x1 x2) := (ppluscl _ _ (inductionCl psing ptimescl p1cl ppluscl p0cl x1) (inductionCl psing ptimescl p1cl ppluscl p0cl x2))  
   | psing ptimescl p1cl ppluscl p0cl zeroCl := p0cl  
-  def inductionOpB   (n : ℕ) (P : ((OpSemiRngWithUnitTerm n) → Type))  : ((∀ (fin : (fin n)) , (P (v fin))) → ((∀ (x1 x2 : (OpSemiRngWithUnitTerm n)) , ((P x1) → ((P x2) → (P (timesOL x1 x2))))) → ((P oneOL) → ((∀ (x1 x2 : (OpSemiRngWithUnitTerm n)) , ((P x1) → ((P x2) → (P (plusOL x1 x2))))) → ((P zeroOL) → (∀ (x : (OpSemiRngWithUnitTerm n)) , (P x))))))) 
+  def inductionOpB   {n : ℕ} {P : ((OpSemiRngWithUnitTerm n) → Type)}  : ((∀ (fin : (fin n)) , (P (v fin))) → ((∀ (x1 x2 : (OpSemiRngWithUnitTerm n)) , ((P x1) → ((P x2) → (P (timesOL x1 x2))))) → ((P oneOL) → ((∀ (x1 x2 : (OpSemiRngWithUnitTerm n)) , ((P x1) → ((P x2) → (P (plusOL x1 x2))))) → ((P zeroOL) → (∀ (x : (OpSemiRngWithUnitTerm n)) , (P x))))))) 
   | pv ptimesol p1ol pplusol p0ol (v x1) := (pv x1)  
   | pv ptimesol p1ol pplusol p0ol (timesOL x1 x2) := (ptimesol _ _ (inductionOpB pv ptimesol p1ol pplusol p0ol x1) (inductionOpB pv ptimesol p1ol pplusol p0ol x2))  
   | pv ptimesol p1ol pplusol p0ol oneOL := p1ol  
   | pv ptimesol p1ol pplusol p0ol (plusOL x1 x2) := (pplusol _ _ (inductionOpB pv ptimesol p1ol pplusol p0ol x1) (inductionOpB pv ptimesol p1ol pplusol p0ol x2))  
   | pv ptimesol p1ol pplusol p0ol zeroOL := p0ol  
-  def inductionOp   (n : ℕ) (A : Type) (P : ((OpSemiRngWithUnitTerm2 n A) → Type))  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((∀ (x1 x2 : (OpSemiRngWithUnitTerm2 n A)) , ((P x1) → ((P x2) → (P (timesOL2 x1 x2))))) → ((P oneOL2) → ((∀ (x1 x2 : (OpSemiRngWithUnitTerm2 n A)) , ((P x1) → ((P x2) → (P (plusOL2 x1 x2))))) → ((P zeroOL2) → (∀ (x : (OpSemiRngWithUnitTerm2 n A)) , (P x)))))))) 
+  def inductionOp   {n : ℕ} {A : Type} {P : ((OpSemiRngWithUnitTerm2 n A) → Type)}  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((∀ (x1 x2 : (OpSemiRngWithUnitTerm2 n A)) , ((P x1) → ((P x2) → (P (timesOL2 x1 x2))))) → ((P oneOL2) → ((∀ (x1 x2 : (OpSemiRngWithUnitTerm2 n A)) , ((P x1) → ((P x2) → (P (plusOL2 x1 x2))))) → ((P zeroOL2) → (∀ (x : (OpSemiRngWithUnitTerm2 n A)) , (P x)))))))) 
   | pv2 psing2 ptimesol2 p1ol2 pplusol2 p0ol2 (v2 x1) := (pv2 x1)  
   | pv2 psing2 ptimesol2 p1ol2 pplusol2 p0ol2 (sing2 x1) := (psing2 x1)  
   | pv2 psing2 ptimesol2 p1ol2 pplusol2 p0ol2 (timesOL2 x1 x2) := (ptimesol2 _ _ (inductionOp pv2 psing2 ptimesol2 p1ol2 pplusol2 p0ol2 x1) (inductionOp pv2 psing2 ptimesol2 p1ol2 pplusol2 p0ol2 x2))  
@@ -174,19 +174,19 @@ section SemiRngWithUnit
   | oneL := (Now oneL)  
   | (plusL x1 x2) := (stage2 plusL (codeLift2 plusL) (stageB x1) (stageB x2))  
   | zeroL := (Now zeroL)  
-  def stageCl   (A : Type)  : ((ClSemiRngWithUnitTerm A) → (Staged (ClSemiRngWithUnitTerm A))) 
+  def stageCl   {A : Type}  : ((ClSemiRngWithUnitTerm A) → (Staged (ClSemiRngWithUnitTerm A))) 
   | (sing x1) := (Now (sing x1))  
   | (timesCl x1 x2) := (stage2 timesCl (codeLift2 timesCl) (stageCl x1) (stageCl x2))  
   | oneCl := (Now oneCl)  
   | (plusCl x1 x2) := (stage2 plusCl (codeLift2 plusCl) (stageCl x1) (stageCl x2))  
   | zeroCl := (Now zeroCl)  
-  def stageOpB   (n : ℕ)  : ((OpSemiRngWithUnitTerm n) → (Staged (OpSemiRngWithUnitTerm n))) 
+  def stageOpB   {n : ℕ}  : ((OpSemiRngWithUnitTerm n) → (Staged (OpSemiRngWithUnitTerm n))) 
   | (v x1) := (const (code (v x1)))  
   | (timesOL x1 x2) := (stage2 timesOL (codeLift2 timesOL) (stageOpB x1) (stageOpB x2))  
   | oneOL := (Now oneOL)  
   | (plusOL x1 x2) := (stage2 plusOL (codeLift2 plusOL) (stageOpB x1) (stageOpB x2))  
   | zeroOL := (Now zeroOL)  
-  def stageOp   (n : ℕ) (A : Type)  : ((OpSemiRngWithUnitTerm2 n A) → (Staged (OpSemiRngWithUnitTerm2 n A))) 
+  def stageOp   {n : ℕ} {A : Type}  : ((OpSemiRngWithUnitTerm2 n A) → (Staged (OpSemiRngWithUnitTerm2 n A))) 
   | (sing2 x1) := (Now (sing2 x1))  
   | (v2 x1) := (const (code (v2 x1)))  
   | (timesOL2 x1 x2) := (stage2 timesOL2 (codeLift2 timesOL2) (stageOp x1) (stageOp x2))  

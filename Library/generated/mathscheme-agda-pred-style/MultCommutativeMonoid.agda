@@ -65,25 +65,25 @@ module MultCommutativeMonoid   where
       *OL2 : ((OpMultCommutativeMonoidTerm2 n A) → ((OpMultCommutativeMonoidTerm2 n A) → (OpMultCommutativeMonoidTerm2 n A))) 
       1OL2 : (OpMultCommutativeMonoidTerm2 n A)  
       
-  simplifyCl :  (A : Set) →  ((ClMultCommutativeMonoidTerm A) → (ClMultCommutativeMonoidTerm A)) 
-  simplifyCl _ (*Cl 1Cl x) = x  
-  simplifyCl _ (*Cl x 1Cl) = x  
-  simplifyCl _ (*Cl x1 x2) = (*Cl (simplifyCl _ x1) (simplifyCl _ x2))  
-  simplifyCl _ 1Cl = 1Cl  
-  simplifyCl _ (sing x1) = (sing x1)  
-  simplifyOpB :  (n : Nat) →  ((OpMultCommutativeMonoidTerm n) → (OpMultCommutativeMonoidTerm n)) 
-  simplifyOpB _ (*OL 1OL x) = x  
-  simplifyOpB _ (*OL x 1OL) = x  
-  simplifyOpB _ (*OL x1 x2) = (*OL (simplifyOpB _ x1) (simplifyOpB _ x2))  
-  simplifyOpB _ 1OL = 1OL  
-  simplifyOpB _ (v x1) = (v x1)  
-  simplifyOp :  (n : Nat) (A : Set) →  ((OpMultCommutativeMonoidTerm2 n A) → (OpMultCommutativeMonoidTerm2 n A)) 
-  simplifyOp _ _ (*OL2 1OL2 x) = x  
-  simplifyOp _ _ (*OL2 x 1OL2) = x  
-  simplifyOp _ _ (*OL2 x1 x2) = (*OL2 (simplifyOp _ _ x1) (simplifyOp _ _ x2))  
-  simplifyOp _ _ 1OL2 = 1OL2  
-  simplifyOp _ _ (v2 x1) = (v2 x1)  
-  simplifyOp _ _ (sing2 x1) = (sing2 x1)  
+  simplifyCl :  {A : Set} →  ((ClMultCommutativeMonoidTerm A) → (ClMultCommutativeMonoidTerm A)) 
+  simplifyCl (*Cl 1Cl x) = x  
+  simplifyCl (*Cl x 1Cl) = x  
+  simplifyCl (*Cl x1 x2) = (*Cl (simplifyCl x1) (simplifyCl x2))  
+  simplifyCl 1Cl = 1Cl  
+  simplifyCl (sing x1) = (sing x1)  
+  simplifyOpB :  {n : Nat} →  ((OpMultCommutativeMonoidTerm n) → (OpMultCommutativeMonoidTerm n)) 
+  simplifyOpB (*OL 1OL x) = x  
+  simplifyOpB (*OL x 1OL) = x  
+  simplifyOpB (*OL x1 x2) = (*OL (simplifyOpB x1) (simplifyOpB x2))  
+  simplifyOpB 1OL = 1OL  
+  simplifyOpB (v x1) = (v x1)  
+  simplifyOp :  {n : Nat} {A : Set} →  ((OpMultCommutativeMonoidTerm2 n A) → (OpMultCommutativeMonoidTerm2 n A)) 
+  simplifyOp (*OL2 1OL2 x) = x  
+  simplifyOp (*OL2 x 1OL2) = x  
+  simplifyOp (*OL2 x1 x2) = (*OL2 (simplifyOp x1) (simplifyOp x2))  
+  simplifyOp 1OL2 = 1OL2  
+  simplifyOp (v2 x1) = (v2 x1)  
+  simplifyOp (sing2 x1) = (sing2 x1)  
   evalB :  {A : Set} →  ((MultCommutativeMonoid A) → (MultCommutativeMonoidTerm → A)) 
   evalB Mu (*L x1 x2) = ((* Mu) (evalB Mu x1) (evalB Mu x2))  
   evalB Mu 1L = (1ᵢ Mu)  
@@ -91,47 +91,47 @@ module MultCommutativeMonoid   where
   evalCl Mu (sing x1) = x1  
   evalCl Mu (*Cl x1 x2) = ((* Mu) (evalCl Mu x1) (evalCl Mu x2))  
   evalCl Mu 1Cl = (1ᵢ Mu)  
-  evalOpB :  {A : Set} (n : Nat) →  ((MultCommutativeMonoid A) → ((Vec A n) → ((OpMultCommutativeMonoidTerm n) → A))) 
-  evalOpB n Mu vars (v x1) = (lookup vars x1)  
-  evalOpB n Mu vars (*OL x1 x2) = ((* Mu) (evalOpB n Mu vars x1) (evalOpB n Mu vars x2))  
-  evalOpB n Mu vars 1OL = (1ᵢ Mu)  
-  evalOp :  {A : Set} (n : Nat) →  ((MultCommutativeMonoid A) → ((Vec A n) → ((OpMultCommutativeMonoidTerm2 n A) → A))) 
-  evalOp n Mu vars (v2 x1) = (lookup vars x1)  
-  evalOp n Mu vars (sing2 x1) = x1  
-  evalOp n Mu vars (*OL2 x1 x2) = ((* Mu) (evalOp n Mu vars x1) (evalOp n Mu vars x2))  
-  evalOp n Mu vars 1OL2 = (1ᵢ Mu)  
-  inductionB :  (P : (MultCommutativeMonoidTerm → Set)) →  (( (x1 x2 : MultCommutativeMonoidTerm) → ((P x1) → ((P x2) → (P (*L x1 x2))))) → ((P 1L) → ( (x : MultCommutativeMonoidTerm) → (P x)))) 
-  inductionB p p*l p1l (*L x1 x2) = (p*l _ _ (inductionB p p*l p1l x1) (inductionB p p*l p1l x2))  
-  inductionB p p*l p1l 1L = p1l  
-  inductionCl :  (A : Set) (P : ((ClMultCommutativeMonoidTerm A) → Set)) →  (( (x1 : A) → (P (sing x1))) → (( (x1 x2 : (ClMultCommutativeMonoidTerm A)) → ((P x1) → ((P x2) → (P (*Cl x1 x2))))) → ((P 1Cl) → ( (x : (ClMultCommutativeMonoidTerm A)) → (P x))))) 
-  inductionCl _ p psing p*cl p1cl (sing x1) = (psing x1)  
-  inductionCl _ p psing p*cl p1cl (*Cl x1 x2) = (p*cl _ _ (inductionCl _ p psing p*cl p1cl x1) (inductionCl _ p psing p*cl p1cl x2))  
-  inductionCl _ p psing p*cl p1cl 1Cl = p1cl  
-  inductionOpB :  (n : Nat) (P : ((OpMultCommutativeMonoidTerm n) → Set)) →  (( (fin : (Fin n)) → (P (v fin))) → (( (x1 x2 : (OpMultCommutativeMonoidTerm n)) → ((P x1) → ((P x2) → (P (*OL x1 x2))))) → ((P 1OL) → ( (x : (OpMultCommutativeMonoidTerm n)) → (P x))))) 
-  inductionOpB _ p pv p*ol p1ol (v x1) = (pv x1)  
-  inductionOpB _ p pv p*ol p1ol (*OL x1 x2) = (p*ol _ _ (inductionOpB _ p pv p*ol p1ol x1) (inductionOpB _ p pv p*ol p1ol x2))  
-  inductionOpB _ p pv p*ol p1ol 1OL = p1ol  
-  inductionOp :  (n : Nat) (A : Set) (P : ((OpMultCommutativeMonoidTerm2 n A) → Set)) →  (( (fin : (Fin n)) → (P (v2 fin))) → (( (x1 : A) → (P (sing2 x1))) → (( (x1 x2 : (OpMultCommutativeMonoidTerm2 n A)) → ((P x1) → ((P x2) → (P (*OL2 x1 x2))))) → ((P 1OL2) → ( (x : (OpMultCommutativeMonoidTerm2 n A)) → (P x)))))) 
-  inductionOp _ _ p pv2 psing2 p*ol2 p1ol2 (v2 x1) = (pv2 x1)  
-  inductionOp _ _ p pv2 psing2 p*ol2 p1ol2 (sing2 x1) = (psing2 x1)  
-  inductionOp _ _ p pv2 psing2 p*ol2 p1ol2 (*OL2 x1 x2) = (p*ol2 _ _ (inductionOp _ _ p pv2 psing2 p*ol2 p1ol2 x1) (inductionOp _ _ p pv2 psing2 p*ol2 p1ol2 x2))  
-  inductionOp _ _ p pv2 psing2 p*ol2 p1ol2 1OL2 = p1ol2  
+  evalOpB :  {A : Set} {n : Nat} →  ((MultCommutativeMonoid A) → ((Vec A n) → ((OpMultCommutativeMonoidTerm n) → A))) 
+  evalOpB Mu vars (v x1) = (lookup vars x1)  
+  evalOpB Mu vars (*OL x1 x2) = ((* Mu) (evalOpB Mu vars x1) (evalOpB Mu vars x2))  
+  evalOpB Mu vars 1OL = (1ᵢ Mu)  
+  evalOp :  {A : Set} {n : Nat} →  ((MultCommutativeMonoid A) → ((Vec A n) → ((OpMultCommutativeMonoidTerm2 n A) → A))) 
+  evalOp Mu vars (v2 x1) = (lookup vars x1)  
+  evalOp Mu vars (sing2 x1) = x1  
+  evalOp Mu vars (*OL2 x1 x2) = ((* Mu) (evalOp Mu vars x1) (evalOp Mu vars x2))  
+  evalOp Mu vars 1OL2 = (1ᵢ Mu)  
+  inductionB :  {P : (MultCommutativeMonoidTerm → Set)} →  (( (x1 x2 : MultCommutativeMonoidTerm) → ((P x1) → ((P x2) → (P (*L x1 x2))))) → ((P 1L) → ( (x : MultCommutativeMonoidTerm) → (P x)))) 
+  inductionB p*l p1l (*L x1 x2) = (p*l _ _ (inductionB p*l p1l x1) (inductionB p*l p1l x2))  
+  inductionB p*l p1l 1L = p1l  
+  inductionCl :  {A : Set} {P : ((ClMultCommutativeMonoidTerm A) → Set)} →  (( (x1 : A) → (P (sing x1))) → (( (x1 x2 : (ClMultCommutativeMonoidTerm A)) → ((P x1) → ((P x2) → (P (*Cl x1 x2))))) → ((P 1Cl) → ( (x : (ClMultCommutativeMonoidTerm A)) → (P x))))) 
+  inductionCl psing p*cl p1cl (sing x1) = (psing x1)  
+  inductionCl psing p*cl p1cl (*Cl x1 x2) = (p*cl _ _ (inductionCl psing p*cl p1cl x1) (inductionCl psing p*cl p1cl x2))  
+  inductionCl psing p*cl p1cl 1Cl = p1cl  
+  inductionOpB :  {n : Nat} {P : ((OpMultCommutativeMonoidTerm n) → Set)} →  (( (fin : (Fin n)) → (P (v fin))) → (( (x1 x2 : (OpMultCommutativeMonoidTerm n)) → ((P x1) → ((P x2) → (P (*OL x1 x2))))) → ((P 1OL) → ( (x : (OpMultCommutativeMonoidTerm n)) → (P x))))) 
+  inductionOpB pv p*ol p1ol (v x1) = (pv x1)  
+  inductionOpB pv p*ol p1ol (*OL x1 x2) = (p*ol _ _ (inductionOpB pv p*ol p1ol x1) (inductionOpB pv p*ol p1ol x2))  
+  inductionOpB pv p*ol p1ol 1OL = p1ol  
+  inductionOp :  {n : Nat} {A : Set} {P : ((OpMultCommutativeMonoidTerm2 n A) → Set)} →  (( (fin : (Fin n)) → (P (v2 fin))) → (( (x1 : A) → (P (sing2 x1))) → (( (x1 x2 : (OpMultCommutativeMonoidTerm2 n A)) → ((P x1) → ((P x2) → (P (*OL2 x1 x2))))) → ((P 1OL2) → ( (x : (OpMultCommutativeMonoidTerm2 n A)) → (P x)))))) 
+  inductionOp pv2 psing2 p*ol2 p1ol2 (v2 x1) = (pv2 x1)  
+  inductionOp pv2 psing2 p*ol2 p1ol2 (sing2 x1) = (psing2 x1)  
+  inductionOp pv2 psing2 p*ol2 p1ol2 (*OL2 x1 x2) = (p*ol2 _ _ (inductionOp pv2 psing2 p*ol2 p1ol2 x1) (inductionOp pv2 psing2 p*ol2 p1ol2 x2))  
+  inductionOp pv2 psing2 p*ol2 p1ol2 1OL2 = p1ol2  
   stageB :  (MultCommutativeMonoidTerm → (Staged MultCommutativeMonoidTerm))
   stageB (*L x1 x2) = (stage2 *L (codeLift2 *L) (stageB x1) (stageB x2))  
   stageB 1L = (Now 1L)  
-  stageCl :  (A : Set) →  ((ClMultCommutativeMonoidTerm A) → (Staged (ClMultCommutativeMonoidTerm A))) 
-  stageCl _ (sing x1) = (Now (sing x1))  
-  stageCl _ (*Cl x1 x2) = (stage2 *Cl (codeLift2 *Cl) (stageCl _ x1) (stageCl _ x2))  
-  stageCl _ 1Cl = (Now 1Cl)  
-  stageOpB :  (n : Nat) →  ((OpMultCommutativeMonoidTerm n) → (Staged (OpMultCommutativeMonoidTerm n))) 
-  stageOpB _ (v x1) = (const (code (v x1)))  
-  stageOpB _ (*OL x1 x2) = (stage2 *OL (codeLift2 *OL) (stageOpB _ x1) (stageOpB _ x2))  
-  stageOpB _ 1OL = (Now 1OL)  
-  stageOp :  (n : Nat) (A : Set) →  ((OpMultCommutativeMonoidTerm2 n A) → (Staged (OpMultCommutativeMonoidTerm2 n A))) 
-  stageOp _ _ (sing2 x1) = (Now (sing2 x1))  
-  stageOp _ _ (v2 x1) = (const (code (v2 x1)))  
-  stageOp _ _ (*OL2 x1 x2) = (stage2 *OL2 (codeLift2 *OL2) (stageOp _ _ x1) (stageOp _ _ x2))  
-  stageOp _ _ 1OL2 = (Now 1OL2)  
+  stageCl :  {A : Set} →  ((ClMultCommutativeMonoidTerm A) → (Staged (ClMultCommutativeMonoidTerm A))) 
+  stageCl (sing x1) = (Now (sing x1))  
+  stageCl (*Cl x1 x2) = (stage2 *Cl (codeLift2 *Cl) (stageCl x1) (stageCl x2))  
+  stageCl 1Cl = (Now 1Cl)  
+  stageOpB :  {n : Nat} →  ((OpMultCommutativeMonoidTerm n) → (Staged (OpMultCommutativeMonoidTerm n))) 
+  stageOpB (v x1) = (const (code (v x1)))  
+  stageOpB (*OL x1 x2) = (stage2 *OL (codeLift2 *OL) (stageOpB x1) (stageOpB x2))  
+  stageOpB 1OL = (Now 1OL)  
+  stageOp :  {n : Nat} {A : Set} →  ((OpMultCommutativeMonoidTerm2 n A) → (Staged (OpMultCommutativeMonoidTerm2 n A))) 
+  stageOp (sing2 x1) = (Now (sing2 x1))  
+  stageOp (v2 x1) = (const (code (v2 x1)))  
+  stageOp (*OL2 x1 x2) = (stage2 *OL2 (codeLift2 *OL2) (stageOp x1) (stageOp x2))  
+  stageOp 1OL2 = (Now 1OL2)  
   record StagedRepr  (A : Set) (Repr : (Set → Set)) : Set where 
      field  
       *T : ((Repr A) → ((Repr A) → (Repr A))) 

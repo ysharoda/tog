@@ -75,21 +75,21 @@ section AbelianGroup
      | invOL2 : (OpAbelianGroupTerm2 → OpAbelianGroupTerm2)  
       open OpAbelianGroupTerm2 
   
-  def simplifyCl   (A : Type)  : ((ClAbelianGroupTerm A) → (ClAbelianGroupTerm A)) 
+  def simplifyCl   {A : Type}  : ((ClAbelianGroupTerm A) → (ClAbelianGroupTerm A)) 
   | (timesCl oneCl x) := x  
   | (timesCl x oneCl) := x  
   | oneCl := oneCl  
   | (timesCl x1 x2) := (timesCl (simplifyCl x1) (simplifyCl x2))  
   | (invCl x1) := (invCl (simplifyCl x1))  
   | (sing x1) := (sing x1)  
-  def simplifyOpB   (n : ℕ)  : ((OpAbelianGroupTerm n) → (OpAbelianGroupTerm n)) 
+  def simplifyOpB   {n : ℕ}  : ((OpAbelianGroupTerm n) → (OpAbelianGroupTerm n)) 
   | (timesOL oneOL x) := x  
   | (timesOL x oneOL) := x  
   | oneOL := oneOL  
   | (timesOL x1 x2) := (timesOL (simplifyOpB x1) (simplifyOpB x2))  
   | (invOL x1) := (invOL (simplifyOpB x1))  
   | (v x1) := (v x1)  
-  def simplifyOp   (n : ℕ) (A : Type)  : ((OpAbelianGroupTerm2 n A) → (OpAbelianGroupTerm2 n A)) 
+  def simplifyOp   {n : ℕ} {A : Type}  : ((OpAbelianGroupTerm2 n A) → (OpAbelianGroupTerm2 n A)) 
   | (timesOL2 oneOL2 x) := x  
   | (timesOL2 x oneOL2) := x  
   | oneOL2 := oneOL2  
@@ -106,32 +106,32 @@ section AbelianGroup
   | Ab oneCl := (one Ab)  
   | Ab (timesCl x1 x2) := ((times Ab) (evalCl Ab x1) (evalCl Ab x2))  
   | Ab (invCl x1) := ((inv Ab) (evalCl Ab x1))  
-  def evalOpB   {A : Type} (n : ℕ)  : ((AbelianGroup A) → ((vector A n) → ((OpAbelianGroupTerm n) → A))) 
+  def evalOpB   {A : Type} {n : ℕ}  : ((AbelianGroup A) → ((vector A n) → ((OpAbelianGroupTerm n) → A))) 
   | Ab vars (v x1) := (nth vars x1)  
   | Ab vars oneOL := (one Ab)  
   | Ab vars (timesOL x1 x2) := ((times Ab) (evalOpB Ab vars x1) (evalOpB Ab vars x2))  
   | Ab vars (invOL x1) := ((inv Ab) (evalOpB Ab vars x1))  
-  def evalOp   {A : Type} (n : ℕ)  : ((AbelianGroup A) → ((vector A n) → ((OpAbelianGroupTerm2 n A) → A))) 
+  def evalOp   {A : Type} {n : ℕ}  : ((AbelianGroup A) → ((vector A n) → ((OpAbelianGroupTerm2 n A) → A))) 
   | Ab vars (v2 x1) := (nth vars x1)  
   | Ab vars (sing2 x1) := x1  
   | Ab vars oneOL2 := (one Ab)  
   | Ab vars (timesOL2 x1 x2) := ((times Ab) (evalOp Ab vars x1) (evalOp Ab vars x2))  
   | Ab vars (invOL2 x1) := ((inv Ab) (evalOp Ab vars x1))  
-  def inductionB   (P : (AbelianGroupTerm → Type))  : ((P oneL) → ((∀ (x1 x2 : AbelianGroupTerm) , ((P x1) → ((P x2) → (P (timesL x1 x2))))) → ((∀ (x1 : AbelianGroupTerm) , ((P x1) → (P (invL x1)))) → (∀ (x : AbelianGroupTerm) , (P x))))) 
+  def inductionB   {P : (AbelianGroupTerm → Type)}  : ((P oneL) → ((∀ (x1 x2 : AbelianGroupTerm) , ((P x1) → ((P x2) → (P (timesL x1 x2))))) → ((∀ (x1 : AbelianGroupTerm) , ((P x1) → (P (invL x1)))) → (∀ (x : AbelianGroupTerm) , (P x))))) 
   | p1l ptimesl pinvl oneL := p1l  
   | p1l ptimesl pinvl (timesL x1 x2) := (ptimesl _ _ (inductionB p1l ptimesl pinvl x1) (inductionB p1l ptimesl pinvl x2))  
   | p1l ptimesl pinvl (invL x1) := (pinvl _ (inductionB p1l ptimesl pinvl x1))  
-  def inductionCl   (A : Type) (P : ((ClAbelianGroupTerm A) → Type))  : ((∀ (x1 : A) , (P (sing x1))) → ((P oneCl) → ((∀ (x1 x2 : (ClAbelianGroupTerm A)) , ((P x1) → ((P x2) → (P (timesCl x1 x2))))) → ((∀ (x1 : (ClAbelianGroupTerm A)) , ((P x1) → (P (invCl x1)))) → (∀ (x : (ClAbelianGroupTerm A)) , (P x)))))) 
+  def inductionCl   {A : Type} {P : ((ClAbelianGroupTerm A) → Type)}  : ((∀ (x1 : A) , (P (sing x1))) → ((P oneCl) → ((∀ (x1 x2 : (ClAbelianGroupTerm A)) , ((P x1) → ((P x2) → (P (timesCl x1 x2))))) → ((∀ (x1 : (ClAbelianGroupTerm A)) , ((P x1) → (P (invCl x1)))) → (∀ (x : (ClAbelianGroupTerm A)) , (P x)))))) 
   | psing p1cl ptimescl pinvcl (sing x1) := (psing x1)  
   | psing p1cl ptimescl pinvcl oneCl := p1cl  
   | psing p1cl ptimescl pinvcl (timesCl x1 x2) := (ptimescl _ _ (inductionCl psing p1cl ptimescl pinvcl x1) (inductionCl psing p1cl ptimescl pinvcl x2))  
   | psing p1cl ptimescl pinvcl (invCl x1) := (pinvcl _ (inductionCl psing p1cl ptimescl pinvcl x1))  
-  def inductionOpB   (n : ℕ) (P : ((OpAbelianGroupTerm n) → Type))  : ((∀ (fin : (fin n)) , (P (v fin))) → ((P oneOL) → ((∀ (x1 x2 : (OpAbelianGroupTerm n)) , ((P x1) → ((P x2) → (P (timesOL x1 x2))))) → ((∀ (x1 : (OpAbelianGroupTerm n)) , ((P x1) → (P (invOL x1)))) → (∀ (x : (OpAbelianGroupTerm n)) , (P x)))))) 
+  def inductionOpB   {n : ℕ} {P : ((OpAbelianGroupTerm n) → Type)}  : ((∀ (fin : (fin n)) , (P (v fin))) → ((P oneOL) → ((∀ (x1 x2 : (OpAbelianGroupTerm n)) , ((P x1) → ((P x2) → (P (timesOL x1 x2))))) → ((∀ (x1 : (OpAbelianGroupTerm n)) , ((P x1) → (P (invOL x1)))) → (∀ (x : (OpAbelianGroupTerm n)) , (P x)))))) 
   | pv p1ol ptimesol pinvol (v x1) := (pv x1)  
   | pv p1ol ptimesol pinvol oneOL := p1ol  
   | pv p1ol ptimesol pinvol (timesOL x1 x2) := (ptimesol _ _ (inductionOpB pv p1ol ptimesol pinvol x1) (inductionOpB pv p1ol ptimesol pinvol x2))  
   | pv p1ol ptimesol pinvol (invOL x1) := (pinvol _ (inductionOpB pv p1ol ptimesol pinvol x1))  
-  def inductionOp   (n : ℕ) (A : Type) (P : ((OpAbelianGroupTerm2 n A) → Type))  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((P oneOL2) → ((∀ (x1 x2 : (OpAbelianGroupTerm2 n A)) , ((P x1) → ((P x2) → (P (timesOL2 x1 x2))))) → ((∀ (x1 : (OpAbelianGroupTerm2 n A)) , ((P x1) → (P (invOL2 x1)))) → (∀ (x : (OpAbelianGroupTerm2 n A)) , (P x))))))) 
+  def inductionOp   {n : ℕ} {A : Type} {P : ((OpAbelianGroupTerm2 n A) → Type)}  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((P oneOL2) → ((∀ (x1 x2 : (OpAbelianGroupTerm2 n A)) , ((P x1) → ((P x2) → (P (timesOL2 x1 x2))))) → ((∀ (x1 : (OpAbelianGroupTerm2 n A)) , ((P x1) → (P (invOL2 x1)))) → (∀ (x : (OpAbelianGroupTerm2 n A)) , (P x))))))) 
   | pv2 psing2 p1ol2 ptimesol2 pinvol2 (v2 x1) := (pv2 x1)  
   | pv2 psing2 p1ol2 ptimesol2 pinvol2 (sing2 x1) := (psing2 x1)  
   | pv2 psing2 p1ol2 ptimesol2 pinvol2 oneOL2 := p1ol2  
@@ -141,17 +141,17 @@ section AbelianGroup
   | oneL := (Now oneL)  
   | (timesL x1 x2) := (stage2 timesL (codeLift2 timesL) (stageB x1) (stageB x2))  
   | (invL x1) := (stage1 invL (codeLift1 invL) (stageB x1))  
-  def stageCl   (A : Type)  : ((ClAbelianGroupTerm A) → (Staged (ClAbelianGroupTerm A))) 
+  def stageCl   {A : Type}  : ((ClAbelianGroupTerm A) → (Staged (ClAbelianGroupTerm A))) 
   | (sing x1) := (Now (sing x1))  
   | oneCl := (Now oneCl)  
   | (timesCl x1 x2) := (stage2 timesCl (codeLift2 timesCl) (stageCl x1) (stageCl x2))  
   | (invCl x1) := (stage1 invCl (codeLift1 invCl) (stageCl x1))  
-  def stageOpB   (n : ℕ)  : ((OpAbelianGroupTerm n) → (Staged (OpAbelianGroupTerm n))) 
+  def stageOpB   {n : ℕ}  : ((OpAbelianGroupTerm n) → (Staged (OpAbelianGroupTerm n))) 
   | (v x1) := (const (code (v x1)))  
   | oneOL := (Now oneOL)  
   | (timesOL x1 x2) := (stage2 timesOL (codeLift2 timesOL) (stageOpB x1) (stageOpB x2))  
   | (invOL x1) := (stage1 invOL (codeLift1 invOL) (stageOpB x1))  
-  def stageOp   (n : ℕ) (A : Type)  : ((OpAbelianGroupTerm2 n A) → (Staged (OpAbelianGroupTerm2 n A))) 
+  def stageOp   {n : ℕ} {A : Type}  : ((OpAbelianGroupTerm2 n A) → (Staged (OpAbelianGroupTerm2 n A))) 
   | (sing2 x1) := (Now (sing2 x1))  
   | (v2 x1) := (const (code (v2 x1)))  
   | oneOL2 := (Now oneOL2)  

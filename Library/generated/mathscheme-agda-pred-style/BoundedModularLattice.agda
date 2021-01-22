@@ -101,37 +101,37 @@ module BoundedModularLattice   where
       0OL2 : (OpBoundedModularLatticeTerm2 n A) 
       1OL2 : (OpBoundedModularLatticeTerm2 n A)  
       
-  simplifyCl :  (A : Set) →  ((ClBoundedModularLatticeTerm A) → (ClBoundedModularLatticeTerm A)) 
-  simplifyCl _ (+Cl 0Cl x) = x  
-  simplifyCl _ (+Cl x 0Cl) = x  
-  simplifyCl _ (*Cl 1Cl x) = x  
-  simplifyCl _ (*Cl x 1Cl) = x  
-  simplifyCl _ (*Cl x1 x2) = (*Cl (simplifyCl _ x1) (simplifyCl _ x2))  
-  simplifyCl _ (+Cl x1 x2) = (+Cl (simplifyCl _ x1) (simplifyCl _ x2))  
-  simplifyCl _ 0Cl = 0Cl  
-  simplifyCl _ 1Cl = 1Cl  
-  simplifyCl _ (sing x1) = (sing x1)  
-  simplifyOpB :  (n : Nat) →  ((OpBoundedModularLatticeTerm n) → (OpBoundedModularLatticeTerm n)) 
-  simplifyOpB _ (+OL 0OL x) = x  
-  simplifyOpB _ (+OL x 0OL) = x  
-  simplifyOpB _ (*OL 1OL x) = x  
-  simplifyOpB _ (*OL x 1OL) = x  
-  simplifyOpB _ (*OL x1 x2) = (*OL (simplifyOpB _ x1) (simplifyOpB _ x2))  
-  simplifyOpB _ (+OL x1 x2) = (+OL (simplifyOpB _ x1) (simplifyOpB _ x2))  
-  simplifyOpB _ 0OL = 0OL  
-  simplifyOpB _ 1OL = 1OL  
-  simplifyOpB _ (v x1) = (v x1)  
-  simplifyOp :  (n : Nat) (A : Set) →  ((OpBoundedModularLatticeTerm2 n A) → (OpBoundedModularLatticeTerm2 n A)) 
-  simplifyOp _ _ (+OL2 0OL2 x) = x  
-  simplifyOp _ _ (+OL2 x 0OL2) = x  
-  simplifyOp _ _ (*OL2 1OL2 x) = x  
-  simplifyOp _ _ (*OL2 x 1OL2) = x  
-  simplifyOp _ _ (*OL2 x1 x2) = (*OL2 (simplifyOp _ _ x1) (simplifyOp _ _ x2))  
-  simplifyOp _ _ (+OL2 x1 x2) = (+OL2 (simplifyOp _ _ x1) (simplifyOp _ _ x2))  
-  simplifyOp _ _ 0OL2 = 0OL2  
-  simplifyOp _ _ 1OL2 = 1OL2  
-  simplifyOp _ _ (v2 x1) = (v2 x1)  
-  simplifyOp _ _ (sing2 x1) = (sing2 x1)  
+  simplifyCl :  {A : Set} →  ((ClBoundedModularLatticeTerm A) → (ClBoundedModularLatticeTerm A)) 
+  simplifyCl (+Cl 0Cl x) = x  
+  simplifyCl (+Cl x 0Cl) = x  
+  simplifyCl (*Cl 1Cl x) = x  
+  simplifyCl (*Cl x 1Cl) = x  
+  simplifyCl (*Cl x1 x2) = (*Cl (simplifyCl x1) (simplifyCl x2))  
+  simplifyCl (+Cl x1 x2) = (+Cl (simplifyCl x1) (simplifyCl x2))  
+  simplifyCl 0Cl = 0Cl  
+  simplifyCl 1Cl = 1Cl  
+  simplifyCl (sing x1) = (sing x1)  
+  simplifyOpB :  {n : Nat} →  ((OpBoundedModularLatticeTerm n) → (OpBoundedModularLatticeTerm n)) 
+  simplifyOpB (+OL 0OL x) = x  
+  simplifyOpB (+OL x 0OL) = x  
+  simplifyOpB (*OL 1OL x) = x  
+  simplifyOpB (*OL x 1OL) = x  
+  simplifyOpB (*OL x1 x2) = (*OL (simplifyOpB x1) (simplifyOpB x2))  
+  simplifyOpB (+OL x1 x2) = (+OL (simplifyOpB x1) (simplifyOpB x2))  
+  simplifyOpB 0OL = 0OL  
+  simplifyOpB 1OL = 1OL  
+  simplifyOpB (v x1) = (v x1)  
+  simplifyOp :  {n : Nat} {A : Set} →  ((OpBoundedModularLatticeTerm2 n A) → (OpBoundedModularLatticeTerm2 n A)) 
+  simplifyOp (+OL2 0OL2 x) = x  
+  simplifyOp (+OL2 x 0OL2) = x  
+  simplifyOp (*OL2 1OL2 x) = x  
+  simplifyOp (*OL2 x 1OL2) = x  
+  simplifyOp (*OL2 x1 x2) = (*OL2 (simplifyOp x1) (simplifyOp x2))  
+  simplifyOp (+OL2 x1 x2) = (+OL2 (simplifyOp x1) (simplifyOp x2))  
+  simplifyOp 0OL2 = 0OL2  
+  simplifyOp 1OL2 = 1OL2  
+  simplifyOp (v2 x1) = (v2 x1)  
+  simplifyOp (sing2 x1) = (sing2 x1)  
   evalB :  {A : Set} →  ((BoundedModularLattice A) → (BoundedModularLatticeTerm → A)) 
   evalB Bo (*L x1 x2) = ((* Bo) (evalB Bo x1) (evalB Bo x2))  
   evalB Bo (+L x1 x2) = ((+ Bo) (evalB Bo x1) (evalB Bo x2))  
@@ -143,67 +143,67 @@ module BoundedModularLattice   where
   evalCl Bo (+Cl x1 x2) = ((+ Bo) (evalCl Bo x1) (evalCl Bo x2))  
   evalCl Bo 0Cl = (0ᵢ Bo)  
   evalCl Bo 1Cl = (1ᵢ Bo)  
-  evalOpB :  {A : Set} (n : Nat) →  ((BoundedModularLattice A) → ((Vec A n) → ((OpBoundedModularLatticeTerm n) → A))) 
-  evalOpB n Bo vars (v x1) = (lookup vars x1)  
-  evalOpB n Bo vars (*OL x1 x2) = ((* Bo) (evalOpB n Bo vars x1) (evalOpB n Bo vars x2))  
-  evalOpB n Bo vars (+OL x1 x2) = ((+ Bo) (evalOpB n Bo vars x1) (evalOpB n Bo vars x2))  
-  evalOpB n Bo vars 0OL = (0ᵢ Bo)  
-  evalOpB n Bo vars 1OL = (1ᵢ Bo)  
-  evalOp :  {A : Set} (n : Nat) →  ((BoundedModularLattice A) → ((Vec A n) → ((OpBoundedModularLatticeTerm2 n A) → A))) 
-  evalOp n Bo vars (v2 x1) = (lookup vars x1)  
-  evalOp n Bo vars (sing2 x1) = x1  
-  evalOp n Bo vars (*OL2 x1 x2) = ((* Bo) (evalOp n Bo vars x1) (evalOp n Bo vars x2))  
-  evalOp n Bo vars (+OL2 x1 x2) = ((+ Bo) (evalOp n Bo vars x1) (evalOp n Bo vars x2))  
-  evalOp n Bo vars 0OL2 = (0ᵢ Bo)  
-  evalOp n Bo vars 1OL2 = (1ᵢ Bo)  
-  inductionB :  (P : (BoundedModularLatticeTerm → Set)) →  (( (x1 x2 : BoundedModularLatticeTerm) → ((P x1) → ((P x2) → (P (*L x1 x2))))) → (( (x1 x2 : BoundedModularLatticeTerm) → ((P x1) → ((P x2) → (P (+L x1 x2))))) → ((P 0L) → ((P 1L) → ( (x : BoundedModularLatticeTerm) → (P x)))))) 
-  inductionB p p*l p+l p0l p1l (*L x1 x2) = (p*l _ _ (inductionB p p*l p+l p0l p1l x1) (inductionB p p*l p+l p0l p1l x2))  
-  inductionB p p*l p+l p0l p1l (+L x1 x2) = (p+l _ _ (inductionB p p*l p+l p0l p1l x1) (inductionB p p*l p+l p0l p1l x2))  
-  inductionB p p*l p+l p0l p1l 0L = p0l  
-  inductionB p p*l p+l p0l p1l 1L = p1l  
-  inductionCl :  (A : Set) (P : ((ClBoundedModularLatticeTerm A) → Set)) →  (( (x1 : A) → (P (sing x1))) → (( (x1 x2 : (ClBoundedModularLatticeTerm A)) → ((P x1) → ((P x2) → (P (*Cl x1 x2))))) → (( (x1 x2 : (ClBoundedModularLatticeTerm A)) → ((P x1) → ((P x2) → (P (+Cl x1 x2))))) → ((P 0Cl) → ((P 1Cl) → ( (x : (ClBoundedModularLatticeTerm A)) → (P x))))))) 
-  inductionCl _ p psing p*cl p+cl p0cl p1cl (sing x1) = (psing x1)  
-  inductionCl _ p psing p*cl p+cl p0cl p1cl (*Cl x1 x2) = (p*cl _ _ (inductionCl _ p psing p*cl p+cl p0cl p1cl x1) (inductionCl _ p psing p*cl p+cl p0cl p1cl x2))  
-  inductionCl _ p psing p*cl p+cl p0cl p1cl (+Cl x1 x2) = (p+cl _ _ (inductionCl _ p psing p*cl p+cl p0cl p1cl x1) (inductionCl _ p psing p*cl p+cl p0cl p1cl x2))  
-  inductionCl _ p psing p*cl p+cl p0cl p1cl 0Cl = p0cl  
-  inductionCl _ p psing p*cl p+cl p0cl p1cl 1Cl = p1cl  
-  inductionOpB :  (n : Nat) (P : ((OpBoundedModularLatticeTerm n) → Set)) →  (( (fin : (Fin n)) → (P (v fin))) → (( (x1 x2 : (OpBoundedModularLatticeTerm n)) → ((P x1) → ((P x2) → (P (*OL x1 x2))))) → (( (x1 x2 : (OpBoundedModularLatticeTerm n)) → ((P x1) → ((P x2) → (P (+OL x1 x2))))) → ((P 0OL) → ((P 1OL) → ( (x : (OpBoundedModularLatticeTerm n)) → (P x))))))) 
-  inductionOpB _ p pv p*ol p+ol p0ol p1ol (v x1) = (pv x1)  
-  inductionOpB _ p pv p*ol p+ol p0ol p1ol (*OL x1 x2) = (p*ol _ _ (inductionOpB _ p pv p*ol p+ol p0ol p1ol x1) (inductionOpB _ p pv p*ol p+ol p0ol p1ol x2))  
-  inductionOpB _ p pv p*ol p+ol p0ol p1ol (+OL x1 x2) = (p+ol _ _ (inductionOpB _ p pv p*ol p+ol p0ol p1ol x1) (inductionOpB _ p pv p*ol p+ol p0ol p1ol x2))  
-  inductionOpB _ p pv p*ol p+ol p0ol p1ol 0OL = p0ol  
-  inductionOpB _ p pv p*ol p+ol p0ol p1ol 1OL = p1ol  
-  inductionOp :  (n : Nat) (A : Set) (P : ((OpBoundedModularLatticeTerm2 n A) → Set)) →  (( (fin : (Fin n)) → (P (v2 fin))) → (( (x1 : A) → (P (sing2 x1))) → (( (x1 x2 : (OpBoundedModularLatticeTerm2 n A)) → ((P x1) → ((P x2) → (P (*OL2 x1 x2))))) → (( (x1 x2 : (OpBoundedModularLatticeTerm2 n A)) → ((P x1) → ((P x2) → (P (+OL2 x1 x2))))) → ((P 0OL2) → ((P 1OL2) → ( (x : (OpBoundedModularLatticeTerm2 n A)) → (P x)))))))) 
-  inductionOp _ _ p pv2 psing2 p*ol2 p+ol2 p0ol2 p1ol2 (v2 x1) = (pv2 x1)  
-  inductionOp _ _ p pv2 psing2 p*ol2 p+ol2 p0ol2 p1ol2 (sing2 x1) = (psing2 x1)  
-  inductionOp _ _ p pv2 psing2 p*ol2 p+ol2 p0ol2 p1ol2 (*OL2 x1 x2) = (p*ol2 _ _ (inductionOp _ _ p pv2 psing2 p*ol2 p+ol2 p0ol2 p1ol2 x1) (inductionOp _ _ p pv2 psing2 p*ol2 p+ol2 p0ol2 p1ol2 x2))  
-  inductionOp _ _ p pv2 psing2 p*ol2 p+ol2 p0ol2 p1ol2 (+OL2 x1 x2) = (p+ol2 _ _ (inductionOp _ _ p pv2 psing2 p*ol2 p+ol2 p0ol2 p1ol2 x1) (inductionOp _ _ p pv2 psing2 p*ol2 p+ol2 p0ol2 p1ol2 x2))  
-  inductionOp _ _ p pv2 psing2 p*ol2 p+ol2 p0ol2 p1ol2 0OL2 = p0ol2  
-  inductionOp _ _ p pv2 psing2 p*ol2 p+ol2 p0ol2 p1ol2 1OL2 = p1ol2  
+  evalOpB :  {A : Set} {n : Nat} →  ((BoundedModularLattice A) → ((Vec A n) → ((OpBoundedModularLatticeTerm n) → A))) 
+  evalOpB Bo vars (v x1) = (lookup vars x1)  
+  evalOpB Bo vars (*OL x1 x2) = ((* Bo) (evalOpB Bo vars x1) (evalOpB Bo vars x2))  
+  evalOpB Bo vars (+OL x1 x2) = ((+ Bo) (evalOpB Bo vars x1) (evalOpB Bo vars x2))  
+  evalOpB Bo vars 0OL = (0ᵢ Bo)  
+  evalOpB Bo vars 1OL = (1ᵢ Bo)  
+  evalOp :  {A : Set} {n : Nat} →  ((BoundedModularLattice A) → ((Vec A n) → ((OpBoundedModularLatticeTerm2 n A) → A))) 
+  evalOp Bo vars (v2 x1) = (lookup vars x1)  
+  evalOp Bo vars (sing2 x1) = x1  
+  evalOp Bo vars (*OL2 x1 x2) = ((* Bo) (evalOp Bo vars x1) (evalOp Bo vars x2))  
+  evalOp Bo vars (+OL2 x1 x2) = ((+ Bo) (evalOp Bo vars x1) (evalOp Bo vars x2))  
+  evalOp Bo vars 0OL2 = (0ᵢ Bo)  
+  evalOp Bo vars 1OL2 = (1ᵢ Bo)  
+  inductionB :  {P : (BoundedModularLatticeTerm → Set)} →  (( (x1 x2 : BoundedModularLatticeTerm) → ((P x1) → ((P x2) → (P (*L x1 x2))))) → (( (x1 x2 : BoundedModularLatticeTerm) → ((P x1) → ((P x2) → (P (+L x1 x2))))) → ((P 0L) → ((P 1L) → ( (x : BoundedModularLatticeTerm) → (P x)))))) 
+  inductionB p*l p+l p0l p1l (*L x1 x2) = (p*l _ _ (inductionB p*l p+l p0l p1l x1) (inductionB p*l p+l p0l p1l x2))  
+  inductionB p*l p+l p0l p1l (+L x1 x2) = (p+l _ _ (inductionB p*l p+l p0l p1l x1) (inductionB p*l p+l p0l p1l x2))  
+  inductionB p*l p+l p0l p1l 0L = p0l  
+  inductionB p*l p+l p0l p1l 1L = p1l  
+  inductionCl :  {A : Set} {P : ((ClBoundedModularLatticeTerm A) → Set)} →  (( (x1 : A) → (P (sing x1))) → (( (x1 x2 : (ClBoundedModularLatticeTerm A)) → ((P x1) → ((P x2) → (P (*Cl x1 x2))))) → (( (x1 x2 : (ClBoundedModularLatticeTerm A)) → ((P x1) → ((P x2) → (P (+Cl x1 x2))))) → ((P 0Cl) → ((P 1Cl) → ( (x : (ClBoundedModularLatticeTerm A)) → (P x))))))) 
+  inductionCl psing p*cl p+cl p0cl p1cl (sing x1) = (psing x1)  
+  inductionCl psing p*cl p+cl p0cl p1cl (*Cl x1 x2) = (p*cl _ _ (inductionCl psing p*cl p+cl p0cl p1cl x1) (inductionCl psing p*cl p+cl p0cl p1cl x2))  
+  inductionCl psing p*cl p+cl p0cl p1cl (+Cl x1 x2) = (p+cl _ _ (inductionCl psing p*cl p+cl p0cl p1cl x1) (inductionCl psing p*cl p+cl p0cl p1cl x2))  
+  inductionCl psing p*cl p+cl p0cl p1cl 0Cl = p0cl  
+  inductionCl psing p*cl p+cl p0cl p1cl 1Cl = p1cl  
+  inductionOpB :  {n : Nat} {P : ((OpBoundedModularLatticeTerm n) → Set)} →  (( (fin : (Fin n)) → (P (v fin))) → (( (x1 x2 : (OpBoundedModularLatticeTerm n)) → ((P x1) → ((P x2) → (P (*OL x1 x2))))) → (( (x1 x2 : (OpBoundedModularLatticeTerm n)) → ((P x1) → ((P x2) → (P (+OL x1 x2))))) → ((P 0OL) → ((P 1OL) → ( (x : (OpBoundedModularLatticeTerm n)) → (P x))))))) 
+  inductionOpB pv p*ol p+ol p0ol p1ol (v x1) = (pv x1)  
+  inductionOpB pv p*ol p+ol p0ol p1ol (*OL x1 x2) = (p*ol _ _ (inductionOpB pv p*ol p+ol p0ol p1ol x1) (inductionOpB pv p*ol p+ol p0ol p1ol x2))  
+  inductionOpB pv p*ol p+ol p0ol p1ol (+OL x1 x2) = (p+ol _ _ (inductionOpB pv p*ol p+ol p0ol p1ol x1) (inductionOpB pv p*ol p+ol p0ol p1ol x2))  
+  inductionOpB pv p*ol p+ol p0ol p1ol 0OL = p0ol  
+  inductionOpB pv p*ol p+ol p0ol p1ol 1OL = p1ol  
+  inductionOp :  {n : Nat} {A : Set} {P : ((OpBoundedModularLatticeTerm2 n A) → Set)} →  (( (fin : (Fin n)) → (P (v2 fin))) → (( (x1 : A) → (P (sing2 x1))) → (( (x1 x2 : (OpBoundedModularLatticeTerm2 n A)) → ((P x1) → ((P x2) → (P (*OL2 x1 x2))))) → (( (x1 x2 : (OpBoundedModularLatticeTerm2 n A)) → ((P x1) → ((P x2) → (P (+OL2 x1 x2))))) → ((P 0OL2) → ((P 1OL2) → ( (x : (OpBoundedModularLatticeTerm2 n A)) → (P x)))))))) 
+  inductionOp pv2 psing2 p*ol2 p+ol2 p0ol2 p1ol2 (v2 x1) = (pv2 x1)  
+  inductionOp pv2 psing2 p*ol2 p+ol2 p0ol2 p1ol2 (sing2 x1) = (psing2 x1)  
+  inductionOp pv2 psing2 p*ol2 p+ol2 p0ol2 p1ol2 (*OL2 x1 x2) = (p*ol2 _ _ (inductionOp pv2 psing2 p*ol2 p+ol2 p0ol2 p1ol2 x1) (inductionOp pv2 psing2 p*ol2 p+ol2 p0ol2 p1ol2 x2))  
+  inductionOp pv2 psing2 p*ol2 p+ol2 p0ol2 p1ol2 (+OL2 x1 x2) = (p+ol2 _ _ (inductionOp pv2 psing2 p*ol2 p+ol2 p0ol2 p1ol2 x1) (inductionOp pv2 psing2 p*ol2 p+ol2 p0ol2 p1ol2 x2))  
+  inductionOp pv2 psing2 p*ol2 p+ol2 p0ol2 p1ol2 0OL2 = p0ol2  
+  inductionOp pv2 psing2 p*ol2 p+ol2 p0ol2 p1ol2 1OL2 = p1ol2  
   stageB :  (BoundedModularLatticeTerm → (Staged BoundedModularLatticeTerm))
   stageB (*L x1 x2) = (stage2 *L (codeLift2 *L) (stageB x1) (stageB x2))  
   stageB (+L x1 x2) = (stage2 +L (codeLift2 +L) (stageB x1) (stageB x2))  
   stageB 0L = (Now 0L)  
   stageB 1L = (Now 1L)  
-  stageCl :  (A : Set) →  ((ClBoundedModularLatticeTerm A) → (Staged (ClBoundedModularLatticeTerm A))) 
-  stageCl _ (sing x1) = (Now (sing x1))  
-  stageCl _ (*Cl x1 x2) = (stage2 *Cl (codeLift2 *Cl) (stageCl _ x1) (stageCl _ x2))  
-  stageCl _ (+Cl x1 x2) = (stage2 +Cl (codeLift2 +Cl) (stageCl _ x1) (stageCl _ x2))  
-  stageCl _ 0Cl = (Now 0Cl)  
-  stageCl _ 1Cl = (Now 1Cl)  
-  stageOpB :  (n : Nat) →  ((OpBoundedModularLatticeTerm n) → (Staged (OpBoundedModularLatticeTerm n))) 
-  stageOpB _ (v x1) = (const (code (v x1)))  
-  stageOpB _ (*OL x1 x2) = (stage2 *OL (codeLift2 *OL) (stageOpB _ x1) (stageOpB _ x2))  
-  stageOpB _ (+OL x1 x2) = (stage2 +OL (codeLift2 +OL) (stageOpB _ x1) (stageOpB _ x2))  
-  stageOpB _ 0OL = (Now 0OL)  
-  stageOpB _ 1OL = (Now 1OL)  
-  stageOp :  (n : Nat) (A : Set) →  ((OpBoundedModularLatticeTerm2 n A) → (Staged (OpBoundedModularLatticeTerm2 n A))) 
-  stageOp _ _ (sing2 x1) = (Now (sing2 x1))  
-  stageOp _ _ (v2 x1) = (const (code (v2 x1)))  
-  stageOp _ _ (*OL2 x1 x2) = (stage2 *OL2 (codeLift2 *OL2) (stageOp _ _ x1) (stageOp _ _ x2))  
-  stageOp _ _ (+OL2 x1 x2) = (stage2 +OL2 (codeLift2 +OL2) (stageOp _ _ x1) (stageOp _ _ x2))  
-  stageOp _ _ 0OL2 = (Now 0OL2)  
-  stageOp _ _ 1OL2 = (Now 1OL2)  
+  stageCl :  {A : Set} →  ((ClBoundedModularLatticeTerm A) → (Staged (ClBoundedModularLatticeTerm A))) 
+  stageCl (sing x1) = (Now (sing x1))  
+  stageCl (*Cl x1 x2) = (stage2 *Cl (codeLift2 *Cl) (stageCl x1) (stageCl x2))  
+  stageCl (+Cl x1 x2) = (stage2 +Cl (codeLift2 +Cl) (stageCl x1) (stageCl x2))  
+  stageCl 0Cl = (Now 0Cl)  
+  stageCl 1Cl = (Now 1Cl)  
+  stageOpB :  {n : Nat} →  ((OpBoundedModularLatticeTerm n) → (Staged (OpBoundedModularLatticeTerm n))) 
+  stageOpB (v x1) = (const (code (v x1)))  
+  stageOpB (*OL x1 x2) = (stage2 *OL (codeLift2 *OL) (stageOpB x1) (stageOpB x2))  
+  stageOpB (+OL x1 x2) = (stage2 +OL (codeLift2 +OL) (stageOpB x1) (stageOpB x2))  
+  stageOpB 0OL = (Now 0OL)  
+  stageOpB 1OL = (Now 1OL)  
+  stageOp :  {n : Nat} {A : Set} →  ((OpBoundedModularLatticeTerm2 n A) → (Staged (OpBoundedModularLatticeTerm2 n A))) 
+  stageOp (sing2 x1) = (Now (sing2 x1))  
+  stageOp (v2 x1) = (const (code (v2 x1)))  
+  stageOp (*OL2 x1 x2) = (stage2 *OL2 (codeLift2 *OL2) (stageOp x1) (stageOp x2))  
+  stageOp (+OL2 x1 x2) = (stage2 +OL2 (codeLift2 +OL2) (stageOp x1) (stageOp x2))  
+  stageOp 0OL2 = (Now 0OL2)  
+  stageOp 1OL2 = (Now 1OL2)  
   record StagedRepr  (A : Set) (Repr : (Set → Set)) : Set where 
      field  
       *T : ((Repr A) → ((Repr A) → (Repr A))) 

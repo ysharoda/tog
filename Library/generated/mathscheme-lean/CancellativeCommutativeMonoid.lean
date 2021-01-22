@@ -66,19 +66,19 @@ section CancellativeCommutativeMonoid
      | eOL2 : OpCancellativeCommutativeMonoidTerm2  
       open OpCancellativeCommutativeMonoidTerm2 
   
-  def simplifyCl   (A : Type)  : ((ClCancellativeCommutativeMonoidTerm A) → (ClCancellativeCommutativeMonoidTerm A)) 
+  def simplifyCl   {A : Type}  : ((ClCancellativeCommutativeMonoidTerm A) → (ClCancellativeCommutativeMonoidTerm A)) 
   | (opCl eCl x) := x  
   | (opCl x eCl) := x  
   | (opCl x1 x2) := (opCl (simplifyCl x1) (simplifyCl x2))  
   | eCl := eCl  
   | (sing x1) := (sing x1)  
-  def simplifyOpB   (n : ℕ)  : ((OpCancellativeCommutativeMonoidTerm n) → (OpCancellativeCommutativeMonoidTerm n)) 
+  def simplifyOpB   {n : ℕ}  : ((OpCancellativeCommutativeMonoidTerm n) → (OpCancellativeCommutativeMonoidTerm n)) 
   | (opOL eOL x) := x  
   | (opOL x eOL) := x  
   | (opOL x1 x2) := (opOL (simplifyOpB x1) (simplifyOpB x2))  
   | eOL := eOL  
   | (v x1) := (v x1)  
-  def simplifyOp   (n : ℕ) (A : Type)  : ((OpCancellativeCommutativeMonoidTerm2 n A) → (OpCancellativeCommutativeMonoidTerm2 n A)) 
+  def simplifyOp   {n : ℕ} {A : Type}  : ((OpCancellativeCommutativeMonoidTerm2 n A) → (OpCancellativeCommutativeMonoidTerm2 n A)) 
   | (opOL2 eOL2 x) := x  
   | (opOL2 x eOL2) := x  
   | (opOL2 x1 x2) := (opOL2 (simplifyOp x1) (simplifyOp x2))  
@@ -92,27 +92,27 @@ section CancellativeCommutativeMonoid
   | Ca (sing x1) := x1  
   | Ca (opCl x1 x2) := ((op Ca) (evalCl Ca x1) (evalCl Ca x2))  
   | Ca eCl := (e Ca)  
-  def evalOpB   {A : Type} (n : ℕ)  : ((CancellativeCommutativeMonoid A) → ((vector A n) → ((OpCancellativeCommutativeMonoidTerm n) → A))) 
+  def evalOpB   {A : Type} {n : ℕ}  : ((CancellativeCommutativeMonoid A) → ((vector A n) → ((OpCancellativeCommutativeMonoidTerm n) → A))) 
   | Ca vars (v x1) := (nth vars x1)  
   | Ca vars (opOL x1 x2) := ((op Ca) (evalOpB Ca vars x1) (evalOpB Ca vars x2))  
   | Ca vars eOL := (e Ca)  
-  def evalOp   {A : Type} (n : ℕ)  : ((CancellativeCommutativeMonoid A) → ((vector A n) → ((OpCancellativeCommutativeMonoidTerm2 n A) → A))) 
+  def evalOp   {A : Type} {n : ℕ}  : ((CancellativeCommutativeMonoid A) → ((vector A n) → ((OpCancellativeCommutativeMonoidTerm2 n A) → A))) 
   | Ca vars (v2 x1) := (nth vars x1)  
   | Ca vars (sing2 x1) := x1  
   | Ca vars (opOL2 x1 x2) := ((op Ca) (evalOp Ca vars x1) (evalOp Ca vars x2))  
   | Ca vars eOL2 := (e Ca)  
-  def inductionB   (P : (CancellativeCommutativeMonoidTerm → Type))  : ((∀ (x1 x2 : CancellativeCommutativeMonoidTerm) , ((P x1) → ((P x2) → (P (opL x1 x2))))) → ((P eL) → (∀ (x : CancellativeCommutativeMonoidTerm) , (P x)))) 
+  def inductionB   {P : (CancellativeCommutativeMonoidTerm → Type)}  : ((∀ (x1 x2 : CancellativeCommutativeMonoidTerm) , ((P x1) → ((P x2) → (P (opL x1 x2))))) → ((P eL) → (∀ (x : CancellativeCommutativeMonoidTerm) , (P x)))) 
   | popl pel (opL x1 x2) := (popl _ _ (inductionB popl pel x1) (inductionB popl pel x2))  
   | popl pel eL := pel  
-  def inductionCl   (A : Type) (P : ((ClCancellativeCommutativeMonoidTerm A) → Type))  : ((∀ (x1 : A) , (P (sing x1))) → ((∀ (x1 x2 : (ClCancellativeCommutativeMonoidTerm A)) , ((P x1) → ((P x2) → (P (opCl x1 x2))))) → ((P eCl) → (∀ (x : (ClCancellativeCommutativeMonoidTerm A)) , (P x))))) 
+  def inductionCl   {A : Type} {P : ((ClCancellativeCommutativeMonoidTerm A) → Type)}  : ((∀ (x1 : A) , (P (sing x1))) → ((∀ (x1 x2 : (ClCancellativeCommutativeMonoidTerm A)) , ((P x1) → ((P x2) → (P (opCl x1 x2))))) → ((P eCl) → (∀ (x : (ClCancellativeCommutativeMonoidTerm A)) , (P x))))) 
   | psing popcl pecl (sing x1) := (psing x1)  
   | psing popcl pecl (opCl x1 x2) := (popcl _ _ (inductionCl psing popcl pecl x1) (inductionCl psing popcl pecl x2))  
   | psing popcl pecl eCl := pecl  
-  def inductionOpB   (n : ℕ) (P : ((OpCancellativeCommutativeMonoidTerm n) → Type))  : ((∀ (fin : (fin n)) , (P (v fin))) → ((∀ (x1 x2 : (OpCancellativeCommutativeMonoidTerm n)) , ((P x1) → ((P x2) → (P (opOL x1 x2))))) → ((P eOL) → (∀ (x : (OpCancellativeCommutativeMonoidTerm n)) , (P x))))) 
+  def inductionOpB   {n : ℕ} {P : ((OpCancellativeCommutativeMonoidTerm n) → Type)}  : ((∀ (fin : (fin n)) , (P (v fin))) → ((∀ (x1 x2 : (OpCancellativeCommutativeMonoidTerm n)) , ((P x1) → ((P x2) → (P (opOL x1 x2))))) → ((P eOL) → (∀ (x : (OpCancellativeCommutativeMonoidTerm n)) , (P x))))) 
   | pv popol peol (v x1) := (pv x1)  
   | pv popol peol (opOL x1 x2) := (popol _ _ (inductionOpB pv popol peol x1) (inductionOpB pv popol peol x2))  
   | pv popol peol eOL := peol  
-  def inductionOp   (n : ℕ) (A : Type) (P : ((OpCancellativeCommutativeMonoidTerm2 n A) → Type))  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((∀ (x1 x2 : (OpCancellativeCommutativeMonoidTerm2 n A)) , ((P x1) → ((P x2) → (P (opOL2 x1 x2))))) → ((P eOL2) → (∀ (x : (OpCancellativeCommutativeMonoidTerm2 n A)) , (P x)))))) 
+  def inductionOp   {n : ℕ} {A : Type} {P : ((OpCancellativeCommutativeMonoidTerm2 n A) → Type)}  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((∀ (x1 x2 : (OpCancellativeCommutativeMonoidTerm2 n A)) , ((P x1) → ((P x2) → (P (opOL2 x1 x2))))) → ((P eOL2) → (∀ (x : (OpCancellativeCommutativeMonoidTerm2 n A)) , (P x)))))) 
   | pv2 psing2 popol2 peol2 (v2 x1) := (pv2 x1)  
   | pv2 psing2 popol2 peol2 (sing2 x1) := (psing2 x1)  
   | pv2 psing2 popol2 peol2 (opOL2 x1 x2) := (popol2 _ _ (inductionOp pv2 psing2 popol2 peol2 x1) (inductionOp pv2 psing2 popol2 peol2 x2))  
@@ -120,15 +120,15 @@ section CancellativeCommutativeMonoid
   def stageB  : (CancellativeCommutativeMonoidTerm → (Staged CancellativeCommutativeMonoidTerm))
   | (opL x1 x2) := (stage2 opL (codeLift2 opL) (stageB x1) (stageB x2))  
   | eL := (Now eL)  
-  def stageCl   (A : Type)  : ((ClCancellativeCommutativeMonoidTerm A) → (Staged (ClCancellativeCommutativeMonoidTerm A))) 
+  def stageCl   {A : Type}  : ((ClCancellativeCommutativeMonoidTerm A) → (Staged (ClCancellativeCommutativeMonoidTerm A))) 
   | (sing x1) := (Now (sing x1))  
   | (opCl x1 x2) := (stage2 opCl (codeLift2 opCl) (stageCl x1) (stageCl x2))  
   | eCl := (Now eCl)  
-  def stageOpB   (n : ℕ)  : ((OpCancellativeCommutativeMonoidTerm n) → (Staged (OpCancellativeCommutativeMonoidTerm n))) 
+  def stageOpB   {n : ℕ}  : ((OpCancellativeCommutativeMonoidTerm n) → (Staged (OpCancellativeCommutativeMonoidTerm n))) 
   | (v x1) := (const (code (v x1)))  
   | (opOL x1 x2) := (stage2 opOL (codeLift2 opOL) (stageOpB x1) (stageOpB x2))  
   | eOL := (Now eOL)  
-  def stageOp   (n : ℕ) (A : Type)  : ((OpCancellativeCommutativeMonoidTerm2 n A) → (Staged (OpCancellativeCommutativeMonoidTerm2 n A))) 
+  def stageOp   {n : ℕ} {A : Type}  : ((OpCancellativeCommutativeMonoidTerm2 n A) → (Staged (OpCancellativeCommutativeMonoidTerm2 n A))) 
   | (sing2 x1) := (Now (sing2 x1))  
   | (v2 x1) := (const (code (v2 x1)))  
   | (opOL2 x1 x2) := (stage2 opOL2 (codeLift2 opOL2) (stageOp x1) (stageOp x2))  

@@ -87,37 +87,37 @@ module DoubleMonoid   where
       1OL2 : (OpDoubleMonoidTerm2 n A) 
       *OL2 : ((OpDoubleMonoidTerm2 n A) → ((OpDoubleMonoidTerm2 n A) → (OpDoubleMonoidTerm2 n A)))  
       
-  simplifyCl :  (A : Set) →  ((ClDoubleMonoidTerm A) → (ClDoubleMonoidTerm A)) 
-  simplifyCl _ (+Cl 0Cl x) = x  
-  simplifyCl _ (+Cl x 0Cl) = x  
-  simplifyCl _ (*Cl 1Cl x) = x  
-  simplifyCl _ (*Cl x 1Cl) = x  
-  simplifyCl _ 0Cl = 0Cl  
-  simplifyCl _ (+Cl x1 x2) = (+Cl (simplifyCl _ x1) (simplifyCl _ x2))  
-  simplifyCl _ 1Cl = 1Cl  
-  simplifyCl _ (*Cl x1 x2) = (*Cl (simplifyCl _ x1) (simplifyCl _ x2))  
-  simplifyCl _ (sing x1) = (sing x1)  
-  simplifyOpB :  (n : Nat) →  ((OpDoubleMonoidTerm n) → (OpDoubleMonoidTerm n)) 
-  simplifyOpB _ (+OL 0OL x) = x  
-  simplifyOpB _ (+OL x 0OL) = x  
-  simplifyOpB _ (*OL 1OL x) = x  
-  simplifyOpB _ (*OL x 1OL) = x  
-  simplifyOpB _ 0OL = 0OL  
-  simplifyOpB _ (+OL x1 x2) = (+OL (simplifyOpB _ x1) (simplifyOpB _ x2))  
-  simplifyOpB _ 1OL = 1OL  
-  simplifyOpB _ (*OL x1 x2) = (*OL (simplifyOpB _ x1) (simplifyOpB _ x2))  
-  simplifyOpB _ (v x1) = (v x1)  
-  simplifyOp :  (n : Nat) (A : Set) →  ((OpDoubleMonoidTerm2 n A) → (OpDoubleMonoidTerm2 n A)) 
-  simplifyOp _ _ (+OL2 0OL2 x) = x  
-  simplifyOp _ _ (+OL2 x 0OL2) = x  
-  simplifyOp _ _ (*OL2 1OL2 x) = x  
-  simplifyOp _ _ (*OL2 x 1OL2) = x  
-  simplifyOp _ _ 0OL2 = 0OL2  
-  simplifyOp _ _ (+OL2 x1 x2) = (+OL2 (simplifyOp _ _ x1) (simplifyOp _ _ x2))  
-  simplifyOp _ _ 1OL2 = 1OL2  
-  simplifyOp _ _ (*OL2 x1 x2) = (*OL2 (simplifyOp _ _ x1) (simplifyOp _ _ x2))  
-  simplifyOp _ _ (v2 x1) = (v2 x1)  
-  simplifyOp _ _ (sing2 x1) = (sing2 x1)  
+  simplifyCl :  {A : Set} →  ((ClDoubleMonoidTerm A) → (ClDoubleMonoidTerm A)) 
+  simplifyCl (+Cl 0Cl x) = x  
+  simplifyCl (+Cl x 0Cl) = x  
+  simplifyCl (*Cl 1Cl x) = x  
+  simplifyCl (*Cl x 1Cl) = x  
+  simplifyCl 0Cl = 0Cl  
+  simplifyCl (+Cl x1 x2) = (+Cl (simplifyCl x1) (simplifyCl x2))  
+  simplifyCl 1Cl = 1Cl  
+  simplifyCl (*Cl x1 x2) = (*Cl (simplifyCl x1) (simplifyCl x2))  
+  simplifyCl (sing x1) = (sing x1)  
+  simplifyOpB :  {n : Nat} →  ((OpDoubleMonoidTerm n) → (OpDoubleMonoidTerm n)) 
+  simplifyOpB (+OL 0OL x) = x  
+  simplifyOpB (+OL x 0OL) = x  
+  simplifyOpB (*OL 1OL x) = x  
+  simplifyOpB (*OL x 1OL) = x  
+  simplifyOpB 0OL = 0OL  
+  simplifyOpB (+OL x1 x2) = (+OL (simplifyOpB x1) (simplifyOpB x2))  
+  simplifyOpB 1OL = 1OL  
+  simplifyOpB (*OL x1 x2) = (*OL (simplifyOpB x1) (simplifyOpB x2))  
+  simplifyOpB (v x1) = (v x1)  
+  simplifyOp :  {n : Nat} {A : Set} →  ((OpDoubleMonoidTerm2 n A) → (OpDoubleMonoidTerm2 n A)) 
+  simplifyOp (+OL2 0OL2 x) = x  
+  simplifyOp (+OL2 x 0OL2) = x  
+  simplifyOp (*OL2 1OL2 x) = x  
+  simplifyOp (*OL2 x 1OL2) = x  
+  simplifyOp 0OL2 = 0OL2  
+  simplifyOp (+OL2 x1 x2) = (+OL2 (simplifyOp x1) (simplifyOp x2))  
+  simplifyOp 1OL2 = 1OL2  
+  simplifyOp (*OL2 x1 x2) = (*OL2 (simplifyOp x1) (simplifyOp x2))  
+  simplifyOp (v2 x1) = (v2 x1)  
+  simplifyOp (sing2 x1) = (sing2 x1)  
   evalB :  {A : Set} →  ((DoubleMonoid A) → (DoubleMonoidTerm → A)) 
   evalB Do 0L = (0ᵢ Do)  
   evalB Do (+L x1 x2) = ((+ Do) (evalB Do x1) (evalB Do x2))  
@@ -129,67 +129,67 @@ module DoubleMonoid   where
   evalCl Do (+Cl x1 x2) = ((+ Do) (evalCl Do x1) (evalCl Do x2))  
   evalCl Do 1Cl = (1ᵢ Do)  
   evalCl Do (*Cl x1 x2) = ((* Do) (evalCl Do x1) (evalCl Do x2))  
-  evalOpB :  {A : Set} (n : Nat) →  ((DoubleMonoid A) → ((Vec A n) → ((OpDoubleMonoidTerm n) → A))) 
-  evalOpB n Do vars (v x1) = (lookup vars x1)  
-  evalOpB n Do vars 0OL = (0ᵢ Do)  
-  evalOpB n Do vars (+OL x1 x2) = ((+ Do) (evalOpB n Do vars x1) (evalOpB n Do vars x2))  
-  evalOpB n Do vars 1OL = (1ᵢ Do)  
-  evalOpB n Do vars (*OL x1 x2) = ((* Do) (evalOpB n Do vars x1) (evalOpB n Do vars x2))  
-  evalOp :  {A : Set} (n : Nat) →  ((DoubleMonoid A) → ((Vec A n) → ((OpDoubleMonoidTerm2 n A) → A))) 
-  evalOp n Do vars (v2 x1) = (lookup vars x1)  
-  evalOp n Do vars (sing2 x1) = x1  
-  evalOp n Do vars 0OL2 = (0ᵢ Do)  
-  evalOp n Do vars (+OL2 x1 x2) = ((+ Do) (evalOp n Do vars x1) (evalOp n Do vars x2))  
-  evalOp n Do vars 1OL2 = (1ᵢ Do)  
-  evalOp n Do vars (*OL2 x1 x2) = ((* Do) (evalOp n Do vars x1) (evalOp n Do vars x2))  
-  inductionB :  (P : (DoubleMonoidTerm → Set)) →  ((P 0L) → (( (x1 x2 : DoubleMonoidTerm) → ((P x1) → ((P x2) → (P (+L x1 x2))))) → ((P 1L) → (( (x1 x2 : DoubleMonoidTerm) → ((P x1) → ((P x2) → (P (*L x1 x2))))) → ( (x : DoubleMonoidTerm) → (P x)))))) 
-  inductionB p p0l p+l p1l p*l 0L = p0l  
-  inductionB p p0l p+l p1l p*l (+L x1 x2) = (p+l _ _ (inductionB p p0l p+l p1l p*l x1) (inductionB p p0l p+l p1l p*l x2))  
-  inductionB p p0l p+l p1l p*l 1L = p1l  
-  inductionB p p0l p+l p1l p*l (*L x1 x2) = (p*l _ _ (inductionB p p0l p+l p1l p*l x1) (inductionB p p0l p+l p1l p*l x2))  
-  inductionCl :  (A : Set) (P : ((ClDoubleMonoidTerm A) → Set)) →  (( (x1 : A) → (P (sing x1))) → ((P 0Cl) → (( (x1 x2 : (ClDoubleMonoidTerm A)) → ((P x1) → ((P x2) → (P (+Cl x1 x2))))) → ((P 1Cl) → (( (x1 x2 : (ClDoubleMonoidTerm A)) → ((P x1) → ((P x2) → (P (*Cl x1 x2))))) → ( (x : (ClDoubleMonoidTerm A)) → (P x))))))) 
-  inductionCl _ p psing p0cl p+cl p1cl p*cl (sing x1) = (psing x1)  
-  inductionCl _ p psing p0cl p+cl p1cl p*cl 0Cl = p0cl  
-  inductionCl _ p psing p0cl p+cl p1cl p*cl (+Cl x1 x2) = (p+cl _ _ (inductionCl _ p psing p0cl p+cl p1cl p*cl x1) (inductionCl _ p psing p0cl p+cl p1cl p*cl x2))  
-  inductionCl _ p psing p0cl p+cl p1cl p*cl 1Cl = p1cl  
-  inductionCl _ p psing p0cl p+cl p1cl p*cl (*Cl x1 x2) = (p*cl _ _ (inductionCl _ p psing p0cl p+cl p1cl p*cl x1) (inductionCl _ p psing p0cl p+cl p1cl p*cl x2))  
-  inductionOpB :  (n : Nat) (P : ((OpDoubleMonoidTerm n) → Set)) →  (( (fin : (Fin n)) → (P (v fin))) → ((P 0OL) → (( (x1 x2 : (OpDoubleMonoidTerm n)) → ((P x1) → ((P x2) → (P (+OL x1 x2))))) → ((P 1OL) → (( (x1 x2 : (OpDoubleMonoidTerm n)) → ((P x1) → ((P x2) → (P (*OL x1 x2))))) → ( (x : (OpDoubleMonoidTerm n)) → (P x))))))) 
-  inductionOpB _ p pv p0ol p+ol p1ol p*ol (v x1) = (pv x1)  
-  inductionOpB _ p pv p0ol p+ol p1ol p*ol 0OL = p0ol  
-  inductionOpB _ p pv p0ol p+ol p1ol p*ol (+OL x1 x2) = (p+ol _ _ (inductionOpB _ p pv p0ol p+ol p1ol p*ol x1) (inductionOpB _ p pv p0ol p+ol p1ol p*ol x2))  
-  inductionOpB _ p pv p0ol p+ol p1ol p*ol 1OL = p1ol  
-  inductionOpB _ p pv p0ol p+ol p1ol p*ol (*OL x1 x2) = (p*ol _ _ (inductionOpB _ p pv p0ol p+ol p1ol p*ol x1) (inductionOpB _ p pv p0ol p+ol p1ol p*ol x2))  
-  inductionOp :  (n : Nat) (A : Set) (P : ((OpDoubleMonoidTerm2 n A) → Set)) →  (( (fin : (Fin n)) → (P (v2 fin))) → (( (x1 : A) → (P (sing2 x1))) → ((P 0OL2) → (( (x1 x2 : (OpDoubleMonoidTerm2 n A)) → ((P x1) → ((P x2) → (P (+OL2 x1 x2))))) → ((P 1OL2) → (( (x1 x2 : (OpDoubleMonoidTerm2 n A)) → ((P x1) → ((P x2) → (P (*OL2 x1 x2))))) → ( (x : (OpDoubleMonoidTerm2 n A)) → (P x)))))))) 
-  inductionOp _ _ p pv2 psing2 p0ol2 p+ol2 p1ol2 p*ol2 (v2 x1) = (pv2 x1)  
-  inductionOp _ _ p pv2 psing2 p0ol2 p+ol2 p1ol2 p*ol2 (sing2 x1) = (psing2 x1)  
-  inductionOp _ _ p pv2 psing2 p0ol2 p+ol2 p1ol2 p*ol2 0OL2 = p0ol2  
-  inductionOp _ _ p pv2 psing2 p0ol2 p+ol2 p1ol2 p*ol2 (+OL2 x1 x2) = (p+ol2 _ _ (inductionOp _ _ p pv2 psing2 p0ol2 p+ol2 p1ol2 p*ol2 x1) (inductionOp _ _ p pv2 psing2 p0ol2 p+ol2 p1ol2 p*ol2 x2))  
-  inductionOp _ _ p pv2 psing2 p0ol2 p+ol2 p1ol2 p*ol2 1OL2 = p1ol2  
-  inductionOp _ _ p pv2 psing2 p0ol2 p+ol2 p1ol2 p*ol2 (*OL2 x1 x2) = (p*ol2 _ _ (inductionOp _ _ p pv2 psing2 p0ol2 p+ol2 p1ol2 p*ol2 x1) (inductionOp _ _ p pv2 psing2 p0ol2 p+ol2 p1ol2 p*ol2 x2))  
+  evalOpB :  {A : Set} {n : Nat} →  ((DoubleMonoid A) → ((Vec A n) → ((OpDoubleMonoidTerm n) → A))) 
+  evalOpB Do vars (v x1) = (lookup vars x1)  
+  evalOpB Do vars 0OL = (0ᵢ Do)  
+  evalOpB Do vars (+OL x1 x2) = ((+ Do) (evalOpB Do vars x1) (evalOpB Do vars x2))  
+  evalOpB Do vars 1OL = (1ᵢ Do)  
+  evalOpB Do vars (*OL x1 x2) = ((* Do) (evalOpB Do vars x1) (evalOpB Do vars x2))  
+  evalOp :  {A : Set} {n : Nat} →  ((DoubleMonoid A) → ((Vec A n) → ((OpDoubleMonoidTerm2 n A) → A))) 
+  evalOp Do vars (v2 x1) = (lookup vars x1)  
+  evalOp Do vars (sing2 x1) = x1  
+  evalOp Do vars 0OL2 = (0ᵢ Do)  
+  evalOp Do vars (+OL2 x1 x2) = ((+ Do) (evalOp Do vars x1) (evalOp Do vars x2))  
+  evalOp Do vars 1OL2 = (1ᵢ Do)  
+  evalOp Do vars (*OL2 x1 x2) = ((* Do) (evalOp Do vars x1) (evalOp Do vars x2))  
+  inductionB :  {P : (DoubleMonoidTerm → Set)} →  ((P 0L) → (( (x1 x2 : DoubleMonoidTerm) → ((P x1) → ((P x2) → (P (+L x1 x2))))) → ((P 1L) → (( (x1 x2 : DoubleMonoidTerm) → ((P x1) → ((P x2) → (P (*L x1 x2))))) → ( (x : DoubleMonoidTerm) → (P x)))))) 
+  inductionB p0l p+l p1l p*l 0L = p0l  
+  inductionB p0l p+l p1l p*l (+L x1 x2) = (p+l _ _ (inductionB p0l p+l p1l p*l x1) (inductionB p0l p+l p1l p*l x2))  
+  inductionB p0l p+l p1l p*l 1L = p1l  
+  inductionB p0l p+l p1l p*l (*L x1 x2) = (p*l _ _ (inductionB p0l p+l p1l p*l x1) (inductionB p0l p+l p1l p*l x2))  
+  inductionCl :  {A : Set} {P : ((ClDoubleMonoidTerm A) → Set)} →  (( (x1 : A) → (P (sing x1))) → ((P 0Cl) → (( (x1 x2 : (ClDoubleMonoidTerm A)) → ((P x1) → ((P x2) → (P (+Cl x1 x2))))) → ((P 1Cl) → (( (x1 x2 : (ClDoubleMonoidTerm A)) → ((P x1) → ((P x2) → (P (*Cl x1 x2))))) → ( (x : (ClDoubleMonoidTerm A)) → (P x))))))) 
+  inductionCl psing p0cl p+cl p1cl p*cl (sing x1) = (psing x1)  
+  inductionCl psing p0cl p+cl p1cl p*cl 0Cl = p0cl  
+  inductionCl psing p0cl p+cl p1cl p*cl (+Cl x1 x2) = (p+cl _ _ (inductionCl psing p0cl p+cl p1cl p*cl x1) (inductionCl psing p0cl p+cl p1cl p*cl x2))  
+  inductionCl psing p0cl p+cl p1cl p*cl 1Cl = p1cl  
+  inductionCl psing p0cl p+cl p1cl p*cl (*Cl x1 x2) = (p*cl _ _ (inductionCl psing p0cl p+cl p1cl p*cl x1) (inductionCl psing p0cl p+cl p1cl p*cl x2))  
+  inductionOpB :  {n : Nat} {P : ((OpDoubleMonoidTerm n) → Set)} →  (( (fin : (Fin n)) → (P (v fin))) → ((P 0OL) → (( (x1 x2 : (OpDoubleMonoidTerm n)) → ((P x1) → ((P x2) → (P (+OL x1 x2))))) → ((P 1OL) → (( (x1 x2 : (OpDoubleMonoidTerm n)) → ((P x1) → ((P x2) → (P (*OL x1 x2))))) → ( (x : (OpDoubleMonoidTerm n)) → (P x))))))) 
+  inductionOpB pv p0ol p+ol p1ol p*ol (v x1) = (pv x1)  
+  inductionOpB pv p0ol p+ol p1ol p*ol 0OL = p0ol  
+  inductionOpB pv p0ol p+ol p1ol p*ol (+OL x1 x2) = (p+ol _ _ (inductionOpB pv p0ol p+ol p1ol p*ol x1) (inductionOpB pv p0ol p+ol p1ol p*ol x2))  
+  inductionOpB pv p0ol p+ol p1ol p*ol 1OL = p1ol  
+  inductionOpB pv p0ol p+ol p1ol p*ol (*OL x1 x2) = (p*ol _ _ (inductionOpB pv p0ol p+ol p1ol p*ol x1) (inductionOpB pv p0ol p+ol p1ol p*ol x2))  
+  inductionOp :  {n : Nat} {A : Set} {P : ((OpDoubleMonoidTerm2 n A) → Set)} →  (( (fin : (Fin n)) → (P (v2 fin))) → (( (x1 : A) → (P (sing2 x1))) → ((P 0OL2) → (( (x1 x2 : (OpDoubleMonoidTerm2 n A)) → ((P x1) → ((P x2) → (P (+OL2 x1 x2))))) → ((P 1OL2) → (( (x1 x2 : (OpDoubleMonoidTerm2 n A)) → ((P x1) → ((P x2) → (P (*OL2 x1 x2))))) → ( (x : (OpDoubleMonoidTerm2 n A)) → (P x)))))))) 
+  inductionOp pv2 psing2 p0ol2 p+ol2 p1ol2 p*ol2 (v2 x1) = (pv2 x1)  
+  inductionOp pv2 psing2 p0ol2 p+ol2 p1ol2 p*ol2 (sing2 x1) = (psing2 x1)  
+  inductionOp pv2 psing2 p0ol2 p+ol2 p1ol2 p*ol2 0OL2 = p0ol2  
+  inductionOp pv2 psing2 p0ol2 p+ol2 p1ol2 p*ol2 (+OL2 x1 x2) = (p+ol2 _ _ (inductionOp pv2 psing2 p0ol2 p+ol2 p1ol2 p*ol2 x1) (inductionOp pv2 psing2 p0ol2 p+ol2 p1ol2 p*ol2 x2))  
+  inductionOp pv2 psing2 p0ol2 p+ol2 p1ol2 p*ol2 1OL2 = p1ol2  
+  inductionOp pv2 psing2 p0ol2 p+ol2 p1ol2 p*ol2 (*OL2 x1 x2) = (p*ol2 _ _ (inductionOp pv2 psing2 p0ol2 p+ol2 p1ol2 p*ol2 x1) (inductionOp pv2 psing2 p0ol2 p+ol2 p1ol2 p*ol2 x2))  
   stageB :  (DoubleMonoidTerm → (Staged DoubleMonoidTerm))
   stageB 0L = (Now 0L)  
   stageB (+L x1 x2) = (stage2 +L (codeLift2 +L) (stageB x1) (stageB x2))  
   stageB 1L = (Now 1L)  
   stageB (*L x1 x2) = (stage2 *L (codeLift2 *L) (stageB x1) (stageB x2))  
-  stageCl :  (A : Set) →  ((ClDoubleMonoidTerm A) → (Staged (ClDoubleMonoidTerm A))) 
-  stageCl _ (sing x1) = (Now (sing x1))  
-  stageCl _ 0Cl = (Now 0Cl)  
-  stageCl _ (+Cl x1 x2) = (stage2 +Cl (codeLift2 +Cl) (stageCl _ x1) (stageCl _ x2))  
-  stageCl _ 1Cl = (Now 1Cl)  
-  stageCl _ (*Cl x1 x2) = (stage2 *Cl (codeLift2 *Cl) (stageCl _ x1) (stageCl _ x2))  
-  stageOpB :  (n : Nat) →  ((OpDoubleMonoidTerm n) → (Staged (OpDoubleMonoidTerm n))) 
-  stageOpB _ (v x1) = (const (code (v x1)))  
-  stageOpB _ 0OL = (Now 0OL)  
-  stageOpB _ (+OL x1 x2) = (stage2 +OL (codeLift2 +OL) (stageOpB _ x1) (stageOpB _ x2))  
-  stageOpB _ 1OL = (Now 1OL)  
-  stageOpB _ (*OL x1 x2) = (stage2 *OL (codeLift2 *OL) (stageOpB _ x1) (stageOpB _ x2))  
-  stageOp :  (n : Nat) (A : Set) →  ((OpDoubleMonoidTerm2 n A) → (Staged (OpDoubleMonoidTerm2 n A))) 
-  stageOp _ _ (sing2 x1) = (Now (sing2 x1))  
-  stageOp _ _ (v2 x1) = (const (code (v2 x1)))  
-  stageOp _ _ 0OL2 = (Now 0OL2)  
-  stageOp _ _ (+OL2 x1 x2) = (stage2 +OL2 (codeLift2 +OL2) (stageOp _ _ x1) (stageOp _ _ x2))  
-  stageOp _ _ 1OL2 = (Now 1OL2)  
-  stageOp _ _ (*OL2 x1 x2) = (stage2 *OL2 (codeLift2 *OL2) (stageOp _ _ x1) (stageOp _ _ x2))  
+  stageCl :  {A : Set} →  ((ClDoubleMonoidTerm A) → (Staged (ClDoubleMonoidTerm A))) 
+  stageCl (sing x1) = (Now (sing x1))  
+  stageCl 0Cl = (Now 0Cl)  
+  stageCl (+Cl x1 x2) = (stage2 +Cl (codeLift2 +Cl) (stageCl x1) (stageCl x2))  
+  stageCl 1Cl = (Now 1Cl)  
+  stageCl (*Cl x1 x2) = (stage2 *Cl (codeLift2 *Cl) (stageCl x1) (stageCl x2))  
+  stageOpB :  {n : Nat} →  ((OpDoubleMonoidTerm n) → (Staged (OpDoubleMonoidTerm n))) 
+  stageOpB (v x1) = (const (code (v x1)))  
+  stageOpB 0OL = (Now 0OL)  
+  stageOpB (+OL x1 x2) = (stage2 +OL (codeLift2 +OL) (stageOpB x1) (stageOpB x2))  
+  stageOpB 1OL = (Now 1OL)  
+  stageOpB (*OL x1 x2) = (stage2 *OL (codeLift2 *OL) (stageOpB x1) (stageOpB x2))  
+  stageOp :  {n : Nat} {A : Set} →  ((OpDoubleMonoidTerm2 n A) → (Staged (OpDoubleMonoidTerm2 n A))) 
+  stageOp (sing2 x1) = (Now (sing2 x1))  
+  stageOp (v2 x1) = (const (code (v2 x1)))  
+  stageOp 0OL2 = (Now 0OL2)  
+  stageOp (+OL2 x1 x2) = (stage2 +OL2 (codeLift2 +OL2) (stageOp x1) (stageOp x2))  
+  stageOp 1OL2 = (Now 1OL2)  
+  stageOp (*OL2 x1 x2) = (stage2 *OL2 (codeLift2 *OL2) (stageOp x1) (stageOp x2))  
   record StagedRepr  (A : Set) (Repr : (Set → Set)) : Set where 
      field  
       0T : (Repr A) 

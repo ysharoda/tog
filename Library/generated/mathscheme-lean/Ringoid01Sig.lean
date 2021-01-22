@@ -72,19 +72,19 @@ section Ringoid01Sig
      | oneOL2 : OpRingoid01SigTerm2  
       open OpRingoid01SigTerm2 
   
-  def simplifyCl   (A : Type)  : ((ClRingoid01SigTerm A) → (ClRingoid01SigTerm A)) 
+  def simplifyCl   {A : Type}  : ((ClRingoid01SigTerm A) → (ClRingoid01SigTerm A)) 
   | (timesCl x1 x2) := (timesCl (simplifyCl x1) (simplifyCl x2))  
   | (plusCl x1 x2) := (plusCl (simplifyCl x1) (simplifyCl x2))  
   | zeroCl := zeroCl  
   | oneCl := oneCl  
   | (sing x1) := (sing x1)  
-  def simplifyOpB   (n : ℕ)  : ((OpRingoid01SigTerm n) → (OpRingoid01SigTerm n)) 
+  def simplifyOpB   {n : ℕ}  : ((OpRingoid01SigTerm n) → (OpRingoid01SigTerm n)) 
   | (timesOL x1 x2) := (timesOL (simplifyOpB x1) (simplifyOpB x2))  
   | (plusOL x1 x2) := (plusOL (simplifyOpB x1) (simplifyOpB x2))  
   | zeroOL := zeroOL  
   | oneOL := oneOL  
   | (v x1) := (v x1)  
-  def simplifyOp   (n : ℕ) (A : Type)  : ((OpRingoid01SigTerm2 n A) → (OpRingoid01SigTerm2 n A)) 
+  def simplifyOp   {n : ℕ} {A : Type}  : ((OpRingoid01SigTerm2 n A) → (OpRingoid01SigTerm2 n A)) 
   | (timesOL2 x1 x2) := (timesOL2 (simplifyOp x1) (simplifyOp x2))  
   | (plusOL2 x1 x2) := (plusOL2 (simplifyOp x1) (simplifyOp x2))  
   | zeroOL2 := zeroOL2  
@@ -102,37 +102,37 @@ section Ringoid01Sig
   | Ri (plusCl x1 x2) := ((plus Ri) (evalCl Ri x1) (evalCl Ri x2))  
   | Ri zeroCl := (zero Ri)  
   | Ri oneCl := (one Ri)  
-  def evalOpB   {A : Type} (n : ℕ)  : ((Ringoid01Sig A) → ((vector A n) → ((OpRingoid01SigTerm n) → A))) 
+  def evalOpB   {A : Type} {n : ℕ}  : ((Ringoid01Sig A) → ((vector A n) → ((OpRingoid01SigTerm n) → A))) 
   | Ri vars (v x1) := (nth vars x1)  
   | Ri vars (timesOL x1 x2) := ((times Ri) (evalOpB Ri vars x1) (evalOpB Ri vars x2))  
   | Ri vars (plusOL x1 x2) := ((plus Ri) (evalOpB Ri vars x1) (evalOpB Ri vars x2))  
   | Ri vars zeroOL := (zero Ri)  
   | Ri vars oneOL := (one Ri)  
-  def evalOp   {A : Type} (n : ℕ)  : ((Ringoid01Sig A) → ((vector A n) → ((OpRingoid01SigTerm2 n A) → A))) 
+  def evalOp   {A : Type} {n : ℕ}  : ((Ringoid01Sig A) → ((vector A n) → ((OpRingoid01SigTerm2 n A) → A))) 
   | Ri vars (v2 x1) := (nth vars x1)  
   | Ri vars (sing2 x1) := x1  
   | Ri vars (timesOL2 x1 x2) := ((times Ri) (evalOp Ri vars x1) (evalOp Ri vars x2))  
   | Ri vars (plusOL2 x1 x2) := ((plus Ri) (evalOp Ri vars x1) (evalOp Ri vars x2))  
   | Ri vars zeroOL2 := (zero Ri)  
   | Ri vars oneOL2 := (one Ri)  
-  def inductionB   (P : (Ringoid01SigTerm → Type))  : ((∀ (x1 x2 : Ringoid01SigTerm) , ((P x1) → ((P x2) → (P (timesL x1 x2))))) → ((∀ (x1 x2 : Ringoid01SigTerm) , ((P x1) → ((P x2) → (P (plusL x1 x2))))) → ((P zeroL) → ((P oneL) → (∀ (x : Ringoid01SigTerm) , (P x)))))) 
+  def inductionB   {P : (Ringoid01SigTerm → Type)}  : ((∀ (x1 x2 : Ringoid01SigTerm) , ((P x1) → ((P x2) → (P (timesL x1 x2))))) → ((∀ (x1 x2 : Ringoid01SigTerm) , ((P x1) → ((P x2) → (P (plusL x1 x2))))) → ((P zeroL) → ((P oneL) → (∀ (x : Ringoid01SigTerm) , (P x)))))) 
   | ptimesl pplusl p0l p1l (timesL x1 x2) := (ptimesl _ _ (inductionB ptimesl pplusl p0l p1l x1) (inductionB ptimesl pplusl p0l p1l x2))  
   | ptimesl pplusl p0l p1l (plusL x1 x2) := (pplusl _ _ (inductionB ptimesl pplusl p0l p1l x1) (inductionB ptimesl pplusl p0l p1l x2))  
   | ptimesl pplusl p0l p1l zeroL := p0l  
   | ptimesl pplusl p0l p1l oneL := p1l  
-  def inductionCl   (A : Type) (P : ((ClRingoid01SigTerm A) → Type))  : ((∀ (x1 : A) , (P (sing x1))) → ((∀ (x1 x2 : (ClRingoid01SigTerm A)) , ((P x1) → ((P x2) → (P (timesCl x1 x2))))) → ((∀ (x1 x2 : (ClRingoid01SigTerm A)) , ((P x1) → ((P x2) → (P (plusCl x1 x2))))) → ((P zeroCl) → ((P oneCl) → (∀ (x : (ClRingoid01SigTerm A)) , (P x))))))) 
+  def inductionCl   {A : Type} {P : ((ClRingoid01SigTerm A) → Type)}  : ((∀ (x1 : A) , (P (sing x1))) → ((∀ (x1 x2 : (ClRingoid01SigTerm A)) , ((P x1) → ((P x2) → (P (timesCl x1 x2))))) → ((∀ (x1 x2 : (ClRingoid01SigTerm A)) , ((P x1) → ((P x2) → (P (plusCl x1 x2))))) → ((P zeroCl) → ((P oneCl) → (∀ (x : (ClRingoid01SigTerm A)) , (P x))))))) 
   | psing ptimescl ppluscl p0cl p1cl (sing x1) := (psing x1)  
   | psing ptimescl ppluscl p0cl p1cl (timesCl x1 x2) := (ptimescl _ _ (inductionCl psing ptimescl ppluscl p0cl p1cl x1) (inductionCl psing ptimescl ppluscl p0cl p1cl x2))  
   | psing ptimescl ppluscl p0cl p1cl (plusCl x1 x2) := (ppluscl _ _ (inductionCl psing ptimescl ppluscl p0cl p1cl x1) (inductionCl psing ptimescl ppluscl p0cl p1cl x2))  
   | psing ptimescl ppluscl p0cl p1cl zeroCl := p0cl  
   | psing ptimescl ppluscl p0cl p1cl oneCl := p1cl  
-  def inductionOpB   (n : ℕ) (P : ((OpRingoid01SigTerm n) → Type))  : ((∀ (fin : (fin n)) , (P (v fin))) → ((∀ (x1 x2 : (OpRingoid01SigTerm n)) , ((P x1) → ((P x2) → (P (timesOL x1 x2))))) → ((∀ (x1 x2 : (OpRingoid01SigTerm n)) , ((P x1) → ((P x2) → (P (plusOL x1 x2))))) → ((P zeroOL) → ((P oneOL) → (∀ (x : (OpRingoid01SigTerm n)) , (P x))))))) 
+  def inductionOpB   {n : ℕ} {P : ((OpRingoid01SigTerm n) → Type)}  : ((∀ (fin : (fin n)) , (P (v fin))) → ((∀ (x1 x2 : (OpRingoid01SigTerm n)) , ((P x1) → ((P x2) → (P (timesOL x1 x2))))) → ((∀ (x1 x2 : (OpRingoid01SigTerm n)) , ((P x1) → ((P x2) → (P (plusOL x1 x2))))) → ((P zeroOL) → ((P oneOL) → (∀ (x : (OpRingoid01SigTerm n)) , (P x))))))) 
   | pv ptimesol pplusol p0ol p1ol (v x1) := (pv x1)  
   | pv ptimesol pplusol p0ol p1ol (timesOL x1 x2) := (ptimesol _ _ (inductionOpB pv ptimesol pplusol p0ol p1ol x1) (inductionOpB pv ptimesol pplusol p0ol p1ol x2))  
   | pv ptimesol pplusol p0ol p1ol (plusOL x1 x2) := (pplusol _ _ (inductionOpB pv ptimesol pplusol p0ol p1ol x1) (inductionOpB pv ptimesol pplusol p0ol p1ol x2))  
   | pv ptimesol pplusol p0ol p1ol zeroOL := p0ol  
   | pv ptimesol pplusol p0ol p1ol oneOL := p1ol  
-  def inductionOp   (n : ℕ) (A : Type) (P : ((OpRingoid01SigTerm2 n A) → Type))  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((∀ (x1 x2 : (OpRingoid01SigTerm2 n A)) , ((P x1) → ((P x2) → (P (timesOL2 x1 x2))))) → ((∀ (x1 x2 : (OpRingoid01SigTerm2 n A)) , ((P x1) → ((P x2) → (P (plusOL2 x1 x2))))) → ((P zeroOL2) → ((P oneOL2) → (∀ (x : (OpRingoid01SigTerm2 n A)) , (P x)))))))) 
+  def inductionOp   {n : ℕ} {A : Type} {P : ((OpRingoid01SigTerm2 n A) → Type)}  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((∀ (x1 x2 : (OpRingoid01SigTerm2 n A)) , ((P x1) → ((P x2) → (P (timesOL2 x1 x2))))) → ((∀ (x1 x2 : (OpRingoid01SigTerm2 n A)) , ((P x1) → ((P x2) → (P (plusOL2 x1 x2))))) → ((P zeroOL2) → ((P oneOL2) → (∀ (x : (OpRingoid01SigTerm2 n A)) , (P x)))))))) 
   | pv2 psing2 ptimesol2 pplusol2 p0ol2 p1ol2 (v2 x1) := (pv2 x1)  
   | pv2 psing2 ptimesol2 pplusol2 p0ol2 p1ol2 (sing2 x1) := (psing2 x1)  
   | pv2 psing2 ptimesol2 pplusol2 p0ol2 p1ol2 (timesOL2 x1 x2) := (ptimesol2 _ _ (inductionOp pv2 psing2 ptimesol2 pplusol2 p0ol2 p1ol2 x1) (inductionOp pv2 psing2 ptimesol2 pplusol2 p0ol2 p1ol2 x2))  
@@ -144,19 +144,19 @@ section Ringoid01Sig
   | (plusL x1 x2) := (stage2 plusL (codeLift2 plusL) (stageB x1) (stageB x2))  
   | zeroL := (Now zeroL)  
   | oneL := (Now oneL)  
-  def stageCl   (A : Type)  : ((ClRingoid01SigTerm A) → (Staged (ClRingoid01SigTerm A))) 
+  def stageCl   {A : Type}  : ((ClRingoid01SigTerm A) → (Staged (ClRingoid01SigTerm A))) 
   | (sing x1) := (Now (sing x1))  
   | (timesCl x1 x2) := (stage2 timesCl (codeLift2 timesCl) (stageCl x1) (stageCl x2))  
   | (plusCl x1 x2) := (stage2 plusCl (codeLift2 plusCl) (stageCl x1) (stageCl x2))  
   | zeroCl := (Now zeroCl)  
   | oneCl := (Now oneCl)  
-  def stageOpB   (n : ℕ)  : ((OpRingoid01SigTerm n) → (Staged (OpRingoid01SigTerm n))) 
+  def stageOpB   {n : ℕ}  : ((OpRingoid01SigTerm n) → (Staged (OpRingoid01SigTerm n))) 
   | (v x1) := (const (code (v x1)))  
   | (timesOL x1 x2) := (stage2 timesOL (codeLift2 timesOL) (stageOpB x1) (stageOpB x2))  
   | (plusOL x1 x2) := (stage2 plusOL (codeLift2 plusOL) (stageOpB x1) (stageOpB x2))  
   | zeroOL := (Now zeroOL)  
   | oneOL := (Now oneOL)  
-  def stageOp   (n : ℕ) (A : Type)  : ((OpRingoid01SigTerm2 n A) → (Staged (OpRingoid01SigTerm2 n A))) 
+  def stageOp   {n : ℕ} {A : Type}  : ((OpRingoid01SigTerm2 n A) → (Staged (OpRingoid01SigTerm2 n A))) 
   | (sing2 x1) := (Now (sing2 x1))  
   | (v2 x1) := (const (code (v2 x1)))  
   | (timesOL2 x1 x2) := (stage2 timesOL2 (codeLift2 timesOL2) (stageOp x1) (stageOp x2))  

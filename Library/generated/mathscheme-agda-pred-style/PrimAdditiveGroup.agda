@@ -78,28 +78,28 @@ module PrimAdditiveGroup   where
       *_OL2 : ((OpPrimAdditiveGroupTerm2 n A) → ((OpPrimAdditiveGroupTerm2 n A) → (OpPrimAdditiveGroupTerm2 n A))) 
       inv_OL2 : ((OpPrimAdditiveGroupTerm2 n A) → (OpPrimAdditiveGroupTerm2 n A))  
       
-  simplifyCl :  (A : Set) →  ((ClPrimAdditiveGroupTerm A) → (ClPrimAdditiveGroupTerm A)) 
-  simplifyCl _ (*_Cl 0ᵢ_Cl x) = x  
-  simplifyCl _ (*_Cl x 0ᵢ_Cl) = x  
-  simplifyCl _ 0ᵢ_Cl = 0ᵢ_Cl  
-  simplifyCl _ (*_Cl x1 x2) = (*_Cl (simplifyCl _ x1) (simplifyCl _ x2))  
-  simplifyCl _ (inv_Cl x1) = (inv_Cl (simplifyCl _ x1))  
-  simplifyCl _ (sing x1) = (sing x1)  
-  simplifyOpB :  (n : Nat) →  ((OpPrimAdditiveGroupTerm n) → (OpPrimAdditiveGroupTerm n)) 
-  simplifyOpB _ (*_OL 0ᵢ_OL x) = x  
-  simplifyOpB _ (*_OL x 0ᵢ_OL) = x  
-  simplifyOpB _ 0ᵢ_OL = 0ᵢ_OL  
-  simplifyOpB _ (*_OL x1 x2) = (*_OL (simplifyOpB _ x1) (simplifyOpB _ x2))  
-  simplifyOpB _ (inv_OL x1) = (inv_OL (simplifyOpB _ x1))  
-  simplifyOpB _ (v x1) = (v x1)  
-  simplifyOp :  (n : Nat) (A : Set) →  ((OpPrimAdditiveGroupTerm2 n A) → (OpPrimAdditiveGroupTerm2 n A)) 
-  simplifyOp _ _ (*_OL2 0ᵢ_OL2 x) = x  
-  simplifyOp _ _ (*_OL2 x 0ᵢ_OL2) = x  
-  simplifyOp _ _ 0ᵢ_OL2 = 0ᵢ_OL2  
-  simplifyOp _ _ (*_OL2 x1 x2) = (*_OL2 (simplifyOp _ _ x1) (simplifyOp _ _ x2))  
-  simplifyOp _ _ (inv_OL2 x1) = (inv_OL2 (simplifyOp _ _ x1))  
-  simplifyOp _ _ (v2 x1) = (v2 x1)  
-  simplifyOp _ _ (sing2 x1) = (sing2 x1)  
+  simplifyCl :  {A : Set} →  ((ClPrimAdditiveGroupTerm A) → (ClPrimAdditiveGroupTerm A)) 
+  simplifyCl (*_Cl 0ᵢ_Cl x) = x  
+  simplifyCl (*_Cl x 0ᵢ_Cl) = x  
+  simplifyCl 0ᵢ_Cl = 0ᵢ_Cl  
+  simplifyCl (*_Cl x1 x2) = (*_Cl (simplifyCl x1) (simplifyCl x2))  
+  simplifyCl (inv_Cl x1) = (inv_Cl (simplifyCl x1))  
+  simplifyCl (sing x1) = (sing x1)  
+  simplifyOpB :  {n : Nat} →  ((OpPrimAdditiveGroupTerm n) → (OpPrimAdditiveGroupTerm n)) 
+  simplifyOpB (*_OL 0ᵢ_OL x) = x  
+  simplifyOpB (*_OL x 0ᵢ_OL) = x  
+  simplifyOpB 0ᵢ_OL = 0ᵢ_OL  
+  simplifyOpB (*_OL x1 x2) = (*_OL (simplifyOpB x1) (simplifyOpB x2))  
+  simplifyOpB (inv_OL x1) = (inv_OL (simplifyOpB x1))  
+  simplifyOpB (v x1) = (v x1)  
+  simplifyOp :  {n : Nat} {A : Set} →  ((OpPrimAdditiveGroupTerm2 n A) → (OpPrimAdditiveGroupTerm2 n A)) 
+  simplifyOp (*_OL2 0ᵢ_OL2 x) = x  
+  simplifyOp (*_OL2 x 0ᵢ_OL2) = x  
+  simplifyOp 0ᵢ_OL2 = 0ᵢ_OL2  
+  simplifyOp (*_OL2 x1 x2) = (*_OL2 (simplifyOp x1) (simplifyOp x2))  
+  simplifyOp (inv_OL2 x1) = (inv_OL2 (simplifyOp x1))  
+  simplifyOp (v2 x1) = (v2 x1)  
+  simplifyOp (sing2 x1) = (sing2 x1)  
   evalB :  {A : Set} →  ((PrimAdditiveGroup A) → (PrimAdditiveGroupTerm → A)) 
   evalB Pr 0ᵢ_L = (0ᵢ_ Pr)  
   evalB Pr (*_L x1 x2) = ((*_ Pr) (evalB Pr x1) (evalB Pr x2))  
@@ -109,57 +109,57 @@ module PrimAdditiveGroup   where
   evalCl Pr 0ᵢ_Cl = (0ᵢ_ Pr)  
   evalCl Pr (*_Cl x1 x2) = ((*_ Pr) (evalCl Pr x1) (evalCl Pr x2))  
   evalCl Pr (inv_Cl x1) = ((inv_ Pr) (evalCl Pr x1))  
-  evalOpB :  {A : Set} (n : Nat) →  ((PrimAdditiveGroup A) → ((Vec A n) → ((OpPrimAdditiveGroupTerm n) → A))) 
-  evalOpB n Pr vars (v x1) = (lookup vars x1)  
-  evalOpB n Pr vars 0ᵢ_OL = (0ᵢ_ Pr)  
-  evalOpB n Pr vars (*_OL x1 x2) = ((*_ Pr) (evalOpB n Pr vars x1) (evalOpB n Pr vars x2))  
-  evalOpB n Pr vars (inv_OL x1) = ((inv_ Pr) (evalOpB n Pr vars x1))  
-  evalOp :  {A : Set} (n : Nat) →  ((PrimAdditiveGroup A) → ((Vec A n) → ((OpPrimAdditiveGroupTerm2 n A) → A))) 
-  evalOp n Pr vars (v2 x1) = (lookup vars x1)  
-  evalOp n Pr vars (sing2 x1) = x1  
-  evalOp n Pr vars 0ᵢ_OL2 = (0ᵢ_ Pr)  
-  evalOp n Pr vars (*_OL2 x1 x2) = ((*_ Pr) (evalOp n Pr vars x1) (evalOp n Pr vars x2))  
-  evalOp n Pr vars (inv_OL2 x1) = ((inv_ Pr) (evalOp n Pr vars x1))  
-  inductionB :  (P : (PrimAdditiveGroupTerm → Set)) →  ((P 0ᵢ_L) → (( (x1 x2 : PrimAdditiveGroupTerm) → ((P x1) → ((P x2) → (P (*_L x1 x2))))) → (( (x1 : PrimAdditiveGroupTerm) → ((P x1) → (P (inv_L x1)))) → ( (x : PrimAdditiveGroupTerm) → (P x))))) 
-  inductionB p p0_l p*_l pinv_l 0ᵢ_L = p0_l  
-  inductionB p p0_l p*_l pinv_l (*_L x1 x2) = (p*_l _ _ (inductionB p p0_l p*_l pinv_l x1) (inductionB p p0_l p*_l pinv_l x2))  
-  inductionB p p0_l p*_l pinv_l (inv_L x1) = (pinv_l _ (inductionB p p0_l p*_l pinv_l x1))  
-  inductionCl :  (A : Set) (P : ((ClPrimAdditiveGroupTerm A) → Set)) →  (( (x1 : A) → (P (sing x1))) → ((P 0ᵢ_Cl) → (( (x1 x2 : (ClPrimAdditiveGroupTerm A)) → ((P x1) → ((P x2) → (P (*_Cl x1 x2))))) → (( (x1 : (ClPrimAdditiveGroupTerm A)) → ((P x1) → (P (inv_Cl x1)))) → ( (x : (ClPrimAdditiveGroupTerm A)) → (P x)))))) 
-  inductionCl _ p psing p0_cl p*_cl pinv_cl (sing x1) = (psing x1)  
-  inductionCl _ p psing p0_cl p*_cl pinv_cl 0ᵢ_Cl = p0_cl  
-  inductionCl _ p psing p0_cl p*_cl pinv_cl (*_Cl x1 x2) = (p*_cl _ _ (inductionCl _ p psing p0_cl p*_cl pinv_cl x1) (inductionCl _ p psing p0_cl p*_cl pinv_cl x2))  
-  inductionCl _ p psing p0_cl p*_cl pinv_cl (inv_Cl x1) = (pinv_cl _ (inductionCl _ p psing p0_cl p*_cl pinv_cl x1))  
-  inductionOpB :  (n : Nat) (P : ((OpPrimAdditiveGroupTerm n) → Set)) →  (( (fin : (Fin n)) → (P (v fin))) → ((P 0ᵢ_OL) → (( (x1 x2 : (OpPrimAdditiveGroupTerm n)) → ((P x1) → ((P x2) → (P (*_OL x1 x2))))) → (( (x1 : (OpPrimAdditiveGroupTerm n)) → ((P x1) → (P (inv_OL x1)))) → ( (x : (OpPrimAdditiveGroupTerm n)) → (P x)))))) 
-  inductionOpB _ p pv p0_ol p*_ol pinv_ol (v x1) = (pv x1)  
-  inductionOpB _ p pv p0_ol p*_ol pinv_ol 0ᵢ_OL = p0_ol  
-  inductionOpB _ p pv p0_ol p*_ol pinv_ol (*_OL x1 x2) = (p*_ol _ _ (inductionOpB _ p pv p0_ol p*_ol pinv_ol x1) (inductionOpB _ p pv p0_ol p*_ol pinv_ol x2))  
-  inductionOpB _ p pv p0_ol p*_ol pinv_ol (inv_OL x1) = (pinv_ol _ (inductionOpB _ p pv p0_ol p*_ol pinv_ol x1))  
-  inductionOp :  (n : Nat) (A : Set) (P : ((OpPrimAdditiveGroupTerm2 n A) → Set)) →  (( (fin : (Fin n)) → (P (v2 fin))) → (( (x1 : A) → (P (sing2 x1))) → ((P 0ᵢ_OL2) → (( (x1 x2 : (OpPrimAdditiveGroupTerm2 n A)) → ((P x1) → ((P x2) → (P (*_OL2 x1 x2))))) → (( (x1 : (OpPrimAdditiveGroupTerm2 n A)) → ((P x1) → (P (inv_OL2 x1)))) → ( (x : (OpPrimAdditiveGroupTerm2 n A)) → (P x))))))) 
-  inductionOp _ _ p pv2 psing2 p0_ol2 p*_ol2 pinv_ol2 (v2 x1) = (pv2 x1)  
-  inductionOp _ _ p pv2 psing2 p0_ol2 p*_ol2 pinv_ol2 (sing2 x1) = (psing2 x1)  
-  inductionOp _ _ p pv2 psing2 p0_ol2 p*_ol2 pinv_ol2 0ᵢ_OL2 = p0_ol2  
-  inductionOp _ _ p pv2 psing2 p0_ol2 p*_ol2 pinv_ol2 (*_OL2 x1 x2) = (p*_ol2 _ _ (inductionOp _ _ p pv2 psing2 p0_ol2 p*_ol2 pinv_ol2 x1) (inductionOp _ _ p pv2 psing2 p0_ol2 p*_ol2 pinv_ol2 x2))  
-  inductionOp _ _ p pv2 psing2 p0_ol2 p*_ol2 pinv_ol2 (inv_OL2 x1) = (pinv_ol2 _ (inductionOp _ _ p pv2 psing2 p0_ol2 p*_ol2 pinv_ol2 x1))  
+  evalOpB :  {A : Set} {n : Nat} →  ((PrimAdditiveGroup A) → ((Vec A n) → ((OpPrimAdditiveGroupTerm n) → A))) 
+  evalOpB Pr vars (v x1) = (lookup vars x1)  
+  evalOpB Pr vars 0ᵢ_OL = (0ᵢ_ Pr)  
+  evalOpB Pr vars (*_OL x1 x2) = ((*_ Pr) (evalOpB Pr vars x1) (evalOpB Pr vars x2))  
+  evalOpB Pr vars (inv_OL x1) = ((inv_ Pr) (evalOpB Pr vars x1))  
+  evalOp :  {A : Set} {n : Nat} →  ((PrimAdditiveGroup A) → ((Vec A n) → ((OpPrimAdditiveGroupTerm2 n A) → A))) 
+  evalOp Pr vars (v2 x1) = (lookup vars x1)  
+  evalOp Pr vars (sing2 x1) = x1  
+  evalOp Pr vars 0ᵢ_OL2 = (0ᵢ_ Pr)  
+  evalOp Pr vars (*_OL2 x1 x2) = ((*_ Pr) (evalOp Pr vars x1) (evalOp Pr vars x2))  
+  evalOp Pr vars (inv_OL2 x1) = ((inv_ Pr) (evalOp Pr vars x1))  
+  inductionB :  {P : (PrimAdditiveGroupTerm → Set)} →  ((P 0ᵢ_L) → (( (x1 x2 : PrimAdditiveGroupTerm) → ((P x1) → ((P x2) → (P (*_L x1 x2))))) → (( (x1 : PrimAdditiveGroupTerm) → ((P x1) → (P (inv_L x1)))) → ( (x : PrimAdditiveGroupTerm) → (P x))))) 
+  inductionB p0_l p*_l pinv_l 0ᵢ_L = p0_l  
+  inductionB p0_l p*_l pinv_l (*_L x1 x2) = (p*_l _ _ (inductionB p0_l p*_l pinv_l x1) (inductionB p0_l p*_l pinv_l x2))  
+  inductionB p0_l p*_l pinv_l (inv_L x1) = (pinv_l _ (inductionB p0_l p*_l pinv_l x1))  
+  inductionCl :  {A : Set} {P : ((ClPrimAdditiveGroupTerm A) → Set)} →  (( (x1 : A) → (P (sing x1))) → ((P 0ᵢ_Cl) → (( (x1 x2 : (ClPrimAdditiveGroupTerm A)) → ((P x1) → ((P x2) → (P (*_Cl x1 x2))))) → (( (x1 : (ClPrimAdditiveGroupTerm A)) → ((P x1) → (P (inv_Cl x1)))) → ( (x : (ClPrimAdditiveGroupTerm A)) → (P x)))))) 
+  inductionCl psing p0_cl p*_cl pinv_cl (sing x1) = (psing x1)  
+  inductionCl psing p0_cl p*_cl pinv_cl 0ᵢ_Cl = p0_cl  
+  inductionCl psing p0_cl p*_cl pinv_cl (*_Cl x1 x2) = (p*_cl _ _ (inductionCl psing p0_cl p*_cl pinv_cl x1) (inductionCl psing p0_cl p*_cl pinv_cl x2))  
+  inductionCl psing p0_cl p*_cl pinv_cl (inv_Cl x1) = (pinv_cl _ (inductionCl psing p0_cl p*_cl pinv_cl x1))  
+  inductionOpB :  {n : Nat} {P : ((OpPrimAdditiveGroupTerm n) → Set)} →  (( (fin : (Fin n)) → (P (v fin))) → ((P 0ᵢ_OL) → (( (x1 x2 : (OpPrimAdditiveGroupTerm n)) → ((P x1) → ((P x2) → (P (*_OL x1 x2))))) → (( (x1 : (OpPrimAdditiveGroupTerm n)) → ((P x1) → (P (inv_OL x1)))) → ( (x : (OpPrimAdditiveGroupTerm n)) → (P x)))))) 
+  inductionOpB pv p0_ol p*_ol pinv_ol (v x1) = (pv x1)  
+  inductionOpB pv p0_ol p*_ol pinv_ol 0ᵢ_OL = p0_ol  
+  inductionOpB pv p0_ol p*_ol pinv_ol (*_OL x1 x2) = (p*_ol _ _ (inductionOpB pv p0_ol p*_ol pinv_ol x1) (inductionOpB pv p0_ol p*_ol pinv_ol x2))  
+  inductionOpB pv p0_ol p*_ol pinv_ol (inv_OL x1) = (pinv_ol _ (inductionOpB pv p0_ol p*_ol pinv_ol x1))  
+  inductionOp :  {n : Nat} {A : Set} {P : ((OpPrimAdditiveGroupTerm2 n A) → Set)} →  (( (fin : (Fin n)) → (P (v2 fin))) → (( (x1 : A) → (P (sing2 x1))) → ((P 0ᵢ_OL2) → (( (x1 x2 : (OpPrimAdditiveGroupTerm2 n A)) → ((P x1) → ((P x2) → (P (*_OL2 x1 x2))))) → (( (x1 : (OpPrimAdditiveGroupTerm2 n A)) → ((P x1) → (P (inv_OL2 x1)))) → ( (x : (OpPrimAdditiveGroupTerm2 n A)) → (P x))))))) 
+  inductionOp pv2 psing2 p0_ol2 p*_ol2 pinv_ol2 (v2 x1) = (pv2 x1)  
+  inductionOp pv2 psing2 p0_ol2 p*_ol2 pinv_ol2 (sing2 x1) = (psing2 x1)  
+  inductionOp pv2 psing2 p0_ol2 p*_ol2 pinv_ol2 0ᵢ_OL2 = p0_ol2  
+  inductionOp pv2 psing2 p0_ol2 p*_ol2 pinv_ol2 (*_OL2 x1 x2) = (p*_ol2 _ _ (inductionOp pv2 psing2 p0_ol2 p*_ol2 pinv_ol2 x1) (inductionOp pv2 psing2 p0_ol2 p*_ol2 pinv_ol2 x2))  
+  inductionOp pv2 psing2 p0_ol2 p*_ol2 pinv_ol2 (inv_OL2 x1) = (pinv_ol2 _ (inductionOp pv2 psing2 p0_ol2 p*_ol2 pinv_ol2 x1))  
   stageB :  (PrimAdditiveGroupTerm → (Staged PrimAdditiveGroupTerm))
   stageB 0ᵢ_L = (Now 0ᵢ_L)  
   stageB (*_L x1 x2) = (stage2 *_L (codeLift2 *_L) (stageB x1) (stageB x2))  
   stageB (inv_L x1) = (stage1 inv_L (codeLift1 inv_L) (stageB x1))  
-  stageCl :  (A : Set) →  ((ClPrimAdditiveGroupTerm A) → (Staged (ClPrimAdditiveGroupTerm A))) 
-  stageCl _ (sing x1) = (Now (sing x1))  
-  stageCl _ 0ᵢ_Cl = (Now 0ᵢ_Cl)  
-  stageCl _ (*_Cl x1 x2) = (stage2 *_Cl (codeLift2 *_Cl) (stageCl _ x1) (stageCl _ x2))  
-  stageCl _ (inv_Cl x1) = (stage1 inv_Cl (codeLift1 inv_Cl) (stageCl _ x1))  
-  stageOpB :  (n : Nat) →  ((OpPrimAdditiveGroupTerm n) → (Staged (OpPrimAdditiveGroupTerm n))) 
-  stageOpB _ (v x1) = (const (code (v x1)))  
-  stageOpB _ 0ᵢ_OL = (Now 0ᵢ_OL)  
-  stageOpB _ (*_OL x1 x2) = (stage2 *_OL (codeLift2 *_OL) (stageOpB _ x1) (stageOpB _ x2))  
-  stageOpB _ (inv_OL x1) = (stage1 inv_OL (codeLift1 inv_OL) (stageOpB _ x1))  
-  stageOp :  (n : Nat) (A : Set) →  ((OpPrimAdditiveGroupTerm2 n A) → (Staged (OpPrimAdditiveGroupTerm2 n A))) 
-  stageOp _ _ (sing2 x1) = (Now (sing2 x1))  
-  stageOp _ _ (v2 x1) = (const (code (v2 x1)))  
-  stageOp _ _ 0ᵢ_OL2 = (Now 0ᵢ_OL2)  
-  stageOp _ _ (*_OL2 x1 x2) = (stage2 *_OL2 (codeLift2 *_OL2) (stageOp _ _ x1) (stageOp _ _ x2))  
-  stageOp _ _ (inv_OL2 x1) = (stage1 inv_OL2 (codeLift1 inv_OL2) (stageOp _ _ x1))  
+  stageCl :  {A : Set} →  ((ClPrimAdditiveGroupTerm A) → (Staged (ClPrimAdditiveGroupTerm A))) 
+  stageCl (sing x1) = (Now (sing x1))  
+  stageCl 0ᵢ_Cl = (Now 0ᵢ_Cl)  
+  stageCl (*_Cl x1 x2) = (stage2 *_Cl (codeLift2 *_Cl) (stageCl x1) (stageCl x2))  
+  stageCl (inv_Cl x1) = (stage1 inv_Cl (codeLift1 inv_Cl) (stageCl x1))  
+  stageOpB :  {n : Nat} →  ((OpPrimAdditiveGroupTerm n) → (Staged (OpPrimAdditiveGroupTerm n))) 
+  stageOpB (v x1) = (const (code (v x1)))  
+  stageOpB 0ᵢ_OL = (Now 0ᵢ_OL)  
+  stageOpB (*_OL x1 x2) = (stage2 *_OL (codeLift2 *_OL) (stageOpB x1) (stageOpB x2))  
+  stageOpB (inv_OL x1) = (stage1 inv_OL (codeLift1 inv_OL) (stageOpB x1))  
+  stageOp :  {n : Nat} {A : Set} →  ((OpPrimAdditiveGroupTerm2 n A) → (Staged (OpPrimAdditiveGroupTerm2 n A))) 
+  stageOp (sing2 x1) = (Now (sing2 x1))  
+  stageOp (v2 x1) = (const (code (v2 x1)))  
+  stageOp 0ᵢ_OL2 = (Now 0ᵢ_OL2)  
+  stageOp (*_OL2 x1 x2) = (stage2 *_OL2 (codeLift2 *_OL2) (stageOp x1) (stageOp x2))  
+  stageOp (inv_OL2 x1) = (stage1 inv_OL2 (codeLift1 inv_OL2) (stageOp x1))  
   record StagedRepr  (A : Set) (Repr : (Set → Set)) : Set where 
      field  
       0ᵢ_T : (Repr A) 

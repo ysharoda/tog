@@ -60,15 +60,15 @@ section Sloop
      | opOL2 : (OpSloopOL2Term2 → (OpSloopOL2Term2 → OpSloopOL2Term2))  
       open OpSloopOL2Term2 
   
-  def simplifyCl   (A : Type)  : ((ClSloopClTerm A) → (ClSloopClTerm A)) 
+  def simplifyCl   {A : Type}  : ((ClSloopClTerm A) → (ClSloopClTerm A)) 
   | eCl := eCl  
   | (opCl x1 x2) := (opCl (simplifyCl x1) (simplifyCl x2))  
   | (sing x1) := (sing x1)  
-  def simplifyOpB   (n : ℕ)  : ((OpSloopOLTerm n) → (OpSloopOLTerm n)) 
+  def simplifyOpB   {n : ℕ}  : ((OpSloopOLTerm n) → (OpSloopOLTerm n)) 
   | eOL := eOL  
   | (opOL x1 x2) := (opOL (simplifyOpB x1) (simplifyOpB x2))  
   | (v x1) := (v x1)  
-  def simplifyOp   (n : ℕ) (A : Type)  : ((OpSloopOL2Term2 n A) → (OpSloopOL2Term2 n A)) 
+  def simplifyOp   {n : ℕ} {A : Type}  : ((OpSloopOL2Term2 n A) → (OpSloopOL2Term2 n A)) 
   | eOL2 := eOL2  
   | (opOL2 x1 x2) := (opOL2 (simplifyOp x1) (simplifyOp x2))  
   | (v2 x1) := (v2 x1)  
@@ -80,27 +80,27 @@ section Sloop
   | Sl (sing x1) := x1  
   | Sl eCl := (e Sl)  
   | Sl (opCl x1 x2) := ((op Sl) (evalCl Sl x1) (evalCl Sl x2))  
-  def evalOpB   {A : Type} (n : ℕ)  : ((Sloop A) → ((vector A n) → ((OpSloopOLTerm n) → A))) 
+  def evalOpB   {A : Type} {n : ℕ}  : ((Sloop A) → ((vector A n) → ((OpSloopOLTerm n) → A))) 
   | Sl vars (v x1) := (nth vars x1)  
   | Sl vars eOL := (e Sl)  
   | Sl vars (opOL x1 x2) := ((op Sl) (evalOpB Sl vars x1) (evalOpB Sl vars x2))  
-  def evalOp   {A : Type} (n : ℕ)  : ((Sloop A) → ((vector A n) → ((OpSloopOL2Term2 n A) → A))) 
+  def evalOp   {A : Type} {n : ℕ}  : ((Sloop A) → ((vector A n) → ((OpSloopOL2Term2 n A) → A))) 
   | Sl vars (v2 x1) := (nth vars x1)  
   | Sl vars (sing2 x1) := x1  
   | Sl vars eOL2 := (e Sl)  
   | Sl vars (opOL2 x1 x2) := ((op Sl) (evalOp Sl vars x1) (evalOp Sl vars x2))  
-  def inductionB   (P : (SloopLTerm → Type))  : ((P eL) → ((∀ (x1 x2 : SloopLTerm) , ((P x1) → ((P x2) → (P (opL x1 x2))))) → (∀ (x : SloopLTerm) , (P x)))) 
+  def inductionB   {P : (SloopLTerm → Type)}  : ((P eL) → ((∀ (x1 x2 : SloopLTerm) , ((P x1) → ((P x2) → (P (opL x1 x2))))) → (∀ (x : SloopLTerm) , (P x)))) 
   | pel popl eL := pel  
   | pel popl (opL x1 x2) := (popl _ _ (inductionB pel popl x1) (inductionB pel popl x2))  
-  def inductionCl   (A : Type) (P : ((ClSloopClTerm A) → Type))  : ((∀ (x1 : A) , (P (sing x1))) → ((P eCl) → ((∀ (x1 x2 : (ClSloopClTerm A)) , ((P x1) → ((P x2) → (P (opCl x1 x2))))) → (∀ (x : (ClSloopClTerm A)) , (P x))))) 
+  def inductionCl   {A : Type} {P : ((ClSloopClTerm A) → Type)}  : ((∀ (x1 : A) , (P (sing x1))) → ((P eCl) → ((∀ (x1 x2 : (ClSloopClTerm A)) , ((P x1) → ((P x2) → (P (opCl x1 x2))))) → (∀ (x : (ClSloopClTerm A)) , (P x))))) 
   | psing pecl popcl (sing x1) := (psing x1)  
   | psing pecl popcl eCl := pecl  
   | psing pecl popcl (opCl x1 x2) := (popcl _ _ (inductionCl psing pecl popcl x1) (inductionCl psing pecl popcl x2))  
-  def inductionOpB   (n : ℕ) (P : ((OpSloopOLTerm n) → Type))  : ((∀ (fin : (fin n)) , (P (v fin))) → ((P eOL) → ((∀ (x1 x2 : (OpSloopOLTerm n)) , ((P x1) → ((P x2) → (P (opOL x1 x2))))) → (∀ (x : (OpSloopOLTerm n)) , (P x))))) 
+  def inductionOpB   {n : ℕ} {P : ((OpSloopOLTerm n) → Type)}  : ((∀ (fin : (fin n)) , (P (v fin))) → ((P eOL) → ((∀ (x1 x2 : (OpSloopOLTerm n)) , ((P x1) → ((P x2) → (P (opOL x1 x2))))) → (∀ (x : (OpSloopOLTerm n)) , (P x))))) 
   | pv peol popol (v x1) := (pv x1)  
   | pv peol popol eOL := peol  
   | pv peol popol (opOL x1 x2) := (popol _ _ (inductionOpB pv peol popol x1) (inductionOpB pv peol popol x2))  
-  def inductionOp   (n : ℕ) (A : Type) (P : ((OpSloopOL2Term2 n A) → Type))  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((P eOL2) → ((∀ (x1 x2 : (OpSloopOL2Term2 n A)) , ((P x1) → ((P x2) → (P (opOL2 x1 x2))))) → (∀ (x : (OpSloopOL2Term2 n A)) , (P x)))))) 
+  def inductionOp   {n : ℕ} {A : Type} {P : ((OpSloopOL2Term2 n A) → Type)}  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((P eOL2) → ((∀ (x1 x2 : (OpSloopOL2Term2 n A)) , ((P x1) → ((P x2) → (P (opOL2 x1 x2))))) → (∀ (x : (OpSloopOL2Term2 n A)) , (P x)))))) 
   | pv2 psing2 peol2 popol2 (v2 x1) := (pv2 x1)  
   | pv2 psing2 peol2 popol2 (sing2 x1) := (psing2 x1)  
   | pv2 psing2 peol2 popol2 eOL2 := peol2  
@@ -108,15 +108,15 @@ section Sloop
   def stageB  : (SloopLTerm → (Staged SloopLTerm))
   | eL := (Now eL)  
   | (opL x1 x2) := (stage2 opL (codeLift2 opL) (stageB x1) (stageB x2))  
-  def stageCl   (A : Type)  : ((ClSloopClTerm A) → (Staged (ClSloopClTerm A))) 
+  def stageCl   {A : Type}  : ((ClSloopClTerm A) → (Staged (ClSloopClTerm A))) 
   | (sing x1) := (Now (sing x1))  
   | eCl := (Now eCl)  
   | (opCl x1 x2) := (stage2 opCl (codeLift2 opCl) (stageCl x1) (stageCl x2))  
-  def stageOpB   (n : ℕ)  : ((OpSloopOLTerm n) → (Staged (OpSloopOLTerm n))) 
+  def stageOpB   {n : ℕ}  : ((OpSloopOLTerm n) → (Staged (OpSloopOLTerm n))) 
   | (v x1) := (const (code (v x1)))  
   | eOL := (Now eOL)  
   | (opOL x1 x2) := (stage2 opOL (codeLift2 opOL) (stageOpB x1) (stageOpB x2))  
-  def stageOp   (n : ℕ) (A : Type)  : ((OpSloopOL2Term2 n A) → (Staged (OpSloopOL2Term2 n A))) 
+  def stageOp   {n : ℕ} {A : Type}  : ((OpSloopOL2Term2 n A) → (Staged (OpSloopOL2Term2 n A))) 
   | (sing2 x1) := (Now (sing2 x1))  
   | (v2 x1) := (const (code (v2 x1)))  
   | eOL2 := (Now eOL2)  

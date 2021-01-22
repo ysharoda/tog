@@ -64,19 +64,19 @@ section BoundedMeetSemilattice
      | oneOL2 : OpBoundedMeetSemilatticeTerm2  
       open OpBoundedMeetSemilatticeTerm2 
   
-  def simplifyCl   (A : Type)  : ((ClBoundedMeetSemilatticeTerm A) → (ClBoundedMeetSemilatticeTerm A)) 
+  def simplifyCl   {A : Type}  : ((ClBoundedMeetSemilatticeTerm A) → (ClBoundedMeetSemilatticeTerm A)) 
   | (timesCl oneCl x) := x  
   | (timesCl x oneCl) := x  
   | (timesCl x1 x2) := (timesCl (simplifyCl x1) (simplifyCl x2))  
   | oneCl := oneCl  
   | (sing x1) := (sing x1)  
-  def simplifyOpB   (n : ℕ)  : ((OpBoundedMeetSemilatticeTerm n) → (OpBoundedMeetSemilatticeTerm n)) 
+  def simplifyOpB   {n : ℕ}  : ((OpBoundedMeetSemilatticeTerm n) → (OpBoundedMeetSemilatticeTerm n)) 
   | (timesOL oneOL x) := x  
   | (timesOL x oneOL) := x  
   | (timesOL x1 x2) := (timesOL (simplifyOpB x1) (simplifyOpB x2))  
   | oneOL := oneOL  
   | (v x1) := (v x1)  
-  def simplifyOp   (n : ℕ) (A : Type)  : ((OpBoundedMeetSemilatticeTerm2 n A) → (OpBoundedMeetSemilatticeTerm2 n A)) 
+  def simplifyOp   {n : ℕ} {A : Type}  : ((OpBoundedMeetSemilatticeTerm2 n A) → (OpBoundedMeetSemilatticeTerm2 n A)) 
   | (timesOL2 oneOL2 x) := x  
   | (timesOL2 x oneOL2) := x  
   | (timesOL2 x1 x2) := (timesOL2 (simplifyOp x1) (simplifyOp x2))  
@@ -90,27 +90,27 @@ section BoundedMeetSemilattice
   | Bo (sing x1) := x1  
   | Bo (timesCl x1 x2) := ((times Bo) (evalCl Bo x1) (evalCl Bo x2))  
   | Bo oneCl := (one Bo)  
-  def evalOpB   {A : Type} (n : ℕ)  : ((BoundedMeetSemilattice A) → ((vector A n) → ((OpBoundedMeetSemilatticeTerm n) → A))) 
+  def evalOpB   {A : Type} {n : ℕ}  : ((BoundedMeetSemilattice A) → ((vector A n) → ((OpBoundedMeetSemilatticeTerm n) → A))) 
   | Bo vars (v x1) := (nth vars x1)  
   | Bo vars (timesOL x1 x2) := ((times Bo) (evalOpB Bo vars x1) (evalOpB Bo vars x2))  
   | Bo vars oneOL := (one Bo)  
-  def evalOp   {A : Type} (n : ℕ)  : ((BoundedMeetSemilattice A) → ((vector A n) → ((OpBoundedMeetSemilatticeTerm2 n A) → A))) 
+  def evalOp   {A : Type} {n : ℕ}  : ((BoundedMeetSemilattice A) → ((vector A n) → ((OpBoundedMeetSemilatticeTerm2 n A) → A))) 
   | Bo vars (v2 x1) := (nth vars x1)  
   | Bo vars (sing2 x1) := x1  
   | Bo vars (timesOL2 x1 x2) := ((times Bo) (evalOp Bo vars x1) (evalOp Bo vars x2))  
   | Bo vars oneOL2 := (one Bo)  
-  def inductionB   (P : (BoundedMeetSemilatticeTerm → Type))  : ((∀ (x1 x2 : BoundedMeetSemilatticeTerm) , ((P x1) → ((P x2) → (P (timesL x1 x2))))) → ((P oneL) → (∀ (x : BoundedMeetSemilatticeTerm) , (P x)))) 
+  def inductionB   {P : (BoundedMeetSemilatticeTerm → Type)}  : ((∀ (x1 x2 : BoundedMeetSemilatticeTerm) , ((P x1) → ((P x2) → (P (timesL x1 x2))))) → ((P oneL) → (∀ (x : BoundedMeetSemilatticeTerm) , (P x)))) 
   | ptimesl p1l (timesL x1 x2) := (ptimesl _ _ (inductionB ptimesl p1l x1) (inductionB ptimesl p1l x2))  
   | ptimesl p1l oneL := p1l  
-  def inductionCl   (A : Type) (P : ((ClBoundedMeetSemilatticeTerm A) → Type))  : ((∀ (x1 : A) , (P (sing x1))) → ((∀ (x1 x2 : (ClBoundedMeetSemilatticeTerm A)) , ((P x1) → ((P x2) → (P (timesCl x1 x2))))) → ((P oneCl) → (∀ (x : (ClBoundedMeetSemilatticeTerm A)) , (P x))))) 
+  def inductionCl   {A : Type} {P : ((ClBoundedMeetSemilatticeTerm A) → Type)}  : ((∀ (x1 : A) , (P (sing x1))) → ((∀ (x1 x2 : (ClBoundedMeetSemilatticeTerm A)) , ((P x1) → ((P x2) → (P (timesCl x1 x2))))) → ((P oneCl) → (∀ (x : (ClBoundedMeetSemilatticeTerm A)) , (P x))))) 
   | psing ptimescl p1cl (sing x1) := (psing x1)  
   | psing ptimescl p1cl (timesCl x1 x2) := (ptimescl _ _ (inductionCl psing ptimescl p1cl x1) (inductionCl psing ptimescl p1cl x2))  
   | psing ptimescl p1cl oneCl := p1cl  
-  def inductionOpB   (n : ℕ) (P : ((OpBoundedMeetSemilatticeTerm n) → Type))  : ((∀ (fin : (fin n)) , (P (v fin))) → ((∀ (x1 x2 : (OpBoundedMeetSemilatticeTerm n)) , ((P x1) → ((P x2) → (P (timesOL x1 x2))))) → ((P oneOL) → (∀ (x : (OpBoundedMeetSemilatticeTerm n)) , (P x))))) 
+  def inductionOpB   {n : ℕ} {P : ((OpBoundedMeetSemilatticeTerm n) → Type)}  : ((∀ (fin : (fin n)) , (P (v fin))) → ((∀ (x1 x2 : (OpBoundedMeetSemilatticeTerm n)) , ((P x1) → ((P x2) → (P (timesOL x1 x2))))) → ((P oneOL) → (∀ (x : (OpBoundedMeetSemilatticeTerm n)) , (P x))))) 
   | pv ptimesol p1ol (v x1) := (pv x1)  
   | pv ptimesol p1ol (timesOL x1 x2) := (ptimesol _ _ (inductionOpB pv ptimesol p1ol x1) (inductionOpB pv ptimesol p1ol x2))  
   | pv ptimesol p1ol oneOL := p1ol  
-  def inductionOp   (n : ℕ) (A : Type) (P : ((OpBoundedMeetSemilatticeTerm2 n A) → Type))  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((∀ (x1 x2 : (OpBoundedMeetSemilatticeTerm2 n A)) , ((P x1) → ((P x2) → (P (timesOL2 x1 x2))))) → ((P oneOL2) → (∀ (x : (OpBoundedMeetSemilatticeTerm2 n A)) , (P x)))))) 
+  def inductionOp   {n : ℕ} {A : Type} {P : ((OpBoundedMeetSemilatticeTerm2 n A) → Type)}  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((∀ (x1 x2 : (OpBoundedMeetSemilatticeTerm2 n A)) , ((P x1) → ((P x2) → (P (timesOL2 x1 x2))))) → ((P oneOL2) → (∀ (x : (OpBoundedMeetSemilatticeTerm2 n A)) , (P x)))))) 
   | pv2 psing2 ptimesol2 p1ol2 (v2 x1) := (pv2 x1)  
   | pv2 psing2 ptimesol2 p1ol2 (sing2 x1) := (psing2 x1)  
   | pv2 psing2 ptimesol2 p1ol2 (timesOL2 x1 x2) := (ptimesol2 _ _ (inductionOp pv2 psing2 ptimesol2 p1ol2 x1) (inductionOp pv2 psing2 ptimesol2 p1ol2 x2))  
@@ -118,15 +118,15 @@ section BoundedMeetSemilattice
   def stageB  : (BoundedMeetSemilatticeTerm → (Staged BoundedMeetSemilatticeTerm))
   | (timesL x1 x2) := (stage2 timesL (codeLift2 timesL) (stageB x1) (stageB x2))  
   | oneL := (Now oneL)  
-  def stageCl   (A : Type)  : ((ClBoundedMeetSemilatticeTerm A) → (Staged (ClBoundedMeetSemilatticeTerm A))) 
+  def stageCl   {A : Type}  : ((ClBoundedMeetSemilatticeTerm A) → (Staged (ClBoundedMeetSemilatticeTerm A))) 
   | (sing x1) := (Now (sing x1))  
   | (timesCl x1 x2) := (stage2 timesCl (codeLift2 timesCl) (stageCl x1) (stageCl x2))  
   | oneCl := (Now oneCl)  
-  def stageOpB   (n : ℕ)  : ((OpBoundedMeetSemilatticeTerm n) → (Staged (OpBoundedMeetSemilatticeTerm n))) 
+  def stageOpB   {n : ℕ}  : ((OpBoundedMeetSemilatticeTerm n) → (Staged (OpBoundedMeetSemilatticeTerm n))) 
   | (v x1) := (const (code (v x1)))  
   | (timesOL x1 x2) := (stage2 timesOL (codeLift2 timesOL) (stageOpB x1) (stageOpB x2))  
   | oneOL := (Now oneOL)  
-  def stageOp   (n : ℕ) (A : Type)  : ((OpBoundedMeetSemilatticeTerm2 n A) → (Staged (OpBoundedMeetSemilatticeTerm2 n A))) 
+  def stageOp   {n : ℕ} {A : Type}  : ((OpBoundedMeetSemilatticeTerm2 n A) → (Staged (OpBoundedMeetSemilatticeTerm2 n A))) 
   | (sing2 x1) := (Now (sing2 x1))  
   | (v2 x1) := (const (code (v2 x1)))  
   | (timesOL2 x1 x2) := (stage2 timesOL2 (codeLift2 timesOL2) (stageOp x1) (stageOp x2))  

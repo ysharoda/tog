@@ -88,7 +88,7 @@ section NonassociativeRing
      | invOL2 : (OpNonassociativeRingTerm2 → OpNonassociativeRingTerm2)  
       open OpNonassociativeRingTerm2 
   
-  def simplifyCl   (A : Type)  : ((ClNonassociativeRingTerm A) → (ClNonassociativeRingTerm A)) 
+  def simplifyCl   {A : Type}  : ((ClNonassociativeRingTerm A) → (ClNonassociativeRingTerm A)) 
   | (timesCl oneCl x) := x  
   | (timesCl x oneCl) := x  
   | (timesCl x1 x2) := (timesCl (simplifyCl x1) (simplifyCl x2))  
@@ -96,7 +96,7 @@ section NonassociativeRing
   | oneCl := oneCl  
   | (invCl x1) := (invCl (simplifyCl x1))  
   | (sing x1) := (sing x1)  
-  def simplifyOpB   (n : ℕ)  : ((OpNonassociativeRingTerm n) → (OpNonassociativeRingTerm n)) 
+  def simplifyOpB   {n : ℕ}  : ((OpNonassociativeRingTerm n) → (OpNonassociativeRingTerm n)) 
   | (timesOL oneOL x) := x  
   | (timesOL x oneOL) := x  
   | (timesOL x1 x2) := (timesOL (simplifyOpB x1) (simplifyOpB x2))  
@@ -104,7 +104,7 @@ section NonassociativeRing
   | oneOL := oneOL  
   | (invOL x1) := (invOL (simplifyOpB x1))  
   | (v x1) := (v x1)  
-  def simplifyOp   (n : ℕ) (A : Type)  : ((OpNonassociativeRingTerm2 n A) → (OpNonassociativeRingTerm2 n A)) 
+  def simplifyOp   {n : ℕ} {A : Type}  : ((OpNonassociativeRingTerm2 n A) → (OpNonassociativeRingTerm2 n A)) 
   | (timesOL2 oneOL2 x) := x  
   | (timesOL2 x oneOL2) := x  
   | (timesOL2 x1 x2) := (timesOL2 (simplifyOp x1) (simplifyOp x2))  
@@ -124,37 +124,37 @@ section NonassociativeRing
   | No (plusCl x1 x2) := ((plus No) (evalCl No x1) (evalCl No x2))  
   | No oneCl := (one No)  
   | No (invCl x1) := ((inv No) (evalCl No x1))  
-  def evalOpB   {A : Type} (n : ℕ)  : ((NonassociativeRing A) → ((vector A n) → ((OpNonassociativeRingTerm n) → A))) 
+  def evalOpB   {A : Type} {n : ℕ}  : ((NonassociativeRing A) → ((vector A n) → ((OpNonassociativeRingTerm n) → A))) 
   | No vars (v x1) := (nth vars x1)  
   | No vars (timesOL x1 x2) := ((times No) (evalOpB No vars x1) (evalOpB No vars x2))  
   | No vars (plusOL x1 x2) := ((plus No) (evalOpB No vars x1) (evalOpB No vars x2))  
   | No vars oneOL := (one No)  
   | No vars (invOL x1) := ((inv No) (evalOpB No vars x1))  
-  def evalOp   {A : Type} (n : ℕ)  : ((NonassociativeRing A) → ((vector A n) → ((OpNonassociativeRingTerm2 n A) → A))) 
+  def evalOp   {A : Type} {n : ℕ}  : ((NonassociativeRing A) → ((vector A n) → ((OpNonassociativeRingTerm2 n A) → A))) 
   | No vars (v2 x1) := (nth vars x1)  
   | No vars (sing2 x1) := x1  
   | No vars (timesOL2 x1 x2) := ((times No) (evalOp No vars x1) (evalOp No vars x2))  
   | No vars (plusOL2 x1 x2) := ((plus No) (evalOp No vars x1) (evalOp No vars x2))  
   | No vars oneOL2 := (one No)  
   | No vars (invOL2 x1) := ((inv No) (evalOp No vars x1))  
-  def inductionB   (P : (NonassociativeRingTerm → Type))  : ((∀ (x1 x2 : NonassociativeRingTerm) , ((P x1) → ((P x2) → (P (timesL x1 x2))))) → ((∀ (x1 x2 : NonassociativeRingTerm) , ((P x1) → ((P x2) → (P (plusL x1 x2))))) → ((P oneL) → ((∀ (x1 : NonassociativeRingTerm) , ((P x1) → (P (invL x1)))) → (∀ (x : NonassociativeRingTerm) , (P x)))))) 
+  def inductionB   {P : (NonassociativeRingTerm → Type)}  : ((∀ (x1 x2 : NonassociativeRingTerm) , ((P x1) → ((P x2) → (P (timesL x1 x2))))) → ((∀ (x1 x2 : NonassociativeRingTerm) , ((P x1) → ((P x2) → (P (plusL x1 x2))))) → ((P oneL) → ((∀ (x1 : NonassociativeRingTerm) , ((P x1) → (P (invL x1)))) → (∀ (x : NonassociativeRingTerm) , (P x)))))) 
   | ptimesl pplusl p1l pinvl (timesL x1 x2) := (ptimesl _ _ (inductionB ptimesl pplusl p1l pinvl x1) (inductionB ptimesl pplusl p1l pinvl x2))  
   | ptimesl pplusl p1l pinvl (plusL x1 x2) := (pplusl _ _ (inductionB ptimesl pplusl p1l pinvl x1) (inductionB ptimesl pplusl p1l pinvl x2))  
   | ptimesl pplusl p1l pinvl oneL := p1l  
   | ptimesl pplusl p1l pinvl (invL x1) := (pinvl _ (inductionB ptimesl pplusl p1l pinvl x1))  
-  def inductionCl   (A : Type) (P : ((ClNonassociativeRingTerm A) → Type))  : ((∀ (x1 : A) , (P (sing x1))) → ((∀ (x1 x2 : (ClNonassociativeRingTerm A)) , ((P x1) → ((P x2) → (P (timesCl x1 x2))))) → ((∀ (x1 x2 : (ClNonassociativeRingTerm A)) , ((P x1) → ((P x2) → (P (plusCl x1 x2))))) → ((P oneCl) → ((∀ (x1 : (ClNonassociativeRingTerm A)) , ((P x1) → (P (invCl x1)))) → (∀ (x : (ClNonassociativeRingTerm A)) , (P x))))))) 
+  def inductionCl   {A : Type} {P : ((ClNonassociativeRingTerm A) → Type)}  : ((∀ (x1 : A) , (P (sing x1))) → ((∀ (x1 x2 : (ClNonassociativeRingTerm A)) , ((P x1) → ((P x2) → (P (timesCl x1 x2))))) → ((∀ (x1 x2 : (ClNonassociativeRingTerm A)) , ((P x1) → ((P x2) → (P (plusCl x1 x2))))) → ((P oneCl) → ((∀ (x1 : (ClNonassociativeRingTerm A)) , ((P x1) → (P (invCl x1)))) → (∀ (x : (ClNonassociativeRingTerm A)) , (P x))))))) 
   | psing ptimescl ppluscl p1cl pinvcl (sing x1) := (psing x1)  
   | psing ptimescl ppluscl p1cl pinvcl (timesCl x1 x2) := (ptimescl _ _ (inductionCl psing ptimescl ppluscl p1cl pinvcl x1) (inductionCl psing ptimescl ppluscl p1cl pinvcl x2))  
   | psing ptimescl ppluscl p1cl pinvcl (plusCl x1 x2) := (ppluscl _ _ (inductionCl psing ptimescl ppluscl p1cl pinvcl x1) (inductionCl psing ptimescl ppluscl p1cl pinvcl x2))  
   | psing ptimescl ppluscl p1cl pinvcl oneCl := p1cl  
   | psing ptimescl ppluscl p1cl pinvcl (invCl x1) := (pinvcl _ (inductionCl psing ptimescl ppluscl p1cl pinvcl x1))  
-  def inductionOpB   (n : ℕ) (P : ((OpNonassociativeRingTerm n) → Type))  : ((∀ (fin : (fin n)) , (P (v fin))) → ((∀ (x1 x2 : (OpNonassociativeRingTerm n)) , ((P x1) → ((P x2) → (P (timesOL x1 x2))))) → ((∀ (x1 x2 : (OpNonassociativeRingTerm n)) , ((P x1) → ((P x2) → (P (plusOL x1 x2))))) → ((P oneOL) → ((∀ (x1 : (OpNonassociativeRingTerm n)) , ((P x1) → (P (invOL x1)))) → (∀ (x : (OpNonassociativeRingTerm n)) , (P x))))))) 
+  def inductionOpB   {n : ℕ} {P : ((OpNonassociativeRingTerm n) → Type)}  : ((∀ (fin : (fin n)) , (P (v fin))) → ((∀ (x1 x2 : (OpNonassociativeRingTerm n)) , ((P x1) → ((P x2) → (P (timesOL x1 x2))))) → ((∀ (x1 x2 : (OpNonassociativeRingTerm n)) , ((P x1) → ((P x2) → (P (plusOL x1 x2))))) → ((P oneOL) → ((∀ (x1 : (OpNonassociativeRingTerm n)) , ((P x1) → (P (invOL x1)))) → (∀ (x : (OpNonassociativeRingTerm n)) , (P x))))))) 
   | pv ptimesol pplusol p1ol pinvol (v x1) := (pv x1)  
   | pv ptimesol pplusol p1ol pinvol (timesOL x1 x2) := (ptimesol _ _ (inductionOpB pv ptimesol pplusol p1ol pinvol x1) (inductionOpB pv ptimesol pplusol p1ol pinvol x2))  
   | pv ptimesol pplusol p1ol pinvol (plusOL x1 x2) := (pplusol _ _ (inductionOpB pv ptimesol pplusol p1ol pinvol x1) (inductionOpB pv ptimesol pplusol p1ol pinvol x2))  
   | pv ptimesol pplusol p1ol pinvol oneOL := p1ol  
   | pv ptimesol pplusol p1ol pinvol (invOL x1) := (pinvol _ (inductionOpB pv ptimesol pplusol p1ol pinvol x1))  
-  def inductionOp   (n : ℕ) (A : Type) (P : ((OpNonassociativeRingTerm2 n A) → Type))  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((∀ (x1 x2 : (OpNonassociativeRingTerm2 n A)) , ((P x1) → ((P x2) → (P (timesOL2 x1 x2))))) → ((∀ (x1 x2 : (OpNonassociativeRingTerm2 n A)) , ((P x1) → ((P x2) → (P (plusOL2 x1 x2))))) → ((P oneOL2) → ((∀ (x1 : (OpNonassociativeRingTerm2 n A)) , ((P x1) → (P (invOL2 x1)))) → (∀ (x : (OpNonassociativeRingTerm2 n A)) , (P x)))))))) 
+  def inductionOp   {n : ℕ} {A : Type} {P : ((OpNonassociativeRingTerm2 n A) → Type)}  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((∀ (x1 x2 : (OpNonassociativeRingTerm2 n A)) , ((P x1) → ((P x2) → (P (timesOL2 x1 x2))))) → ((∀ (x1 x2 : (OpNonassociativeRingTerm2 n A)) , ((P x1) → ((P x2) → (P (plusOL2 x1 x2))))) → ((P oneOL2) → ((∀ (x1 : (OpNonassociativeRingTerm2 n A)) , ((P x1) → (P (invOL2 x1)))) → (∀ (x : (OpNonassociativeRingTerm2 n A)) , (P x)))))))) 
   | pv2 psing2 ptimesol2 pplusol2 p1ol2 pinvol2 (v2 x1) := (pv2 x1)  
   | pv2 psing2 ptimesol2 pplusol2 p1ol2 pinvol2 (sing2 x1) := (psing2 x1)  
   | pv2 psing2 ptimesol2 pplusol2 p1ol2 pinvol2 (timesOL2 x1 x2) := (ptimesol2 _ _ (inductionOp pv2 psing2 ptimesol2 pplusol2 p1ol2 pinvol2 x1) (inductionOp pv2 psing2 ptimesol2 pplusol2 p1ol2 pinvol2 x2))  
@@ -166,19 +166,19 @@ section NonassociativeRing
   | (plusL x1 x2) := (stage2 plusL (codeLift2 plusL) (stageB x1) (stageB x2))  
   | oneL := (Now oneL)  
   | (invL x1) := (stage1 invL (codeLift1 invL) (stageB x1))  
-  def stageCl   (A : Type)  : ((ClNonassociativeRingTerm A) → (Staged (ClNonassociativeRingTerm A))) 
+  def stageCl   {A : Type}  : ((ClNonassociativeRingTerm A) → (Staged (ClNonassociativeRingTerm A))) 
   | (sing x1) := (Now (sing x1))  
   | (timesCl x1 x2) := (stage2 timesCl (codeLift2 timesCl) (stageCl x1) (stageCl x2))  
   | (plusCl x1 x2) := (stage2 plusCl (codeLift2 plusCl) (stageCl x1) (stageCl x2))  
   | oneCl := (Now oneCl)  
   | (invCl x1) := (stage1 invCl (codeLift1 invCl) (stageCl x1))  
-  def stageOpB   (n : ℕ)  : ((OpNonassociativeRingTerm n) → (Staged (OpNonassociativeRingTerm n))) 
+  def stageOpB   {n : ℕ}  : ((OpNonassociativeRingTerm n) → (Staged (OpNonassociativeRingTerm n))) 
   | (v x1) := (const (code (v x1)))  
   | (timesOL x1 x2) := (stage2 timesOL (codeLift2 timesOL) (stageOpB x1) (stageOpB x2))  
   | (plusOL x1 x2) := (stage2 plusOL (codeLift2 plusOL) (stageOpB x1) (stageOpB x2))  
   | oneOL := (Now oneOL)  
   | (invOL x1) := (stage1 invOL (codeLift1 invOL) (stageOpB x1))  
-  def stageOp   (n : ℕ) (A : Type)  : ((OpNonassociativeRingTerm2 n A) → (Staged (OpNonassociativeRingTerm2 n A))) 
+  def stageOp   {n : ℕ} {A : Type}  : ((OpNonassociativeRingTerm2 n A) → (Staged (OpNonassociativeRingTerm2 n A))) 
   | (sing2 x1) := (Now (sing2 x1))  
   | (v2 x1) := (const (code (v2 x1)))  
   | (timesOL2 x1 x2) := (stage2 timesOL2 (codeLift2 timesOL2) (stageOp x1) (stageOp x2))  

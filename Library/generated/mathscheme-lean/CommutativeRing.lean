@@ -109,7 +109,7 @@ section CommutativeRing
      | negOL2 : (OpCommutativeRingTerm2 → OpCommutativeRingTerm2)  
       open OpCommutativeRingTerm2 
   
-  def simplifyCl   (A : Type)  : ((ClCommutativeRingTerm A) → (ClCommutativeRingTerm A)) 
+  def simplifyCl   {A : Type}  : ((ClCommutativeRingTerm A) → (ClCommutativeRingTerm A)) 
   | (timesCl oneCl x) := x  
   | (timesCl x oneCl) := x  
   | (plusCl zeroCl x) := x  
@@ -120,7 +120,7 @@ section CommutativeRing
   | zeroCl := zeroCl  
   | (negCl x1) := (negCl (simplifyCl x1))  
   | (sing x1) := (sing x1)  
-  def simplifyOpB   (n : ℕ)  : ((OpCommutativeRingTerm n) → (OpCommutativeRingTerm n)) 
+  def simplifyOpB   {n : ℕ}  : ((OpCommutativeRingTerm n) → (OpCommutativeRingTerm n)) 
   | (timesOL oneOL x) := x  
   | (timesOL x oneOL) := x  
   | (plusOL zeroOL x) := x  
@@ -131,7 +131,7 @@ section CommutativeRing
   | zeroOL := zeroOL  
   | (negOL x1) := (negOL (simplifyOpB x1))  
   | (v x1) := (v x1)  
-  def simplifyOp   (n : ℕ) (A : Type)  : ((OpCommutativeRingTerm2 n A) → (OpCommutativeRingTerm2 n A)) 
+  def simplifyOp   {n : ℕ} {A : Type}  : ((OpCommutativeRingTerm2 n A) → (OpCommutativeRingTerm2 n A)) 
   | (timesOL2 oneOL2 x) := x  
   | (timesOL2 x oneOL2) := x  
   | (plusOL2 zeroOL2 x) := x  
@@ -156,14 +156,14 @@ section CommutativeRing
   | Co (plusCl x1 x2) := ((plus Co) (evalCl Co x1) (evalCl Co x2))  
   | Co zeroCl := (zero Co)  
   | Co (negCl x1) := ((neg Co) (evalCl Co x1))  
-  def evalOpB   {A : Type} (n : ℕ)  : ((CommutativeRing A) → ((vector A n) → ((OpCommutativeRingTerm n) → A))) 
+  def evalOpB   {A : Type} {n : ℕ}  : ((CommutativeRing A) → ((vector A n) → ((OpCommutativeRingTerm n) → A))) 
   | Co vars (v x1) := (nth vars x1)  
   | Co vars oneOL := (one Co)  
   | Co vars (timesOL x1 x2) := ((times Co) (evalOpB Co vars x1) (evalOpB Co vars x2))  
   | Co vars (plusOL x1 x2) := ((plus Co) (evalOpB Co vars x1) (evalOpB Co vars x2))  
   | Co vars zeroOL := (zero Co)  
   | Co vars (negOL x1) := ((neg Co) (evalOpB Co vars x1))  
-  def evalOp   {A : Type} (n : ℕ)  : ((CommutativeRing A) → ((vector A n) → ((OpCommutativeRingTerm2 n A) → A))) 
+  def evalOp   {A : Type} {n : ℕ}  : ((CommutativeRing A) → ((vector A n) → ((OpCommutativeRingTerm2 n A) → A))) 
   | Co vars (v2 x1) := (nth vars x1)  
   | Co vars (sing2 x1) := x1  
   | Co vars oneOL2 := (one Co)  
@@ -171,27 +171,27 @@ section CommutativeRing
   | Co vars (plusOL2 x1 x2) := ((plus Co) (evalOp Co vars x1) (evalOp Co vars x2))  
   | Co vars zeroOL2 := (zero Co)  
   | Co vars (negOL2 x1) := ((neg Co) (evalOp Co vars x1))  
-  def inductionB   (P : (CommutativeRingTerm → Type))  : ((P oneL) → ((∀ (x1 x2 : CommutativeRingTerm) , ((P x1) → ((P x2) → (P (timesL x1 x2))))) → ((∀ (x1 x2 : CommutativeRingTerm) , ((P x1) → ((P x2) → (P (plusL x1 x2))))) → ((P zeroL) → ((∀ (x1 : CommutativeRingTerm) , ((P x1) → (P (negL x1)))) → (∀ (x : CommutativeRingTerm) , (P x))))))) 
+  def inductionB   {P : (CommutativeRingTerm → Type)}  : ((P oneL) → ((∀ (x1 x2 : CommutativeRingTerm) , ((P x1) → ((P x2) → (P (timesL x1 x2))))) → ((∀ (x1 x2 : CommutativeRingTerm) , ((P x1) → ((P x2) → (P (plusL x1 x2))))) → ((P zeroL) → ((∀ (x1 : CommutativeRingTerm) , ((P x1) → (P (negL x1)))) → (∀ (x : CommutativeRingTerm) , (P x))))))) 
   | p1l ptimesl pplusl p0l pnegl oneL := p1l  
   | p1l ptimesl pplusl p0l pnegl (timesL x1 x2) := (ptimesl _ _ (inductionB p1l ptimesl pplusl p0l pnegl x1) (inductionB p1l ptimesl pplusl p0l pnegl x2))  
   | p1l ptimesl pplusl p0l pnegl (plusL x1 x2) := (pplusl _ _ (inductionB p1l ptimesl pplusl p0l pnegl x1) (inductionB p1l ptimesl pplusl p0l pnegl x2))  
   | p1l ptimesl pplusl p0l pnegl zeroL := p0l  
   | p1l ptimesl pplusl p0l pnegl (negL x1) := (pnegl _ (inductionB p1l ptimesl pplusl p0l pnegl x1))  
-  def inductionCl   (A : Type) (P : ((ClCommutativeRingTerm A) → Type))  : ((∀ (x1 : A) , (P (sing x1))) → ((P oneCl) → ((∀ (x1 x2 : (ClCommutativeRingTerm A)) , ((P x1) → ((P x2) → (P (timesCl x1 x2))))) → ((∀ (x1 x2 : (ClCommutativeRingTerm A)) , ((P x1) → ((P x2) → (P (plusCl x1 x2))))) → ((P zeroCl) → ((∀ (x1 : (ClCommutativeRingTerm A)) , ((P x1) → (P (negCl x1)))) → (∀ (x : (ClCommutativeRingTerm A)) , (P x)))))))) 
+  def inductionCl   {A : Type} {P : ((ClCommutativeRingTerm A) → Type)}  : ((∀ (x1 : A) , (P (sing x1))) → ((P oneCl) → ((∀ (x1 x2 : (ClCommutativeRingTerm A)) , ((P x1) → ((P x2) → (P (timesCl x1 x2))))) → ((∀ (x1 x2 : (ClCommutativeRingTerm A)) , ((P x1) → ((P x2) → (P (plusCl x1 x2))))) → ((P zeroCl) → ((∀ (x1 : (ClCommutativeRingTerm A)) , ((P x1) → (P (negCl x1)))) → (∀ (x : (ClCommutativeRingTerm A)) , (P x)))))))) 
   | psing p1cl ptimescl ppluscl p0cl pnegcl (sing x1) := (psing x1)  
   | psing p1cl ptimescl ppluscl p0cl pnegcl oneCl := p1cl  
   | psing p1cl ptimescl ppluscl p0cl pnegcl (timesCl x1 x2) := (ptimescl _ _ (inductionCl psing p1cl ptimescl ppluscl p0cl pnegcl x1) (inductionCl psing p1cl ptimescl ppluscl p0cl pnegcl x2))  
   | psing p1cl ptimescl ppluscl p0cl pnegcl (plusCl x1 x2) := (ppluscl _ _ (inductionCl psing p1cl ptimescl ppluscl p0cl pnegcl x1) (inductionCl psing p1cl ptimescl ppluscl p0cl pnegcl x2))  
   | psing p1cl ptimescl ppluscl p0cl pnegcl zeroCl := p0cl  
   | psing p1cl ptimescl ppluscl p0cl pnegcl (negCl x1) := (pnegcl _ (inductionCl psing p1cl ptimescl ppluscl p0cl pnegcl x1))  
-  def inductionOpB   (n : ℕ) (P : ((OpCommutativeRingTerm n) → Type))  : ((∀ (fin : (fin n)) , (P (v fin))) → ((P oneOL) → ((∀ (x1 x2 : (OpCommutativeRingTerm n)) , ((P x1) → ((P x2) → (P (timesOL x1 x2))))) → ((∀ (x1 x2 : (OpCommutativeRingTerm n)) , ((P x1) → ((P x2) → (P (plusOL x1 x2))))) → ((P zeroOL) → ((∀ (x1 : (OpCommutativeRingTerm n)) , ((P x1) → (P (negOL x1)))) → (∀ (x : (OpCommutativeRingTerm n)) , (P x)))))))) 
+  def inductionOpB   {n : ℕ} {P : ((OpCommutativeRingTerm n) → Type)}  : ((∀ (fin : (fin n)) , (P (v fin))) → ((P oneOL) → ((∀ (x1 x2 : (OpCommutativeRingTerm n)) , ((P x1) → ((P x2) → (P (timesOL x1 x2))))) → ((∀ (x1 x2 : (OpCommutativeRingTerm n)) , ((P x1) → ((P x2) → (P (plusOL x1 x2))))) → ((P zeroOL) → ((∀ (x1 : (OpCommutativeRingTerm n)) , ((P x1) → (P (negOL x1)))) → (∀ (x : (OpCommutativeRingTerm n)) , (P x)))))))) 
   | pv p1ol ptimesol pplusol p0ol pnegol (v x1) := (pv x1)  
   | pv p1ol ptimesol pplusol p0ol pnegol oneOL := p1ol  
   | pv p1ol ptimesol pplusol p0ol pnegol (timesOL x1 x2) := (ptimesol _ _ (inductionOpB pv p1ol ptimesol pplusol p0ol pnegol x1) (inductionOpB pv p1ol ptimesol pplusol p0ol pnegol x2))  
   | pv p1ol ptimesol pplusol p0ol pnegol (plusOL x1 x2) := (pplusol _ _ (inductionOpB pv p1ol ptimesol pplusol p0ol pnegol x1) (inductionOpB pv p1ol ptimesol pplusol p0ol pnegol x2))  
   | pv p1ol ptimesol pplusol p0ol pnegol zeroOL := p0ol  
   | pv p1ol ptimesol pplusol p0ol pnegol (negOL x1) := (pnegol _ (inductionOpB pv p1ol ptimesol pplusol p0ol pnegol x1))  
-  def inductionOp   (n : ℕ) (A : Type) (P : ((OpCommutativeRingTerm2 n A) → Type))  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((P oneOL2) → ((∀ (x1 x2 : (OpCommutativeRingTerm2 n A)) , ((P x1) → ((P x2) → (P (timesOL2 x1 x2))))) → ((∀ (x1 x2 : (OpCommutativeRingTerm2 n A)) , ((P x1) → ((P x2) → (P (plusOL2 x1 x2))))) → ((P zeroOL2) → ((∀ (x1 : (OpCommutativeRingTerm2 n A)) , ((P x1) → (P (negOL2 x1)))) → (∀ (x : (OpCommutativeRingTerm2 n A)) , (P x))))))))) 
+  def inductionOp   {n : ℕ} {A : Type} {P : ((OpCommutativeRingTerm2 n A) → Type)}  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((P oneOL2) → ((∀ (x1 x2 : (OpCommutativeRingTerm2 n A)) , ((P x1) → ((P x2) → (P (timesOL2 x1 x2))))) → ((∀ (x1 x2 : (OpCommutativeRingTerm2 n A)) , ((P x1) → ((P x2) → (P (plusOL2 x1 x2))))) → ((P zeroOL2) → ((∀ (x1 : (OpCommutativeRingTerm2 n A)) , ((P x1) → (P (negOL2 x1)))) → (∀ (x : (OpCommutativeRingTerm2 n A)) , (P x))))))))) 
   | pv2 psing2 p1ol2 ptimesol2 pplusol2 p0ol2 pnegol2 (v2 x1) := (pv2 x1)  
   | pv2 psing2 p1ol2 ptimesol2 pplusol2 p0ol2 pnegol2 (sing2 x1) := (psing2 x1)  
   | pv2 psing2 p1ol2 ptimesol2 pplusol2 p0ol2 pnegol2 oneOL2 := p1ol2  
@@ -205,21 +205,21 @@ section CommutativeRing
   | (plusL x1 x2) := (stage2 plusL (codeLift2 plusL) (stageB x1) (stageB x2))  
   | zeroL := (Now zeroL)  
   | (negL x1) := (stage1 negL (codeLift1 negL) (stageB x1))  
-  def stageCl   (A : Type)  : ((ClCommutativeRingTerm A) → (Staged (ClCommutativeRingTerm A))) 
+  def stageCl   {A : Type}  : ((ClCommutativeRingTerm A) → (Staged (ClCommutativeRingTerm A))) 
   | (sing x1) := (Now (sing x1))  
   | oneCl := (Now oneCl)  
   | (timesCl x1 x2) := (stage2 timesCl (codeLift2 timesCl) (stageCl x1) (stageCl x2))  
   | (plusCl x1 x2) := (stage2 plusCl (codeLift2 plusCl) (stageCl x1) (stageCl x2))  
   | zeroCl := (Now zeroCl)  
   | (negCl x1) := (stage1 negCl (codeLift1 negCl) (stageCl x1))  
-  def stageOpB   (n : ℕ)  : ((OpCommutativeRingTerm n) → (Staged (OpCommutativeRingTerm n))) 
+  def stageOpB   {n : ℕ}  : ((OpCommutativeRingTerm n) → (Staged (OpCommutativeRingTerm n))) 
   | (v x1) := (const (code (v x1)))  
   | oneOL := (Now oneOL)  
   | (timesOL x1 x2) := (stage2 timesOL (codeLift2 timesOL) (stageOpB x1) (stageOpB x2))  
   | (plusOL x1 x2) := (stage2 plusOL (codeLift2 plusOL) (stageOpB x1) (stageOpB x2))  
   | zeroOL := (Now zeroOL)  
   | (negOL x1) := (stage1 negOL (codeLift1 negOL) (stageOpB x1))  
-  def stageOp   (n : ℕ) (A : Type)  : ((OpCommutativeRingTerm2 n A) → (Staged (OpCommutativeRingTerm2 n A))) 
+  def stageOp   {n : ℕ} {A : Type}  : ((OpCommutativeRingTerm2 n A) → (Staged (OpCommutativeRingTerm2 n A))) 
   | (sing2 x1) := (Now (sing2 x1))  
   | (v2 x1) := (const (code (v2 x1)))  
   | oneOL2 := (Now oneOL2)  

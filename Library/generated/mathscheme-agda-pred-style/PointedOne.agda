@@ -47,52 +47,52 @@ module PointedOne   where
       sing2 : (A → (OpPointedOneTerm2 n A)) 
       1OL2 : (OpPointedOneTerm2 n A)  
       
-  simplifyCl :  (A : Set) →  ((ClPointedOneTerm A) → (ClPointedOneTerm A)) 
-  simplifyCl _ 1Cl = 1Cl  
-  simplifyCl _ (sing x1) = (sing x1)  
-  simplifyOpB :  (n : Nat) →  ((OpPointedOneTerm n) → (OpPointedOneTerm n)) 
-  simplifyOpB _ 1OL = 1OL  
-  simplifyOpB _ (v x1) = (v x1)  
-  simplifyOp :  (n : Nat) (A : Set) →  ((OpPointedOneTerm2 n A) → (OpPointedOneTerm2 n A)) 
-  simplifyOp _ _ 1OL2 = 1OL2  
-  simplifyOp _ _ (v2 x1) = (v2 x1)  
-  simplifyOp _ _ (sing2 x1) = (sing2 x1)  
+  simplifyCl :  {A : Set} →  ((ClPointedOneTerm A) → (ClPointedOneTerm A)) 
+  simplifyCl 1Cl = 1Cl  
+  simplifyCl (sing x1) = (sing x1)  
+  simplifyOpB :  {n : Nat} →  ((OpPointedOneTerm n) → (OpPointedOneTerm n)) 
+  simplifyOpB 1OL = 1OL  
+  simplifyOpB (v x1) = (v x1)  
+  simplifyOp :  {n : Nat} {A : Set} →  ((OpPointedOneTerm2 n A) → (OpPointedOneTerm2 n A)) 
+  simplifyOp 1OL2 = 1OL2  
+  simplifyOp (v2 x1) = (v2 x1)  
+  simplifyOp (sing2 x1) = (sing2 x1)  
   evalB :  {A : Set} →  ((PointedOne A) → (PointedOneTerm → A)) 
   evalB Po 1L = (1ᵢ Po)  
   evalCl :  {A : Set} →  ((PointedOne A) → ((ClPointedOneTerm A) → A)) 
   evalCl Po (sing x1) = x1  
   evalCl Po 1Cl = (1ᵢ Po)  
-  evalOpB :  {A : Set} (n : Nat) →  ((PointedOne A) → ((Vec A n) → ((OpPointedOneTerm n) → A))) 
-  evalOpB n Po vars (v x1) = (lookup vars x1)  
-  evalOpB n Po vars 1OL = (1ᵢ Po)  
-  evalOp :  {A : Set} (n : Nat) →  ((PointedOne A) → ((Vec A n) → ((OpPointedOneTerm2 n A) → A))) 
-  evalOp n Po vars (v2 x1) = (lookup vars x1)  
-  evalOp n Po vars (sing2 x1) = x1  
-  evalOp n Po vars 1OL2 = (1ᵢ Po)  
-  inductionB :  (P : (PointedOneTerm → Set)) →  ((P 1L) → ( (x : PointedOneTerm) → (P x))) 
-  inductionB p p1l 1L = p1l  
-  inductionCl :  (A : Set) (P : ((ClPointedOneTerm A) → Set)) →  (( (x1 : A) → (P (sing x1))) → ((P 1Cl) → ( (x : (ClPointedOneTerm A)) → (P x)))) 
-  inductionCl _ p psing p1cl (sing x1) = (psing x1)  
-  inductionCl _ p psing p1cl 1Cl = p1cl  
-  inductionOpB :  (n : Nat) (P : ((OpPointedOneTerm n) → Set)) →  (( (fin : (Fin n)) → (P (v fin))) → ((P 1OL) → ( (x : (OpPointedOneTerm n)) → (P x)))) 
-  inductionOpB _ p pv p1ol (v x1) = (pv x1)  
-  inductionOpB _ p pv p1ol 1OL = p1ol  
-  inductionOp :  (n : Nat) (A : Set) (P : ((OpPointedOneTerm2 n A) → Set)) →  (( (fin : (Fin n)) → (P (v2 fin))) → (( (x1 : A) → (P (sing2 x1))) → ((P 1OL2) → ( (x : (OpPointedOneTerm2 n A)) → (P x))))) 
-  inductionOp _ _ p pv2 psing2 p1ol2 (v2 x1) = (pv2 x1)  
-  inductionOp _ _ p pv2 psing2 p1ol2 (sing2 x1) = (psing2 x1)  
-  inductionOp _ _ p pv2 psing2 p1ol2 1OL2 = p1ol2  
+  evalOpB :  {A : Set} {n : Nat} →  ((PointedOne A) → ((Vec A n) → ((OpPointedOneTerm n) → A))) 
+  evalOpB Po vars (v x1) = (lookup vars x1)  
+  evalOpB Po vars 1OL = (1ᵢ Po)  
+  evalOp :  {A : Set} {n : Nat} →  ((PointedOne A) → ((Vec A n) → ((OpPointedOneTerm2 n A) → A))) 
+  evalOp Po vars (v2 x1) = (lookup vars x1)  
+  evalOp Po vars (sing2 x1) = x1  
+  evalOp Po vars 1OL2 = (1ᵢ Po)  
+  inductionB :  {P : (PointedOneTerm → Set)} →  ((P 1L) → ( (x : PointedOneTerm) → (P x))) 
+  inductionB p1l 1L = p1l  
+  inductionCl :  {A : Set} {P : ((ClPointedOneTerm A) → Set)} →  (( (x1 : A) → (P (sing x1))) → ((P 1Cl) → ( (x : (ClPointedOneTerm A)) → (P x)))) 
+  inductionCl psing p1cl (sing x1) = (psing x1)  
+  inductionCl psing p1cl 1Cl = p1cl  
+  inductionOpB :  {n : Nat} {P : ((OpPointedOneTerm n) → Set)} →  (( (fin : (Fin n)) → (P (v fin))) → ((P 1OL) → ( (x : (OpPointedOneTerm n)) → (P x)))) 
+  inductionOpB pv p1ol (v x1) = (pv x1)  
+  inductionOpB pv p1ol 1OL = p1ol  
+  inductionOp :  {n : Nat} {A : Set} {P : ((OpPointedOneTerm2 n A) → Set)} →  (( (fin : (Fin n)) → (P (v2 fin))) → (( (x1 : A) → (P (sing2 x1))) → ((P 1OL2) → ( (x : (OpPointedOneTerm2 n A)) → (P x))))) 
+  inductionOp pv2 psing2 p1ol2 (v2 x1) = (pv2 x1)  
+  inductionOp pv2 psing2 p1ol2 (sing2 x1) = (psing2 x1)  
+  inductionOp pv2 psing2 p1ol2 1OL2 = p1ol2  
   stageB :  (PointedOneTerm → (Staged PointedOneTerm))
   stageB 1L = (Now 1L)  
-  stageCl :  (A : Set) →  ((ClPointedOneTerm A) → (Staged (ClPointedOneTerm A))) 
-  stageCl _ (sing x1) = (Now (sing x1))  
-  stageCl _ 1Cl = (Now 1Cl)  
-  stageOpB :  (n : Nat) →  ((OpPointedOneTerm n) → (Staged (OpPointedOneTerm n))) 
-  stageOpB _ (v x1) = (const (code (v x1)))  
-  stageOpB _ 1OL = (Now 1OL)  
-  stageOp :  (n : Nat) (A : Set) →  ((OpPointedOneTerm2 n A) → (Staged (OpPointedOneTerm2 n A))) 
-  stageOp _ _ (sing2 x1) = (Now (sing2 x1))  
-  stageOp _ _ (v2 x1) = (const (code (v2 x1)))  
-  stageOp _ _ 1OL2 = (Now 1OL2)  
+  stageCl :  {A : Set} →  ((ClPointedOneTerm A) → (Staged (ClPointedOneTerm A))) 
+  stageCl (sing x1) = (Now (sing x1))  
+  stageCl 1Cl = (Now 1Cl)  
+  stageOpB :  {n : Nat} →  ((OpPointedOneTerm n) → (Staged (OpPointedOneTerm n))) 
+  stageOpB (v x1) = (const (code (v x1)))  
+  stageOpB 1OL = (Now 1OL)  
+  stageOp :  {n : Nat} {A : Set} →  ((OpPointedOneTerm2 n A) → (Staged (OpPointedOneTerm2 n A))) 
+  stageOp (sing2 x1) = (Now (sing2 x1))  
+  stageOp (v2 x1) = (const (code (v2 x1)))  
+  stageOp 1OL2 = (Now 1OL2)  
   record StagedRepr  (A : Set) (Repr : (Set → Set)) : Set where 
      field  
       1T : (Repr A)  

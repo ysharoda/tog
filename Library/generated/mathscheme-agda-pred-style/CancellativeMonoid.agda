@@ -67,25 +67,25 @@ module CancellativeMonoid   where
       opOL2 : ((OpCancellativeMonoidTerm2 n A) → ((OpCancellativeMonoidTerm2 n A) → (OpCancellativeMonoidTerm2 n A))) 
       eOL2 : (OpCancellativeMonoidTerm2 n A)  
       
-  simplifyCl :  (A : Set) →  ((ClCancellativeMonoidTerm A) → (ClCancellativeMonoidTerm A)) 
-  simplifyCl _ (opCl eCl x) = x  
-  simplifyCl _ (opCl x eCl) = x  
-  simplifyCl _ (opCl x1 x2) = (opCl (simplifyCl _ x1) (simplifyCl _ x2))  
-  simplifyCl _ eCl = eCl  
-  simplifyCl _ (sing x1) = (sing x1)  
-  simplifyOpB :  (n : Nat) →  ((OpCancellativeMonoidTerm n) → (OpCancellativeMonoidTerm n)) 
-  simplifyOpB _ (opOL eOL x) = x  
-  simplifyOpB _ (opOL x eOL) = x  
-  simplifyOpB _ (opOL x1 x2) = (opOL (simplifyOpB _ x1) (simplifyOpB _ x2))  
-  simplifyOpB _ eOL = eOL  
-  simplifyOpB _ (v x1) = (v x1)  
-  simplifyOp :  (n : Nat) (A : Set) →  ((OpCancellativeMonoidTerm2 n A) → (OpCancellativeMonoidTerm2 n A)) 
-  simplifyOp _ _ (opOL2 eOL2 x) = x  
-  simplifyOp _ _ (opOL2 x eOL2) = x  
-  simplifyOp _ _ (opOL2 x1 x2) = (opOL2 (simplifyOp _ _ x1) (simplifyOp _ _ x2))  
-  simplifyOp _ _ eOL2 = eOL2  
-  simplifyOp _ _ (v2 x1) = (v2 x1)  
-  simplifyOp _ _ (sing2 x1) = (sing2 x1)  
+  simplifyCl :  {A : Set} →  ((ClCancellativeMonoidTerm A) → (ClCancellativeMonoidTerm A)) 
+  simplifyCl (opCl eCl x) = x  
+  simplifyCl (opCl x eCl) = x  
+  simplifyCl (opCl x1 x2) = (opCl (simplifyCl x1) (simplifyCl x2))  
+  simplifyCl eCl = eCl  
+  simplifyCl (sing x1) = (sing x1)  
+  simplifyOpB :  {n : Nat} →  ((OpCancellativeMonoidTerm n) → (OpCancellativeMonoidTerm n)) 
+  simplifyOpB (opOL eOL x) = x  
+  simplifyOpB (opOL x eOL) = x  
+  simplifyOpB (opOL x1 x2) = (opOL (simplifyOpB x1) (simplifyOpB x2))  
+  simplifyOpB eOL = eOL  
+  simplifyOpB (v x1) = (v x1)  
+  simplifyOp :  {n : Nat} {A : Set} →  ((OpCancellativeMonoidTerm2 n A) → (OpCancellativeMonoidTerm2 n A)) 
+  simplifyOp (opOL2 eOL2 x) = x  
+  simplifyOp (opOL2 x eOL2) = x  
+  simplifyOp (opOL2 x1 x2) = (opOL2 (simplifyOp x1) (simplifyOp x2))  
+  simplifyOp eOL2 = eOL2  
+  simplifyOp (v2 x1) = (v2 x1)  
+  simplifyOp (sing2 x1) = (sing2 x1)  
   evalB :  {A : Set} →  ((CancellativeMonoid A) → (CancellativeMonoidTerm → A)) 
   evalB Ca (opL x1 x2) = ((op Ca) (evalB Ca x1) (evalB Ca x2))  
   evalB Ca eL = (e Ca)  
@@ -93,47 +93,47 @@ module CancellativeMonoid   where
   evalCl Ca (sing x1) = x1  
   evalCl Ca (opCl x1 x2) = ((op Ca) (evalCl Ca x1) (evalCl Ca x2))  
   evalCl Ca eCl = (e Ca)  
-  evalOpB :  {A : Set} (n : Nat) →  ((CancellativeMonoid A) → ((Vec A n) → ((OpCancellativeMonoidTerm n) → A))) 
-  evalOpB n Ca vars (v x1) = (lookup vars x1)  
-  evalOpB n Ca vars (opOL x1 x2) = ((op Ca) (evalOpB n Ca vars x1) (evalOpB n Ca vars x2))  
-  evalOpB n Ca vars eOL = (e Ca)  
-  evalOp :  {A : Set} (n : Nat) →  ((CancellativeMonoid A) → ((Vec A n) → ((OpCancellativeMonoidTerm2 n A) → A))) 
-  evalOp n Ca vars (v2 x1) = (lookup vars x1)  
-  evalOp n Ca vars (sing2 x1) = x1  
-  evalOp n Ca vars (opOL2 x1 x2) = ((op Ca) (evalOp n Ca vars x1) (evalOp n Ca vars x2))  
-  evalOp n Ca vars eOL2 = (e Ca)  
-  inductionB :  (P : (CancellativeMonoidTerm → Set)) →  (( (x1 x2 : CancellativeMonoidTerm) → ((P x1) → ((P x2) → (P (opL x1 x2))))) → ((P eL) → ( (x : CancellativeMonoidTerm) → (P x)))) 
-  inductionB p popl pel (opL x1 x2) = (popl _ _ (inductionB p popl pel x1) (inductionB p popl pel x2))  
-  inductionB p popl pel eL = pel  
-  inductionCl :  (A : Set) (P : ((ClCancellativeMonoidTerm A) → Set)) →  (( (x1 : A) → (P (sing x1))) → (( (x1 x2 : (ClCancellativeMonoidTerm A)) → ((P x1) → ((P x2) → (P (opCl x1 x2))))) → ((P eCl) → ( (x : (ClCancellativeMonoidTerm A)) → (P x))))) 
-  inductionCl _ p psing popcl pecl (sing x1) = (psing x1)  
-  inductionCl _ p psing popcl pecl (opCl x1 x2) = (popcl _ _ (inductionCl _ p psing popcl pecl x1) (inductionCl _ p psing popcl pecl x2))  
-  inductionCl _ p psing popcl pecl eCl = pecl  
-  inductionOpB :  (n : Nat) (P : ((OpCancellativeMonoidTerm n) → Set)) →  (( (fin : (Fin n)) → (P (v fin))) → (( (x1 x2 : (OpCancellativeMonoidTerm n)) → ((P x1) → ((P x2) → (P (opOL x1 x2))))) → ((P eOL) → ( (x : (OpCancellativeMonoidTerm n)) → (P x))))) 
-  inductionOpB _ p pv popol peol (v x1) = (pv x1)  
-  inductionOpB _ p pv popol peol (opOL x1 x2) = (popol _ _ (inductionOpB _ p pv popol peol x1) (inductionOpB _ p pv popol peol x2))  
-  inductionOpB _ p pv popol peol eOL = peol  
-  inductionOp :  (n : Nat) (A : Set) (P : ((OpCancellativeMonoidTerm2 n A) → Set)) →  (( (fin : (Fin n)) → (P (v2 fin))) → (( (x1 : A) → (P (sing2 x1))) → (( (x1 x2 : (OpCancellativeMonoidTerm2 n A)) → ((P x1) → ((P x2) → (P (opOL2 x1 x2))))) → ((P eOL2) → ( (x : (OpCancellativeMonoidTerm2 n A)) → (P x)))))) 
-  inductionOp _ _ p pv2 psing2 popol2 peol2 (v2 x1) = (pv2 x1)  
-  inductionOp _ _ p pv2 psing2 popol2 peol2 (sing2 x1) = (psing2 x1)  
-  inductionOp _ _ p pv2 psing2 popol2 peol2 (opOL2 x1 x2) = (popol2 _ _ (inductionOp _ _ p pv2 psing2 popol2 peol2 x1) (inductionOp _ _ p pv2 psing2 popol2 peol2 x2))  
-  inductionOp _ _ p pv2 psing2 popol2 peol2 eOL2 = peol2  
+  evalOpB :  {A : Set} {n : Nat} →  ((CancellativeMonoid A) → ((Vec A n) → ((OpCancellativeMonoidTerm n) → A))) 
+  evalOpB Ca vars (v x1) = (lookup vars x1)  
+  evalOpB Ca vars (opOL x1 x2) = ((op Ca) (evalOpB Ca vars x1) (evalOpB Ca vars x2))  
+  evalOpB Ca vars eOL = (e Ca)  
+  evalOp :  {A : Set} {n : Nat} →  ((CancellativeMonoid A) → ((Vec A n) → ((OpCancellativeMonoidTerm2 n A) → A))) 
+  evalOp Ca vars (v2 x1) = (lookup vars x1)  
+  evalOp Ca vars (sing2 x1) = x1  
+  evalOp Ca vars (opOL2 x1 x2) = ((op Ca) (evalOp Ca vars x1) (evalOp Ca vars x2))  
+  evalOp Ca vars eOL2 = (e Ca)  
+  inductionB :  {P : (CancellativeMonoidTerm → Set)} →  (( (x1 x2 : CancellativeMonoidTerm) → ((P x1) → ((P x2) → (P (opL x1 x2))))) → ((P eL) → ( (x : CancellativeMonoidTerm) → (P x)))) 
+  inductionB popl pel (opL x1 x2) = (popl _ _ (inductionB popl pel x1) (inductionB popl pel x2))  
+  inductionB popl pel eL = pel  
+  inductionCl :  {A : Set} {P : ((ClCancellativeMonoidTerm A) → Set)} →  (( (x1 : A) → (P (sing x1))) → (( (x1 x2 : (ClCancellativeMonoidTerm A)) → ((P x1) → ((P x2) → (P (opCl x1 x2))))) → ((P eCl) → ( (x : (ClCancellativeMonoidTerm A)) → (P x))))) 
+  inductionCl psing popcl pecl (sing x1) = (psing x1)  
+  inductionCl psing popcl pecl (opCl x1 x2) = (popcl _ _ (inductionCl psing popcl pecl x1) (inductionCl psing popcl pecl x2))  
+  inductionCl psing popcl pecl eCl = pecl  
+  inductionOpB :  {n : Nat} {P : ((OpCancellativeMonoidTerm n) → Set)} →  (( (fin : (Fin n)) → (P (v fin))) → (( (x1 x2 : (OpCancellativeMonoidTerm n)) → ((P x1) → ((P x2) → (P (opOL x1 x2))))) → ((P eOL) → ( (x : (OpCancellativeMonoidTerm n)) → (P x))))) 
+  inductionOpB pv popol peol (v x1) = (pv x1)  
+  inductionOpB pv popol peol (opOL x1 x2) = (popol _ _ (inductionOpB pv popol peol x1) (inductionOpB pv popol peol x2))  
+  inductionOpB pv popol peol eOL = peol  
+  inductionOp :  {n : Nat} {A : Set} {P : ((OpCancellativeMonoidTerm2 n A) → Set)} →  (( (fin : (Fin n)) → (P (v2 fin))) → (( (x1 : A) → (P (sing2 x1))) → (( (x1 x2 : (OpCancellativeMonoidTerm2 n A)) → ((P x1) → ((P x2) → (P (opOL2 x1 x2))))) → ((P eOL2) → ( (x : (OpCancellativeMonoidTerm2 n A)) → (P x)))))) 
+  inductionOp pv2 psing2 popol2 peol2 (v2 x1) = (pv2 x1)  
+  inductionOp pv2 psing2 popol2 peol2 (sing2 x1) = (psing2 x1)  
+  inductionOp pv2 psing2 popol2 peol2 (opOL2 x1 x2) = (popol2 _ _ (inductionOp pv2 psing2 popol2 peol2 x1) (inductionOp pv2 psing2 popol2 peol2 x2))  
+  inductionOp pv2 psing2 popol2 peol2 eOL2 = peol2  
   stageB :  (CancellativeMonoidTerm → (Staged CancellativeMonoidTerm))
   stageB (opL x1 x2) = (stage2 opL (codeLift2 opL) (stageB x1) (stageB x2))  
   stageB eL = (Now eL)  
-  stageCl :  (A : Set) →  ((ClCancellativeMonoidTerm A) → (Staged (ClCancellativeMonoidTerm A))) 
-  stageCl _ (sing x1) = (Now (sing x1))  
-  stageCl _ (opCl x1 x2) = (stage2 opCl (codeLift2 opCl) (stageCl _ x1) (stageCl _ x2))  
-  stageCl _ eCl = (Now eCl)  
-  stageOpB :  (n : Nat) →  ((OpCancellativeMonoidTerm n) → (Staged (OpCancellativeMonoidTerm n))) 
-  stageOpB _ (v x1) = (const (code (v x1)))  
-  stageOpB _ (opOL x1 x2) = (stage2 opOL (codeLift2 opOL) (stageOpB _ x1) (stageOpB _ x2))  
-  stageOpB _ eOL = (Now eOL)  
-  stageOp :  (n : Nat) (A : Set) →  ((OpCancellativeMonoidTerm2 n A) → (Staged (OpCancellativeMonoidTerm2 n A))) 
-  stageOp _ _ (sing2 x1) = (Now (sing2 x1))  
-  stageOp _ _ (v2 x1) = (const (code (v2 x1)))  
-  stageOp _ _ (opOL2 x1 x2) = (stage2 opOL2 (codeLift2 opOL2) (stageOp _ _ x1) (stageOp _ _ x2))  
-  stageOp _ _ eOL2 = (Now eOL2)  
+  stageCl :  {A : Set} →  ((ClCancellativeMonoidTerm A) → (Staged (ClCancellativeMonoidTerm A))) 
+  stageCl (sing x1) = (Now (sing x1))  
+  stageCl (opCl x1 x2) = (stage2 opCl (codeLift2 opCl) (stageCl x1) (stageCl x2))  
+  stageCl eCl = (Now eCl)  
+  stageOpB :  {n : Nat} →  ((OpCancellativeMonoidTerm n) → (Staged (OpCancellativeMonoidTerm n))) 
+  stageOpB (v x1) = (const (code (v x1)))  
+  stageOpB (opOL x1 x2) = (stage2 opOL (codeLift2 opOL) (stageOpB x1) (stageOpB x2))  
+  stageOpB eOL = (Now eOL)  
+  stageOp :  {n : Nat} {A : Set} →  ((OpCancellativeMonoidTerm2 n A) → (Staged (OpCancellativeMonoidTerm2 n A))) 
+  stageOp (sing2 x1) = (Now (sing2 x1))  
+  stageOp (v2 x1) = (const (code (v2 x1)))  
+  stageOp (opOL2 x1 x2) = (stage2 opOL2 (codeLift2 opOL2) (stageOp x1) (stageOp x2))  
+  stageOp eOL2 = (Now eOL2)  
   record StagedRepr  (A : Set) (Repr : (Set → Set)) : Set where 
      field  
       opT : ((Repr A) → ((Repr A) → (Repr A))) 

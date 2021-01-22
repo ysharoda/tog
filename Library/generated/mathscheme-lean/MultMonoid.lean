@@ -60,19 +60,19 @@ section MultMonoid
      | timesOL2 : (OpMultMonoidTerm2 → (OpMultMonoidTerm2 → OpMultMonoidTerm2))  
       open OpMultMonoidTerm2 
   
-  def simplifyCl   (A : Type)  : ((ClMultMonoidTerm A) → (ClMultMonoidTerm A)) 
+  def simplifyCl   {A : Type}  : ((ClMultMonoidTerm A) → (ClMultMonoidTerm A)) 
   | (timesCl oneCl x) := x  
   | (timesCl x oneCl) := x  
   | oneCl := oneCl  
   | (timesCl x1 x2) := (timesCl (simplifyCl x1) (simplifyCl x2))  
   | (sing x1) := (sing x1)  
-  def simplifyOpB   (n : ℕ)  : ((OpMultMonoidTerm n) → (OpMultMonoidTerm n)) 
+  def simplifyOpB   {n : ℕ}  : ((OpMultMonoidTerm n) → (OpMultMonoidTerm n)) 
   | (timesOL oneOL x) := x  
   | (timesOL x oneOL) := x  
   | oneOL := oneOL  
   | (timesOL x1 x2) := (timesOL (simplifyOpB x1) (simplifyOpB x2))  
   | (v x1) := (v x1)  
-  def simplifyOp   (n : ℕ) (A : Type)  : ((OpMultMonoidTerm2 n A) → (OpMultMonoidTerm2 n A)) 
+  def simplifyOp   {n : ℕ} {A : Type}  : ((OpMultMonoidTerm2 n A) → (OpMultMonoidTerm2 n A)) 
   | (timesOL2 oneOL2 x) := x  
   | (timesOL2 x oneOL2) := x  
   | oneOL2 := oneOL2  
@@ -86,27 +86,27 @@ section MultMonoid
   | Mu (sing x1) := x1  
   | Mu oneCl := (one Mu)  
   | Mu (timesCl x1 x2) := ((times Mu) (evalCl Mu x1) (evalCl Mu x2))  
-  def evalOpB   {A : Type} (n : ℕ)  : ((MultMonoid A) → ((vector A n) → ((OpMultMonoidTerm n) → A))) 
+  def evalOpB   {A : Type} {n : ℕ}  : ((MultMonoid A) → ((vector A n) → ((OpMultMonoidTerm n) → A))) 
   | Mu vars (v x1) := (nth vars x1)  
   | Mu vars oneOL := (one Mu)  
   | Mu vars (timesOL x1 x2) := ((times Mu) (evalOpB Mu vars x1) (evalOpB Mu vars x2))  
-  def evalOp   {A : Type} (n : ℕ)  : ((MultMonoid A) → ((vector A n) → ((OpMultMonoidTerm2 n A) → A))) 
+  def evalOp   {A : Type} {n : ℕ}  : ((MultMonoid A) → ((vector A n) → ((OpMultMonoidTerm2 n A) → A))) 
   | Mu vars (v2 x1) := (nth vars x1)  
   | Mu vars (sing2 x1) := x1  
   | Mu vars oneOL2 := (one Mu)  
   | Mu vars (timesOL2 x1 x2) := ((times Mu) (evalOp Mu vars x1) (evalOp Mu vars x2))  
-  def inductionB   (P : (MultMonoidTerm → Type))  : ((P oneL) → ((∀ (x1 x2 : MultMonoidTerm) , ((P x1) → ((P x2) → (P (timesL x1 x2))))) → (∀ (x : MultMonoidTerm) , (P x)))) 
+  def inductionB   {P : (MultMonoidTerm → Type)}  : ((P oneL) → ((∀ (x1 x2 : MultMonoidTerm) , ((P x1) → ((P x2) → (P (timesL x1 x2))))) → (∀ (x : MultMonoidTerm) , (P x)))) 
   | p1l ptimesl oneL := p1l  
   | p1l ptimesl (timesL x1 x2) := (ptimesl _ _ (inductionB p1l ptimesl x1) (inductionB p1l ptimesl x2))  
-  def inductionCl   (A : Type) (P : ((ClMultMonoidTerm A) → Type))  : ((∀ (x1 : A) , (P (sing x1))) → ((P oneCl) → ((∀ (x1 x2 : (ClMultMonoidTerm A)) , ((P x1) → ((P x2) → (P (timesCl x1 x2))))) → (∀ (x : (ClMultMonoidTerm A)) , (P x))))) 
+  def inductionCl   {A : Type} {P : ((ClMultMonoidTerm A) → Type)}  : ((∀ (x1 : A) , (P (sing x1))) → ((P oneCl) → ((∀ (x1 x2 : (ClMultMonoidTerm A)) , ((P x1) → ((P x2) → (P (timesCl x1 x2))))) → (∀ (x : (ClMultMonoidTerm A)) , (P x))))) 
   | psing p1cl ptimescl (sing x1) := (psing x1)  
   | psing p1cl ptimescl oneCl := p1cl  
   | psing p1cl ptimescl (timesCl x1 x2) := (ptimescl _ _ (inductionCl psing p1cl ptimescl x1) (inductionCl psing p1cl ptimescl x2))  
-  def inductionOpB   (n : ℕ) (P : ((OpMultMonoidTerm n) → Type))  : ((∀ (fin : (fin n)) , (P (v fin))) → ((P oneOL) → ((∀ (x1 x2 : (OpMultMonoidTerm n)) , ((P x1) → ((P x2) → (P (timesOL x1 x2))))) → (∀ (x : (OpMultMonoidTerm n)) , (P x))))) 
+  def inductionOpB   {n : ℕ} {P : ((OpMultMonoidTerm n) → Type)}  : ((∀ (fin : (fin n)) , (P (v fin))) → ((P oneOL) → ((∀ (x1 x2 : (OpMultMonoidTerm n)) , ((P x1) → ((P x2) → (P (timesOL x1 x2))))) → (∀ (x : (OpMultMonoidTerm n)) , (P x))))) 
   | pv p1ol ptimesol (v x1) := (pv x1)  
   | pv p1ol ptimesol oneOL := p1ol  
   | pv p1ol ptimesol (timesOL x1 x2) := (ptimesol _ _ (inductionOpB pv p1ol ptimesol x1) (inductionOpB pv p1ol ptimesol x2))  
-  def inductionOp   (n : ℕ) (A : Type) (P : ((OpMultMonoidTerm2 n A) → Type))  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((P oneOL2) → ((∀ (x1 x2 : (OpMultMonoidTerm2 n A)) , ((P x1) → ((P x2) → (P (timesOL2 x1 x2))))) → (∀ (x : (OpMultMonoidTerm2 n A)) , (P x)))))) 
+  def inductionOp   {n : ℕ} {A : Type} {P : ((OpMultMonoidTerm2 n A) → Type)}  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((P oneOL2) → ((∀ (x1 x2 : (OpMultMonoidTerm2 n A)) , ((P x1) → ((P x2) → (P (timesOL2 x1 x2))))) → (∀ (x : (OpMultMonoidTerm2 n A)) , (P x)))))) 
   | pv2 psing2 p1ol2 ptimesol2 (v2 x1) := (pv2 x1)  
   | pv2 psing2 p1ol2 ptimesol2 (sing2 x1) := (psing2 x1)  
   | pv2 psing2 p1ol2 ptimesol2 oneOL2 := p1ol2  
@@ -114,15 +114,15 @@ section MultMonoid
   def stageB  : (MultMonoidTerm → (Staged MultMonoidTerm))
   | oneL := (Now oneL)  
   | (timesL x1 x2) := (stage2 timesL (codeLift2 timesL) (stageB x1) (stageB x2))  
-  def stageCl   (A : Type)  : ((ClMultMonoidTerm A) → (Staged (ClMultMonoidTerm A))) 
+  def stageCl   {A : Type}  : ((ClMultMonoidTerm A) → (Staged (ClMultMonoidTerm A))) 
   | (sing x1) := (Now (sing x1))  
   | oneCl := (Now oneCl)  
   | (timesCl x1 x2) := (stage2 timesCl (codeLift2 timesCl) (stageCl x1) (stageCl x2))  
-  def stageOpB   (n : ℕ)  : ((OpMultMonoidTerm n) → (Staged (OpMultMonoidTerm n))) 
+  def stageOpB   {n : ℕ}  : ((OpMultMonoidTerm n) → (Staged (OpMultMonoidTerm n))) 
   | (v x1) := (const (code (v x1)))  
   | oneOL := (Now oneOL)  
   | (timesOL x1 x2) := (stage2 timesOL (codeLift2 timesOL) (stageOpB x1) (stageOpB x2))  
-  def stageOp   (n : ℕ) (A : Type)  : ((OpMultMonoidTerm2 n A) → (Staged (OpMultMonoidTerm2 n A))) 
+  def stageOp   {n : ℕ} {A : Type}  : ((OpMultMonoidTerm2 n A) → (Staged (OpMultMonoidTerm2 n A))) 
   | (sing2 x1) := (Now (sing2 x1))  
   | (v2 x1) := (const (code (v2 x1)))  
   | oneOL2 := (Now oneOL2)  

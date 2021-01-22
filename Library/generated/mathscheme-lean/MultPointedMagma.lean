@@ -54,15 +54,15 @@ section MultPointedMagma
      | timesOL2 : (OpMultPointedMagmaTerm2 → (OpMultPointedMagmaTerm2 → OpMultPointedMagmaTerm2))  
       open OpMultPointedMagmaTerm2 
   
-  def simplifyCl   (A : Type)  : ((ClMultPointedMagmaTerm A) → (ClMultPointedMagmaTerm A)) 
+  def simplifyCl   {A : Type}  : ((ClMultPointedMagmaTerm A) → (ClMultPointedMagmaTerm A)) 
   | oneCl := oneCl  
   | (timesCl x1 x2) := (timesCl (simplifyCl x1) (simplifyCl x2))  
   | (sing x1) := (sing x1)  
-  def simplifyOpB   (n : ℕ)  : ((OpMultPointedMagmaTerm n) → (OpMultPointedMagmaTerm n)) 
+  def simplifyOpB   {n : ℕ}  : ((OpMultPointedMagmaTerm n) → (OpMultPointedMagmaTerm n)) 
   | oneOL := oneOL  
   | (timesOL x1 x2) := (timesOL (simplifyOpB x1) (simplifyOpB x2))  
   | (v x1) := (v x1)  
-  def simplifyOp   (n : ℕ) (A : Type)  : ((OpMultPointedMagmaTerm2 n A) → (OpMultPointedMagmaTerm2 n A)) 
+  def simplifyOp   {n : ℕ} {A : Type}  : ((OpMultPointedMagmaTerm2 n A) → (OpMultPointedMagmaTerm2 n A)) 
   | oneOL2 := oneOL2  
   | (timesOL2 x1 x2) := (timesOL2 (simplifyOp x1) (simplifyOp x2))  
   | (v2 x1) := (v2 x1)  
@@ -74,27 +74,27 @@ section MultPointedMagma
   | Mu (sing x1) := x1  
   | Mu oneCl := (one Mu)  
   | Mu (timesCl x1 x2) := ((times Mu) (evalCl Mu x1) (evalCl Mu x2))  
-  def evalOpB   {A : Type} (n : ℕ)  : ((MultPointedMagma A) → ((vector A n) → ((OpMultPointedMagmaTerm n) → A))) 
+  def evalOpB   {A : Type} {n : ℕ}  : ((MultPointedMagma A) → ((vector A n) → ((OpMultPointedMagmaTerm n) → A))) 
   | Mu vars (v x1) := (nth vars x1)  
   | Mu vars oneOL := (one Mu)  
   | Mu vars (timesOL x1 x2) := ((times Mu) (evalOpB Mu vars x1) (evalOpB Mu vars x2))  
-  def evalOp   {A : Type} (n : ℕ)  : ((MultPointedMagma A) → ((vector A n) → ((OpMultPointedMagmaTerm2 n A) → A))) 
+  def evalOp   {A : Type} {n : ℕ}  : ((MultPointedMagma A) → ((vector A n) → ((OpMultPointedMagmaTerm2 n A) → A))) 
   | Mu vars (v2 x1) := (nth vars x1)  
   | Mu vars (sing2 x1) := x1  
   | Mu vars oneOL2 := (one Mu)  
   | Mu vars (timesOL2 x1 x2) := ((times Mu) (evalOp Mu vars x1) (evalOp Mu vars x2))  
-  def inductionB   (P : (MultPointedMagmaTerm → Type))  : ((P oneL) → ((∀ (x1 x2 : MultPointedMagmaTerm) , ((P x1) → ((P x2) → (P (timesL x1 x2))))) → (∀ (x : MultPointedMagmaTerm) , (P x)))) 
+  def inductionB   {P : (MultPointedMagmaTerm → Type)}  : ((P oneL) → ((∀ (x1 x2 : MultPointedMagmaTerm) , ((P x1) → ((P x2) → (P (timesL x1 x2))))) → (∀ (x : MultPointedMagmaTerm) , (P x)))) 
   | p1l ptimesl oneL := p1l  
   | p1l ptimesl (timesL x1 x2) := (ptimesl _ _ (inductionB p1l ptimesl x1) (inductionB p1l ptimesl x2))  
-  def inductionCl   (A : Type) (P : ((ClMultPointedMagmaTerm A) → Type))  : ((∀ (x1 : A) , (P (sing x1))) → ((P oneCl) → ((∀ (x1 x2 : (ClMultPointedMagmaTerm A)) , ((P x1) → ((P x2) → (P (timesCl x1 x2))))) → (∀ (x : (ClMultPointedMagmaTerm A)) , (P x))))) 
+  def inductionCl   {A : Type} {P : ((ClMultPointedMagmaTerm A) → Type)}  : ((∀ (x1 : A) , (P (sing x1))) → ((P oneCl) → ((∀ (x1 x2 : (ClMultPointedMagmaTerm A)) , ((P x1) → ((P x2) → (P (timesCl x1 x2))))) → (∀ (x : (ClMultPointedMagmaTerm A)) , (P x))))) 
   | psing p1cl ptimescl (sing x1) := (psing x1)  
   | psing p1cl ptimescl oneCl := p1cl  
   | psing p1cl ptimescl (timesCl x1 x2) := (ptimescl _ _ (inductionCl psing p1cl ptimescl x1) (inductionCl psing p1cl ptimescl x2))  
-  def inductionOpB   (n : ℕ) (P : ((OpMultPointedMagmaTerm n) → Type))  : ((∀ (fin : (fin n)) , (P (v fin))) → ((P oneOL) → ((∀ (x1 x2 : (OpMultPointedMagmaTerm n)) , ((P x1) → ((P x2) → (P (timesOL x1 x2))))) → (∀ (x : (OpMultPointedMagmaTerm n)) , (P x))))) 
+  def inductionOpB   {n : ℕ} {P : ((OpMultPointedMagmaTerm n) → Type)}  : ((∀ (fin : (fin n)) , (P (v fin))) → ((P oneOL) → ((∀ (x1 x2 : (OpMultPointedMagmaTerm n)) , ((P x1) → ((P x2) → (P (timesOL x1 x2))))) → (∀ (x : (OpMultPointedMagmaTerm n)) , (P x))))) 
   | pv p1ol ptimesol (v x1) := (pv x1)  
   | pv p1ol ptimesol oneOL := p1ol  
   | pv p1ol ptimesol (timesOL x1 x2) := (ptimesol _ _ (inductionOpB pv p1ol ptimesol x1) (inductionOpB pv p1ol ptimesol x2))  
-  def inductionOp   (n : ℕ) (A : Type) (P : ((OpMultPointedMagmaTerm2 n A) → Type))  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((P oneOL2) → ((∀ (x1 x2 : (OpMultPointedMagmaTerm2 n A)) , ((P x1) → ((P x2) → (P (timesOL2 x1 x2))))) → (∀ (x : (OpMultPointedMagmaTerm2 n A)) , (P x)))))) 
+  def inductionOp   {n : ℕ} {A : Type} {P : ((OpMultPointedMagmaTerm2 n A) → Type)}  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((P oneOL2) → ((∀ (x1 x2 : (OpMultPointedMagmaTerm2 n A)) , ((P x1) → ((P x2) → (P (timesOL2 x1 x2))))) → (∀ (x : (OpMultPointedMagmaTerm2 n A)) , (P x)))))) 
   | pv2 psing2 p1ol2 ptimesol2 (v2 x1) := (pv2 x1)  
   | pv2 psing2 p1ol2 ptimesol2 (sing2 x1) := (psing2 x1)  
   | pv2 psing2 p1ol2 ptimesol2 oneOL2 := p1ol2  
@@ -102,15 +102,15 @@ section MultPointedMagma
   def stageB  : (MultPointedMagmaTerm → (Staged MultPointedMagmaTerm))
   | oneL := (Now oneL)  
   | (timesL x1 x2) := (stage2 timesL (codeLift2 timesL) (stageB x1) (stageB x2))  
-  def stageCl   (A : Type)  : ((ClMultPointedMagmaTerm A) → (Staged (ClMultPointedMagmaTerm A))) 
+  def stageCl   {A : Type}  : ((ClMultPointedMagmaTerm A) → (Staged (ClMultPointedMagmaTerm A))) 
   | (sing x1) := (Now (sing x1))  
   | oneCl := (Now oneCl)  
   | (timesCl x1 x2) := (stage2 timesCl (codeLift2 timesCl) (stageCl x1) (stageCl x2))  
-  def stageOpB   (n : ℕ)  : ((OpMultPointedMagmaTerm n) → (Staged (OpMultPointedMagmaTerm n))) 
+  def stageOpB   {n : ℕ}  : ((OpMultPointedMagmaTerm n) → (Staged (OpMultPointedMagmaTerm n))) 
   | (v x1) := (const (code (v x1)))  
   | oneOL := (Now oneOL)  
   | (timesOL x1 x2) := (stage2 timesOL (codeLift2 timesOL) (stageOpB x1) (stageOpB x2))  
-  def stageOp   (n : ℕ) (A : Type)  : ((OpMultPointedMagmaTerm2 n A) → (Staged (OpMultPointedMagmaTerm2 n A))) 
+  def stageOp   {n : ℕ} {A : Type}  : ((OpMultPointedMagmaTerm2 n A) → (Staged (OpMultPointedMagmaTerm2 n A))) 
   | (sing2 x1) := (Now (sing2 x1))  
   | (v2 x1) := (const (code (v2 x1)))  
   | oneOL2 := (Now oneOL2)  

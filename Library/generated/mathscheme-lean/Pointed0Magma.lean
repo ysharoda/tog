@@ -54,15 +54,15 @@ section Pointed0Magma
      | opOL2 : (OpPointed0MagmaTerm2 → (OpPointed0MagmaTerm2 → OpPointed0MagmaTerm2))  
       open OpPointed0MagmaTerm2 
   
-  def simplifyCl   (A : Type)  : ((ClPointed0MagmaTerm A) → (ClPointed0MagmaTerm A)) 
+  def simplifyCl   {A : Type}  : ((ClPointed0MagmaTerm A) → (ClPointed0MagmaTerm A)) 
   | zeroCl := zeroCl  
   | (opCl x1 x2) := (opCl (simplifyCl x1) (simplifyCl x2))  
   | (sing x1) := (sing x1)  
-  def simplifyOpB   (n : ℕ)  : ((OpPointed0MagmaTerm n) → (OpPointed0MagmaTerm n)) 
+  def simplifyOpB   {n : ℕ}  : ((OpPointed0MagmaTerm n) → (OpPointed0MagmaTerm n)) 
   | zeroOL := zeroOL  
   | (opOL x1 x2) := (opOL (simplifyOpB x1) (simplifyOpB x2))  
   | (v x1) := (v x1)  
-  def simplifyOp   (n : ℕ) (A : Type)  : ((OpPointed0MagmaTerm2 n A) → (OpPointed0MagmaTerm2 n A)) 
+  def simplifyOp   {n : ℕ} {A : Type}  : ((OpPointed0MagmaTerm2 n A) → (OpPointed0MagmaTerm2 n A)) 
   | zeroOL2 := zeroOL2  
   | (opOL2 x1 x2) := (opOL2 (simplifyOp x1) (simplifyOp x2))  
   | (v2 x1) := (v2 x1)  
@@ -74,27 +74,27 @@ section Pointed0Magma
   | Po (sing x1) := x1  
   | Po zeroCl := (zero Po)  
   | Po (opCl x1 x2) := ((op Po) (evalCl Po x1) (evalCl Po x2))  
-  def evalOpB   {A : Type} (n : ℕ)  : ((Pointed0Magma A) → ((vector A n) → ((OpPointed0MagmaTerm n) → A))) 
+  def evalOpB   {A : Type} {n : ℕ}  : ((Pointed0Magma A) → ((vector A n) → ((OpPointed0MagmaTerm n) → A))) 
   | Po vars (v x1) := (nth vars x1)  
   | Po vars zeroOL := (zero Po)  
   | Po vars (opOL x1 x2) := ((op Po) (evalOpB Po vars x1) (evalOpB Po vars x2))  
-  def evalOp   {A : Type} (n : ℕ)  : ((Pointed0Magma A) → ((vector A n) → ((OpPointed0MagmaTerm2 n A) → A))) 
+  def evalOp   {A : Type} {n : ℕ}  : ((Pointed0Magma A) → ((vector A n) → ((OpPointed0MagmaTerm2 n A) → A))) 
   | Po vars (v2 x1) := (nth vars x1)  
   | Po vars (sing2 x1) := x1  
   | Po vars zeroOL2 := (zero Po)  
   | Po vars (opOL2 x1 x2) := ((op Po) (evalOp Po vars x1) (evalOp Po vars x2))  
-  def inductionB   (P : (Pointed0MagmaTerm → Type))  : ((P zeroL) → ((∀ (x1 x2 : Pointed0MagmaTerm) , ((P x1) → ((P x2) → (P (opL x1 x2))))) → (∀ (x : Pointed0MagmaTerm) , (P x)))) 
+  def inductionB   {P : (Pointed0MagmaTerm → Type)}  : ((P zeroL) → ((∀ (x1 x2 : Pointed0MagmaTerm) , ((P x1) → ((P x2) → (P (opL x1 x2))))) → (∀ (x : Pointed0MagmaTerm) , (P x)))) 
   | p0l popl zeroL := p0l  
   | p0l popl (opL x1 x2) := (popl _ _ (inductionB p0l popl x1) (inductionB p0l popl x2))  
-  def inductionCl   (A : Type) (P : ((ClPointed0MagmaTerm A) → Type))  : ((∀ (x1 : A) , (P (sing x1))) → ((P zeroCl) → ((∀ (x1 x2 : (ClPointed0MagmaTerm A)) , ((P x1) → ((P x2) → (P (opCl x1 x2))))) → (∀ (x : (ClPointed0MagmaTerm A)) , (P x))))) 
+  def inductionCl   {A : Type} {P : ((ClPointed0MagmaTerm A) → Type)}  : ((∀ (x1 : A) , (P (sing x1))) → ((P zeroCl) → ((∀ (x1 x2 : (ClPointed0MagmaTerm A)) , ((P x1) → ((P x2) → (P (opCl x1 x2))))) → (∀ (x : (ClPointed0MagmaTerm A)) , (P x))))) 
   | psing p0cl popcl (sing x1) := (psing x1)  
   | psing p0cl popcl zeroCl := p0cl  
   | psing p0cl popcl (opCl x1 x2) := (popcl _ _ (inductionCl psing p0cl popcl x1) (inductionCl psing p0cl popcl x2))  
-  def inductionOpB   (n : ℕ) (P : ((OpPointed0MagmaTerm n) → Type))  : ((∀ (fin : (fin n)) , (P (v fin))) → ((P zeroOL) → ((∀ (x1 x2 : (OpPointed0MagmaTerm n)) , ((P x1) → ((P x2) → (P (opOL x1 x2))))) → (∀ (x : (OpPointed0MagmaTerm n)) , (P x))))) 
+  def inductionOpB   {n : ℕ} {P : ((OpPointed0MagmaTerm n) → Type)}  : ((∀ (fin : (fin n)) , (P (v fin))) → ((P zeroOL) → ((∀ (x1 x2 : (OpPointed0MagmaTerm n)) , ((P x1) → ((P x2) → (P (opOL x1 x2))))) → (∀ (x : (OpPointed0MagmaTerm n)) , (P x))))) 
   | pv p0ol popol (v x1) := (pv x1)  
   | pv p0ol popol zeroOL := p0ol  
   | pv p0ol popol (opOL x1 x2) := (popol _ _ (inductionOpB pv p0ol popol x1) (inductionOpB pv p0ol popol x2))  
-  def inductionOp   (n : ℕ) (A : Type) (P : ((OpPointed0MagmaTerm2 n A) → Type))  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((P zeroOL2) → ((∀ (x1 x2 : (OpPointed0MagmaTerm2 n A)) , ((P x1) → ((P x2) → (P (opOL2 x1 x2))))) → (∀ (x : (OpPointed0MagmaTerm2 n A)) , (P x)))))) 
+  def inductionOp   {n : ℕ} {A : Type} {P : ((OpPointed0MagmaTerm2 n A) → Type)}  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((P zeroOL2) → ((∀ (x1 x2 : (OpPointed0MagmaTerm2 n A)) , ((P x1) → ((P x2) → (P (opOL2 x1 x2))))) → (∀ (x : (OpPointed0MagmaTerm2 n A)) , (P x)))))) 
   | pv2 psing2 p0ol2 popol2 (v2 x1) := (pv2 x1)  
   | pv2 psing2 p0ol2 popol2 (sing2 x1) := (psing2 x1)  
   | pv2 psing2 p0ol2 popol2 zeroOL2 := p0ol2  
@@ -102,15 +102,15 @@ section Pointed0Magma
   def stageB  : (Pointed0MagmaTerm → (Staged Pointed0MagmaTerm))
   | zeroL := (Now zeroL)  
   | (opL x1 x2) := (stage2 opL (codeLift2 opL) (stageB x1) (stageB x2))  
-  def stageCl   (A : Type)  : ((ClPointed0MagmaTerm A) → (Staged (ClPointed0MagmaTerm A))) 
+  def stageCl   {A : Type}  : ((ClPointed0MagmaTerm A) → (Staged (ClPointed0MagmaTerm A))) 
   | (sing x1) := (Now (sing x1))  
   | zeroCl := (Now zeroCl)  
   | (opCl x1 x2) := (stage2 opCl (codeLift2 opCl) (stageCl x1) (stageCl x2))  
-  def stageOpB   (n : ℕ)  : ((OpPointed0MagmaTerm n) → (Staged (OpPointed0MagmaTerm n))) 
+  def stageOpB   {n : ℕ}  : ((OpPointed0MagmaTerm n) → (Staged (OpPointed0MagmaTerm n))) 
   | (v x1) := (const (code (v x1)))  
   | zeroOL := (Now zeroOL)  
   | (opOL x1 x2) := (stage2 opOL (codeLift2 opOL) (stageOpB x1) (stageOpB x2))  
-  def stageOp   (n : ℕ) (A : Type)  : ((OpPointed0MagmaTerm2 n A) → (Staged (OpPointed0MagmaTerm2 n A))) 
+  def stageOp   {n : ℕ} {A : Type}  : ((OpPointed0MagmaTerm2 n A) → (Staged (OpPointed0MagmaTerm2 n A))) 
   | (sing2 x1) := (Now (sing2 x1))  
   | (v2 x1) := (const (code (v2 x1)))  
   | zeroOL2 := (Now zeroOL2)  

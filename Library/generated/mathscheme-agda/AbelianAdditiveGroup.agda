@@ -74,28 +74,28 @@ module AbelianAdditiveGroup   where
       0OL2 : (OpAbelianAdditiveGroupTerm2 n A) 
       negOL2 : ((OpAbelianAdditiveGroupTerm2 n A) → (OpAbelianAdditiveGroupTerm2 n A))  
       
-  simplifyCl :  (A : Set) →  ((ClAbelianAdditiveGroupTerm A) → (ClAbelianAdditiveGroupTerm A)) 
-  simplifyCl _ (+Cl 0Cl x) = x  
-  simplifyCl _ (+Cl x 0Cl) = x  
-  simplifyCl _ (+Cl x1 x2) = (+Cl (simplifyCl _ x1) (simplifyCl _ x2))  
-  simplifyCl _ 0Cl = 0Cl  
-  simplifyCl _ (negCl x1) = (negCl (simplifyCl _ x1))  
-  simplifyCl _ (sing x1) = (sing x1)  
-  simplifyOpB :  (n : Nat) →  ((OpAbelianAdditiveGroupTerm n) → (OpAbelianAdditiveGroupTerm n)) 
-  simplifyOpB _ (+OL 0OL x) = x  
-  simplifyOpB _ (+OL x 0OL) = x  
-  simplifyOpB _ (+OL x1 x2) = (+OL (simplifyOpB _ x1) (simplifyOpB _ x2))  
-  simplifyOpB _ 0OL = 0OL  
-  simplifyOpB _ (negOL x1) = (negOL (simplifyOpB _ x1))  
-  simplifyOpB _ (v x1) = (v x1)  
-  simplifyOp :  (n : Nat) (A : Set) →  ((OpAbelianAdditiveGroupTerm2 n A) → (OpAbelianAdditiveGroupTerm2 n A)) 
-  simplifyOp _ _ (+OL2 0OL2 x) = x  
-  simplifyOp _ _ (+OL2 x 0OL2) = x  
-  simplifyOp _ _ (+OL2 x1 x2) = (+OL2 (simplifyOp _ _ x1) (simplifyOp _ _ x2))  
-  simplifyOp _ _ 0OL2 = 0OL2  
-  simplifyOp _ _ (negOL2 x1) = (negOL2 (simplifyOp _ _ x1))  
-  simplifyOp _ _ (v2 x1) = (v2 x1)  
-  simplifyOp _ _ (sing2 x1) = (sing2 x1)  
+  simplifyCl :  {A : Set} →  ((ClAbelianAdditiveGroupTerm A) → (ClAbelianAdditiveGroupTerm A)) 
+  simplifyCl (+Cl 0Cl x) = x  
+  simplifyCl (+Cl x 0Cl) = x  
+  simplifyCl (+Cl x1 x2) = (+Cl (simplifyCl x1) (simplifyCl x2))  
+  simplifyCl 0Cl = 0Cl  
+  simplifyCl (negCl x1) = (negCl (simplifyCl x1))  
+  simplifyCl (sing x1) = (sing x1)  
+  simplifyOpB :  {n : Nat} →  ((OpAbelianAdditiveGroupTerm n) → (OpAbelianAdditiveGroupTerm n)) 
+  simplifyOpB (+OL 0OL x) = x  
+  simplifyOpB (+OL x 0OL) = x  
+  simplifyOpB (+OL x1 x2) = (+OL (simplifyOpB x1) (simplifyOpB x2))  
+  simplifyOpB 0OL = 0OL  
+  simplifyOpB (negOL x1) = (negOL (simplifyOpB x1))  
+  simplifyOpB (v x1) = (v x1)  
+  simplifyOp :  {n : Nat} {A : Set} →  ((OpAbelianAdditiveGroupTerm2 n A) → (OpAbelianAdditiveGroupTerm2 n A)) 
+  simplifyOp (+OL2 0OL2 x) = x  
+  simplifyOp (+OL2 x 0OL2) = x  
+  simplifyOp (+OL2 x1 x2) = (+OL2 (simplifyOp x1) (simplifyOp x2))  
+  simplifyOp 0OL2 = 0OL2  
+  simplifyOp (negOL2 x1) = (negOL2 (simplifyOp x1))  
+  simplifyOp (v2 x1) = (v2 x1)  
+  simplifyOp (sing2 x1) = (sing2 x1)  
   evalB :  {A : Set} →  ((AbelianAdditiveGroup A) → (AbelianAdditiveGroupTerm → A)) 
   evalB Ab (+L x1 x2) = ((+ Ab) (evalB Ab x1) (evalB Ab x2))  
   evalB Ab 0L = (0ᵢ Ab)  
@@ -105,57 +105,57 @@ module AbelianAdditiveGroup   where
   evalCl Ab (+Cl x1 x2) = ((+ Ab) (evalCl Ab x1) (evalCl Ab x2))  
   evalCl Ab 0Cl = (0ᵢ Ab)  
   evalCl Ab (negCl x1) = ((neg Ab) (evalCl Ab x1))  
-  evalOpB :  {A : Set} (n : Nat) →  ((AbelianAdditiveGroup A) → ((Vec A n) → ((OpAbelianAdditiveGroupTerm n) → A))) 
-  evalOpB n Ab vars (v x1) = (lookup vars x1)  
-  evalOpB n Ab vars (+OL x1 x2) = ((+ Ab) (evalOpB n Ab vars x1) (evalOpB n Ab vars x2))  
-  evalOpB n Ab vars 0OL = (0ᵢ Ab)  
-  evalOpB n Ab vars (negOL x1) = ((neg Ab) (evalOpB n Ab vars x1))  
-  evalOp :  {A : Set} (n : Nat) →  ((AbelianAdditiveGroup A) → ((Vec A n) → ((OpAbelianAdditiveGroupTerm2 n A) → A))) 
-  evalOp n Ab vars (v2 x1) = (lookup vars x1)  
-  evalOp n Ab vars (sing2 x1) = x1  
-  evalOp n Ab vars (+OL2 x1 x2) = ((+ Ab) (evalOp n Ab vars x1) (evalOp n Ab vars x2))  
-  evalOp n Ab vars 0OL2 = (0ᵢ Ab)  
-  evalOp n Ab vars (negOL2 x1) = ((neg Ab) (evalOp n Ab vars x1))  
-  inductionB :  (P : (AbelianAdditiveGroupTerm → Set)) →  (( (x1 x2 : AbelianAdditiveGroupTerm) → ((P x1) → ((P x2) → (P (+L x1 x2))))) → ((P 0L) → (( (x1 : AbelianAdditiveGroupTerm) → ((P x1) → (P (negL x1)))) → ( (x : AbelianAdditiveGroupTerm) → (P x))))) 
-  inductionB p p+l p0l pnegl (+L x1 x2) = (p+l _ _ (inductionB p p+l p0l pnegl x1) (inductionB p p+l p0l pnegl x2))  
-  inductionB p p+l p0l pnegl 0L = p0l  
-  inductionB p p+l p0l pnegl (negL x1) = (pnegl _ (inductionB p p+l p0l pnegl x1))  
-  inductionCl :  (A : Set) (P : ((ClAbelianAdditiveGroupTerm A) → Set)) →  (( (x1 : A) → (P (sing x1))) → (( (x1 x2 : (ClAbelianAdditiveGroupTerm A)) → ((P x1) → ((P x2) → (P (+Cl x1 x2))))) → ((P 0Cl) → (( (x1 : (ClAbelianAdditiveGroupTerm A)) → ((P x1) → (P (negCl x1)))) → ( (x : (ClAbelianAdditiveGroupTerm A)) → (P x)))))) 
-  inductionCl _ p psing p+cl p0cl pnegcl (sing x1) = (psing x1)  
-  inductionCl _ p psing p+cl p0cl pnegcl (+Cl x1 x2) = (p+cl _ _ (inductionCl _ p psing p+cl p0cl pnegcl x1) (inductionCl _ p psing p+cl p0cl pnegcl x2))  
-  inductionCl _ p psing p+cl p0cl pnegcl 0Cl = p0cl  
-  inductionCl _ p psing p+cl p0cl pnegcl (negCl x1) = (pnegcl _ (inductionCl _ p psing p+cl p0cl pnegcl x1))  
-  inductionOpB :  (n : Nat) (P : ((OpAbelianAdditiveGroupTerm n) → Set)) →  (( (fin : (Fin n)) → (P (v fin))) → (( (x1 x2 : (OpAbelianAdditiveGroupTerm n)) → ((P x1) → ((P x2) → (P (+OL x1 x2))))) → ((P 0OL) → (( (x1 : (OpAbelianAdditiveGroupTerm n)) → ((P x1) → (P (negOL x1)))) → ( (x : (OpAbelianAdditiveGroupTerm n)) → (P x)))))) 
-  inductionOpB _ p pv p+ol p0ol pnegol (v x1) = (pv x1)  
-  inductionOpB _ p pv p+ol p0ol pnegol (+OL x1 x2) = (p+ol _ _ (inductionOpB _ p pv p+ol p0ol pnegol x1) (inductionOpB _ p pv p+ol p0ol pnegol x2))  
-  inductionOpB _ p pv p+ol p0ol pnegol 0OL = p0ol  
-  inductionOpB _ p pv p+ol p0ol pnegol (negOL x1) = (pnegol _ (inductionOpB _ p pv p+ol p0ol pnegol x1))  
-  inductionOp :  (n : Nat) (A : Set) (P : ((OpAbelianAdditiveGroupTerm2 n A) → Set)) →  (( (fin : (Fin n)) → (P (v2 fin))) → (( (x1 : A) → (P (sing2 x1))) → (( (x1 x2 : (OpAbelianAdditiveGroupTerm2 n A)) → ((P x1) → ((P x2) → (P (+OL2 x1 x2))))) → ((P 0OL2) → (( (x1 : (OpAbelianAdditiveGroupTerm2 n A)) → ((P x1) → (P (negOL2 x1)))) → ( (x : (OpAbelianAdditiveGroupTerm2 n A)) → (P x))))))) 
-  inductionOp _ _ p pv2 psing2 p+ol2 p0ol2 pnegol2 (v2 x1) = (pv2 x1)  
-  inductionOp _ _ p pv2 psing2 p+ol2 p0ol2 pnegol2 (sing2 x1) = (psing2 x1)  
-  inductionOp _ _ p pv2 psing2 p+ol2 p0ol2 pnegol2 (+OL2 x1 x2) = (p+ol2 _ _ (inductionOp _ _ p pv2 psing2 p+ol2 p0ol2 pnegol2 x1) (inductionOp _ _ p pv2 psing2 p+ol2 p0ol2 pnegol2 x2))  
-  inductionOp _ _ p pv2 psing2 p+ol2 p0ol2 pnegol2 0OL2 = p0ol2  
-  inductionOp _ _ p pv2 psing2 p+ol2 p0ol2 pnegol2 (negOL2 x1) = (pnegol2 _ (inductionOp _ _ p pv2 psing2 p+ol2 p0ol2 pnegol2 x1))  
+  evalOpB :  {A : Set} {n : Nat} →  ((AbelianAdditiveGroup A) → ((Vec A n) → ((OpAbelianAdditiveGroupTerm n) → A))) 
+  evalOpB Ab vars (v x1) = (lookup vars x1)  
+  evalOpB Ab vars (+OL x1 x2) = ((+ Ab) (evalOpB Ab vars x1) (evalOpB Ab vars x2))  
+  evalOpB Ab vars 0OL = (0ᵢ Ab)  
+  evalOpB Ab vars (negOL x1) = ((neg Ab) (evalOpB Ab vars x1))  
+  evalOp :  {A : Set} {n : Nat} →  ((AbelianAdditiveGroup A) → ((Vec A n) → ((OpAbelianAdditiveGroupTerm2 n A) → A))) 
+  evalOp Ab vars (v2 x1) = (lookup vars x1)  
+  evalOp Ab vars (sing2 x1) = x1  
+  evalOp Ab vars (+OL2 x1 x2) = ((+ Ab) (evalOp Ab vars x1) (evalOp Ab vars x2))  
+  evalOp Ab vars 0OL2 = (0ᵢ Ab)  
+  evalOp Ab vars (negOL2 x1) = ((neg Ab) (evalOp Ab vars x1))  
+  inductionB :  {P : (AbelianAdditiveGroupTerm → Set)} →  (( (x1 x2 : AbelianAdditiveGroupTerm) → ((P x1) → ((P x2) → (P (+L x1 x2))))) → ((P 0L) → (( (x1 : AbelianAdditiveGroupTerm) → ((P x1) → (P (negL x1)))) → ( (x : AbelianAdditiveGroupTerm) → (P x))))) 
+  inductionB p+l p0l pnegl (+L x1 x2) = (p+l _ _ (inductionB p+l p0l pnegl x1) (inductionB p+l p0l pnegl x2))  
+  inductionB p+l p0l pnegl 0L = p0l  
+  inductionB p+l p0l pnegl (negL x1) = (pnegl _ (inductionB p+l p0l pnegl x1))  
+  inductionCl :  {A : Set} {P : ((ClAbelianAdditiveGroupTerm A) → Set)} →  (( (x1 : A) → (P (sing x1))) → (( (x1 x2 : (ClAbelianAdditiveGroupTerm A)) → ((P x1) → ((P x2) → (P (+Cl x1 x2))))) → ((P 0Cl) → (( (x1 : (ClAbelianAdditiveGroupTerm A)) → ((P x1) → (P (negCl x1)))) → ( (x : (ClAbelianAdditiveGroupTerm A)) → (P x)))))) 
+  inductionCl psing p+cl p0cl pnegcl (sing x1) = (psing x1)  
+  inductionCl psing p+cl p0cl pnegcl (+Cl x1 x2) = (p+cl _ _ (inductionCl psing p+cl p0cl pnegcl x1) (inductionCl psing p+cl p0cl pnegcl x2))  
+  inductionCl psing p+cl p0cl pnegcl 0Cl = p0cl  
+  inductionCl psing p+cl p0cl pnegcl (negCl x1) = (pnegcl _ (inductionCl psing p+cl p0cl pnegcl x1))  
+  inductionOpB :  {n : Nat} {P : ((OpAbelianAdditiveGroupTerm n) → Set)} →  (( (fin : (Fin n)) → (P (v fin))) → (( (x1 x2 : (OpAbelianAdditiveGroupTerm n)) → ((P x1) → ((P x2) → (P (+OL x1 x2))))) → ((P 0OL) → (( (x1 : (OpAbelianAdditiveGroupTerm n)) → ((P x1) → (P (negOL x1)))) → ( (x : (OpAbelianAdditiveGroupTerm n)) → (P x)))))) 
+  inductionOpB pv p+ol p0ol pnegol (v x1) = (pv x1)  
+  inductionOpB pv p+ol p0ol pnegol (+OL x1 x2) = (p+ol _ _ (inductionOpB pv p+ol p0ol pnegol x1) (inductionOpB pv p+ol p0ol pnegol x2))  
+  inductionOpB pv p+ol p0ol pnegol 0OL = p0ol  
+  inductionOpB pv p+ol p0ol pnegol (negOL x1) = (pnegol _ (inductionOpB pv p+ol p0ol pnegol x1))  
+  inductionOp :  {n : Nat} {A : Set} {P : ((OpAbelianAdditiveGroupTerm2 n A) → Set)} →  (( (fin : (Fin n)) → (P (v2 fin))) → (( (x1 : A) → (P (sing2 x1))) → (( (x1 x2 : (OpAbelianAdditiveGroupTerm2 n A)) → ((P x1) → ((P x2) → (P (+OL2 x1 x2))))) → ((P 0OL2) → (( (x1 : (OpAbelianAdditiveGroupTerm2 n A)) → ((P x1) → (P (negOL2 x1)))) → ( (x : (OpAbelianAdditiveGroupTerm2 n A)) → (P x))))))) 
+  inductionOp pv2 psing2 p+ol2 p0ol2 pnegol2 (v2 x1) = (pv2 x1)  
+  inductionOp pv2 psing2 p+ol2 p0ol2 pnegol2 (sing2 x1) = (psing2 x1)  
+  inductionOp pv2 psing2 p+ol2 p0ol2 pnegol2 (+OL2 x1 x2) = (p+ol2 _ _ (inductionOp pv2 psing2 p+ol2 p0ol2 pnegol2 x1) (inductionOp pv2 psing2 p+ol2 p0ol2 pnegol2 x2))  
+  inductionOp pv2 psing2 p+ol2 p0ol2 pnegol2 0OL2 = p0ol2  
+  inductionOp pv2 psing2 p+ol2 p0ol2 pnegol2 (negOL2 x1) = (pnegol2 _ (inductionOp pv2 psing2 p+ol2 p0ol2 pnegol2 x1))  
   stageB :  (AbelianAdditiveGroupTerm → (Staged AbelianAdditiveGroupTerm))
   stageB (+L x1 x2) = (stage2 +L (codeLift2 +L) (stageB x1) (stageB x2))  
   stageB 0L = (Now 0L)  
   stageB (negL x1) = (stage1 negL (codeLift1 negL) (stageB x1))  
-  stageCl :  (A : Set) →  ((ClAbelianAdditiveGroupTerm A) → (Staged (ClAbelianAdditiveGroupTerm A))) 
-  stageCl _ (sing x1) = (Now (sing x1))  
-  stageCl _ (+Cl x1 x2) = (stage2 +Cl (codeLift2 +Cl) (stageCl _ x1) (stageCl _ x2))  
-  stageCl _ 0Cl = (Now 0Cl)  
-  stageCl _ (negCl x1) = (stage1 negCl (codeLift1 negCl) (stageCl _ x1))  
-  stageOpB :  (n : Nat) →  ((OpAbelianAdditiveGroupTerm n) → (Staged (OpAbelianAdditiveGroupTerm n))) 
-  stageOpB _ (v x1) = (const (code (v x1)))  
-  stageOpB _ (+OL x1 x2) = (stage2 +OL (codeLift2 +OL) (stageOpB _ x1) (stageOpB _ x2))  
-  stageOpB _ 0OL = (Now 0OL)  
-  stageOpB _ (negOL x1) = (stage1 negOL (codeLift1 negOL) (stageOpB _ x1))  
-  stageOp :  (n : Nat) (A : Set) →  ((OpAbelianAdditiveGroupTerm2 n A) → (Staged (OpAbelianAdditiveGroupTerm2 n A))) 
-  stageOp _ _ (sing2 x1) = (Now (sing2 x1))  
-  stageOp _ _ (v2 x1) = (const (code (v2 x1)))  
-  stageOp _ _ (+OL2 x1 x2) = (stage2 +OL2 (codeLift2 +OL2) (stageOp _ _ x1) (stageOp _ _ x2))  
-  stageOp _ _ 0OL2 = (Now 0OL2)  
-  stageOp _ _ (negOL2 x1) = (stage1 negOL2 (codeLift1 negOL2) (stageOp _ _ x1))  
+  stageCl :  {A : Set} →  ((ClAbelianAdditiveGroupTerm A) → (Staged (ClAbelianAdditiveGroupTerm A))) 
+  stageCl (sing x1) = (Now (sing x1))  
+  stageCl (+Cl x1 x2) = (stage2 +Cl (codeLift2 +Cl) (stageCl x1) (stageCl x2))  
+  stageCl 0Cl = (Now 0Cl)  
+  stageCl (negCl x1) = (stage1 negCl (codeLift1 negCl) (stageCl x1))  
+  stageOpB :  {n : Nat} →  ((OpAbelianAdditiveGroupTerm n) → (Staged (OpAbelianAdditiveGroupTerm n))) 
+  stageOpB (v x1) = (const (code (v x1)))  
+  stageOpB (+OL x1 x2) = (stage2 +OL (codeLift2 +OL) (stageOpB x1) (stageOpB x2))  
+  stageOpB 0OL = (Now 0OL)  
+  stageOpB (negOL x1) = (stage1 negOL (codeLift1 negOL) (stageOpB x1))  
+  stageOp :  {n : Nat} {A : Set} →  ((OpAbelianAdditiveGroupTerm2 n A) → (Staged (OpAbelianAdditiveGroupTerm2 n A))) 
+  stageOp (sing2 x1) = (Now (sing2 x1))  
+  stageOp (v2 x1) = (const (code (v2 x1)))  
+  stageOp (+OL2 x1 x2) = (stage2 +OL2 (codeLift2 +OL2) (stageOp x1) (stageOp x2))  
+  stageOp 0OL2 = (Now 0OL2)  
+  stageOp (negOL2 x1) = (stage1 negOL2 (codeLift1 negOL2) (stageOp x1))  
   record StagedRepr  (A : Set) (Repr : (Set → Set)) : Set where 
      field  
       +T : ((Repr A) → ((Repr A) → (Repr A))) 

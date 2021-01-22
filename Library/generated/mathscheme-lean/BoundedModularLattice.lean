@@ -98,7 +98,7 @@ section BoundedModularLattice
      | oneOL2 : OpBoundedModularLatticeTerm2  
       open OpBoundedModularLatticeTerm2 
   
-  def simplifyCl   (A : Type)  : ((ClBoundedModularLatticeTerm A) → (ClBoundedModularLatticeTerm A)) 
+  def simplifyCl   {A : Type}  : ((ClBoundedModularLatticeTerm A) → (ClBoundedModularLatticeTerm A)) 
   | (plusCl zeroCl x) := x  
   | (plusCl x zeroCl) := x  
   | (timesCl oneCl x) := x  
@@ -108,7 +108,7 @@ section BoundedModularLattice
   | zeroCl := zeroCl  
   | oneCl := oneCl  
   | (sing x1) := (sing x1)  
-  def simplifyOpB   (n : ℕ)  : ((OpBoundedModularLatticeTerm n) → (OpBoundedModularLatticeTerm n)) 
+  def simplifyOpB   {n : ℕ}  : ((OpBoundedModularLatticeTerm n) → (OpBoundedModularLatticeTerm n)) 
   | (plusOL zeroOL x) := x  
   | (plusOL x zeroOL) := x  
   | (timesOL oneOL x) := x  
@@ -118,7 +118,7 @@ section BoundedModularLattice
   | zeroOL := zeroOL  
   | oneOL := oneOL  
   | (v x1) := (v x1)  
-  def simplifyOp   (n : ℕ) (A : Type)  : ((OpBoundedModularLatticeTerm2 n A) → (OpBoundedModularLatticeTerm2 n A)) 
+  def simplifyOp   {n : ℕ} {A : Type}  : ((OpBoundedModularLatticeTerm2 n A) → (OpBoundedModularLatticeTerm2 n A)) 
   | (plusOL2 zeroOL2 x) := x  
   | (plusOL2 x zeroOL2) := x  
   | (timesOL2 oneOL2 x) := x  
@@ -140,37 +140,37 @@ section BoundedModularLattice
   | Bo (plusCl x1 x2) := ((plus Bo) (evalCl Bo x1) (evalCl Bo x2))  
   | Bo zeroCl := (zero Bo)  
   | Bo oneCl := (one Bo)  
-  def evalOpB   {A : Type} (n : ℕ)  : ((BoundedModularLattice A) → ((vector A n) → ((OpBoundedModularLatticeTerm n) → A))) 
+  def evalOpB   {A : Type} {n : ℕ}  : ((BoundedModularLattice A) → ((vector A n) → ((OpBoundedModularLatticeTerm n) → A))) 
   | Bo vars (v x1) := (nth vars x1)  
   | Bo vars (timesOL x1 x2) := ((times Bo) (evalOpB Bo vars x1) (evalOpB Bo vars x2))  
   | Bo vars (plusOL x1 x2) := ((plus Bo) (evalOpB Bo vars x1) (evalOpB Bo vars x2))  
   | Bo vars zeroOL := (zero Bo)  
   | Bo vars oneOL := (one Bo)  
-  def evalOp   {A : Type} (n : ℕ)  : ((BoundedModularLattice A) → ((vector A n) → ((OpBoundedModularLatticeTerm2 n A) → A))) 
+  def evalOp   {A : Type} {n : ℕ}  : ((BoundedModularLattice A) → ((vector A n) → ((OpBoundedModularLatticeTerm2 n A) → A))) 
   | Bo vars (v2 x1) := (nth vars x1)  
   | Bo vars (sing2 x1) := x1  
   | Bo vars (timesOL2 x1 x2) := ((times Bo) (evalOp Bo vars x1) (evalOp Bo vars x2))  
   | Bo vars (plusOL2 x1 x2) := ((plus Bo) (evalOp Bo vars x1) (evalOp Bo vars x2))  
   | Bo vars zeroOL2 := (zero Bo)  
   | Bo vars oneOL2 := (one Bo)  
-  def inductionB   (P : (BoundedModularLatticeTerm → Type))  : ((∀ (x1 x2 : BoundedModularLatticeTerm) , ((P x1) → ((P x2) → (P (timesL x1 x2))))) → ((∀ (x1 x2 : BoundedModularLatticeTerm) , ((P x1) → ((P x2) → (P (plusL x1 x2))))) → ((P zeroL) → ((P oneL) → (∀ (x : BoundedModularLatticeTerm) , (P x)))))) 
+  def inductionB   {P : (BoundedModularLatticeTerm → Type)}  : ((∀ (x1 x2 : BoundedModularLatticeTerm) , ((P x1) → ((P x2) → (P (timesL x1 x2))))) → ((∀ (x1 x2 : BoundedModularLatticeTerm) , ((P x1) → ((P x2) → (P (plusL x1 x2))))) → ((P zeroL) → ((P oneL) → (∀ (x : BoundedModularLatticeTerm) , (P x)))))) 
   | ptimesl pplusl p0l p1l (timesL x1 x2) := (ptimesl _ _ (inductionB ptimesl pplusl p0l p1l x1) (inductionB ptimesl pplusl p0l p1l x2))  
   | ptimesl pplusl p0l p1l (plusL x1 x2) := (pplusl _ _ (inductionB ptimesl pplusl p0l p1l x1) (inductionB ptimesl pplusl p0l p1l x2))  
   | ptimesl pplusl p0l p1l zeroL := p0l  
   | ptimesl pplusl p0l p1l oneL := p1l  
-  def inductionCl   (A : Type) (P : ((ClBoundedModularLatticeTerm A) → Type))  : ((∀ (x1 : A) , (P (sing x1))) → ((∀ (x1 x2 : (ClBoundedModularLatticeTerm A)) , ((P x1) → ((P x2) → (P (timesCl x1 x2))))) → ((∀ (x1 x2 : (ClBoundedModularLatticeTerm A)) , ((P x1) → ((P x2) → (P (plusCl x1 x2))))) → ((P zeroCl) → ((P oneCl) → (∀ (x : (ClBoundedModularLatticeTerm A)) , (P x))))))) 
+  def inductionCl   {A : Type} {P : ((ClBoundedModularLatticeTerm A) → Type)}  : ((∀ (x1 : A) , (P (sing x1))) → ((∀ (x1 x2 : (ClBoundedModularLatticeTerm A)) , ((P x1) → ((P x2) → (P (timesCl x1 x2))))) → ((∀ (x1 x2 : (ClBoundedModularLatticeTerm A)) , ((P x1) → ((P x2) → (P (plusCl x1 x2))))) → ((P zeroCl) → ((P oneCl) → (∀ (x : (ClBoundedModularLatticeTerm A)) , (P x))))))) 
   | psing ptimescl ppluscl p0cl p1cl (sing x1) := (psing x1)  
   | psing ptimescl ppluscl p0cl p1cl (timesCl x1 x2) := (ptimescl _ _ (inductionCl psing ptimescl ppluscl p0cl p1cl x1) (inductionCl psing ptimescl ppluscl p0cl p1cl x2))  
   | psing ptimescl ppluscl p0cl p1cl (plusCl x1 x2) := (ppluscl _ _ (inductionCl psing ptimescl ppluscl p0cl p1cl x1) (inductionCl psing ptimescl ppluscl p0cl p1cl x2))  
   | psing ptimescl ppluscl p0cl p1cl zeroCl := p0cl  
   | psing ptimescl ppluscl p0cl p1cl oneCl := p1cl  
-  def inductionOpB   (n : ℕ) (P : ((OpBoundedModularLatticeTerm n) → Type))  : ((∀ (fin : (fin n)) , (P (v fin))) → ((∀ (x1 x2 : (OpBoundedModularLatticeTerm n)) , ((P x1) → ((P x2) → (P (timesOL x1 x2))))) → ((∀ (x1 x2 : (OpBoundedModularLatticeTerm n)) , ((P x1) → ((P x2) → (P (plusOL x1 x2))))) → ((P zeroOL) → ((P oneOL) → (∀ (x : (OpBoundedModularLatticeTerm n)) , (P x))))))) 
+  def inductionOpB   {n : ℕ} {P : ((OpBoundedModularLatticeTerm n) → Type)}  : ((∀ (fin : (fin n)) , (P (v fin))) → ((∀ (x1 x2 : (OpBoundedModularLatticeTerm n)) , ((P x1) → ((P x2) → (P (timesOL x1 x2))))) → ((∀ (x1 x2 : (OpBoundedModularLatticeTerm n)) , ((P x1) → ((P x2) → (P (plusOL x1 x2))))) → ((P zeroOL) → ((P oneOL) → (∀ (x : (OpBoundedModularLatticeTerm n)) , (P x))))))) 
   | pv ptimesol pplusol p0ol p1ol (v x1) := (pv x1)  
   | pv ptimesol pplusol p0ol p1ol (timesOL x1 x2) := (ptimesol _ _ (inductionOpB pv ptimesol pplusol p0ol p1ol x1) (inductionOpB pv ptimesol pplusol p0ol p1ol x2))  
   | pv ptimesol pplusol p0ol p1ol (plusOL x1 x2) := (pplusol _ _ (inductionOpB pv ptimesol pplusol p0ol p1ol x1) (inductionOpB pv ptimesol pplusol p0ol p1ol x2))  
   | pv ptimesol pplusol p0ol p1ol zeroOL := p0ol  
   | pv ptimesol pplusol p0ol p1ol oneOL := p1ol  
-  def inductionOp   (n : ℕ) (A : Type) (P : ((OpBoundedModularLatticeTerm2 n A) → Type))  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((∀ (x1 x2 : (OpBoundedModularLatticeTerm2 n A)) , ((P x1) → ((P x2) → (P (timesOL2 x1 x2))))) → ((∀ (x1 x2 : (OpBoundedModularLatticeTerm2 n A)) , ((P x1) → ((P x2) → (P (plusOL2 x1 x2))))) → ((P zeroOL2) → ((P oneOL2) → (∀ (x : (OpBoundedModularLatticeTerm2 n A)) , (P x)))))))) 
+  def inductionOp   {n : ℕ} {A : Type} {P : ((OpBoundedModularLatticeTerm2 n A) → Type)}  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((∀ (x1 x2 : (OpBoundedModularLatticeTerm2 n A)) , ((P x1) → ((P x2) → (P (timesOL2 x1 x2))))) → ((∀ (x1 x2 : (OpBoundedModularLatticeTerm2 n A)) , ((P x1) → ((P x2) → (P (plusOL2 x1 x2))))) → ((P zeroOL2) → ((P oneOL2) → (∀ (x : (OpBoundedModularLatticeTerm2 n A)) , (P x)))))))) 
   | pv2 psing2 ptimesol2 pplusol2 p0ol2 p1ol2 (v2 x1) := (pv2 x1)  
   | pv2 psing2 ptimesol2 pplusol2 p0ol2 p1ol2 (sing2 x1) := (psing2 x1)  
   | pv2 psing2 ptimesol2 pplusol2 p0ol2 p1ol2 (timesOL2 x1 x2) := (ptimesol2 _ _ (inductionOp pv2 psing2 ptimesol2 pplusol2 p0ol2 p1ol2 x1) (inductionOp pv2 psing2 ptimesol2 pplusol2 p0ol2 p1ol2 x2))  
@@ -182,19 +182,19 @@ section BoundedModularLattice
   | (plusL x1 x2) := (stage2 plusL (codeLift2 plusL) (stageB x1) (stageB x2))  
   | zeroL := (Now zeroL)  
   | oneL := (Now oneL)  
-  def stageCl   (A : Type)  : ((ClBoundedModularLatticeTerm A) → (Staged (ClBoundedModularLatticeTerm A))) 
+  def stageCl   {A : Type}  : ((ClBoundedModularLatticeTerm A) → (Staged (ClBoundedModularLatticeTerm A))) 
   | (sing x1) := (Now (sing x1))  
   | (timesCl x1 x2) := (stage2 timesCl (codeLift2 timesCl) (stageCl x1) (stageCl x2))  
   | (plusCl x1 x2) := (stage2 plusCl (codeLift2 plusCl) (stageCl x1) (stageCl x2))  
   | zeroCl := (Now zeroCl)  
   | oneCl := (Now oneCl)  
-  def stageOpB   (n : ℕ)  : ((OpBoundedModularLatticeTerm n) → (Staged (OpBoundedModularLatticeTerm n))) 
+  def stageOpB   {n : ℕ}  : ((OpBoundedModularLatticeTerm n) → (Staged (OpBoundedModularLatticeTerm n))) 
   | (v x1) := (const (code (v x1)))  
   | (timesOL x1 x2) := (stage2 timesOL (codeLift2 timesOL) (stageOpB x1) (stageOpB x2))  
   | (plusOL x1 x2) := (stage2 plusOL (codeLift2 plusOL) (stageOpB x1) (stageOpB x2))  
   | zeroOL := (Now zeroOL)  
   | oneOL := (Now oneOL)  
-  def stageOp   (n : ℕ) (A : Type)  : ((OpBoundedModularLatticeTerm2 n A) → (Staged (OpBoundedModularLatticeTerm2 n A))) 
+  def stageOp   {n : ℕ} {A : Type}  : ((OpBoundedModularLatticeTerm2 n A) → (Staged (OpBoundedModularLatticeTerm2 n A))) 
   | (sing2 x1) := (Now (sing2 x1))  
   | (v2 x1) := (const (code (v2 x1)))  
   | (timesOL2 x1 x2) := (stage2 timesOL2 (codeLift2 timesOL2) (stageOp x1) (stageOp x2))  

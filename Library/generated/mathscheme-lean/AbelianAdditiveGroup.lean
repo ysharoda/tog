@@ -75,21 +75,21 @@ section AbelianAdditiveGroup
      | negOL2 : (OpAbelianAdditiveGroupTerm2 → OpAbelianAdditiveGroupTerm2)  
       open OpAbelianAdditiveGroupTerm2 
   
-  def simplifyCl   (A : Type)  : ((ClAbelianAdditiveGroupTerm A) → (ClAbelianAdditiveGroupTerm A)) 
+  def simplifyCl   {A : Type}  : ((ClAbelianAdditiveGroupTerm A) → (ClAbelianAdditiveGroupTerm A)) 
   | (plusCl zeroCl x) := x  
   | (plusCl x zeroCl) := x  
   | (plusCl x1 x2) := (plusCl (simplifyCl x1) (simplifyCl x2))  
   | zeroCl := zeroCl  
   | (negCl x1) := (negCl (simplifyCl x1))  
   | (sing x1) := (sing x1)  
-  def simplifyOpB   (n : ℕ)  : ((OpAbelianAdditiveGroupTerm n) → (OpAbelianAdditiveGroupTerm n)) 
+  def simplifyOpB   {n : ℕ}  : ((OpAbelianAdditiveGroupTerm n) → (OpAbelianAdditiveGroupTerm n)) 
   | (plusOL zeroOL x) := x  
   | (plusOL x zeroOL) := x  
   | (plusOL x1 x2) := (plusOL (simplifyOpB x1) (simplifyOpB x2))  
   | zeroOL := zeroOL  
   | (negOL x1) := (negOL (simplifyOpB x1))  
   | (v x1) := (v x1)  
-  def simplifyOp   (n : ℕ) (A : Type)  : ((OpAbelianAdditiveGroupTerm2 n A) → (OpAbelianAdditiveGroupTerm2 n A)) 
+  def simplifyOp   {n : ℕ} {A : Type}  : ((OpAbelianAdditiveGroupTerm2 n A) → (OpAbelianAdditiveGroupTerm2 n A)) 
   | (plusOL2 zeroOL2 x) := x  
   | (plusOL2 x zeroOL2) := x  
   | (plusOL2 x1 x2) := (plusOL2 (simplifyOp x1) (simplifyOp x2))  
@@ -106,32 +106,32 @@ section AbelianAdditiveGroup
   | Ab (plusCl x1 x2) := ((plus Ab) (evalCl Ab x1) (evalCl Ab x2))  
   | Ab zeroCl := (zero Ab)  
   | Ab (negCl x1) := ((neg Ab) (evalCl Ab x1))  
-  def evalOpB   {A : Type} (n : ℕ)  : ((AbelianAdditiveGroup A) → ((vector A n) → ((OpAbelianAdditiveGroupTerm n) → A))) 
+  def evalOpB   {A : Type} {n : ℕ}  : ((AbelianAdditiveGroup A) → ((vector A n) → ((OpAbelianAdditiveGroupTerm n) → A))) 
   | Ab vars (v x1) := (nth vars x1)  
   | Ab vars (plusOL x1 x2) := ((plus Ab) (evalOpB Ab vars x1) (evalOpB Ab vars x2))  
   | Ab vars zeroOL := (zero Ab)  
   | Ab vars (negOL x1) := ((neg Ab) (evalOpB Ab vars x1))  
-  def evalOp   {A : Type} (n : ℕ)  : ((AbelianAdditiveGroup A) → ((vector A n) → ((OpAbelianAdditiveGroupTerm2 n A) → A))) 
+  def evalOp   {A : Type} {n : ℕ}  : ((AbelianAdditiveGroup A) → ((vector A n) → ((OpAbelianAdditiveGroupTerm2 n A) → A))) 
   | Ab vars (v2 x1) := (nth vars x1)  
   | Ab vars (sing2 x1) := x1  
   | Ab vars (plusOL2 x1 x2) := ((plus Ab) (evalOp Ab vars x1) (evalOp Ab vars x2))  
   | Ab vars zeroOL2 := (zero Ab)  
   | Ab vars (negOL2 x1) := ((neg Ab) (evalOp Ab vars x1))  
-  def inductionB   (P : (AbelianAdditiveGroupTerm → Type))  : ((∀ (x1 x2 : AbelianAdditiveGroupTerm) , ((P x1) → ((P x2) → (P (plusL x1 x2))))) → ((P zeroL) → ((∀ (x1 : AbelianAdditiveGroupTerm) , ((P x1) → (P (negL x1)))) → (∀ (x : AbelianAdditiveGroupTerm) , (P x))))) 
+  def inductionB   {P : (AbelianAdditiveGroupTerm → Type)}  : ((∀ (x1 x2 : AbelianAdditiveGroupTerm) , ((P x1) → ((P x2) → (P (plusL x1 x2))))) → ((P zeroL) → ((∀ (x1 : AbelianAdditiveGroupTerm) , ((P x1) → (P (negL x1)))) → (∀ (x : AbelianAdditiveGroupTerm) , (P x))))) 
   | pplusl p0l pnegl (plusL x1 x2) := (pplusl _ _ (inductionB pplusl p0l pnegl x1) (inductionB pplusl p0l pnegl x2))  
   | pplusl p0l pnegl zeroL := p0l  
   | pplusl p0l pnegl (negL x1) := (pnegl _ (inductionB pplusl p0l pnegl x1))  
-  def inductionCl   (A : Type) (P : ((ClAbelianAdditiveGroupTerm A) → Type))  : ((∀ (x1 : A) , (P (sing x1))) → ((∀ (x1 x2 : (ClAbelianAdditiveGroupTerm A)) , ((P x1) → ((P x2) → (P (plusCl x1 x2))))) → ((P zeroCl) → ((∀ (x1 : (ClAbelianAdditiveGroupTerm A)) , ((P x1) → (P (negCl x1)))) → (∀ (x : (ClAbelianAdditiveGroupTerm A)) , (P x)))))) 
+  def inductionCl   {A : Type} {P : ((ClAbelianAdditiveGroupTerm A) → Type)}  : ((∀ (x1 : A) , (P (sing x1))) → ((∀ (x1 x2 : (ClAbelianAdditiveGroupTerm A)) , ((P x1) → ((P x2) → (P (plusCl x1 x2))))) → ((P zeroCl) → ((∀ (x1 : (ClAbelianAdditiveGroupTerm A)) , ((P x1) → (P (negCl x1)))) → (∀ (x : (ClAbelianAdditiveGroupTerm A)) , (P x)))))) 
   | psing ppluscl p0cl pnegcl (sing x1) := (psing x1)  
   | psing ppluscl p0cl pnegcl (plusCl x1 x2) := (ppluscl _ _ (inductionCl psing ppluscl p0cl pnegcl x1) (inductionCl psing ppluscl p0cl pnegcl x2))  
   | psing ppluscl p0cl pnegcl zeroCl := p0cl  
   | psing ppluscl p0cl pnegcl (negCl x1) := (pnegcl _ (inductionCl psing ppluscl p0cl pnegcl x1))  
-  def inductionOpB   (n : ℕ) (P : ((OpAbelianAdditiveGroupTerm n) → Type))  : ((∀ (fin : (fin n)) , (P (v fin))) → ((∀ (x1 x2 : (OpAbelianAdditiveGroupTerm n)) , ((P x1) → ((P x2) → (P (plusOL x1 x2))))) → ((P zeroOL) → ((∀ (x1 : (OpAbelianAdditiveGroupTerm n)) , ((P x1) → (P (negOL x1)))) → (∀ (x : (OpAbelianAdditiveGroupTerm n)) , (P x)))))) 
+  def inductionOpB   {n : ℕ} {P : ((OpAbelianAdditiveGroupTerm n) → Type)}  : ((∀ (fin : (fin n)) , (P (v fin))) → ((∀ (x1 x2 : (OpAbelianAdditiveGroupTerm n)) , ((P x1) → ((P x2) → (P (plusOL x1 x2))))) → ((P zeroOL) → ((∀ (x1 : (OpAbelianAdditiveGroupTerm n)) , ((P x1) → (P (negOL x1)))) → (∀ (x : (OpAbelianAdditiveGroupTerm n)) , (P x)))))) 
   | pv pplusol p0ol pnegol (v x1) := (pv x1)  
   | pv pplusol p0ol pnegol (plusOL x1 x2) := (pplusol _ _ (inductionOpB pv pplusol p0ol pnegol x1) (inductionOpB pv pplusol p0ol pnegol x2))  
   | pv pplusol p0ol pnegol zeroOL := p0ol  
   | pv pplusol p0ol pnegol (negOL x1) := (pnegol _ (inductionOpB pv pplusol p0ol pnegol x1))  
-  def inductionOp   (n : ℕ) (A : Type) (P : ((OpAbelianAdditiveGroupTerm2 n A) → Type))  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((∀ (x1 x2 : (OpAbelianAdditiveGroupTerm2 n A)) , ((P x1) → ((P x2) → (P (plusOL2 x1 x2))))) → ((P zeroOL2) → ((∀ (x1 : (OpAbelianAdditiveGroupTerm2 n A)) , ((P x1) → (P (negOL2 x1)))) → (∀ (x : (OpAbelianAdditiveGroupTerm2 n A)) , (P x))))))) 
+  def inductionOp   {n : ℕ} {A : Type} {P : ((OpAbelianAdditiveGroupTerm2 n A) → Type)}  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((∀ (x1 x2 : (OpAbelianAdditiveGroupTerm2 n A)) , ((P x1) → ((P x2) → (P (plusOL2 x1 x2))))) → ((P zeroOL2) → ((∀ (x1 : (OpAbelianAdditiveGroupTerm2 n A)) , ((P x1) → (P (negOL2 x1)))) → (∀ (x : (OpAbelianAdditiveGroupTerm2 n A)) , (P x))))))) 
   | pv2 psing2 pplusol2 p0ol2 pnegol2 (v2 x1) := (pv2 x1)  
   | pv2 psing2 pplusol2 p0ol2 pnegol2 (sing2 x1) := (psing2 x1)  
   | pv2 psing2 pplusol2 p0ol2 pnegol2 (plusOL2 x1 x2) := (pplusol2 _ _ (inductionOp pv2 psing2 pplusol2 p0ol2 pnegol2 x1) (inductionOp pv2 psing2 pplusol2 p0ol2 pnegol2 x2))  
@@ -141,17 +141,17 @@ section AbelianAdditiveGroup
   | (plusL x1 x2) := (stage2 plusL (codeLift2 plusL) (stageB x1) (stageB x2))  
   | zeroL := (Now zeroL)  
   | (negL x1) := (stage1 negL (codeLift1 negL) (stageB x1))  
-  def stageCl   (A : Type)  : ((ClAbelianAdditiveGroupTerm A) → (Staged (ClAbelianAdditiveGroupTerm A))) 
+  def stageCl   {A : Type}  : ((ClAbelianAdditiveGroupTerm A) → (Staged (ClAbelianAdditiveGroupTerm A))) 
   | (sing x1) := (Now (sing x1))  
   | (plusCl x1 x2) := (stage2 plusCl (codeLift2 plusCl) (stageCl x1) (stageCl x2))  
   | zeroCl := (Now zeroCl)  
   | (negCl x1) := (stage1 negCl (codeLift1 negCl) (stageCl x1))  
-  def stageOpB   (n : ℕ)  : ((OpAbelianAdditiveGroupTerm n) → (Staged (OpAbelianAdditiveGroupTerm n))) 
+  def stageOpB   {n : ℕ}  : ((OpAbelianAdditiveGroupTerm n) → (Staged (OpAbelianAdditiveGroupTerm n))) 
   | (v x1) := (const (code (v x1)))  
   | (plusOL x1 x2) := (stage2 plusOL (codeLift2 plusOL) (stageOpB x1) (stageOpB x2))  
   | zeroOL := (Now zeroOL)  
   | (negOL x1) := (stage1 negOL (codeLift1 negOL) (stageOpB x1))  
-  def stageOp   (n : ℕ) (A : Type)  : ((OpAbelianAdditiveGroupTerm2 n A) → (Staged (OpAbelianAdditiveGroupTerm2 n A))) 
+  def stageOp   {n : ℕ} {A : Type}  : ((OpAbelianAdditiveGroupTerm2 n A) → (Staged (OpAbelianAdditiveGroupTerm2 n A))) 
   | (sing2 x1) := (Now (sing2 x1))  
   | (v2 x1) := (const (code (v2 x1)))  
   | (plusOL2 x1 x2) := (stage2 plusOL2 (codeLift2 plusOL2) (stageOp x1) (stageOp x2))  

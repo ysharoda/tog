@@ -45,13 +45,13 @@ section PointedOne
      | oneOL2 : OpPointedOneTerm2  
       open OpPointedOneTerm2 
   
-  def simplifyCl   (A : Type)  : ((ClPointedOneTerm A) → (ClPointedOneTerm A)) 
+  def simplifyCl   {A : Type}  : ((ClPointedOneTerm A) → (ClPointedOneTerm A)) 
   | oneCl := oneCl  
   | (sing x1) := (sing x1)  
-  def simplifyOpB   (n : ℕ)  : ((OpPointedOneTerm n) → (OpPointedOneTerm n)) 
+  def simplifyOpB   {n : ℕ}  : ((OpPointedOneTerm n) → (OpPointedOneTerm n)) 
   | oneOL := oneOL  
   | (v x1) := (v x1)  
-  def simplifyOp   (n : ℕ) (A : Type)  : ((OpPointedOneTerm2 n A) → (OpPointedOneTerm2 n A)) 
+  def simplifyOp   {n : ℕ} {A : Type}  : ((OpPointedOneTerm2 n A) → (OpPointedOneTerm2 n A)) 
   | oneOL2 := oneOL2  
   | (v2 x1) := (v2 x1)  
   | (sing2 x1) := (sing2 x1)  
@@ -60,34 +60,34 @@ section PointedOne
   def evalCl   {A : Type}  : ((PointedOne A) → ((ClPointedOneTerm A) → A)) 
   | Po (sing x1) := x1  
   | Po oneCl := (one Po)  
-  def evalOpB   {A : Type} (n : ℕ)  : ((PointedOne A) → ((vector A n) → ((OpPointedOneTerm n) → A))) 
+  def evalOpB   {A : Type} {n : ℕ}  : ((PointedOne A) → ((vector A n) → ((OpPointedOneTerm n) → A))) 
   | Po vars (v x1) := (nth vars x1)  
   | Po vars oneOL := (one Po)  
-  def evalOp   {A : Type} (n : ℕ)  : ((PointedOne A) → ((vector A n) → ((OpPointedOneTerm2 n A) → A))) 
+  def evalOp   {A : Type} {n : ℕ}  : ((PointedOne A) → ((vector A n) → ((OpPointedOneTerm2 n A) → A))) 
   | Po vars (v2 x1) := (nth vars x1)  
   | Po vars (sing2 x1) := x1  
   | Po vars oneOL2 := (one Po)  
-  def inductionB   (P : (PointedOneTerm → Type))  : ((P oneL) → (∀ (x : PointedOneTerm) , (P x))) 
+  def inductionB   {P : (PointedOneTerm → Type)}  : ((P oneL) → (∀ (x : PointedOneTerm) , (P x))) 
   | p1l oneL := p1l  
-  def inductionCl   (A : Type) (P : ((ClPointedOneTerm A) → Type))  : ((∀ (x1 : A) , (P (sing x1))) → ((P oneCl) → (∀ (x : (ClPointedOneTerm A)) , (P x)))) 
+  def inductionCl   {A : Type} {P : ((ClPointedOneTerm A) → Type)}  : ((∀ (x1 : A) , (P (sing x1))) → ((P oneCl) → (∀ (x : (ClPointedOneTerm A)) , (P x)))) 
   | psing p1cl (sing x1) := (psing x1)  
   | psing p1cl oneCl := p1cl  
-  def inductionOpB   (n : ℕ) (P : ((OpPointedOneTerm n) → Type))  : ((∀ (fin : (fin n)) , (P (v fin))) → ((P oneOL) → (∀ (x : (OpPointedOneTerm n)) , (P x)))) 
+  def inductionOpB   {n : ℕ} {P : ((OpPointedOneTerm n) → Type)}  : ((∀ (fin : (fin n)) , (P (v fin))) → ((P oneOL) → (∀ (x : (OpPointedOneTerm n)) , (P x)))) 
   | pv p1ol (v x1) := (pv x1)  
   | pv p1ol oneOL := p1ol  
-  def inductionOp   (n : ℕ) (A : Type) (P : ((OpPointedOneTerm2 n A) → Type))  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((P oneOL2) → (∀ (x : (OpPointedOneTerm2 n A)) , (P x))))) 
+  def inductionOp   {n : ℕ} {A : Type} {P : ((OpPointedOneTerm2 n A) → Type)}  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((P oneOL2) → (∀ (x : (OpPointedOneTerm2 n A)) , (P x))))) 
   | pv2 psing2 p1ol2 (v2 x1) := (pv2 x1)  
   | pv2 psing2 p1ol2 (sing2 x1) := (psing2 x1)  
   | pv2 psing2 p1ol2 oneOL2 := p1ol2  
   def stageB  : (PointedOneTerm → (Staged PointedOneTerm))
   | oneL := (Now oneL)  
-  def stageCl   (A : Type)  : ((ClPointedOneTerm A) → (Staged (ClPointedOneTerm A))) 
+  def stageCl   {A : Type}  : ((ClPointedOneTerm A) → (Staged (ClPointedOneTerm A))) 
   | (sing x1) := (Now (sing x1))  
   | oneCl := (Now oneCl)  
-  def stageOpB   (n : ℕ)  : ((OpPointedOneTerm n) → (Staged (OpPointedOneTerm n))) 
+  def stageOpB   {n : ℕ}  : ((OpPointedOneTerm n) → (Staged (OpPointedOneTerm n))) 
   | (v x1) := (const (code (v x1)))  
   | oneOL := (Now oneOL)  
-  def stageOp   (n : ℕ) (A : Type)  : ((OpPointedOneTerm2 n A) → (Staged (OpPointedOneTerm2 n A))) 
+  def stageOp   {n : ℕ} {A : Type}  : ((OpPointedOneTerm2 n A) → (Staged (OpPointedOneTerm2 n A))) 
   | (sing2 x1) := (Now (sing2 x1))  
   | (v2 x1) := (const (code (v2 x1)))  
   | oneOL2 := (Now oneOL2)  

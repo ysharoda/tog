@@ -73,21 +73,21 @@ section Group1
      | invOL2 : (OpGroup1OL2Term2 → OpGroup1OL2Term2)  
       open OpGroup1OL2Term2 
   
-  def simplifyCl   (A : Type)  : ((ClGroup1ClTerm A) → (ClGroup1ClTerm A)) 
+  def simplifyCl   {A : Type}  : ((ClGroup1ClTerm A) → (ClGroup1ClTerm A)) 
   | (opCl oneCl x) := x  
   | (opCl x oneCl) := x  
   | (opCl x1 x2) := (opCl (simplifyCl x1) (simplifyCl x2))  
   | oneCl := oneCl  
   | (invCl x1) := (invCl (simplifyCl x1))  
   | (sing x1) := (sing x1)  
-  def simplifyOpB   (n : ℕ)  : ((OpGroup1OLTerm n) → (OpGroup1OLTerm n)) 
+  def simplifyOpB   {n : ℕ}  : ((OpGroup1OLTerm n) → (OpGroup1OLTerm n)) 
   | (opOL oneOL x) := x  
   | (opOL x oneOL) := x  
   | (opOL x1 x2) := (opOL (simplifyOpB x1) (simplifyOpB x2))  
   | oneOL := oneOL  
   | (invOL x1) := (invOL (simplifyOpB x1))  
   | (v x1) := (v x1)  
-  def simplifyOp   (n : ℕ) (A : Type)  : ((OpGroup1OL2Term2 n A) → (OpGroup1OL2Term2 n A)) 
+  def simplifyOp   {n : ℕ} {A : Type}  : ((OpGroup1OL2Term2 n A) → (OpGroup1OL2Term2 n A)) 
   | (opOL2 oneOL2 x) := x  
   | (opOL2 x oneOL2) := x  
   | (opOL2 x1 x2) := (opOL2 (simplifyOp x1) (simplifyOp x2))  
@@ -104,32 +104,32 @@ section Group1
   | Gr (opCl x1 x2) := ((op Gr) (evalCl Gr x1) (evalCl Gr x2))  
   | Gr oneCl := (one Gr)  
   | Gr (invCl x1) := ((inv Gr) (evalCl Gr x1))  
-  def evalOpB   {A : Type} (n : ℕ)  : ((Group1 A) → ((vector A n) → ((OpGroup1OLTerm n) → A))) 
+  def evalOpB   {A : Type} {n : ℕ}  : ((Group1 A) → ((vector A n) → ((OpGroup1OLTerm n) → A))) 
   | Gr vars (v x1) := (nth vars x1)  
   | Gr vars (opOL x1 x2) := ((op Gr) (evalOpB Gr vars x1) (evalOpB Gr vars x2))  
   | Gr vars oneOL := (one Gr)  
   | Gr vars (invOL x1) := ((inv Gr) (evalOpB Gr vars x1))  
-  def evalOp   {A : Type} (n : ℕ)  : ((Group1 A) → ((vector A n) → ((OpGroup1OL2Term2 n A) → A))) 
+  def evalOp   {A : Type} {n : ℕ}  : ((Group1 A) → ((vector A n) → ((OpGroup1OL2Term2 n A) → A))) 
   | Gr vars (v2 x1) := (nth vars x1)  
   | Gr vars (sing2 x1) := x1  
   | Gr vars (opOL2 x1 x2) := ((op Gr) (evalOp Gr vars x1) (evalOp Gr vars x2))  
   | Gr vars oneOL2 := (one Gr)  
   | Gr vars (invOL2 x1) := ((inv Gr) (evalOp Gr vars x1))  
-  def inductionB   (P : (Group1LTerm → Type))  : ((∀ (x1 x2 : Group1LTerm) , ((P x1) → ((P x2) → (P (opL x1 x2))))) → ((P oneL) → ((∀ (x1 : Group1LTerm) , ((P x1) → (P (invL x1)))) → (∀ (x : Group1LTerm) , (P x))))) 
+  def inductionB   {P : (Group1LTerm → Type)}  : ((∀ (x1 x2 : Group1LTerm) , ((P x1) → ((P x2) → (P (opL x1 x2))))) → ((P oneL) → ((∀ (x1 : Group1LTerm) , ((P x1) → (P (invL x1)))) → (∀ (x : Group1LTerm) , (P x))))) 
   | popl p1l pinvl (opL x1 x2) := (popl _ _ (inductionB popl p1l pinvl x1) (inductionB popl p1l pinvl x2))  
   | popl p1l pinvl oneL := p1l  
   | popl p1l pinvl (invL x1) := (pinvl _ (inductionB popl p1l pinvl x1))  
-  def inductionCl   (A : Type) (P : ((ClGroup1ClTerm A) → Type))  : ((∀ (x1 : A) , (P (sing x1))) → ((∀ (x1 x2 : (ClGroup1ClTerm A)) , ((P x1) → ((P x2) → (P (opCl x1 x2))))) → ((P oneCl) → ((∀ (x1 : (ClGroup1ClTerm A)) , ((P x1) → (P (invCl x1)))) → (∀ (x : (ClGroup1ClTerm A)) , (P x)))))) 
+  def inductionCl   {A : Type} {P : ((ClGroup1ClTerm A) → Type)}  : ((∀ (x1 : A) , (P (sing x1))) → ((∀ (x1 x2 : (ClGroup1ClTerm A)) , ((P x1) → ((P x2) → (P (opCl x1 x2))))) → ((P oneCl) → ((∀ (x1 : (ClGroup1ClTerm A)) , ((P x1) → (P (invCl x1)))) → (∀ (x : (ClGroup1ClTerm A)) , (P x)))))) 
   | psing popcl p1cl pinvcl (sing x1) := (psing x1)  
   | psing popcl p1cl pinvcl (opCl x1 x2) := (popcl _ _ (inductionCl psing popcl p1cl pinvcl x1) (inductionCl psing popcl p1cl pinvcl x2))  
   | psing popcl p1cl pinvcl oneCl := p1cl  
   | psing popcl p1cl pinvcl (invCl x1) := (pinvcl _ (inductionCl psing popcl p1cl pinvcl x1))  
-  def inductionOpB   (n : ℕ) (P : ((OpGroup1OLTerm n) → Type))  : ((∀ (fin : (fin n)) , (P (v fin))) → ((∀ (x1 x2 : (OpGroup1OLTerm n)) , ((P x1) → ((P x2) → (P (opOL x1 x2))))) → ((P oneOL) → ((∀ (x1 : (OpGroup1OLTerm n)) , ((P x1) → (P (invOL x1)))) → (∀ (x : (OpGroup1OLTerm n)) , (P x)))))) 
+  def inductionOpB   {n : ℕ} {P : ((OpGroup1OLTerm n) → Type)}  : ((∀ (fin : (fin n)) , (P (v fin))) → ((∀ (x1 x2 : (OpGroup1OLTerm n)) , ((P x1) → ((P x2) → (P (opOL x1 x2))))) → ((P oneOL) → ((∀ (x1 : (OpGroup1OLTerm n)) , ((P x1) → (P (invOL x1)))) → (∀ (x : (OpGroup1OLTerm n)) , (P x)))))) 
   | pv popol p1ol pinvol (v x1) := (pv x1)  
   | pv popol p1ol pinvol (opOL x1 x2) := (popol _ _ (inductionOpB pv popol p1ol pinvol x1) (inductionOpB pv popol p1ol pinvol x2))  
   | pv popol p1ol pinvol oneOL := p1ol  
   | pv popol p1ol pinvol (invOL x1) := (pinvol _ (inductionOpB pv popol p1ol pinvol x1))  
-  def inductionOp   (n : ℕ) (A : Type) (P : ((OpGroup1OL2Term2 n A) → Type))  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((∀ (x1 x2 : (OpGroup1OL2Term2 n A)) , ((P x1) → ((P x2) → (P (opOL2 x1 x2))))) → ((P oneOL2) → ((∀ (x1 : (OpGroup1OL2Term2 n A)) , ((P x1) → (P (invOL2 x1)))) → (∀ (x : (OpGroup1OL2Term2 n A)) , (P x))))))) 
+  def inductionOp   {n : ℕ} {A : Type} {P : ((OpGroup1OL2Term2 n A) → Type)}  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((∀ (x1 x2 : (OpGroup1OL2Term2 n A)) , ((P x1) → ((P x2) → (P (opOL2 x1 x2))))) → ((P oneOL2) → ((∀ (x1 : (OpGroup1OL2Term2 n A)) , ((P x1) → (P (invOL2 x1)))) → (∀ (x : (OpGroup1OL2Term2 n A)) , (P x))))))) 
   | pv2 psing2 popol2 p1ol2 pinvol2 (v2 x1) := (pv2 x1)  
   | pv2 psing2 popol2 p1ol2 pinvol2 (sing2 x1) := (psing2 x1)  
   | pv2 psing2 popol2 p1ol2 pinvol2 (opOL2 x1 x2) := (popol2 _ _ (inductionOp pv2 psing2 popol2 p1ol2 pinvol2 x1) (inductionOp pv2 psing2 popol2 p1ol2 pinvol2 x2))  
@@ -139,17 +139,17 @@ section Group1
   | (opL x1 x2) := (stage2 opL (codeLift2 opL) (stageB x1) (stageB x2))  
   | oneL := (Now oneL)  
   | (invL x1) := (stage1 invL (codeLift1 invL) (stageB x1))  
-  def stageCl   (A : Type)  : ((ClGroup1ClTerm A) → (Staged (ClGroup1ClTerm A))) 
+  def stageCl   {A : Type}  : ((ClGroup1ClTerm A) → (Staged (ClGroup1ClTerm A))) 
   | (sing x1) := (Now (sing x1))  
   | (opCl x1 x2) := (stage2 opCl (codeLift2 opCl) (stageCl x1) (stageCl x2))  
   | oneCl := (Now oneCl)  
   | (invCl x1) := (stage1 invCl (codeLift1 invCl) (stageCl x1))  
-  def stageOpB   (n : ℕ)  : ((OpGroup1OLTerm n) → (Staged (OpGroup1OLTerm n))) 
+  def stageOpB   {n : ℕ}  : ((OpGroup1OLTerm n) → (Staged (OpGroup1OLTerm n))) 
   | (v x1) := (const (code (v x1)))  
   | (opOL x1 x2) := (stage2 opOL (codeLift2 opOL) (stageOpB x1) (stageOpB x2))  
   | oneOL := (Now oneOL)  
   | (invOL x1) := (stage1 invOL (codeLift1 invOL) (stageOpB x1))  
-  def stageOp   (n : ℕ) (A : Type)  : ((OpGroup1OL2Term2 n A) → (Staged (OpGroup1OL2Term2 n A))) 
+  def stageOp   {n : ℕ} {A : Type}  : ((OpGroup1OL2Term2 n A) → (Staged (OpGroup1OL2Term2 n A))) 
   | (sing2 x1) := (Now (sing2 x1))  
   | (v2 x1) := (const (code (v2 x1)))  
   | (opOL2 x1 x2) := (stage2 opOL2 (codeLift2 opOL2) (stageOp x1) (stageOp x2))  

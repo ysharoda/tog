@@ -67,25 +67,25 @@ module BoundedJoinSemilattice   where
       +OL2 : ((OpBoundedJoinSemilatticeTerm2 n A) → ((OpBoundedJoinSemilatticeTerm2 n A) → (OpBoundedJoinSemilatticeTerm2 n A))) 
       0OL2 : (OpBoundedJoinSemilatticeTerm2 n A)  
       
-  simplifyCl :  (A : Set) →  ((ClBoundedJoinSemilatticeTerm A) → (ClBoundedJoinSemilatticeTerm A)) 
-  simplifyCl _ (+Cl 0Cl x) = x  
-  simplifyCl _ (+Cl x 0Cl) = x  
-  simplifyCl _ (+Cl x1 x2) = (+Cl (simplifyCl _ x1) (simplifyCl _ x2))  
-  simplifyCl _ 0Cl = 0Cl  
-  simplifyCl _ (sing x1) = (sing x1)  
-  simplifyOpB :  (n : Nat) →  ((OpBoundedJoinSemilatticeTerm n) → (OpBoundedJoinSemilatticeTerm n)) 
-  simplifyOpB _ (+OL 0OL x) = x  
-  simplifyOpB _ (+OL x 0OL) = x  
-  simplifyOpB _ (+OL x1 x2) = (+OL (simplifyOpB _ x1) (simplifyOpB _ x2))  
-  simplifyOpB _ 0OL = 0OL  
-  simplifyOpB _ (v x1) = (v x1)  
-  simplifyOp :  (n : Nat) (A : Set) →  ((OpBoundedJoinSemilatticeTerm2 n A) → (OpBoundedJoinSemilatticeTerm2 n A)) 
-  simplifyOp _ _ (+OL2 0OL2 x) = x  
-  simplifyOp _ _ (+OL2 x 0OL2) = x  
-  simplifyOp _ _ (+OL2 x1 x2) = (+OL2 (simplifyOp _ _ x1) (simplifyOp _ _ x2))  
-  simplifyOp _ _ 0OL2 = 0OL2  
-  simplifyOp _ _ (v2 x1) = (v2 x1)  
-  simplifyOp _ _ (sing2 x1) = (sing2 x1)  
+  simplifyCl :  {A : Set} →  ((ClBoundedJoinSemilatticeTerm A) → (ClBoundedJoinSemilatticeTerm A)) 
+  simplifyCl (+Cl 0Cl x) = x  
+  simplifyCl (+Cl x 0Cl) = x  
+  simplifyCl (+Cl x1 x2) = (+Cl (simplifyCl x1) (simplifyCl x2))  
+  simplifyCl 0Cl = 0Cl  
+  simplifyCl (sing x1) = (sing x1)  
+  simplifyOpB :  {n : Nat} →  ((OpBoundedJoinSemilatticeTerm n) → (OpBoundedJoinSemilatticeTerm n)) 
+  simplifyOpB (+OL 0OL x) = x  
+  simplifyOpB (+OL x 0OL) = x  
+  simplifyOpB (+OL x1 x2) = (+OL (simplifyOpB x1) (simplifyOpB x2))  
+  simplifyOpB 0OL = 0OL  
+  simplifyOpB (v x1) = (v x1)  
+  simplifyOp :  {n : Nat} {A : Set} →  ((OpBoundedJoinSemilatticeTerm2 n A) → (OpBoundedJoinSemilatticeTerm2 n A)) 
+  simplifyOp (+OL2 0OL2 x) = x  
+  simplifyOp (+OL2 x 0OL2) = x  
+  simplifyOp (+OL2 x1 x2) = (+OL2 (simplifyOp x1) (simplifyOp x2))  
+  simplifyOp 0OL2 = 0OL2  
+  simplifyOp (v2 x1) = (v2 x1)  
+  simplifyOp (sing2 x1) = (sing2 x1)  
   evalB :  {A : Set} →  ((BoundedJoinSemilattice A) → (BoundedJoinSemilatticeTerm → A)) 
   evalB Bo (+L x1 x2) = ((+ Bo) (evalB Bo x1) (evalB Bo x2))  
   evalB Bo 0L = (0ᵢ Bo)  
@@ -93,47 +93,47 @@ module BoundedJoinSemilattice   where
   evalCl Bo (sing x1) = x1  
   evalCl Bo (+Cl x1 x2) = ((+ Bo) (evalCl Bo x1) (evalCl Bo x2))  
   evalCl Bo 0Cl = (0ᵢ Bo)  
-  evalOpB :  {A : Set} (n : Nat) →  ((BoundedJoinSemilattice A) → ((Vec A n) → ((OpBoundedJoinSemilatticeTerm n) → A))) 
-  evalOpB n Bo vars (v x1) = (lookup vars x1)  
-  evalOpB n Bo vars (+OL x1 x2) = ((+ Bo) (evalOpB n Bo vars x1) (evalOpB n Bo vars x2))  
-  evalOpB n Bo vars 0OL = (0ᵢ Bo)  
-  evalOp :  {A : Set} (n : Nat) →  ((BoundedJoinSemilattice A) → ((Vec A n) → ((OpBoundedJoinSemilatticeTerm2 n A) → A))) 
-  evalOp n Bo vars (v2 x1) = (lookup vars x1)  
-  evalOp n Bo vars (sing2 x1) = x1  
-  evalOp n Bo vars (+OL2 x1 x2) = ((+ Bo) (evalOp n Bo vars x1) (evalOp n Bo vars x2))  
-  evalOp n Bo vars 0OL2 = (0ᵢ Bo)  
-  inductionB :  (P : (BoundedJoinSemilatticeTerm → Set)) →  (( (x1 x2 : BoundedJoinSemilatticeTerm) → ((P x1) → ((P x2) → (P (+L x1 x2))))) → ((P 0L) → ( (x : BoundedJoinSemilatticeTerm) → (P x)))) 
-  inductionB p p+l p0l (+L x1 x2) = (p+l _ _ (inductionB p p+l p0l x1) (inductionB p p+l p0l x2))  
-  inductionB p p+l p0l 0L = p0l  
-  inductionCl :  (A : Set) (P : ((ClBoundedJoinSemilatticeTerm A) → Set)) →  (( (x1 : A) → (P (sing x1))) → (( (x1 x2 : (ClBoundedJoinSemilatticeTerm A)) → ((P x1) → ((P x2) → (P (+Cl x1 x2))))) → ((P 0Cl) → ( (x : (ClBoundedJoinSemilatticeTerm A)) → (P x))))) 
-  inductionCl _ p psing p+cl p0cl (sing x1) = (psing x1)  
-  inductionCl _ p psing p+cl p0cl (+Cl x1 x2) = (p+cl _ _ (inductionCl _ p psing p+cl p0cl x1) (inductionCl _ p psing p+cl p0cl x2))  
-  inductionCl _ p psing p+cl p0cl 0Cl = p0cl  
-  inductionOpB :  (n : Nat) (P : ((OpBoundedJoinSemilatticeTerm n) → Set)) →  (( (fin : (Fin n)) → (P (v fin))) → (( (x1 x2 : (OpBoundedJoinSemilatticeTerm n)) → ((P x1) → ((P x2) → (P (+OL x1 x2))))) → ((P 0OL) → ( (x : (OpBoundedJoinSemilatticeTerm n)) → (P x))))) 
-  inductionOpB _ p pv p+ol p0ol (v x1) = (pv x1)  
-  inductionOpB _ p pv p+ol p0ol (+OL x1 x2) = (p+ol _ _ (inductionOpB _ p pv p+ol p0ol x1) (inductionOpB _ p pv p+ol p0ol x2))  
-  inductionOpB _ p pv p+ol p0ol 0OL = p0ol  
-  inductionOp :  (n : Nat) (A : Set) (P : ((OpBoundedJoinSemilatticeTerm2 n A) → Set)) →  (( (fin : (Fin n)) → (P (v2 fin))) → (( (x1 : A) → (P (sing2 x1))) → (( (x1 x2 : (OpBoundedJoinSemilatticeTerm2 n A)) → ((P x1) → ((P x2) → (P (+OL2 x1 x2))))) → ((P 0OL2) → ( (x : (OpBoundedJoinSemilatticeTerm2 n A)) → (P x)))))) 
-  inductionOp _ _ p pv2 psing2 p+ol2 p0ol2 (v2 x1) = (pv2 x1)  
-  inductionOp _ _ p pv2 psing2 p+ol2 p0ol2 (sing2 x1) = (psing2 x1)  
-  inductionOp _ _ p pv2 psing2 p+ol2 p0ol2 (+OL2 x1 x2) = (p+ol2 _ _ (inductionOp _ _ p pv2 psing2 p+ol2 p0ol2 x1) (inductionOp _ _ p pv2 psing2 p+ol2 p0ol2 x2))  
-  inductionOp _ _ p pv2 psing2 p+ol2 p0ol2 0OL2 = p0ol2  
+  evalOpB :  {A : Set} {n : Nat} →  ((BoundedJoinSemilattice A) → ((Vec A n) → ((OpBoundedJoinSemilatticeTerm n) → A))) 
+  evalOpB Bo vars (v x1) = (lookup vars x1)  
+  evalOpB Bo vars (+OL x1 x2) = ((+ Bo) (evalOpB Bo vars x1) (evalOpB Bo vars x2))  
+  evalOpB Bo vars 0OL = (0ᵢ Bo)  
+  evalOp :  {A : Set} {n : Nat} →  ((BoundedJoinSemilattice A) → ((Vec A n) → ((OpBoundedJoinSemilatticeTerm2 n A) → A))) 
+  evalOp Bo vars (v2 x1) = (lookup vars x1)  
+  evalOp Bo vars (sing2 x1) = x1  
+  evalOp Bo vars (+OL2 x1 x2) = ((+ Bo) (evalOp Bo vars x1) (evalOp Bo vars x2))  
+  evalOp Bo vars 0OL2 = (0ᵢ Bo)  
+  inductionB :  {P : (BoundedJoinSemilatticeTerm → Set)} →  (( (x1 x2 : BoundedJoinSemilatticeTerm) → ((P x1) → ((P x2) → (P (+L x1 x2))))) → ((P 0L) → ( (x : BoundedJoinSemilatticeTerm) → (P x)))) 
+  inductionB p+l p0l (+L x1 x2) = (p+l _ _ (inductionB p+l p0l x1) (inductionB p+l p0l x2))  
+  inductionB p+l p0l 0L = p0l  
+  inductionCl :  {A : Set} {P : ((ClBoundedJoinSemilatticeTerm A) → Set)} →  (( (x1 : A) → (P (sing x1))) → (( (x1 x2 : (ClBoundedJoinSemilatticeTerm A)) → ((P x1) → ((P x2) → (P (+Cl x1 x2))))) → ((P 0Cl) → ( (x : (ClBoundedJoinSemilatticeTerm A)) → (P x))))) 
+  inductionCl psing p+cl p0cl (sing x1) = (psing x1)  
+  inductionCl psing p+cl p0cl (+Cl x1 x2) = (p+cl _ _ (inductionCl psing p+cl p0cl x1) (inductionCl psing p+cl p0cl x2))  
+  inductionCl psing p+cl p0cl 0Cl = p0cl  
+  inductionOpB :  {n : Nat} {P : ((OpBoundedJoinSemilatticeTerm n) → Set)} →  (( (fin : (Fin n)) → (P (v fin))) → (( (x1 x2 : (OpBoundedJoinSemilatticeTerm n)) → ((P x1) → ((P x2) → (P (+OL x1 x2))))) → ((P 0OL) → ( (x : (OpBoundedJoinSemilatticeTerm n)) → (P x))))) 
+  inductionOpB pv p+ol p0ol (v x1) = (pv x1)  
+  inductionOpB pv p+ol p0ol (+OL x1 x2) = (p+ol _ _ (inductionOpB pv p+ol p0ol x1) (inductionOpB pv p+ol p0ol x2))  
+  inductionOpB pv p+ol p0ol 0OL = p0ol  
+  inductionOp :  {n : Nat} {A : Set} {P : ((OpBoundedJoinSemilatticeTerm2 n A) → Set)} →  (( (fin : (Fin n)) → (P (v2 fin))) → (( (x1 : A) → (P (sing2 x1))) → (( (x1 x2 : (OpBoundedJoinSemilatticeTerm2 n A)) → ((P x1) → ((P x2) → (P (+OL2 x1 x2))))) → ((P 0OL2) → ( (x : (OpBoundedJoinSemilatticeTerm2 n A)) → (P x)))))) 
+  inductionOp pv2 psing2 p+ol2 p0ol2 (v2 x1) = (pv2 x1)  
+  inductionOp pv2 psing2 p+ol2 p0ol2 (sing2 x1) = (psing2 x1)  
+  inductionOp pv2 psing2 p+ol2 p0ol2 (+OL2 x1 x2) = (p+ol2 _ _ (inductionOp pv2 psing2 p+ol2 p0ol2 x1) (inductionOp pv2 psing2 p+ol2 p0ol2 x2))  
+  inductionOp pv2 psing2 p+ol2 p0ol2 0OL2 = p0ol2  
   stageB :  (BoundedJoinSemilatticeTerm → (Staged BoundedJoinSemilatticeTerm))
   stageB (+L x1 x2) = (stage2 +L (codeLift2 +L) (stageB x1) (stageB x2))  
   stageB 0L = (Now 0L)  
-  stageCl :  (A : Set) →  ((ClBoundedJoinSemilatticeTerm A) → (Staged (ClBoundedJoinSemilatticeTerm A))) 
-  stageCl _ (sing x1) = (Now (sing x1))  
-  stageCl _ (+Cl x1 x2) = (stage2 +Cl (codeLift2 +Cl) (stageCl _ x1) (stageCl _ x2))  
-  stageCl _ 0Cl = (Now 0Cl)  
-  stageOpB :  (n : Nat) →  ((OpBoundedJoinSemilatticeTerm n) → (Staged (OpBoundedJoinSemilatticeTerm n))) 
-  stageOpB _ (v x1) = (const (code (v x1)))  
-  stageOpB _ (+OL x1 x2) = (stage2 +OL (codeLift2 +OL) (stageOpB _ x1) (stageOpB _ x2))  
-  stageOpB _ 0OL = (Now 0OL)  
-  stageOp :  (n : Nat) (A : Set) →  ((OpBoundedJoinSemilatticeTerm2 n A) → (Staged (OpBoundedJoinSemilatticeTerm2 n A))) 
-  stageOp _ _ (sing2 x1) = (Now (sing2 x1))  
-  stageOp _ _ (v2 x1) = (const (code (v2 x1)))  
-  stageOp _ _ (+OL2 x1 x2) = (stage2 +OL2 (codeLift2 +OL2) (stageOp _ _ x1) (stageOp _ _ x2))  
-  stageOp _ _ 0OL2 = (Now 0OL2)  
+  stageCl :  {A : Set} →  ((ClBoundedJoinSemilatticeTerm A) → (Staged (ClBoundedJoinSemilatticeTerm A))) 
+  stageCl (sing x1) = (Now (sing x1))  
+  stageCl (+Cl x1 x2) = (stage2 +Cl (codeLift2 +Cl) (stageCl x1) (stageCl x2))  
+  stageCl 0Cl = (Now 0Cl)  
+  stageOpB :  {n : Nat} →  ((OpBoundedJoinSemilatticeTerm n) → (Staged (OpBoundedJoinSemilatticeTerm n))) 
+  stageOpB (v x1) = (const (code (v x1)))  
+  stageOpB (+OL x1 x2) = (stage2 +OL (codeLift2 +OL) (stageOpB x1) (stageOpB x2))  
+  stageOpB 0OL = (Now 0OL)  
+  stageOp :  {n : Nat} {A : Set} →  ((OpBoundedJoinSemilatticeTerm2 n A) → (Staged (OpBoundedJoinSemilatticeTerm2 n A))) 
+  stageOp (sing2 x1) = (Now (sing2 x1))  
+  stageOp (v2 x1) = (const (code (v2 x1)))  
+  stageOp (+OL2 x1 x2) = (stage2 +OL2 (codeLift2 +OL2) (stageOp x1) (stageOp x2))  
+  stageOp 0OL2 = (Now 0OL2)  
   record StagedRepr  (A : Set) (Repr : (Set → Set)) : Set where 
      field  
       +T : ((Repr A) → ((Repr A) → (Repr A))) 

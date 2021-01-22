@@ -114,43 +114,43 @@ module LieRing   where
       negOL2 : ((OpLieRingTerm2 n A) → (OpLieRingTerm2 n A)) 
       1OL2 : (OpLieRingTerm2 n A)  
       
-  simplifyCl :  (A : Set) →  ((ClLieRingTerm A) → (ClLieRingTerm A)) 
-  simplifyCl _ (+Cl 0Cl x) = x  
-  simplifyCl _ (+Cl x 0Cl) = x  
-  simplifyCl _ (*Cl 1Cl x) = x  
-  simplifyCl _ (*Cl x 1Cl) = x  
-  simplifyCl _ (negCl (*Cl y x)) = (*Cl x y)  
-  simplifyCl _ 0Cl = 0Cl  
-  simplifyCl _ (+Cl x1 x2) = (+Cl (simplifyCl _ x1) (simplifyCl _ x2))  
-  simplifyCl _ (*Cl x1 x2) = (*Cl (simplifyCl _ x1) (simplifyCl _ x2))  
-  simplifyCl _ (negCl x1) = (negCl (simplifyCl _ x1))  
-  simplifyCl _ 1Cl = 1Cl  
-  simplifyCl _ (sing x1) = (sing x1)  
-  simplifyOpB :  (n : Nat) →  ((OpLieRingTerm n) → (OpLieRingTerm n)) 
-  simplifyOpB _ (+OL 0OL x) = x  
-  simplifyOpB _ (+OL x 0OL) = x  
-  simplifyOpB _ (*OL 1OL x) = x  
-  simplifyOpB _ (*OL x 1OL) = x  
-  simplifyOpB _ (negOL (*OL y x)) = (*OL x y)  
-  simplifyOpB _ 0OL = 0OL  
-  simplifyOpB _ (+OL x1 x2) = (+OL (simplifyOpB _ x1) (simplifyOpB _ x2))  
-  simplifyOpB _ (*OL x1 x2) = (*OL (simplifyOpB _ x1) (simplifyOpB _ x2))  
-  simplifyOpB _ (negOL x1) = (negOL (simplifyOpB _ x1))  
-  simplifyOpB _ 1OL = 1OL  
-  simplifyOpB _ (v x1) = (v x1)  
-  simplifyOp :  (n : Nat) (A : Set) →  ((OpLieRingTerm2 n A) → (OpLieRingTerm2 n A)) 
-  simplifyOp _ _ (+OL2 0OL2 x) = x  
-  simplifyOp _ _ (+OL2 x 0OL2) = x  
-  simplifyOp _ _ (*OL2 1OL2 x) = x  
-  simplifyOp _ _ (*OL2 x 1OL2) = x  
-  simplifyOp _ _ (negOL2 (*OL2 y x)) = (*OL2 x y)  
-  simplifyOp _ _ 0OL2 = 0OL2  
-  simplifyOp _ _ (+OL2 x1 x2) = (+OL2 (simplifyOp _ _ x1) (simplifyOp _ _ x2))  
-  simplifyOp _ _ (*OL2 x1 x2) = (*OL2 (simplifyOp _ _ x1) (simplifyOp _ _ x2))  
-  simplifyOp _ _ (negOL2 x1) = (negOL2 (simplifyOp _ _ x1))  
-  simplifyOp _ _ 1OL2 = 1OL2  
-  simplifyOp _ _ (v2 x1) = (v2 x1)  
-  simplifyOp _ _ (sing2 x1) = (sing2 x1)  
+  simplifyCl :  {A : Set} →  ((ClLieRingTerm A) → (ClLieRingTerm A)) 
+  simplifyCl (+Cl 0Cl x) = x  
+  simplifyCl (+Cl x 0Cl) = x  
+  simplifyCl (*Cl 1Cl x) = x  
+  simplifyCl (*Cl x 1Cl) = x  
+  simplifyCl (negCl (*Cl y x)) = (*Cl x y)  
+  simplifyCl 0Cl = 0Cl  
+  simplifyCl (+Cl x1 x2) = (+Cl (simplifyCl x1) (simplifyCl x2))  
+  simplifyCl (*Cl x1 x2) = (*Cl (simplifyCl x1) (simplifyCl x2))  
+  simplifyCl (negCl x1) = (negCl (simplifyCl x1))  
+  simplifyCl 1Cl = 1Cl  
+  simplifyCl (sing x1) = (sing x1)  
+  simplifyOpB :  {n : Nat} →  ((OpLieRingTerm n) → (OpLieRingTerm n)) 
+  simplifyOpB (+OL 0OL x) = x  
+  simplifyOpB (+OL x 0OL) = x  
+  simplifyOpB (*OL 1OL x) = x  
+  simplifyOpB (*OL x 1OL) = x  
+  simplifyOpB (negOL (*OL y x)) = (*OL x y)  
+  simplifyOpB 0OL = 0OL  
+  simplifyOpB (+OL x1 x2) = (+OL (simplifyOpB x1) (simplifyOpB x2))  
+  simplifyOpB (*OL x1 x2) = (*OL (simplifyOpB x1) (simplifyOpB x2))  
+  simplifyOpB (negOL x1) = (negOL (simplifyOpB x1))  
+  simplifyOpB 1OL = 1OL  
+  simplifyOpB (v x1) = (v x1)  
+  simplifyOp :  {n : Nat} {A : Set} →  ((OpLieRingTerm2 n A) → (OpLieRingTerm2 n A)) 
+  simplifyOp (+OL2 0OL2 x) = x  
+  simplifyOp (+OL2 x 0OL2) = x  
+  simplifyOp (*OL2 1OL2 x) = x  
+  simplifyOp (*OL2 x 1OL2) = x  
+  simplifyOp (negOL2 (*OL2 y x)) = (*OL2 x y)  
+  simplifyOp 0OL2 = 0OL2  
+  simplifyOp (+OL2 x1 x2) = (+OL2 (simplifyOp x1) (simplifyOp x2))  
+  simplifyOp (*OL2 x1 x2) = (*OL2 (simplifyOp x1) (simplifyOp x2))  
+  simplifyOp (negOL2 x1) = (negOL2 (simplifyOp x1))  
+  simplifyOp 1OL2 = 1OL2  
+  simplifyOp (v2 x1) = (v2 x1)  
+  simplifyOp (sing2 x1) = (sing2 x1)  
   evalB :  {A : Set} →  ((LieRing A) → (LieRingTerm → A)) 
   evalB Li 0L = (0ᵢ Li)  
   evalB Li (+L x1 x2) = ((+ Li) (evalB Li x1) (evalB Li x2))  
@@ -164,77 +164,77 @@ module LieRing   where
   evalCl Li (*Cl x1 x2) = ((* Li) (evalCl Li x1) (evalCl Li x2))  
   evalCl Li (negCl x1) = ((neg Li) (evalCl Li x1))  
   evalCl Li 1Cl = (1ᵢ Li)  
-  evalOpB :  {A : Set} (n : Nat) →  ((LieRing A) → ((Vec A n) → ((OpLieRingTerm n) → A))) 
-  evalOpB n Li vars (v x1) = (lookup vars x1)  
-  evalOpB n Li vars 0OL = (0ᵢ Li)  
-  evalOpB n Li vars (+OL x1 x2) = ((+ Li) (evalOpB n Li vars x1) (evalOpB n Li vars x2))  
-  evalOpB n Li vars (*OL x1 x2) = ((* Li) (evalOpB n Li vars x1) (evalOpB n Li vars x2))  
-  evalOpB n Li vars (negOL x1) = ((neg Li) (evalOpB n Li vars x1))  
-  evalOpB n Li vars 1OL = (1ᵢ Li)  
-  evalOp :  {A : Set} (n : Nat) →  ((LieRing A) → ((Vec A n) → ((OpLieRingTerm2 n A) → A))) 
-  evalOp n Li vars (v2 x1) = (lookup vars x1)  
-  evalOp n Li vars (sing2 x1) = x1  
-  evalOp n Li vars 0OL2 = (0ᵢ Li)  
-  evalOp n Li vars (+OL2 x1 x2) = ((+ Li) (evalOp n Li vars x1) (evalOp n Li vars x2))  
-  evalOp n Li vars (*OL2 x1 x2) = ((* Li) (evalOp n Li vars x1) (evalOp n Li vars x2))  
-  evalOp n Li vars (negOL2 x1) = ((neg Li) (evalOp n Li vars x1))  
-  evalOp n Li vars 1OL2 = (1ᵢ Li)  
-  inductionB :  (P : (LieRingTerm → Set)) →  ((P 0L) → (( (x1 x2 : LieRingTerm) → ((P x1) → ((P x2) → (P (+L x1 x2))))) → (( (x1 x2 : LieRingTerm) → ((P x1) → ((P x2) → (P (*L x1 x2))))) → (( (x1 : LieRingTerm) → ((P x1) → (P (negL x1)))) → ((P 1L) → ( (x : LieRingTerm) → (P x))))))) 
-  inductionB p p0l p+l p*l pnegl p1l 0L = p0l  
-  inductionB p p0l p+l p*l pnegl p1l (+L x1 x2) = (p+l _ _ (inductionB p p0l p+l p*l pnegl p1l x1) (inductionB p p0l p+l p*l pnegl p1l x2))  
-  inductionB p p0l p+l p*l pnegl p1l (*L x1 x2) = (p*l _ _ (inductionB p p0l p+l p*l pnegl p1l x1) (inductionB p p0l p+l p*l pnegl p1l x2))  
-  inductionB p p0l p+l p*l pnegl p1l (negL x1) = (pnegl _ (inductionB p p0l p+l p*l pnegl p1l x1))  
-  inductionB p p0l p+l p*l pnegl p1l 1L = p1l  
-  inductionCl :  (A : Set) (P : ((ClLieRingTerm A) → Set)) →  (( (x1 : A) → (P (sing x1))) → ((P 0Cl) → (( (x1 x2 : (ClLieRingTerm A)) → ((P x1) → ((P x2) → (P (+Cl x1 x2))))) → (( (x1 x2 : (ClLieRingTerm A)) → ((P x1) → ((P x2) → (P (*Cl x1 x2))))) → (( (x1 : (ClLieRingTerm A)) → ((P x1) → (P (negCl x1)))) → ((P 1Cl) → ( (x : (ClLieRingTerm A)) → (P x)))))))) 
-  inductionCl _ p psing p0cl p+cl p*cl pnegcl p1cl (sing x1) = (psing x1)  
-  inductionCl _ p psing p0cl p+cl p*cl pnegcl p1cl 0Cl = p0cl  
-  inductionCl _ p psing p0cl p+cl p*cl pnegcl p1cl (+Cl x1 x2) = (p+cl _ _ (inductionCl _ p psing p0cl p+cl p*cl pnegcl p1cl x1) (inductionCl _ p psing p0cl p+cl p*cl pnegcl p1cl x2))  
-  inductionCl _ p psing p0cl p+cl p*cl pnegcl p1cl (*Cl x1 x2) = (p*cl _ _ (inductionCl _ p psing p0cl p+cl p*cl pnegcl p1cl x1) (inductionCl _ p psing p0cl p+cl p*cl pnegcl p1cl x2))  
-  inductionCl _ p psing p0cl p+cl p*cl pnegcl p1cl (negCl x1) = (pnegcl _ (inductionCl _ p psing p0cl p+cl p*cl pnegcl p1cl x1))  
-  inductionCl _ p psing p0cl p+cl p*cl pnegcl p1cl 1Cl = p1cl  
-  inductionOpB :  (n : Nat) (P : ((OpLieRingTerm n) → Set)) →  (( (fin : (Fin n)) → (P (v fin))) → ((P 0OL) → (( (x1 x2 : (OpLieRingTerm n)) → ((P x1) → ((P x2) → (P (+OL x1 x2))))) → (( (x1 x2 : (OpLieRingTerm n)) → ((P x1) → ((P x2) → (P (*OL x1 x2))))) → (( (x1 : (OpLieRingTerm n)) → ((P x1) → (P (negOL x1)))) → ((P 1OL) → ( (x : (OpLieRingTerm n)) → (P x)))))))) 
-  inductionOpB _ p pv p0ol p+ol p*ol pnegol p1ol (v x1) = (pv x1)  
-  inductionOpB _ p pv p0ol p+ol p*ol pnegol p1ol 0OL = p0ol  
-  inductionOpB _ p pv p0ol p+ol p*ol pnegol p1ol (+OL x1 x2) = (p+ol _ _ (inductionOpB _ p pv p0ol p+ol p*ol pnegol p1ol x1) (inductionOpB _ p pv p0ol p+ol p*ol pnegol p1ol x2))  
-  inductionOpB _ p pv p0ol p+ol p*ol pnegol p1ol (*OL x1 x2) = (p*ol _ _ (inductionOpB _ p pv p0ol p+ol p*ol pnegol p1ol x1) (inductionOpB _ p pv p0ol p+ol p*ol pnegol p1ol x2))  
-  inductionOpB _ p pv p0ol p+ol p*ol pnegol p1ol (negOL x1) = (pnegol _ (inductionOpB _ p pv p0ol p+ol p*ol pnegol p1ol x1))  
-  inductionOpB _ p pv p0ol p+ol p*ol pnegol p1ol 1OL = p1ol  
-  inductionOp :  (n : Nat) (A : Set) (P : ((OpLieRingTerm2 n A) → Set)) →  (( (fin : (Fin n)) → (P (v2 fin))) → (( (x1 : A) → (P (sing2 x1))) → ((P 0OL2) → (( (x1 x2 : (OpLieRingTerm2 n A)) → ((P x1) → ((P x2) → (P (+OL2 x1 x2))))) → (( (x1 x2 : (OpLieRingTerm2 n A)) → ((P x1) → ((P x2) → (P (*OL2 x1 x2))))) → (( (x1 : (OpLieRingTerm2 n A)) → ((P x1) → (P (negOL2 x1)))) → ((P 1OL2) → ( (x : (OpLieRingTerm2 n A)) → (P x))))))))) 
-  inductionOp _ _ p pv2 psing2 p0ol2 p+ol2 p*ol2 pnegol2 p1ol2 (v2 x1) = (pv2 x1)  
-  inductionOp _ _ p pv2 psing2 p0ol2 p+ol2 p*ol2 pnegol2 p1ol2 (sing2 x1) = (psing2 x1)  
-  inductionOp _ _ p pv2 psing2 p0ol2 p+ol2 p*ol2 pnegol2 p1ol2 0OL2 = p0ol2  
-  inductionOp _ _ p pv2 psing2 p0ol2 p+ol2 p*ol2 pnegol2 p1ol2 (+OL2 x1 x2) = (p+ol2 _ _ (inductionOp _ _ p pv2 psing2 p0ol2 p+ol2 p*ol2 pnegol2 p1ol2 x1) (inductionOp _ _ p pv2 psing2 p0ol2 p+ol2 p*ol2 pnegol2 p1ol2 x2))  
-  inductionOp _ _ p pv2 psing2 p0ol2 p+ol2 p*ol2 pnegol2 p1ol2 (*OL2 x1 x2) = (p*ol2 _ _ (inductionOp _ _ p pv2 psing2 p0ol2 p+ol2 p*ol2 pnegol2 p1ol2 x1) (inductionOp _ _ p pv2 psing2 p0ol2 p+ol2 p*ol2 pnegol2 p1ol2 x2))  
-  inductionOp _ _ p pv2 psing2 p0ol2 p+ol2 p*ol2 pnegol2 p1ol2 (negOL2 x1) = (pnegol2 _ (inductionOp _ _ p pv2 psing2 p0ol2 p+ol2 p*ol2 pnegol2 p1ol2 x1))  
-  inductionOp _ _ p pv2 psing2 p0ol2 p+ol2 p*ol2 pnegol2 p1ol2 1OL2 = p1ol2  
+  evalOpB :  {A : Set} {n : Nat} →  ((LieRing A) → ((Vec A n) → ((OpLieRingTerm n) → A))) 
+  evalOpB Li vars (v x1) = (lookup vars x1)  
+  evalOpB Li vars 0OL = (0ᵢ Li)  
+  evalOpB Li vars (+OL x1 x2) = ((+ Li) (evalOpB Li vars x1) (evalOpB Li vars x2))  
+  evalOpB Li vars (*OL x1 x2) = ((* Li) (evalOpB Li vars x1) (evalOpB Li vars x2))  
+  evalOpB Li vars (negOL x1) = ((neg Li) (evalOpB Li vars x1))  
+  evalOpB Li vars 1OL = (1ᵢ Li)  
+  evalOp :  {A : Set} {n : Nat} →  ((LieRing A) → ((Vec A n) → ((OpLieRingTerm2 n A) → A))) 
+  evalOp Li vars (v2 x1) = (lookup vars x1)  
+  evalOp Li vars (sing2 x1) = x1  
+  evalOp Li vars 0OL2 = (0ᵢ Li)  
+  evalOp Li vars (+OL2 x1 x2) = ((+ Li) (evalOp Li vars x1) (evalOp Li vars x2))  
+  evalOp Li vars (*OL2 x1 x2) = ((* Li) (evalOp Li vars x1) (evalOp Li vars x2))  
+  evalOp Li vars (negOL2 x1) = ((neg Li) (evalOp Li vars x1))  
+  evalOp Li vars 1OL2 = (1ᵢ Li)  
+  inductionB :  {P : (LieRingTerm → Set)} →  ((P 0L) → (( (x1 x2 : LieRingTerm) → ((P x1) → ((P x2) → (P (+L x1 x2))))) → (( (x1 x2 : LieRingTerm) → ((P x1) → ((P x2) → (P (*L x1 x2))))) → (( (x1 : LieRingTerm) → ((P x1) → (P (negL x1)))) → ((P 1L) → ( (x : LieRingTerm) → (P x))))))) 
+  inductionB p0l p+l p*l pnegl p1l 0L = p0l  
+  inductionB p0l p+l p*l pnegl p1l (+L x1 x2) = (p+l _ _ (inductionB p0l p+l p*l pnegl p1l x1) (inductionB p0l p+l p*l pnegl p1l x2))  
+  inductionB p0l p+l p*l pnegl p1l (*L x1 x2) = (p*l _ _ (inductionB p0l p+l p*l pnegl p1l x1) (inductionB p0l p+l p*l pnegl p1l x2))  
+  inductionB p0l p+l p*l pnegl p1l (negL x1) = (pnegl _ (inductionB p0l p+l p*l pnegl p1l x1))  
+  inductionB p0l p+l p*l pnegl p1l 1L = p1l  
+  inductionCl :  {A : Set} {P : ((ClLieRingTerm A) → Set)} →  (( (x1 : A) → (P (sing x1))) → ((P 0Cl) → (( (x1 x2 : (ClLieRingTerm A)) → ((P x1) → ((P x2) → (P (+Cl x1 x2))))) → (( (x1 x2 : (ClLieRingTerm A)) → ((P x1) → ((P x2) → (P (*Cl x1 x2))))) → (( (x1 : (ClLieRingTerm A)) → ((P x1) → (P (negCl x1)))) → ((P 1Cl) → ( (x : (ClLieRingTerm A)) → (P x)))))))) 
+  inductionCl psing p0cl p+cl p*cl pnegcl p1cl (sing x1) = (psing x1)  
+  inductionCl psing p0cl p+cl p*cl pnegcl p1cl 0Cl = p0cl  
+  inductionCl psing p0cl p+cl p*cl pnegcl p1cl (+Cl x1 x2) = (p+cl _ _ (inductionCl psing p0cl p+cl p*cl pnegcl p1cl x1) (inductionCl psing p0cl p+cl p*cl pnegcl p1cl x2))  
+  inductionCl psing p0cl p+cl p*cl pnegcl p1cl (*Cl x1 x2) = (p*cl _ _ (inductionCl psing p0cl p+cl p*cl pnegcl p1cl x1) (inductionCl psing p0cl p+cl p*cl pnegcl p1cl x2))  
+  inductionCl psing p0cl p+cl p*cl pnegcl p1cl (negCl x1) = (pnegcl _ (inductionCl psing p0cl p+cl p*cl pnegcl p1cl x1))  
+  inductionCl psing p0cl p+cl p*cl pnegcl p1cl 1Cl = p1cl  
+  inductionOpB :  {n : Nat} {P : ((OpLieRingTerm n) → Set)} →  (( (fin : (Fin n)) → (P (v fin))) → ((P 0OL) → (( (x1 x2 : (OpLieRingTerm n)) → ((P x1) → ((P x2) → (P (+OL x1 x2))))) → (( (x1 x2 : (OpLieRingTerm n)) → ((P x1) → ((P x2) → (P (*OL x1 x2))))) → (( (x1 : (OpLieRingTerm n)) → ((P x1) → (P (negOL x1)))) → ((P 1OL) → ( (x : (OpLieRingTerm n)) → (P x)))))))) 
+  inductionOpB pv p0ol p+ol p*ol pnegol p1ol (v x1) = (pv x1)  
+  inductionOpB pv p0ol p+ol p*ol pnegol p1ol 0OL = p0ol  
+  inductionOpB pv p0ol p+ol p*ol pnegol p1ol (+OL x1 x2) = (p+ol _ _ (inductionOpB pv p0ol p+ol p*ol pnegol p1ol x1) (inductionOpB pv p0ol p+ol p*ol pnegol p1ol x2))  
+  inductionOpB pv p0ol p+ol p*ol pnegol p1ol (*OL x1 x2) = (p*ol _ _ (inductionOpB pv p0ol p+ol p*ol pnegol p1ol x1) (inductionOpB pv p0ol p+ol p*ol pnegol p1ol x2))  
+  inductionOpB pv p0ol p+ol p*ol pnegol p1ol (negOL x1) = (pnegol _ (inductionOpB pv p0ol p+ol p*ol pnegol p1ol x1))  
+  inductionOpB pv p0ol p+ol p*ol pnegol p1ol 1OL = p1ol  
+  inductionOp :  {n : Nat} {A : Set} {P : ((OpLieRingTerm2 n A) → Set)} →  (( (fin : (Fin n)) → (P (v2 fin))) → (( (x1 : A) → (P (sing2 x1))) → ((P 0OL2) → (( (x1 x2 : (OpLieRingTerm2 n A)) → ((P x1) → ((P x2) → (P (+OL2 x1 x2))))) → (( (x1 x2 : (OpLieRingTerm2 n A)) → ((P x1) → ((P x2) → (P (*OL2 x1 x2))))) → (( (x1 : (OpLieRingTerm2 n A)) → ((P x1) → (P (negOL2 x1)))) → ((P 1OL2) → ( (x : (OpLieRingTerm2 n A)) → (P x))))))))) 
+  inductionOp pv2 psing2 p0ol2 p+ol2 p*ol2 pnegol2 p1ol2 (v2 x1) = (pv2 x1)  
+  inductionOp pv2 psing2 p0ol2 p+ol2 p*ol2 pnegol2 p1ol2 (sing2 x1) = (psing2 x1)  
+  inductionOp pv2 psing2 p0ol2 p+ol2 p*ol2 pnegol2 p1ol2 0OL2 = p0ol2  
+  inductionOp pv2 psing2 p0ol2 p+ol2 p*ol2 pnegol2 p1ol2 (+OL2 x1 x2) = (p+ol2 _ _ (inductionOp pv2 psing2 p0ol2 p+ol2 p*ol2 pnegol2 p1ol2 x1) (inductionOp pv2 psing2 p0ol2 p+ol2 p*ol2 pnegol2 p1ol2 x2))  
+  inductionOp pv2 psing2 p0ol2 p+ol2 p*ol2 pnegol2 p1ol2 (*OL2 x1 x2) = (p*ol2 _ _ (inductionOp pv2 psing2 p0ol2 p+ol2 p*ol2 pnegol2 p1ol2 x1) (inductionOp pv2 psing2 p0ol2 p+ol2 p*ol2 pnegol2 p1ol2 x2))  
+  inductionOp pv2 psing2 p0ol2 p+ol2 p*ol2 pnegol2 p1ol2 (negOL2 x1) = (pnegol2 _ (inductionOp pv2 psing2 p0ol2 p+ol2 p*ol2 pnegol2 p1ol2 x1))  
+  inductionOp pv2 psing2 p0ol2 p+ol2 p*ol2 pnegol2 p1ol2 1OL2 = p1ol2  
   stageB :  (LieRingTerm → (Staged LieRingTerm))
   stageB 0L = (Now 0L)  
   stageB (+L x1 x2) = (stage2 +L (codeLift2 +L) (stageB x1) (stageB x2))  
   stageB (*L x1 x2) = (stage2 *L (codeLift2 *L) (stageB x1) (stageB x2))  
   stageB (negL x1) = (stage1 negL (codeLift1 negL) (stageB x1))  
   stageB 1L = (Now 1L)  
-  stageCl :  (A : Set) →  ((ClLieRingTerm A) → (Staged (ClLieRingTerm A))) 
-  stageCl _ (sing x1) = (Now (sing x1))  
-  stageCl _ 0Cl = (Now 0Cl)  
-  stageCl _ (+Cl x1 x2) = (stage2 +Cl (codeLift2 +Cl) (stageCl _ x1) (stageCl _ x2))  
-  stageCl _ (*Cl x1 x2) = (stage2 *Cl (codeLift2 *Cl) (stageCl _ x1) (stageCl _ x2))  
-  stageCl _ (negCl x1) = (stage1 negCl (codeLift1 negCl) (stageCl _ x1))  
-  stageCl _ 1Cl = (Now 1Cl)  
-  stageOpB :  (n : Nat) →  ((OpLieRingTerm n) → (Staged (OpLieRingTerm n))) 
-  stageOpB _ (v x1) = (const (code (v x1)))  
-  stageOpB _ 0OL = (Now 0OL)  
-  stageOpB _ (+OL x1 x2) = (stage2 +OL (codeLift2 +OL) (stageOpB _ x1) (stageOpB _ x2))  
-  stageOpB _ (*OL x1 x2) = (stage2 *OL (codeLift2 *OL) (stageOpB _ x1) (stageOpB _ x2))  
-  stageOpB _ (negOL x1) = (stage1 negOL (codeLift1 negOL) (stageOpB _ x1))  
-  stageOpB _ 1OL = (Now 1OL)  
-  stageOp :  (n : Nat) (A : Set) →  ((OpLieRingTerm2 n A) → (Staged (OpLieRingTerm2 n A))) 
-  stageOp _ _ (sing2 x1) = (Now (sing2 x1))  
-  stageOp _ _ (v2 x1) = (const (code (v2 x1)))  
-  stageOp _ _ 0OL2 = (Now 0OL2)  
-  stageOp _ _ (+OL2 x1 x2) = (stage2 +OL2 (codeLift2 +OL2) (stageOp _ _ x1) (stageOp _ _ x2))  
-  stageOp _ _ (*OL2 x1 x2) = (stage2 *OL2 (codeLift2 *OL2) (stageOp _ _ x1) (stageOp _ _ x2))  
-  stageOp _ _ (negOL2 x1) = (stage1 negOL2 (codeLift1 negOL2) (stageOp _ _ x1))  
-  stageOp _ _ 1OL2 = (Now 1OL2)  
+  stageCl :  {A : Set} →  ((ClLieRingTerm A) → (Staged (ClLieRingTerm A))) 
+  stageCl (sing x1) = (Now (sing x1))  
+  stageCl 0Cl = (Now 0Cl)  
+  stageCl (+Cl x1 x2) = (stage2 +Cl (codeLift2 +Cl) (stageCl x1) (stageCl x2))  
+  stageCl (*Cl x1 x2) = (stage2 *Cl (codeLift2 *Cl) (stageCl x1) (stageCl x2))  
+  stageCl (negCl x1) = (stage1 negCl (codeLift1 negCl) (stageCl x1))  
+  stageCl 1Cl = (Now 1Cl)  
+  stageOpB :  {n : Nat} →  ((OpLieRingTerm n) → (Staged (OpLieRingTerm n))) 
+  stageOpB (v x1) = (const (code (v x1)))  
+  stageOpB 0OL = (Now 0OL)  
+  stageOpB (+OL x1 x2) = (stage2 +OL (codeLift2 +OL) (stageOpB x1) (stageOpB x2))  
+  stageOpB (*OL x1 x2) = (stage2 *OL (codeLift2 *OL) (stageOpB x1) (stageOpB x2))  
+  stageOpB (negOL x1) = (stage1 negOL (codeLift1 negOL) (stageOpB x1))  
+  stageOpB 1OL = (Now 1OL)  
+  stageOp :  {n : Nat} {A : Set} →  ((OpLieRingTerm2 n A) → (Staged (OpLieRingTerm2 n A))) 
+  stageOp (sing2 x1) = (Now (sing2 x1))  
+  stageOp (v2 x1) = (const (code (v2 x1)))  
+  stageOp 0OL2 = (Now 0OL2)  
+  stageOp (+OL2 x1 x2) = (stage2 +OL2 (codeLift2 +OL2) (stageOp x1) (stageOp x2))  
+  stageOp (*OL2 x1 x2) = (stage2 *OL2 (codeLift2 *OL2) (stageOp x1) (stageOp x2))  
+  stageOp (negOL2 x1) = (stage1 negOL2 (codeLift1 negOL2) (stageOp x1))  
+  stageOp 1OL2 = (Now 1OL2)  
   record StagedRepr  (A : Set) (Repr : (Set → Set)) : Set where 
      field  
       0T : (Repr A) 

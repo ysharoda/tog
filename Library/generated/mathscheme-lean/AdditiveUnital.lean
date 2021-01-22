@@ -58,19 +58,19 @@ section AdditiveUnital
      | plusOL2 : (OpAdditiveUnitalTerm2 → (OpAdditiveUnitalTerm2 → OpAdditiveUnitalTerm2))  
       open OpAdditiveUnitalTerm2 
   
-  def simplifyCl   (A : Type)  : ((ClAdditiveUnitalTerm A) → (ClAdditiveUnitalTerm A)) 
+  def simplifyCl   {A : Type}  : ((ClAdditiveUnitalTerm A) → (ClAdditiveUnitalTerm A)) 
   | (plusCl zeroCl x) := x  
   | (plusCl x zeroCl) := x  
   | zeroCl := zeroCl  
   | (plusCl x1 x2) := (plusCl (simplifyCl x1) (simplifyCl x2))  
   | (sing x1) := (sing x1)  
-  def simplifyOpB   (n : ℕ)  : ((OpAdditiveUnitalTerm n) → (OpAdditiveUnitalTerm n)) 
+  def simplifyOpB   {n : ℕ}  : ((OpAdditiveUnitalTerm n) → (OpAdditiveUnitalTerm n)) 
   | (plusOL zeroOL x) := x  
   | (plusOL x zeroOL) := x  
   | zeroOL := zeroOL  
   | (plusOL x1 x2) := (plusOL (simplifyOpB x1) (simplifyOpB x2))  
   | (v x1) := (v x1)  
-  def simplifyOp   (n : ℕ) (A : Type)  : ((OpAdditiveUnitalTerm2 n A) → (OpAdditiveUnitalTerm2 n A)) 
+  def simplifyOp   {n : ℕ} {A : Type}  : ((OpAdditiveUnitalTerm2 n A) → (OpAdditiveUnitalTerm2 n A)) 
   | (plusOL2 zeroOL2 x) := x  
   | (plusOL2 x zeroOL2) := x  
   | zeroOL2 := zeroOL2  
@@ -84,27 +84,27 @@ section AdditiveUnital
   | Ad (sing x1) := x1  
   | Ad zeroCl := (zero Ad)  
   | Ad (plusCl x1 x2) := ((plus Ad) (evalCl Ad x1) (evalCl Ad x2))  
-  def evalOpB   {A : Type} (n : ℕ)  : ((AdditiveUnital A) → ((vector A n) → ((OpAdditiveUnitalTerm n) → A))) 
+  def evalOpB   {A : Type} {n : ℕ}  : ((AdditiveUnital A) → ((vector A n) → ((OpAdditiveUnitalTerm n) → A))) 
   | Ad vars (v x1) := (nth vars x1)  
   | Ad vars zeroOL := (zero Ad)  
   | Ad vars (plusOL x1 x2) := ((plus Ad) (evalOpB Ad vars x1) (evalOpB Ad vars x2))  
-  def evalOp   {A : Type} (n : ℕ)  : ((AdditiveUnital A) → ((vector A n) → ((OpAdditiveUnitalTerm2 n A) → A))) 
+  def evalOp   {A : Type} {n : ℕ}  : ((AdditiveUnital A) → ((vector A n) → ((OpAdditiveUnitalTerm2 n A) → A))) 
   | Ad vars (v2 x1) := (nth vars x1)  
   | Ad vars (sing2 x1) := x1  
   | Ad vars zeroOL2 := (zero Ad)  
   | Ad vars (plusOL2 x1 x2) := ((plus Ad) (evalOp Ad vars x1) (evalOp Ad vars x2))  
-  def inductionB   (P : (AdditiveUnitalTerm → Type))  : ((P zeroL) → ((∀ (x1 x2 : AdditiveUnitalTerm) , ((P x1) → ((P x2) → (P (plusL x1 x2))))) → (∀ (x : AdditiveUnitalTerm) , (P x)))) 
+  def inductionB   {P : (AdditiveUnitalTerm → Type)}  : ((P zeroL) → ((∀ (x1 x2 : AdditiveUnitalTerm) , ((P x1) → ((P x2) → (P (plusL x1 x2))))) → (∀ (x : AdditiveUnitalTerm) , (P x)))) 
   | p0l pplusl zeroL := p0l  
   | p0l pplusl (plusL x1 x2) := (pplusl _ _ (inductionB p0l pplusl x1) (inductionB p0l pplusl x2))  
-  def inductionCl   (A : Type) (P : ((ClAdditiveUnitalTerm A) → Type))  : ((∀ (x1 : A) , (P (sing x1))) → ((P zeroCl) → ((∀ (x1 x2 : (ClAdditiveUnitalTerm A)) , ((P x1) → ((P x2) → (P (plusCl x1 x2))))) → (∀ (x : (ClAdditiveUnitalTerm A)) , (P x))))) 
+  def inductionCl   {A : Type} {P : ((ClAdditiveUnitalTerm A) → Type)}  : ((∀ (x1 : A) , (P (sing x1))) → ((P zeroCl) → ((∀ (x1 x2 : (ClAdditiveUnitalTerm A)) , ((P x1) → ((P x2) → (P (plusCl x1 x2))))) → (∀ (x : (ClAdditiveUnitalTerm A)) , (P x))))) 
   | psing p0cl ppluscl (sing x1) := (psing x1)  
   | psing p0cl ppluscl zeroCl := p0cl  
   | psing p0cl ppluscl (plusCl x1 x2) := (ppluscl _ _ (inductionCl psing p0cl ppluscl x1) (inductionCl psing p0cl ppluscl x2))  
-  def inductionOpB   (n : ℕ) (P : ((OpAdditiveUnitalTerm n) → Type))  : ((∀ (fin : (fin n)) , (P (v fin))) → ((P zeroOL) → ((∀ (x1 x2 : (OpAdditiveUnitalTerm n)) , ((P x1) → ((P x2) → (P (plusOL x1 x2))))) → (∀ (x : (OpAdditiveUnitalTerm n)) , (P x))))) 
+  def inductionOpB   {n : ℕ} {P : ((OpAdditiveUnitalTerm n) → Type)}  : ((∀ (fin : (fin n)) , (P (v fin))) → ((P zeroOL) → ((∀ (x1 x2 : (OpAdditiveUnitalTerm n)) , ((P x1) → ((P x2) → (P (plusOL x1 x2))))) → (∀ (x : (OpAdditiveUnitalTerm n)) , (P x))))) 
   | pv p0ol pplusol (v x1) := (pv x1)  
   | pv p0ol pplusol zeroOL := p0ol  
   | pv p0ol pplusol (plusOL x1 x2) := (pplusol _ _ (inductionOpB pv p0ol pplusol x1) (inductionOpB pv p0ol pplusol x2))  
-  def inductionOp   (n : ℕ) (A : Type) (P : ((OpAdditiveUnitalTerm2 n A) → Type))  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((P zeroOL2) → ((∀ (x1 x2 : (OpAdditiveUnitalTerm2 n A)) , ((P x1) → ((P x2) → (P (plusOL2 x1 x2))))) → (∀ (x : (OpAdditiveUnitalTerm2 n A)) , (P x)))))) 
+  def inductionOp   {n : ℕ} {A : Type} {P : ((OpAdditiveUnitalTerm2 n A) → Type)}  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((P zeroOL2) → ((∀ (x1 x2 : (OpAdditiveUnitalTerm2 n A)) , ((P x1) → ((P x2) → (P (plusOL2 x1 x2))))) → (∀ (x : (OpAdditiveUnitalTerm2 n A)) , (P x)))))) 
   | pv2 psing2 p0ol2 pplusol2 (v2 x1) := (pv2 x1)  
   | pv2 psing2 p0ol2 pplusol2 (sing2 x1) := (psing2 x1)  
   | pv2 psing2 p0ol2 pplusol2 zeroOL2 := p0ol2  
@@ -112,15 +112,15 @@ section AdditiveUnital
   def stageB  : (AdditiveUnitalTerm → (Staged AdditiveUnitalTerm))
   | zeroL := (Now zeroL)  
   | (plusL x1 x2) := (stage2 plusL (codeLift2 plusL) (stageB x1) (stageB x2))  
-  def stageCl   (A : Type)  : ((ClAdditiveUnitalTerm A) → (Staged (ClAdditiveUnitalTerm A))) 
+  def stageCl   {A : Type}  : ((ClAdditiveUnitalTerm A) → (Staged (ClAdditiveUnitalTerm A))) 
   | (sing x1) := (Now (sing x1))  
   | zeroCl := (Now zeroCl)  
   | (plusCl x1 x2) := (stage2 plusCl (codeLift2 plusCl) (stageCl x1) (stageCl x2))  
-  def stageOpB   (n : ℕ)  : ((OpAdditiveUnitalTerm n) → (Staged (OpAdditiveUnitalTerm n))) 
+  def stageOpB   {n : ℕ}  : ((OpAdditiveUnitalTerm n) → (Staged (OpAdditiveUnitalTerm n))) 
   | (v x1) := (const (code (v x1)))  
   | zeroOL := (Now zeroOL)  
   | (plusOL x1 x2) := (stage2 plusOL (codeLift2 plusOL) (stageOpB x1) (stageOpB x2))  
-  def stageOp   (n : ℕ) (A : Type)  : ((OpAdditiveUnitalTerm2 n A) → (Staged (OpAdditiveUnitalTerm2 n A))) 
+  def stageOp   {n : ℕ} {A : Type}  : ((OpAdditiveUnitalTerm2 n A) → (Staged (OpAdditiveUnitalTerm2 n A))) 
   | (sing2 x1) := (Now (sing2 x1))  
   | (v2 x1) := (const (code (v2 x1)))  
   | zeroOL2 := (Now zeroOL2)  

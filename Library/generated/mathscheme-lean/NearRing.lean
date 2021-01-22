@@ -86,7 +86,7 @@ section NearRing
      | negOL2 : (OpNearRingTerm2 → OpNearRingTerm2)  
       open OpNearRingTerm2 
   
-  def simplifyCl   (A : Type)  : ((ClNearRingTerm A) → (ClNearRingTerm A)) 
+  def simplifyCl   {A : Type}  : ((ClNearRingTerm A) → (ClNearRingTerm A)) 
   | (plusCl zeroCl x) := x  
   | (plusCl x zeroCl) := x  
   | (timesCl x1 x2) := (timesCl (simplifyCl x1) (simplifyCl x2))  
@@ -94,7 +94,7 @@ section NearRing
   | zeroCl := zeroCl  
   | (negCl x1) := (negCl (simplifyCl x1))  
   | (sing x1) := (sing x1)  
-  def simplifyOpB   (n : ℕ)  : ((OpNearRingTerm n) → (OpNearRingTerm n)) 
+  def simplifyOpB   {n : ℕ}  : ((OpNearRingTerm n) → (OpNearRingTerm n)) 
   | (plusOL zeroOL x) := x  
   | (plusOL x zeroOL) := x  
   | (timesOL x1 x2) := (timesOL (simplifyOpB x1) (simplifyOpB x2))  
@@ -102,7 +102,7 @@ section NearRing
   | zeroOL := zeroOL  
   | (negOL x1) := (negOL (simplifyOpB x1))  
   | (v x1) := (v x1)  
-  def simplifyOp   (n : ℕ) (A : Type)  : ((OpNearRingTerm2 n A) → (OpNearRingTerm2 n A)) 
+  def simplifyOp   {n : ℕ} {A : Type}  : ((OpNearRingTerm2 n A) → (OpNearRingTerm2 n A)) 
   | (plusOL2 zeroOL2 x) := x  
   | (plusOL2 x zeroOL2) := x  
   | (timesOL2 x1 x2) := (timesOL2 (simplifyOp x1) (simplifyOp x2))  
@@ -122,37 +122,37 @@ section NearRing
   | Ne (plusCl x1 x2) := ((plus Ne) (evalCl Ne x1) (evalCl Ne x2))  
   | Ne zeroCl := (zero Ne)  
   | Ne (negCl x1) := ((neg Ne) (evalCl Ne x1))  
-  def evalOpB   {A : Type} (n : ℕ)  : ((NearRing A) → ((vector A n) → ((OpNearRingTerm n) → A))) 
+  def evalOpB   {A : Type} {n : ℕ}  : ((NearRing A) → ((vector A n) → ((OpNearRingTerm n) → A))) 
   | Ne vars (v x1) := (nth vars x1)  
   | Ne vars (timesOL x1 x2) := ((times Ne) (evalOpB Ne vars x1) (evalOpB Ne vars x2))  
   | Ne vars (plusOL x1 x2) := ((plus Ne) (evalOpB Ne vars x1) (evalOpB Ne vars x2))  
   | Ne vars zeroOL := (zero Ne)  
   | Ne vars (negOL x1) := ((neg Ne) (evalOpB Ne vars x1))  
-  def evalOp   {A : Type} (n : ℕ)  : ((NearRing A) → ((vector A n) → ((OpNearRingTerm2 n A) → A))) 
+  def evalOp   {A : Type} {n : ℕ}  : ((NearRing A) → ((vector A n) → ((OpNearRingTerm2 n A) → A))) 
   | Ne vars (v2 x1) := (nth vars x1)  
   | Ne vars (sing2 x1) := x1  
   | Ne vars (timesOL2 x1 x2) := ((times Ne) (evalOp Ne vars x1) (evalOp Ne vars x2))  
   | Ne vars (plusOL2 x1 x2) := ((plus Ne) (evalOp Ne vars x1) (evalOp Ne vars x2))  
   | Ne vars zeroOL2 := (zero Ne)  
   | Ne vars (negOL2 x1) := ((neg Ne) (evalOp Ne vars x1))  
-  def inductionB   (P : (NearRingTerm → Type))  : ((∀ (x1 x2 : NearRingTerm) , ((P x1) → ((P x2) → (P (timesL x1 x2))))) → ((∀ (x1 x2 : NearRingTerm) , ((P x1) → ((P x2) → (P (plusL x1 x2))))) → ((P zeroL) → ((∀ (x1 : NearRingTerm) , ((P x1) → (P (negL x1)))) → (∀ (x : NearRingTerm) , (P x)))))) 
+  def inductionB   {P : (NearRingTerm → Type)}  : ((∀ (x1 x2 : NearRingTerm) , ((P x1) → ((P x2) → (P (timesL x1 x2))))) → ((∀ (x1 x2 : NearRingTerm) , ((P x1) → ((P x2) → (P (plusL x1 x2))))) → ((P zeroL) → ((∀ (x1 : NearRingTerm) , ((P x1) → (P (negL x1)))) → (∀ (x : NearRingTerm) , (P x)))))) 
   | ptimesl pplusl p0l pnegl (timesL x1 x2) := (ptimesl _ _ (inductionB ptimesl pplusl p0l pnegl x1) (inductionB ptimesl pplusl p0l pnegl x2))  
   | ptimesl pplusl p0l pnegl (plusL x1 x2) := (pplusl _ _ (inductionB ptimesl pplusl p0l pnegl x1) (inductionB ptimesl pplusl p0l pnegl x2))  
   | ptimesl pplusl p0l pnegl zeroL := p0l  
   | ptimesl pplusl p0l pnegl (negL x1) := (pnegl _ (inductionB ptimesl pplusl p0l pnegl x1))  
-  def inductionCl   (A : Type) (P : ((ClNearRingTerm A) → Type))  : ((∀ (x1 : A) , (P (sing x1))) → ((∀ (x1 x2 : (ClNearRingTerm A)) , ((P x1) → ((P x2) → (P (timesCl x1 x2))))) → ((∀ (x1 x2 : (ClNearRingTerm A)) , ((P x1) → ((P x2) → (P (plusCl x1 x2))))) → ((P zeroCl) → ((∀ (x1 : (ClNearRingTerm A)) , ((P x1) → (P (negCl x1)))) → (∀ (x : (ClNearRingTerm A)) , (P x))))))) 
+  def inductionCl   {A : Type} {P : ((ClNearRingTerm A) → Type)}  : ((∀ (x1 : A) , (P (sing x1))) → ((∀ (x1 x2 : (ClNearRingTerm A)) , ((P x1) → ((P x2) → (P (timesCl x1 x2))))) → ((∀ (x1 x2 : (ClNearRingTerm A)) , ((P x1) → ((P x2) → (P (plusCl x1 x2))))) → ((P zeroCl) → ((∀ (x1 : (ClNearRingTerm A)) , ((P x1) → (P (negCl x1)))) → (∀ (x : (ClNearRingTerm A)) , (P x))))))) 
   | psing ptimescl ppluscl p0cl pnegcl (sing x1) := (psing x1)  
   | psing ptimescl ppluscl p0cl pnegcl (timesCl x1 x2) := (ptimescl _ _ (inductionCl psing ptimescl ppluscl p0cl pnegcl x1) (inductionCl psing ptimescl ppluscl p0cl pnegcl x2))  
   | psing ptimescl ppluscl p0cl pnegcl (plusCl x1 x2) := (ppluscl _ _ (inductionCl psing ptimescl ppluscl p0cl pnegcl x1) (inductionCl psing ptimescl ppluscl p0cl pnegcl x2))  
   | psing ptimescl ppluscl p0cl pnegcl zeroCl := p0cl  
   | psing ptimescl ppluscl p0cl pnegcl (negCl x1) := (pnegcl _ (inductionCl psing ptimescl ppluscl p0cl pnegcl x1))  
-  def inductionOpB   (n : ℕ) (P : ((OpNearRingTerm n) → Type))  : ((∀ (fin : (fin n)) , (P (v fin))) → ((∀ (x1 x2 : (OpNearRingTerm n)) , ((P x1) → ((P x2) → (P (timesOL x1 x2))))) → ((∀ (x1 x2 : (OpNearRingTerm n)) , ((P x1) → ((P x2) → (P (plusOL x1 x2))))) → ((P zeroOL) → ((∀ (x1 : (OpNearRingTerm n)) , ((P x1) → (P (negOL x1)))) → (∀ (x : (OpNearRingTerm n)) , (P x))))))) 
+  def inductionOpB   {n : ℕ} {P : ((OpNearRingTerm n) → Type)}  : ((∀ (fin : (fin n)) , (P (v fin))) → ((∀ (x1 x2 : (OpNearRingTerm n)) , ((P x1) → ((P x2) → (P (timesOL x1 x2))))) → ((∀ (x1 x2 : (OpNearRingTerm n)) , ((P x1) → ((P x2) → (P (plusOL x1 x2))))) → ((P zeroOL) → ((∀ (x1 : (OpNearRingTerm n)) , ((P x1) → (P (negOL x1)))) → (∀ (x : (OpNearRingTerm n)) , (P x))))))) 
   | pv ptimesol pplusol p0ol pnegol (v x1) := (pv x1)  
   | pv ptimesol pplusol p0ol pnegol (timesOL x1 x2) := (ptimesol _ _ (inductionOpB pv ptimesol pplusol p0ol pnegol x1) (inductionOpB pv ptimesol pplusol p0ol pnegol x2))  
   | pv ptimesol pplusol p0ol pnegol (plusOL x1 x2) := (pplusol _ _ (inductionOpB pv ptimesol pplusol p0ol pnegol x1) (inductionOpB pv ptimesol pplusol p0ol pnegol x2))  
   | pv ptimesol pplusol p0ol pnegol zeroOL := p0ol  
   | pv ptimesol pplusol p0ol pnegol (negOL x1) := (pnegol _ (inductionOpB pv ptimesol pplusol p0ol pnegol x1))  
-  def inductionOp   (n : ℕ) (A : Type) (P : ((OpNearRingTerm2 n A) → Type))  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((∀ (x1 x2 : (OpNearRingTerm2 n A)) , ((P x1) → ((P x2) → (P (timesOL2 x1 x2))))) → ((∀ (x1 x2 : (OpNearRingTerm2 n A)) , ((P x1) → ((P x2) → (P (plusOL2 x1 x2))))) → ((P zeroOL2) → ((∀ (x1 : (OpNearRingTerm2 n A)) , ((P x1) → (P (negOL2 x1)))) → (∀ (x : (OpNearRingTerm2 n A)) , (P x)))))))) 
+  def inductionOp   {n : ℕ} {A : Type} {P : ((OpNearRingTerm2 n A) → Type)}  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((∀ (x1 x2 : (OpNearRingTerm2 n A)) , ((P x1) → ((P x2) → (P (timesOL2 x1 x2))))) → ((∀ (x1 x2 : (OpNearRingTerm2 n A)) , ((P x1) → ((P x2) → (P (plusOL2 x1 x2))))) → ((P zeroOL2) → ((∀ (x1 : (OpNearRingTerm2 n A)) , ((P x1) → (P (negOL2 x1)))) → (∀ (x : (OpNearRingTerm2 n A)) , (P x)))))))) 
   | pv2 psing2 ptimesol2 pplusol2 p0ol2 pnegol2 (v2 x1) := (pv2 x1)  
   | pv2 psing2 ptimesol2 pplusol2 p0ol2 pnegol2 (sing2 x1) := (psing2 x1)  
   | pv2 psing2 ptimesol2 pplusol2 p0ol2 pnegol2 (timesOL2 x1 x2) := (ptimesol2 _ _ (inductionOp pv2 psing2 ptimesol2 pplusol2 p0ol2 pnegol2 x1) (inductionOp pv2 psing2 ptimesol2 pplusol2 p0ol2 pnegol2 x2))  
@@ -164,19 +164,19 @@ section NearRing
   | (plusL x1 x2) := (stage2 plusL (codeLift2 plusL) (stageB x1) (stageB x2))  
   | zeroL := (Now zeroL)  
   | (negL x1) := (stage1 negL (codeLift1 negL) (stageB x1))  
-  def stageCl   (A : Type)  : ((ClNearRingTerm A) → (Staged (ClNearRingTerm A))) 
+  def stageCl   {A : Type}  : ((ClNearRingTerm A) → (Staged (ClNearRingTerm A))) 
   | (sing x1) := (Now (sing x1))  
   | (timesCl x1 x2) := (stage2 timesCl (codeLift2 timesCl) (stageCl x1) (stageCl x2))  
   | (plusCl x1 x2) := (stage2 plusCl (codeLift2 plusCl) (stageCl x1) (stageCl x2))  
   | zeroCl := (Now zeroCl)  
   | (negCl x1) := (stage1 negCl (codeLift1 negCl) (stageCl x1))  
-  def stageOpB   (n : ℕ)  : ((OpNearRingTerm n) → (Staged (OpNearRingTerm n))) 
+  def stageOpB   {n : ℕ}  : ((OpNearRingTerm n) → (Staged (OpNearRingTerm n))) 
   | (v x1) := (const (code (v x1)))  
   | (timesOL x1 x2) := (stage2 timesOL (codeLift2 timesOL) (stageOpB x1) (stageOpB x2))  
   | (plusOL x1 x2) := (stage2 plusOL (codeLift2 plusOL) (stageOpB x1) (stageOpB x2))  
   | zeroOL := (Now zeroOL)  
   | (negOL x1) := (stage1 negOL (codeLift1 negOL) (stageOpB x1))  
-  def stageOp   (n : ℕ) (A : Type)  : ((OpNearRingTerm2 n A) → (Staged (OpNearRingTerm2 n A))) 
+  def stageOp   {n : ℕ} {A : Type}  : ((OpNearRingTerm2 n A) → (Staged (OpNearRingTerm2 n A))) 
   | (sing2 x1) := (Now (sing2 x1))  
   | (v2 x1) := (const (code (v2 x1)))  
   | (timesOL2 x1 x2) := (stage2 timesOL2 (codeLift2 timesOL2) (stageOp x1) (stageOp x2))  

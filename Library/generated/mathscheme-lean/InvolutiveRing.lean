@@ -124,7 +124,7 @@ section InvolutiveRing
      | negOL2 : (OpInvolutiveRingTerm2 → OpInvolutiveRingTerm2)  
       open OpInvolutiveRingTerm2 
   
-  def simplifyCl   (A : Type)  : ((ClInvolutiveRingTerm A) → (ClInvolutiveRingTerm A)) 
+  def simplifyCl   {A : Type}  : ((ClInvolutiveRingTerm A) → (ClInvolutiveRingTerm A)) 
   | (primCl oneCl) := oneCl  
   | (primCl (primCl x)) := x  
   | (plusCl (primCl y) (primCl x)) := (primCl (plusCl x y))  
@@ -140,7 +140,7 @@ section InvolutiveRing
   | zeroCl := zeroCl  
   | (negCl x1) := (negCl (simplifyCl x1))  
   | (sing x1) := (sing x1)  
-  def simplifyOpB   (n : ℕ)  : ((OpInvolutiveRingTerm n) → (OpInvolutiveRingTerm n)) 
+  def simplifyOpB   {n : ℕ}  : ((OpInvolutiveRingTerm n) → (OpInvolutiveRingTerm n)) 
   | (primOL oneOL) := oneOL  
   | (primOL (primOL x)) := x  
   | (plusOL (primOL y) (primOL x)) := (primOL (plusOL x y))  
@@ -156,7 +156,7 @@ section InvolutiveRing
   | zeroOL := zeroOL  
   | (negOL x1) := (negOL (simplifyOpB x1))  
   | (v x1) := (v x1)  
-  def simplifyOp   (n : ℕ) (A : Type)  : ((OpInvolutiveRingTerm2 n A) → (OpInvolutiveRingTerm2 n A)) 
+  def simplifyOp   {n : ℕ} {A : Type}  : ((OpInvolutiveRingTerm2 n A) → (OpInvolutiveRingTerm2 n A)) 
   | (primOL2 oneOL2) := oneOL2  
   | (primOL2 (primOL2 x)) := x  
   | (plusOL2 (primOL2 y) (primOL2 x)) := (primOL2 (plusOL2 x y))  
@@ -188,7 +188,7 @@ section InvolutiveRing
   | In (primCl x1) := ((prim In) (evalCl In x1))  
   | In zeroCl := (zero In)  
   | In (negCl x1) := ((neg In) (evalCl In x1))  
-  def evalOpB   {A : Type} (n : ℕ)  : ((InvolutiveRing A) → ((vector A n) → ((OpInvolutiveRingTerm n) → A))) 
+  def evalOpB   {A : Type} {n : ℕ}  : ((InvolutiveRing A) → ((vector A n) → ((OpInvolutiveRingTerm n) → A))) 
   | In vars (v x1) := (nth vars x1)  
   | In vars (timesOL x1 x2) := ((times In) (evalOpB In vars x1) (evalOpB In vars x2))  
   | In vars (plusOL x1 x2) := ((plus In) (evalOpB In vars x1) (evalOpB In vars x2))  
@@ -196,7 +196,7 @@ section InvolutiveRing
   | In vars (primOL x1) := ((prim In) (evalOpB In vars x1))  
   | In vars zeroOL := (zero In)  
   | In vars (negOL x1) := ((neg In) (evalOpB In vars x1))  
-  def evalOp   {A : Type} (n : ℕ)  : ((InvolutiveRing A) → ((vector A n) → ((OpInvolutiveRingTerm2 n A) → A))) 
+  def evalOp   {A : Type} {n : ℕ}  : ((InvolutiveRing A) → ((vector A n) → ((OpInvolutiveRingTerm2 n A) → A))) 
   | In vars (v2 x1) := (nth vars x1)  
   | In vars (sing2 x1) := x1  
   | In vars (timesOL2 x1 x2) := ((times In) (evalOp In vars x1) (evalOp In vars x2))  
@@ -205,14 +205,14 @@ section InvolutiveRing
   | In vars (primOL2 x1) := ((prim In) (evalOp In vars x1))  
   | In vars zeroOL2 := (zero In)  
   | In vars (negOL2 x1) := ((neg In) (evalOp In vars x1))  
-  def inductionB   (P : (InvolutiveRingTerm → Type))  : ((∀ (x1 x2 : InvolutiveRingTerm) , ((P x1) → ((P x2) → (P (timesL x1 x2))))) → ((∀ (x1 x2 : InvolutiveRingTerm) , ((P x1) → ((P x2) → (P (plusL x1 x2))))) → ((P oneL) → ((∀ (x1 : InvolutiveRingTerm) , ((P x1) → (P (primL x1)))) → ((P zeroL) → ((∀ (x1 : InvolutiveRingTerm) , ((P x1) → (P (negL x1)))) → (∀ (x : InvolutiveRingTerm) , (P x)))))))) 
+  def inductionB   {P : (InvolutiveRingTerm → Type)}  : ((∀ (x1 x2 : InvolutiveRingTerm) , ((P x1) → ((P x2) → (P (timesL x1 x2))))) → ((∀ (x1 x2 : InvolutiveRingTerm) , ((P x1) → ((P x2) → (P (plusL x1 x2))))) → ((P oneL) → ((∀ (x1 : InvolutiveRingTerm) , ((P x1) → (P (primL x1)))) → ((P zeroL) → ((∀ (x1 : InvolutiveRingTerm) , ((P x1) → (P (negL x1)))) → (∀ (x : InvolutiveRingTerm) , (P x)))))))) 
   | ptimesl pplusl p1l ppriml p0l pnegl (timesL x1 x2) := (ptimesl _ _ (inductionB ptimesl pplusl p1l ppriml p0l pnegl x1) (inductionB ptimesl pplusl p1l ppriml p0l pnegl x2))  
   | ptimesl pplusl p1l ppriml p0l pnegl (plusL x1 x2) := (pplusl _ _ (inductionB ptimesl pplusl p1l ppriml p0l pnegl x1) (inductionB ptimesl pplusl p1l ppriml p0l pnegl x2))  
   | ptimesl pplusl p1l ppriml p0l pnegl oneL := p1l  
   | ptimesl pplusl p1l ppriml p0l pnegl (primL x1) := (ppriml _ (inductionB ptimesl pplusl p1l ppriml p0l pnegl x1))  
   | ptimesl pplusl p1l ppriml p0l pnegl zeroL := p0l  
   | ptimesl pplusl p1l ppriml p0l pnegl (negL x1) := (pnegl _ (inductionB ptimesl pplusl p1l ppriml p0l pnegl x1))  
-  def inductionCl   (A : Type) (P : ((ClInvolutiveRingTerm A) → Type))  : ((∀ (x1 : A) , (P (sing x1))) → ((∀ (x1 x2 : (ClInvolutiveRingTerm A)) , ((P x1) → ((P x2) → (P (timesCl x1 x2))))) → ((∀ (x1 x2 : (ClInvolutiveRingTerm A)) , ((P x1) → ((P x2) → (P (plusCl x1 x2))))) → ((P oneCl) → ((∀ (x1 : (ClInvolutiveRingTerm A)) , ((P x1) → (P (primCl x1)))) → ((P zeroCl) → ((∀ (x1 : (ClInvolutiveRingTerm A)) , ((P x1) → (P (negCl x1)))) → (∀ (x : (ClInvolutiveRingTerm A)) , (P x))))))))) 
+  def inductionCl   {A : Type} {P : ((ClInvolutiveRingTerm A) → Type)}  : ((∀ (x1 : A) , (P (sing x1))) → ((∀ (x1 x2 : (ClInvolutiveRingTerm A)) , ((P x1) → ((P x2) → (P (timesCl x1 x2))))) → ((∀ (x1 x2 : (ClInvolutiveRingTerm A)) , ((P x1) → ((P x2) → (P (plusCl x1 x2))))) → ((P oneCl) → ((∀ (x1 : (ClInvolutiveRingTerm A)) , ((P x1) → (P (primCl x1)))) → ((P zeroCl) → ((∀ (x1 : (ClInvolutiveRingTerm A)) , ((P x1) → (P (negCl x1)))) → (∀ (x : (ClInvolutiveRingTerm A)) , (P x))))))))) 
   | psing ptimescl ppluscl p1cl pprimcl p0cl pnegcl (sing x1) := (psing x1)  
   | psing ptimescl ppluscl p1cl pprimcl p0cl pnegcl (timesCl x1 x2) := (ptimescl _ _ (inductionCl psing ptimescl ppluscl p1cl pprimcl p0cl pnegcl x1) (inductionCl psing ptimescl ppluscl p1cl pprimcl p0cl pnegcl x2))  
   | psing ptimescl ppluscl p1cl pprimcl p0cl pnegcl (plusCl x1 x2) := (ppluscl _ _ (inductionCl psing ptimescl ppluscl p1cl pprimcl p0cl pnegcl x1) (inductionCl psing ptimescl ppluscl p1cl pprimcl p0cl pnegcl x2))  
@@ -220,7 +220,7 @@ section InvolutiveRing
   | psing ptimescl ppluscl p1cl pprimcl p0cl pnegcl (primCl x1) := (pprimcl _ (inductionCl psing ptimescl ppluscl p1cl pprimcl p0cl pnegcl x1))  
   | psing ptimescl ppluscl p1cl pprimcl p0cl pnegcl zeroCl := p0cl  
   | psing ptimescl ppluscl p1cl pprimcl p0cl pnegcl (negCl x1) := (pnegcl _ (inductionCl psing ptimescl ppluscl p1cl pprimcl p0cl pnegcl x1))  
-  def inductionOpB   (n : ℕ) (P : ((OpInvolutiveRingTerm n) → Type))  : ((∀ (fin : (fin n)) , (P (v fin))) → ((∀ (x1 x2 : (OpInvolutiveRingTerm n)) , ((P x1) → ((P x2) → (P (timesOL x1 x2))))) → ((∀ (x1 x2 : (OpInvolutiveRingTerm n)) , ((P x1) → ((P x2) → (P (plusOL x1 x2))))) → ((P oneOL) → ((∀ (x1 : (OpInvolutiveRingTerm n)) , ((P x1) → (P (primOL x1)))) → ((P zeroOL) → ((∀ (x1 : (OpInvolutiveRingTerm n)) , ((P x1) → (P (negOL x1)))) → (∀ (x : (OpInvolutiveRingTerm n)) , (P x))))))))) 
+  def inductionOpB   {n : ℕ} {P : ((OpInvolutiveRingTerm n) → Type)}  : ((∀ (fin : (fin n)) , (P (v fin))) → ((∀ (x1 x2 : (OpInvolutiveRingTerm n)) , ((P x1) → ((P x2) → (P (timesOL x1 x2))))) → ((∀ (x1 x2 : (OpInvolutiveRingTerm n)) , ((P x1) → ((P x2) → (P (plusOL x1 x2))))) → ((P oneOL) → ((∀ (x1 : (OpInvolutiveRingTerm n)) , ((P x1) → (P (primOL x1)))) → ((P zeroOL) → ((∀ (x1 : (OpInvolutiveRingTerm n)) , ((P x1) → (P (negOL x1)))) → (∀ (x : (OpInvolutiveRingTerm n)) , (P x))))))))) 
   | pv ptimesol pplusol p1ol pprimol p0ol pnegol (v x1) := (pv x1)  
   | pv ptimesol pplusol p1ol pprimol p0ol pnegol (timesOL x1 x2) := (ptimesol _ _ (inductionOpB pv ptimesol pplusol p1ol pprimol p0ol pnegol x1) (inductionOpB pv ptimesol pplusol p1ol pprimol p0ol pnegol x2))  
   | pv ptimesol pplusol p1ol pprimol p0ol pnegol (plusOL x1 x2) := (pplusol _ _ (inductionOpB pv ptimesol pplusol p1ol pprimol p0ol pnegol x1) (inductionOpB pv ptimesol pplusol p1ol pprimol p0ol pnegol x2))  
@@ -228,7 +228,7 @@ section InvolutiveRing
   | pv ptimesol pplusol p1ol pprimol p0ol pnegol (primOL x1) := (pprimol _ (inductionOpB pv ptimesol pplusol p1ol pprimol p0ol pnegol x1))  
   | pv ptimesol pplusol p1ol pprimol p0ol pnegol zeroOL := p0ol  
   | pv ptimesol pplusol p1ol pprimol p0ol pnegol (negOL x1) := (pnegol _ (inductionOpB pv ptimesol pplusol p1ol pprimol p0ol pnegol x1))  
-  def inductionOp   (n : ℕ) (A : Type) (P : ((OpInvolutiveRingTerm2 n A) → Type))  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((∀ (x1 x2 : (OpInvolutiveRingTerm2 n A)) , ((P x1) → ((P x2) → (P (timesOL2 x1 x2))))) → ((∀ (x1 x2 : (OpInvolutiveRingTerm2 n A)) , ((P x1) → ((P x2) → (P (plusOL2 x1 x2))))) → ((P oneOL2) → ((∀ (x1 : (OpInvolutiveRingTerm2 n A)) , ((P x1) → (P (primOL2 x1)))) → ((P zeroOL2) → ((∀ (x1 : (OpInvolutiveRingTerm2 n A)) , ((P x1) → (P (negOL2 x1)))) → (∀ (x : (OpInvolutiveRingTerm2 n A)) , (P x)))))))))) 
+  def inductionOp   {n : ℕ} {A : Type} {P : ((OpInvolutiveRingTerm2 n A) → Type)}  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((∀ (x1 x2 : (OpInvolutiveRingTerm2 n A)) , ((P x1) → ((P x2) → (P (timesOL2 x1 x2))))) → ((∀ (x1 x2 : (OpInvolutiveRingTerm2 n A)) , ((P x1) → ((P x2) → (P (plusOL2 x1 x2))))) → ((P oneOL2) → ((∀ (x1 : (OpInvolutiveRingTerm2 n A)) , ((P x1) → (P (primOL2 x1)))) → ((P zeroOL2) → ((∀ (x1 : (OpInvolutiveRingTerm2 n A)) , ((P x1) → (P (negOL2 x1)))) → (∀ (x : (OpInvolutiveRingTerm2 n A)) , (P x)))))))))) 
   | pv2 psing2 ptimesol2 pplusol2 p1ol2 pprimol2 p0ol2 pnegol2 (v2 x1) := (pv2 x1)  
   | pv2 psing2 ptimesol2 pplusol2 p1ol2 pprimol2 p0ol2 pnegol2 (sing2 x1) := (psing2 x1)  
   | pv2 psing2 ptimesol2 pplusol2 p1ol2 pprimol2 p0ol2 pnegol2 (timesOL2 x1 x2) := (ptimesol2 _ _ (inductionOp pv2 psing2 ptimesol2 pplusol2 p1ol2 pprimol2 p0ol2 pnegol2 x1) (inductionOp pv2 psing2 ptimesol2 pplusol2 p1ol2 pprimol2 p0ol2 pnegol2 x2))  
@@ -244,7 +244,7 @@ section InvolutiveRing
   | (primL x1) := (stage1 primL (codeLift1 primL) (stageB x1))  
   | zeroL := (Now zeroL)  
   | (negL x1) := (stage1 negL (codeLift1 negL) (stageB x1))  
-  def stageCl   (A : Type)  : ((ClInvolutiveRingTerm A) → (Staged (ClInvolutiveRingTerm A))) 
+  def stageCl   {A : Type}  : ((ClInvolutiveRingTerm A) → (Staged (ClInvolutiveRingTerm A))) 
   | (sing x1) := (Now (sing x1))  
   | (timesCl x1 x2) := (stage2 timesCl (codeLift2 timesCl) (stageCl x1) (stageCl x2))  
   | (plusCl x1 x2) := (stage2 plusCl (codeLift2 plusCl) (stageCl x1) (stageCl x2))  
@@ -252,7 +252,7 @@ section InvolutiveRing
   | (primCl x1) := (stage1 primCl (codeLift1 primCl) (stageCl x1))  
   | zeroCl := (Now zeroCl)  
   | (negCl x1) := (stage1 negCl (codeLift1 negCl) (stageCl x1))  
-  def stageOpB   (n : ℕ)  : ((OpInvolutiveRingTerm n) → (Staged (OpInvolutiveRingTerm n))) 
+  def stageOpB   {n : ℕ}  : ((OpInvolutiveRingTerm n) → (Staged (OpInvolutiveRingTerm n))) 
   | (v x1) := (const (code (v x1)))  
   | (timesOL x1 x2) := (stage2 timesOL (codeLift2 timesOL) (stageOpB x1) (stageOpB x2))  
   | (plusOL x1 x2) := (stage2 plusOL (codeLift2 plusOL) (stageOpB x1) (stageOpB x2))  
@@ -260,7 +260,7 @@ section InvolutiveRing
   | (primOL x1) := (stage1 primOL (codeLift1 primOL) (stageOpB x1))  
   | zeroOL := (Now zeroOL)  
   | (negOL x1) := (stage1 negOL (codeLift1 negOL) (stageOpB x1))  
-  def stageOp   (n : ℕ) (A : Type)  : ((OpInvolutiveRingTerm2 n A) → (Staged (OpInvolutiveRingTerm2 n A))) 
+  def stageOp   {n : ℕ} {A : Type}  : ((OpInvolutiveRingTerm2 n A) → (Staged (OpInvolutiveRingTerm2 n A))) 
   | (sing2 x1) := (Now (sing2 x1))  
   | (v2 x1) := (const (code (v2 x1)))  
   | (timesOL2 x1 x2) := (stage2 timesOL2 (codeLift2 timesOL2) (stageOp x1) (stageOp x2))  

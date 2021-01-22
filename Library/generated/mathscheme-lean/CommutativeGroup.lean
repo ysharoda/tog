@@ -75,21 +75,21 @@ section CommutativeGroup
      | invOL2 : (OpCommutativeGroupTerm2 → OpCommutativeGroupTerm2)  
       open OpCommutativeGroupTerm2 
   
-  def simplifyCl   (A : Type)  : ((ClCommutativeGroupTerm A) → (ClCommutativeGroupTerm A)) 
+  def simplifyCl   {A : Type}  : ((ClCommutativeGroupTerm A) → (ClCommutativeGroupTerm A)) 
   | (opCl eCl x) := x  
   | (opCl x eCl) := x  
   | (opCl x1 x2) := (opCl (simplifyCl x1) (simplifyCl x2))  
   | eCl := eCl  
   | (invCl x1) := (invCl (simplifyCl x1))  
   | (sing x1) := (sing x1)  
-  def simplifyOpB   (n : ℕ)  : ((OpCommutativeGroupTerm n) → (OpCommutativeGroupTerm n)) 
+  def simplifyOpB   {n : ℕ}  : ((OpCommutativeGroupTerm n) → (OpCommutativeGroupTerm n)) 
   | (opOL eOL x) := x  
   | (opOL x eOL) := x  
   | (opOL x1 x2) := (opOL (simplifyOpB x1) (simplifyOpB x2))  
   | eOL := eOL  
   | (invOL x1) := (invOL (simplifyOpB x1))  
   | (v x1) := (v x1)  
-  def simplifyOp   (n : ℕ) (A : Type)  : ((OpCommutativeGroupTerm2 n A) → (OpCommutativeGroupTerm2 n A)) 
+  def simplifyOp   {n : ℕ} {A : Type}  : ((OpCommutativeGroupTerm2 n A) → (OpCommutativeGroupTerm2 n A)) 
   | (opOL2 eOL2 x) := x  
   | (opOL2 x eOL2) := x  
   | (opOL2 x1 x2) := (opOL2 (simplifyOp x1) (simplifyOp x2))  
@@ -106,32 +106,32 @@ section CommutativeGroup
   | Co (opCl x1 x2) := ((op Co) (evalCl Co x1) (evalCl Co x2))  
   | Co eCl := (e Co)  
   | Co (invCl x1) := ((inv Co) (evalCl Co x1))  
-  def evalOpB   {A : Type} (n : ℕ)  : ((CommutativeGroup A) → ((vector A n) → ((OpCommutativeGroupTerm n) → A))) 
+  def evalOpB   {A : Type} {n : ℕ}  : ((CommutativeGroup A) → ((vector A n) → ((OpCommutativeGroupTerm n) → A))) 
   | Co vars (v x1) := (nth vars x1)  
   | Co vars (opOL x1 x2) := ((op Co) (evalOpB Co vars x1) (evalOpB Co vars x2))  
   | Co vars eOL := (e Co)  
   | Co vars (invOL x1) := ((inv Co) (evalOpB Co vars x1))  
-  def evalOp   {A : Type} (n : ℕ)  : ((CommutativeGroup A) → ((vector A n) → ((OpCommutativeGroupTerm2 n A) → A))) 
+  def evalOp   {A : Type} {n : ℕ}  : ((CommutativeGroup A) → ((vector A n) → ((OpCommutativeGroupTerm2 n A) → A))) 
   | Co vars (v2 x1) := (nth vars x1)  
   | Co vars (sing2 x1) := x1  
   | Co vars (opOL2 x1 x2) := ((op Co) (evalOp Co vars x1) (evalOp Co vars x2))  
   | Co vars eOL2 := (e Co)  
   | Co vars (invOL2 x1) := ((inv Co) (evalOp Co vars x1))  
-  def inductionB   (P : (CommutativeGroupTerm → Type))  : ((∀ (x1 x2 : CommutativeGroupTerm) , ((P x1) → ((P x2) → (P (opL x1 x2))))) → ((P eL) → ((∀ (x1 : CommutativeGroupTerm) , ((P x1) → (P (invL x1)))) → (∀ (x : CommutativeGroupTerm) , (P x))))) 
+  def inductionB   {P : (CommutativeGroupTerm → Type)}  : ((∀ (x1 x2 : CommutativeGroupTerm) , ((P x1) → ((P x2) → (P (opL x1 x2))))) → ((P eL) → ((∀ (x1 : CommutativeGroupTerm) , ((P x1) → (P (invL x1)))) → (∀ (x : CommutativeGroupTerm) , (P x))))) 
   | popl pel pinvl (opL x1 x2) := (popl _ _ (inductionB popl pel pinvl x1) (inductionB popl pel pinvl x2))  
   | popl pel pinvl eL := pel  
   | popl pel pinvl (invL x1) := (pinvl _ (inductionB popl pel pinvl x1))  
-  def inductionCl   (A : Type) (P : ((ClCommutativeGroupTerm A) → Type))  : ((∀ (x1 : A) , (P (sing x1))) → ((∀ (x1 x2 : (ClCommutativeGroupTerm A)) , ((P x1) → ((P x2) → (P (opCl x1 x2))))) → ((P eCl) → ((∀ (x1 : (ClCommutativeGroupTerm A)) , ((P x1) → (P (invCl x1)))) → (∀ (x : (ClCommutativeGroupTerm A)) , (P x)))))) 
+  def inductionCl   {A : Type} {P : ((ClCommutativeGroupTerm A) → Type)}  : ((∀ (x1 : A) , (P (sing x1))) → ((∀ (x1 x2 : (ClCommutativeGroupTerm A)) , ((P x1) → ((P x2) → (P (opCl x1 x2))))) → ((P eCl) → ((∀ (x1 : (ClCommutativeGroupTerm A)) , ((P x1) → (P (invCl x1)))) → (∀ (x : (ClCommutativeGroupTerm A)) , (P x)))))) 
   | psing popcl pecl pinvcl (sing x1) := (psing x1)  
   | psing popcl pecl pinvcl (opCl x1 x2) := (popcl _ _ (inductionCl psing popcl pecl pinvcl x1) (inductionCl psing popcl pecl pinvcl x2))  
   | psing popcl pecl pinvcl eCl := pecl  
   | psing popcl pecl pinvcl (invCl x1) := (pinvcl _ (inductionCl psing popcl pecl pinvcl x1))  
-  def inductionOpB   (n : ℕ) (P : ((OpCommutativeGroupTerm n) → Type))  : ((∀ (fin : (fin n)) , (P (v fin))) → ((∀ (x1 x2 : (OpCommutativeGroupTerm n)) , ((P x1) → ((P x2) → (P (opOL x1 x2))))) → ((P eOL) → ((∀ (x1 : (OpCommutativeGroupTerm n)) , ((P x1) → (P (invOL x1)))) → (∀ (x : (OpCommutativeGroupTerm n)) , (P x)))))) 
+  def inductionOpB   {n : ℕ} {P : ((OpCommutativeGroupTerm n) → Type)}  : ((∀ (fin : (fin n)) , (P (v fin))) → ((∀ (x1 x2 : (OpCommutativeGroupTerm n)) , ((P x1) → ((P x2) → (P (opOL x1 x2))))) → ((P eOL) → ((∀ (x1 : (OpCommutativeGroupTerm n)) , ((P x1) → (P (invOL x1)))) → (∀ (x : (OpCommutativeGroupTerm n)) , (P x)))))) 
   | pv popol peol pinvol (v x1) := (pv x1)  
   | pv popol peol pinvol (opOL x1 x2) := (popol _ _ (inductionOpB pv popol peol pinvol x1) (inductionOpB pv popol peol pinvol x2))  
   | pv popol peol pinvol eOL := peol  
   | pv popol peol pinvol (invOL x1) := (pinvol _ (inductionOpB pv popol peol pinvol x1))  
-  def inductionOp   (n : ℕ) (A : Type) (P : ((OpCommutativeGroupTerm2 n A) → Type))  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((∀ (x1 x2 : (OpCommutativeGroupTerm2 n A)) , ((P x1) → ((P x2) → (P (opOL2 x1 x2))))) → ((P eOL2) → ((∀ (x1 : (OpCommutativeGroupTerm2 n A)) , ((P x1) → (P (invOL2 x1)))) → (∀ (x : (OpCommutativeGroupTerm2 n A)) , (P x))))))) 
+  def inductionOp   {n : ℕ} {A : Type} {P : ((OpCommutativeGroupTerm2 n A) → Type)}  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((∀ (x1 x2 : (OpCommutativeGroupTerm2 n A)) , ((P x1) → ((P x2) → (P (opOL2 x1 x2))))) → ((P eOL2) → ((∀ (x1 : (OpCommutativeGroupTerm2 n A)) , ((P x1) → (P (invOL2 x1)))) → (∀ (x : (OpCommutativeGroupTerm2 n A)) , (P x))))))) 
   | pv2 psing2 popol2 peol2 pinvol2 (v2 x1) := (pv2 x1)  
   | pv2 psing2 popol2 peol2 pinvol2 (sing2 x1) := (psing2 x1)  
   | pv2 psing2 popol2 peol2 pinvol2 (opOL2 x1 x2) := (popol2 _ _ (inductionOp pv2 psing2 popol2 peol2 pinvol2 x1) (inductionOp pv2 psing2 popol2 peol2 pinvol2 x2))  
@@ -141,17 +141,17 @@ section CommutativeGroup
   | (opL x1 x2) := (stage2 opL (codeLift2 opL) (stageB x1) (stageB x2))  
   | eL := (Now eL)  
   | (invL x1) := (stage1 invL (codeLift1 invL) (stageB x1))  
-  def stageCl   (A : Type)  : ((ClCommutativeGroupTerm A) → (Staged (ClCommutativeGroupTerm A))) 
+  def stageCl   {A : Type}  : ((ClCommutativeGroupTerm A) → (Staged (ClCommutativeGroupTerm A))) 
   | (sing x1) := (Now (sing x1))  
   | (opCl x1 x2) := (stage2 opCl (codeLift2 opCl) (stageCl x1) (stageCl x2))  
   | eCl := (Now eCl)  
   | (invCl x1) := (stage1 invCl (codeLift1 invCl) (stageCl x1))  
-  def stageOpB   (n : ℕ)  : ((OpCommutativeGroupTerm n) → (Staged (OpCommutativeGroupTerm n))) 
+  def stageOpB   {n : ℕ}  : ((OpCommutativeGroupTerm n) → (Staged (OpCommutativeGroupTerm n))) 
   | (v x1) := (const (code (v x1)))  
   | (opOL x1 x2) := (stage2 opOL (codeLift2 opOL) (stageOpB x1) (stageOpB x2))  
   | eOL := (Now eOL)  
   | (invOL x1) := (stage1 invOL (codeLift1 invOL) (stageOpB x1))  
-  def stageOp   (n : ℕ) (A : Type)  : ((OpCommutativeGroupTerm2 n A) → (Staged (OpCommutativeGroupTerm2 n A))) 
+  def stageOp   {n : ℕ} {A : Type}  : ((OpCommutativeGroupTerm2 n A) → (Staged (OpCommutativeGroupTerm2 n A))) 
   | (sing2 x1) := (Now (sing2 x1))  
   | (v2 x1) := (const (code (v2 x1)))  
   | (opOL2 x1 x2) := (stage2 opOL2 (codeLift2 opOL2) (stageOp x1) (stageOp x2))  

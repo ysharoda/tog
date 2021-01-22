@@ -62,19 +62,19 @@ section AdditiveCommutativeMonoid
      | zeroOL2 : OpAdditiveCommutativeMonoidTerm2  
       open OpAdditiveCommutativeMonoidTerm2 
   
-  def simplifyCl   (A : Type)  : ((ClAdditiveCommutativeMonoidTerm A) → (ClAdditiveCommutativeMonoidTerm A)) 
+  def simplifyCl   {A : Type}  : ((ClAdditiveCommutativeMonoidTerm A) → (ClAdditiveCommutativeMonoidTerm A)) 
   | (plusCl zeroCl x) := x  
   | (plusCl x zeroCl) := x  
   | (plusCl x1 x2) := (plusCl (simplifyCl x1) (simplifyCl x2))  
   | zeroCl := zeroCl  
   | (sing x1) := (sing x1)  
-  def simplifyOpB   (n : ℕ)  : ((OpAdditiveCommutativeMonoidTerm n) → (OpAdditiveCommutativeMonoidTerm n)) 
+  def simplifyOpB   {n : ℕ}  : ((OpAdditiveCommutativeMonoidTerm n) → (OpAdditiveCommutativeMonoidTerm n)) 
   | (plusOL zeroOL x) := x  
   | (plusOL x zeroOL) := x  
   | (plusOL x1 x2) := (plusOL (simplifyOpB x1) (simplifyOpB x2))  
   | zeroOL := zeroOL  
   | (v x1) := (v x1)  
-  def simplifyOp   (n : ℕ) (A : Type)  : ((OpAdditiveCommutativeMonoidTerm2 n A) → (OpAdditiveCommutativeMonoidTerm2 n A)) 
+  def simplifyOp   {n : ℕ} {A : Type}  : ((OpAdditiveCommutativeMonoidTerm2 n A) → (OpAdditiveCommutativeMonoidTerm2 n A)) 
   | (plusOL2 zeroOL2 x) := x  
   | (plusOL2 x zeroOL2) := x  
   | (plusOL2 x1 x2) := (plusOL2 (simplifyOp x1) (simplifyOp x2))  
@@ -88,27 +88,27 @@ section AdditiveCommutativeMonoid
   | Ad (sing x1) := x1  
   | Ad (plusCl x1 x2) := ((plus Ad) (evalCl Ad x1) (evalCl Ad x2))  
   | Ad zeroCl := (zero Ad)  
-  def evalOpB   {A : Type} (n : ℕ)  : ((AdditiveCommutativeMonoid A) → ((vector A n) → ((OpAdditiveCommutativeMonoidTerm n) → A))) 
+  def evalOpB   {A : Type} {n : ℕ}  : ((AdditiveCommutativeMonoid A) → ((vector A n) → ((OpAdditiveCommutativeMonoidTerm n) → A))) 
   | Ad vars (v x1) := (nth vars x1)  
   | Ad vars (plusOL x1 x2) := ((plus Ad) (evalOpB Ad vars x1) (evalOpB Ad vars x2))  
   | Ad vars zeroOL := (zero Ad)  
-  def evalOp   {A : Type} (n : ℕ)  : ((AdditiveCommutativeMonoid A) → ((vector A n) → ((OpAdditiveCommutativeMonoidTerm2 n A) → A))) 
+  def evalOp   {A : Type} {n : ℕ}  : ((AdditiveCommutativeMonoid A) → ((vector A n) → ((OpAdditiveCommutativeMonoidTerm2 n A) → A))) 
   | Ad vars (v2 x1) := (nth vars x1)  
   | Ad vars (sing2 x1) := x1  
   | Ad vars (plusOL2 x1 x2) := ((plus Ad) (evalOp Ad vars x1) (evalOp Ad vars x2))  
   | Ad vars zeroOL2 := (zero Ad)  
-  def inductionB   (P : (AdditiveCommutativeMonoidTerm → Type))  : ((∀ (x1 x2 : AdditiveCommutativeMonoidTerm) , ((P x1) → ((P x2) → (P (plusL x1 x2))))) → ((P zeroL) → (∀ (x : AdditiveCommutativeMonoidTerm) , (P x)))) 
+  def inductionB   {P : (AdditiveCommutativeMonoidTerm → Type)}  : ((∀ (x1 x2 : AdditiveCommutativeMonoidTerm) , ((P x1) → ((P x2) → (P (plusL x1 x2))))) → ((P zeroL) → (∀ (x : AdditiveCommutativeMonoidTerm) , (P x)))) 
   | pplusl p0l (plusL x1 x2) := (pplusl _ _ (inductionB pplusl p0l x1) (inductionB pplusl p0l x2))  
   | pplusl p0l zeroL := p0l  
-  def inductionCl   (A : Type) (P : ((ClAdditiveCommutativeMonoidTerm A) → Type))  : ((∀ (x1 : A) , (P (sing x1))) → ((∀ (x1 x2 : (ClAdditiveCommutativeMonoidTerm A)) , ((P x1) → ((P x2) → (P (plusCl x1 x2))))) → ((P zeroCl) → (∀ (x : (ClAdditiveCommutativeMonoidTerm A)) , (P x))))) 
+  def inductionCl   {A : Type} {P : ((ClAdditiveCommutativeMonoidTerm A) → Type)}  : ((∀ (x1 : A) , (P (sing x1))) → ((∀ (x1 x2 : (ClAdditiveCommutativeMonoidTerm A)) , ((P x1) → ((P x2) → (P (plusCl x1 x2))))) → ((P zeroCl) → (∀ (x : (ClAdditiveCommutativeMonoidTerm A)) , (P x))))) 
   | psing ppluscl p0cl (sing x1) := (psing x1)  
   | psing ppluscl p0cl (plusCl x1 x2) := (ppluscl _ _ (inductionCl psing ppluscl p0cl x1) (inductionCl psing ppluscl p0cl x2))  
   | psing ppluscl p0cl zeroCl := p0cl  
-  def inductionOpB   (n : ℕ) (P : ((OpAdditiveCommutativeMonoidTerm n) → Type))  : ((∀ (fin : (fin n)) , (P (v fin))) → ((∀ (x1 x2 : (OpAdditiveCommutativeMonoidTerm n)) , ((P x1) → ((P x2) → (P (plusOL x1 x2))))) → ((P zeroOL) → (∀ (x : (OpAdditiveCommutativeMonoidTerm n)) , (P x))))) 
+  def inductionOpB   {n : ℕ} {P : ((OpAdditiveCommutativeMonoidTerm n) → Type)}  : ((∀ (fin : (fin n)) , (P (v fin))) → ((∀ (x1 x2 : (OpAdditiveCommutativeMonoidTerm n)) , ((P x1) → ((P x2) → (P (plusOL x1 x2))))) → ((P zeroOL) → (∀ (x : (OpAdditiveCommutativeMonoidTerm n)) , (P x))))) 
   | pv pplusol p0ol (v x1) := (pv x1)  
   | pv pplusol p0ol (plusOL x1 x2) := (pplusol _ _ (inductionOpB pv pplusol p0ol x1) (inductionOpB pv pplusol p0ol x2))  
   | pv pplusol p0ol zeroOL := p0ol  
-  def inductionOp   (n : ℕ) (A : Type) (P : ((OpAdditiveCommutativeMonoidTerm2 n A) → Type))  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((∀ (x1 x2 : (OpAdditiveCommutativeMonoidTerm2 n A)) , ((P x1) → ((P x2) → (P (plusOL2 x1 x2))))) → ((P zeroOL2) → (∀ (x : (OpAdditiveCommutativeMonoidTerm2 n A)) , (P x)))))) 
+  def inductionOp   {n : ℕ} {A : Type} {P : ((OpAdditiveCommutativeMonoidTerm2 n A) → Type)}  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((∀ (x1 x2 : (OpAdditiveCommutativeMonoidTerm2 n A)) , ((P x1) → ((P x2) → (P (plusOL2 x1 x2))))) → ((P zeroOL2) → (∀ (x : (OpAdditiveCommutativeMonoidTerm2 n A)) , (P x)))))) 
   | pv2 psing2 pplusol2 p0ol2 (v2 x1) := (pv2 x1)  
   | pv2 psing2 pplusol2 p0ol2 (sing2 x1) := (psing2 x1)  
   | pv2 psing2 pplusol2 p0ol2 (plusOL2 x1 x2) := (pplusol2 _ _ (inductionOp pv2 psing2 pplusol2 p0ol2 x1) (inductionOp pv2 psing2 pplusol2 p0ol2 x2))  
@@ -116,15 +116,15 @@ section AdditiveCommutativeMonoid
   def stageB  : (AdditiveCommutativeMonoidTerm → (Staged AdditiveCommutativeMonoidTerm))
   | (plusL x1 x2) := (stage2 plusL (codeLift2 plusL) (stageB x1) (stageB x2))  
   | zeroL := (Now zeroL)  
-  def stageCl   (A : Type)  : ((ClAdditiveCommutativeMonoidTerm A) → (Staged (ClAdditiveCommutativeMonoidTerm A))) 
+  def stageCl   {A : Type}  : ((ClAdditiveCommutativeMonoidTerm A) → (Staged (ClAdditiveCommutativeMonoidTerm A))) 
   | (sing x1) := (Now (sing x1))  
   | (plusCl x1 x2) := (stage2 plusCl (codeLift2 plusCl) (stageCl x1) (stageCl x2))  
   | zeroCl := (Now zeroCl)  
-  def stageOpB   (n : ℕ)  : ((OpAdditiveCommutativeMonoidTerm n) → (Staged (OpAdditiveCommutativeMonoidTerm n))) 
+  def stageOpB   {n : ℕ}  : ((OpAdditiveCommutativeMonoidTerm n) → (Staged (OpAdditiveCommutativeMonoidTerm n))) 
   | (v x1) := (const (code (v x1)))  
   | (plusOL x1 x2) := (stage2 plusOL (codeLift2 plusOL) (stageOpB x1) (stageOpB x2))  
   | zeroOL := (Now zeroOL)  
-  def stageOp   (n : ℕ) (A : Type)  : ((OpAdditiveCommutativeMonoidTerm2 n A) → (Staged (OpAdditiveCommutativeMonoidTerm2 n A))) 
+  def stageOp   {n : ℕ} {A : Type}  : ((OpAdditiveCommutativeMonoidTerm2 n A) → (Staged (OpAdditiveCommutativeMonoidTerm2 n A))) 
   | (sing2 x1) := (Now (sing2 x1))  
   | (v2 x1) := (const (code (v2 x1)))  
   | (plusOL2 x1 x2) := (stage2 plusOL2 (codeLift2 plusOL2) (stageOp x1) (stageOp x2))  

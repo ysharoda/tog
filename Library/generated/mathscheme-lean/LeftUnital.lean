@@ -56,17 +56,17 @@ section LeftUnital
      | opOL2 : (OpLeftUnitalTerm2 → (OpLeftUnitalTerm2 → OpLeftUnitalTerm2))  
       open OpLeftUnitalTerm2 
   
-  def simplifyCl   (A : Type)  : ((ClLeftUnitalTerm A) → (ClLeftUnitalTerm A)) 
+  def simplifyCl   {A : Type}  : ((ClLeftUnitalTerm A) → (ClLeftUnitalTerm A)) 
   | (opCl eCl x) := x  
   | eCl := eCl  
   | (opCl x1 x2) := (opCl (simplifyCl x1) (simplifyCl x2))  
   | (sing x1) := (sing x1)  
-  def simplifyOpB   (n : ℕ)  : ((OpLeftUnitalTerm n) → (OpLeftUnitalTerm n)) 
+  def simplifyOpB   {n : ℕ}  : ((OpLeftUnitalTerm n) → (OpLeftUnitalTerm n)) 
   | (opOL eOL x) := x  
   | eOL := eOL  
   | (opOL x1 x2) := (opOL (simplifyOpB x1) (simplifyOpB x2))  
   | (v x1) := (v x1)  
-  def simplifyOp   (n : ℕ) (A : Type)  : ((OpLeftUnitalTerm2 n A) → (OpLeftUnitalTerm2 n A)) 
+  def simplifyOp   {n : ℕ} {A : Type}  : ((OpLeftUnitalTerm2 n A) → (OpLeftUnitalTerm2 n A)) 
   | (opOL2 eOL2 x) := x  
   | eOL2 := eOL2  
   | (opOL2 x1 x2) := (opOL2 (simplifyOp x1) (simplifyOp x2))  
@@ -79,27 +79,27 @@ section LeftUnital
   | Le (sing x1) := x1  
   | Le eCl := (e Le)  
   | Le (opCl x1 x2) := ((op Le) (evalCl Le x1) (evalCl Le x2))  
-  def evalOpB   {A : Type} (n : ℕ)  : ((LeftUnital A) → ((vector A n) → ((OpLeftUnitalTerm n) → A))) 
+  def evalOpB   {A : Type} {n : ℕ}  : ((LeftUnital A) → ((vector A n) → ((OpLeftUnitalTerm n) → A))) 
   | Le vars (v x1) := (nth vars x1)  
   | Le vars eOL := (e Le)  
   | Le vars (opOL x1 x2) := ((op Le) (evalOpB Le vars x1) (evalOpB Le vars x2))  
-  def evalOp   {A : Type} (n : ℕ)  : ((LeftUnital A) → ((vector A n) → ((OpLeftUnitalTerm2 n A) → A))) 
+  def evalOp   {A : Type} {n : ℕ}  : ((LeftUnital A) → ((vector A n) → ((OpLeftUnitalTerm2 n A) → A))) 
   | Le vars (v2 x1) := (nth vars x1)  
   | Le vars (sing2 x1) := x1  
   | Le vars eOL2 := (e Le)  
   | Le vars (opOL2 x1 x2) := ((op Le) (evalOp Le vars x1) (evalOp Le vars x2))  
-  def inductionB   (P : (LeftUnitalTerm → Type))  : ((P eL) → ((∀ (x1 x2 : LeftUnitalTerm) , ((P x1) → ((P x2) → (P (opL x1 x2))))) → (∀ (x : LeftUnitalTerm) , (P x)))) 
+  def inductionB   {P : (LeftUnitalTerm → Type)}  : ((P eL) → ((∀ (x1 x2 : LeftUnitalTerm) , ((P x1) → ((P x2) → (P (opL x1 x2))))) → (∀ (x : LeftUnitalTerm) , (P x)))) 
   | pel popl eL := pel  
   | pel popl (opL x1 x2) := (popl _ _ (inductionB pel popl x1) (inductionB pel popl x2))  
-  def inductionCl   (A : Type) (P : ((ClLeftUnitalTerm A) → Type))  : ((∀ (x1 : A) , (P (sing x1))) → ((P eCl) → ((∀ (x1 x2 : (ClLeftUnitalTerm A)) , ((P x1) → ((P x2) → (P (opCl x1 x2))))) → (∀ (x : (ClLeftUnitalTerm A)) , (P x))))) 
+  def inductionCl   {A : Type} {P : ((ClLeftUnitalTerm A) → Type)}  : ((∀ (x1 : A) , (P (sing x1))) → ((P eCl) → ((∀ (x1 x2 : (ClLeftUnitalTerm A)) , ((P x1) → ((P x2) → (P (opCl x1 x2))))) → (∀ (x : (ClLeftUnitalTerm A)) , (P x))))) 
   | psing pecl popcl (sing x1) := (psing x1)  
   | psing pecl popcl eCl := pecl  
   | psing pecl popcl (opCl x1 x2) := (popcl _ _ (inductionCl psing pecl popcl x1) (inductionCl psing pecl popcl x2))  
-  def inductionOpB   (n : ℕ) (P : ((OpLeftUnitalTerm n) → Type))  : ((∀ (fin : (fin n)) , (P (v fin))) → ((P eOL) → ((∀ (x1 x2 : (OpLeftUnitalTerm n)) , ((P x1) → ((P x2) → (P (opOL x1 x2))))) → (∀ (x : (OpLeftUnitalTerm n)) , (P x))))) 
+  def inductionOpB   {n : ℕ} {P : ((OpLeftUnitalTerm n) → Type)}  : ((∀ (fin : (fin n)) , (P (v fin))) → ((P eOL) → ((∀ (x1 x2 : (OpLeftUnitalTerm n)) , ((P x1) → ((P x2) → (P (opOL x1 x2))))) → (∀ (x : (OpLeftUnitalTerm n)) , (P x))))) 
   | pv peol popol (v x1) := (pv x1)  
   | pv peol popol eOL := peol  
   | pv peol popol (opOL x1 x2) := (popol _ _ (inductionOpB pv peol popol x1) (inductionOpB pv peol popol x2))  
-  def inductionOp   (n : ℕ) (A : Type) (P : ((OpLeftUnitalTerm2 n A) → Type))  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((P eOL2) → ((∀ (x1 x2 : (OpLeftUnitalTerm2 n A)) , ((P x1) → ((P x2) → (P (opOL2 x1 x2))))) → (∀ (x : (OpLeftUnitalTerm2 n A)) , (P x)))))) 
+  def inductionOp   {n : ℕ} {A : Type} {P : ((OpLeftUnitalTerm2 n A) → Type)}  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((P eOL2) → ((∀ (x1 x2 : (OpLeftUnitalTerm2 n A)) , ((P x1) → ((P x2) → (P (opOL2 x1 x2))))) → (∀ (x : (OpLeftUnitalTerm2 n A)) , (P x)))))) 
   | pv2 psing2 peol2 popol2 (v2 x1) := (pv2 x1)  
   | pv2 psing2 peol2 popol2 (sing2 x1) := (psing2 x1)  
   | pv2 psing2 peol2 popol2 eOL2 := peol2  
@@ -107,15 +107,15 @@ section LeftUnital
   def stageB  : (LeftUnitalTerm → (Staged LeftUnitalTerm))
   | eL := (Now eL)  
   | (opL x1 x2) := (stage2 opL (codeLift2 opL) (stageB x1) (stageB x2))  
-  def stageCl   (A : Type)  : ((ClLeftUnitalTerm A) → (Staged (ClLeftUnitalTerm A))) 
+  def stageCl   {A : Type}  : ((ClLeftUnitalTerm A) → (Staged (ClLeftUnitalTerm A))) 
   | (sing x1) := (Now (sing x1))  
   | eCl := (Now eCl)  
   | (opCl x1 x2) := (stage2 opCl (codeLift2 opCl) (stageCl x1) (stageCl x2))  
-  def stageOpB   (n : ℕ)  : ((OpLeftUnitalTerm n) → (Staged (OpLeftUnitalTerm n))) 
+  def stageOpB   {n : ℕ}  : ((OpLeftUnitalTerm n) → (Staged (OpLeftUnitalTerm n))) 
   | (v x1) := (const (code (v x1)))  
   | eOL := (Now eOL)  
   | (opOL x1 x2) := (stage2 opOL (codeLift2 opOL) (stageOpB x1) (stageOpB x2))  
-  def stageOp   (n : ℕ) (A : Type)  : ((OpLeftUnitalTerm2 n A) → (Staged (OpLeftUnitalTerm2 n A))) 
+  def stageOp   {n : ℕ} {A : Type}  : ((OpLeftUnitalTerm2 n A) → (Staged (OpLeftUnitalTerm2 n A))) 
   | (sing2 x1) := (Now (sing2 x1))  
   | (v2 x1) := (const (code (v2 x1)))  
   | eOL2 := (Now eOL2)  

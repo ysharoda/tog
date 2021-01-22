@@ -56,15 +56,15 @@ section AdditivePointedSemigroup
      | plusOL2 : (OpAdditivePointedSemigroupTerm2 → (OpAdditivePointedSemigroupTerm2 → OpAdditivePointedSemigroupTerm2))  
       open OpAdditivePointedSemigroupTerm2 
   
-  def simplifyCl   (A : Type)  : ((ClAdditivePointedSemigroupTerm A) → (ClAdditivePointedSemigroupTerm A)) 
+  def simplifyCl   {A : Type}  : ((ClAdditivePointedSemigroupTerm A) → (ClAdditivePointedSemigroupTerm A)) 
   | zeroCl := zeroCl  
   | (plusCl x1 x2) := (plusCl (simplifyCl x1) (simplifyCl x2))  
   | (sing x1) := (sing x1)  
-  def simplifyOpB   (n : ℕ)  : ((OpAdditivePointedSemigroupTerm n) → (OpAdditivePointedSemigroupTerm n)) 
+  def simplifyOpB   {n : ℕ}  : ((OpAdditivePointedSemigroupTerm n) → (OpAdditivePointedSemigroupTerm n)) 
   | zeroOL := zeroOL  
   | (plusOL x1 x2) := (plusOL (simplifyOpB x1) (simplifyOpB x2))  
   | (v x1) := (v x1)  
-  def simplifyOp   (n : ℕ) (A : Type)  : ((OpAdditivePointedSemigroupTerm2 n A) → (OpAdditivePointedSemigroupTerm2 n A)) 
+  def simplifyOp   {n : ℕ} {A : Type}  : ((OpAdditivePointedSemigroupTerm2 n A) → (OpAdditivePointedSemigroupTerm2 n A)) 
   | zeroOL2 := zeroOL2  
   | (plusOL2 x1 x2) := (plusOL2 (simplifyOp x1) (simplifyOp x2))  
   | (v2 x1) := (v2 x1)  
@@ -76,27 +76,27 @@ section AdditivePointedSemigroup
   | Ad (sing x1) := x1  
   | Ad zeroCl := (zero Ad)  
   | Ad (plusCl x1 x2) := ((plus Ad) (evalCl Ad x1) (evalCl Ad x2))  
-  def evalOpB   {A : Type} (n : ℕ)  : ((AdditivePointedSemigroup A) → ((vector A n) → ((OpAdditivePointedSemigroupTerm n) → A))) 
+  def evalOpB   {A : Type} {n : ℕ}  : ((AdditivePointedSemigroup A) → ((vector A n) → ((OpAdditivePointedSemigroupTerm n) → A))) 
   | Ad vars (v x1) := (nth vars x1)  
   | Ad vars zeroOL := (zero Ad)  
   | Ad vars (plusOL x1 x2) := ((plus Ad) (evalOpB Ad vars x1) (evalOpB Ad vars x2))  
-  def evalOp   {A : Type} (n : ℕ)  : ((AdditivePointedSemigroup A) → ((vector A n) → ((OpAdditivePointedSemigroupTerm2 n A) → A))) 
+  def evalOp   {A : Type} {n : ℕ}  : ((AdditivePointedSemigroup A) → ((vector A n) → ((OpAdditivePointedSemigroupTerm2 n A) → A))) 
   | Ad vars (v2 x1) := (nth vars x1)  
   | Ad vars (sing2 x1) := x1  
   | Ad vars zeroOL2 := (zero Ad)  
   | Ad vars (plusOL2 x1 x2) := ((plus Ad) (evalOp Ad vars x1) (evalOp Ad vars x2))  
-  def inductionB   (P : (AdditivePointedSemigroupTerm → Type))  : ((P zeroL) → ((∀ (x1 x2 : AdditivePointedSemigroupTerm) , ((P x1) → ((P x2) → (P (plusL x1 x2))))) → (∀ (x : AdditivePointedSemigroupTerm) , (P x)))) 
+  def inductionB   {P : (AdditivePointedSemigroupTerm → Type)}  : ((P zeroL) → ((∀ (x1 x2 : AdditivePointedSemigroupTerm) , ((P x1) → ((P x2) → (P (plusL x1 x2))))) → (∀ (x : AdditivePointedSemigroupTerm) , (P x)))) 
   | p0l pplusl zeroL := p0l  
   | p0l pplusl (plusL x1 x2) := (pplusl _ _ (inductionB p0l pplusl x1) (inductionB p0l pplusl x2))  
-  def inductionCl   (A : Type) (P : ((ClAdditivePointedSemigroupTerm A) → Type))  : ((∀ (x1 : A) , (P (sing x1))) → ((P zeroCl) → ((∀ (x1 x2 : (ClAdditivePointedSemigroupTerm A)) , ((P x1) → ((P x2) → (P (plusCl x1 x2))))) → (∀ (x : (ClAdditivePointedSemigroupTerm A)) , (P x))))) 
+  def inductionCl   {A : Type} {P : ((ClAdditivePointedSemigroupTerm A) → Type)}  : ((∀ (x1 : A) , (P (sing x1))) → ((P zeroCl) → ((∀ (x1 x2 : (ClAdditivePointedSemigroupTerm A)) , ((P x1) → ((P x2) → (P (plusCl x1 x2))))) → (∀ (x : (ClAdditivePointedSemigroupTerm A)) , (P x))))) 
   | psing p0cl ppluscl (sing x1) := (psing x1)  
   | psing p0cl ppluscl zeroCl := p0cl  
   | psing p0cl ppluscl (plusCl x1 x2) := (ppluscl _ _ (inductionCl psing p0cl ppluscl x1) (inductionCl psing p0cl ppluscl x2))  
-  def inductionOpB   (n : ℕ) (P : ((OpAdditivePointedSemigroupTerm n) → Type))  : ((∀ (fin : (fin n)) , (P (v fin))) → ((P zeroOL) → ((∀ (x1 x2 : (OpAdditivePointedSemigroupTerm n)) , ((P x1) → ((P x2) → (P (plusOL x1 x2))))) → (∀ (x : (OpAdditivePointedSemigroupTerm n)) , (P x))))) 
+  def inductionOpB   {n : ℕ} {P : ((OpAdditivePointedSemigroupTerm n) → Type)}  : ((∀ (fin : (fin n)) , (P (v fin))) → ((P zeroOL) → ((∀ (x1 x2 : (OpAdditivePointedSemigroupTerm n)) , ((P x1) → ((P x2) → (P (plusOL x1 x2))))) → (∀ (x : (OpAdditivePointedSemigroupTerm n)) , (P x))))) 
   | pv p0ol pplusol (v x1) := (pv x1)  
   | pv p0ol pplusol zeroOL := p0ol  
   | pv p0ol pplusol (plusOL x1 x2) := (pplusol _ _ (inductionOpB pv p0ol pplusol x1) (inductionOpB pv p0ol pplusol x2))  
-  def inductionOp   (n : ℕ) (A : Type) (P : ((OpAdditivePointedSemigroupTerm2 n A) → Type))  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((P zeroOL2) → ((∀ (x1 x2 : (OpAdditivePointedSemigroupTerm2 n A)) , ((P x1) → ((P x2) → (P (plusOL2 x1 x2))))) → (∀ (x : (OpAdditivePointedSemigroupTerm2 n A)) , (P x)))))) 
+  def inductionOp   {n : ℕ} {A : Type} {P : ((OpAdditivePointedSemigroupTerm2 n A) → Type)}  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((P zeroOL2) → ((∀ (x1 x2 : (OpAdditivePointedSemigroupTerm2 n A)) , ((P x1) → ((P x2) → (P (plusOL2 x1 x2))))) → (∀ (x : (OpAdditivePointedSemigroupTerm2 n A)) , (P x)))))) 
   | pv2 psing2 p0ol2 pplusol2 (v2 x1) := (pv2 x1)  
   | pv2 psing2 p0ol2 pplusol2 (sing2 x1) := (psing2 x1)  
   | pv2 psing2 p0ol2 pplusol2 zeroOL2 := p0ol2  
@@ -104,15 +104,15 @@ section AdditivePointedSemigroup
   def stageB  : (AdditivePointedSemigroupTerm → (Staged AdditivePointedSemigroupTerm))
   | zeroL := (Now zeroL)  
   | (plusL x1 x2) := (stage2 plusL (codeLift2 plusL) (stageB x1) (stageB x2))  
-  def stageCl   (A : Type)  : ((ClAdditivePointedSemigroupTerm A) → (Staged (ClAdditivePointedSemigroupTerm A))) 
+  def stageCl   {A : Type}  : ((ClAdditivePointedSemigroupTerm A) → (Staged (ClAdditivePointedSemigroupTerm A))) 
   | (sing x1) := (Now (sing x1))  
   | zeroCl := (Now zeroCl)  
   | (plusCl x1 x2) := (stage2 plusCl (codeLift2 plusCl) (stageCl x1) (stageCl x2))  
-  def stageOpB   (n : ℕ)  : ((OpAdditivePointedSemigroupTerm n) → (Staged (OpAdditivePointedSemigroupTerm n))) 
+  def stageOpB   {n : ℕ}  : ((OpAdditivePointedSemigroupTerm n) → (Staged (OpAdditivePointedSemigroupTerm n))) 
   | (v x1) := (const (code (v x1)))  
   | zeroOL := (Now zeroOL)  
   | (plusOL x1 x2) := (stage2 plusOL (codeLift2 plusOL) (stageOpB x1) (stageOpB x2))  
-  def stageOp   (n : ℕ) (A : Type)  : ((OpAdditivePointedSemigroupTerm2 n A) → (Staged (OpAdditivePointedSemigroupTerm2 n A))) 
+  def stageOp   {n : ℕ} {A : Type}  : ((OpAdditivePointedSemigroupTerm2 n A) → (Staged (OpAdditivePointedSemigroupTerm2 n A))) 
   | (sing2 x1) := (Now (sing2 x1))  
   | (v2 x1) := (const (code (v2 x1)))  
   | zeroOL2 := (Now zeroOL2)  

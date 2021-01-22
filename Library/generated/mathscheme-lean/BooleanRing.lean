@@ -111,7 +111,7 @@ section BooleanRing
      | negOL2 : (OpBooleanRingTerm2 → OpBooleanRingTerm2)  
       open OpBooleanRingTerm2 
   
-  def simplifyCl   (A : Type)  : ((ClBooleanRingTerm A) → (ClBooleanRingTerm A)) 
+  def simplifyCl   {A : Type}  : ((ClBooleanRingTerm A) → (ClBooleanRingTerm A)) 
   | (timesCl oneCl x) := x  
   | (timesCl x oneCl) := x  
   | (plusCl zeroCl x) := x  
@@ -122,7 +122,7 @@ section BooleanRing
   | zeroCl := zeroCl  
   | (negCl x1) := (negCl (simplifyCl x1))  
   | (sing x1) := (sing x1)  
-  def simplifyOpB   (n : ℕ)  : ((OpBooleanRingTerm n) → (OpBooleanRingTerm n)) 
+  def simplifyOpB   {n : ℕ}  : ((OpBooleanRingTerm n) → (OpBooleanRingTerm n)) 
   | (timesOL oneOL x) := x  
   | (timesOL x oneOL) := x  
   | (plusOL zeroOL x) := x  
@@ -133,7 +133,7 @@ section BooleanRing
   | zeroOL := zeroOL  
   | (negOL x1) := (negOL (simplifyOpB x1))  
   | (v x1) := (v x1)  
-  def simplifyOp   (n : ℕ) (A : Type)  : ((OpBooleanRingTerm2 n A) → (OpBooleanRingTerm2 n A)) 
+  def simplifyOp   {n : ℕ} {A : Type}  : ((OpBooleanRingTerm2 n A) → (OpBooleanRingTerm2 n A)) 
   | (timesOL2 oneOL2 x) := x  
   | (timesOL2 x oneOL2) := x  
   | (plusOL2 zeroOL2 x) := x  
@@ -158,14 +158,14 @@ section BooleanRing
   | Bo (plusCl x1 x2) := ((plus Bo) (evalCl Bo x1) (evalCl Bo x2))  
   | Bo zeroCl := (zero Bo)  
   | Bo (negCl x1) := ((neg Bo) (evalCl Bo x1))  
-  def evalOpB   {A : Type} (n : ℕ)  : ((BooleanRing A) → ((vector A n) → ((OpBooleanRingTerm n) → A))) 
+  def evalOpB   {A : Type} {n : ℕ}  : ((BooleanRing A) → ((vector A n) → ((OpBooleanRingTerm n) → A))) 
   | Bo vars (v x1) := (nth vars x1)  
   | Bo vars (timesOL x1 x2) := ((times Bo) (evalOpB Bo vars x1) (evalOpB Bo vars x2))  
   | Bo vars oneOL := (one Bo)  
   | Bo vars (plusOL x1 x2) := ((plus Bo) (evalOpB Bo vars x1) (evalOpB Bo vars x2))  
   | Bo vars zeroOL := (zero Bo)  
   | Bo vars (negOL x1) := ((neg Bo) (evalOpB Bo vars x1))  
-  def evalOp   {A : Type} (n : ℕ)  : ((BooleanRing A) → ((vector A n) → ((OpBooleanRingTerm2 n A) → A))) 
+  def evalOp   {A : Type} {n : ℕ}  : ((BooleanRing A) → ((vector A n) → ((OpBooleanRingTerm2 n A) → A))) 
   | Bo vars (v2 x1) := (nth vars x1)  
   | Bo vars (sing2 x1) := x1  
   | Bo vars (timesOL2 x1 x2) := ((times Bo) (evalOp Bo vars x1) (evalOp Bo vars x2))  
@@ -173,27 +173,27 @@ section BooleanRing
   | Bo vars (plusOL2 x1 x2) := ((plus Bo) (evalOp Bo vars x1) (evalOp Bo vars x2))  
   | Bo vars zeroOL2 := (zero Bo)  
   | Bo vars (negOL2 x1) := ((neg Bo) (evalOp Bo vars x1))  
-  def inductionB   (P : (BooleanRingTerm → Type))  : ((∀ (x1 x2 : BooleanRingTerm) , ((P x1) → ((P x2) → (P (timesL x1 x2))))) → ((P oneL) → ((∀ (x1 x2 : BooleanRingTerm) , ((P x1) → ((P x2) → (P (plusL x1 x2))))) → ((P zeroL) → ((∀ (x1 : BooleanRingTerm) , ((P x1) → (P (negL x1)))) → (∀ (x : BooleanRingTerm) , (P x))))))) 
+  def inductionB   {P : (BooleanRingTerm → Type)}  : ((∀ (x1 x2 : BooleanRingTerm) , ((P x1) → ((P x2) → (P (timesL x1 x2))))) → ((P oneL) → ((∀ (x1 x2 : BooleanRingTerm) , ((P x1) → ((P x2) → (P (plusL x1 x2))))) → ((P zeroL) → ((∀ (x1 : BooleanRingTerm) , ((P x1) → (P (negL x1)))) → (∀ (x : BooleanRingTerm) , (P x))))))) 
   | ptimesl p1l pplusl p0l pnegl (timesL x1 x2) := (ptimesl _ _ (inductionB ptimesl p1l pplusl p0l pnegl x1) (inductionB ptimesl p1l pplusl p0l pnegl x2))  
   | ptimesl p1l pplusl p0l pnegl oneL := p1l  
   | ptimesl p1l pplusl p0l pnegl (plusL x1 x2) := (pplusl _ _ (inductionB ptimesl p1l pplusl p0l pnegl x1) (inductionB ptimesl p1l pplusl p0l pnegl x2))  
   | ptimesl p1l pplusl p0l pnegl zeroL := p0l  
   | ptimesl p1l pplusl p0l pnegl (negL x1) := (pnegl _ (inductionB ptimesl p1l pplusl p0l pnegl x1))  
-  def inductionCl   (A : Type) (P : ((ClBooleanRingTerm A) → Type))  : ((∀ (x1 : A) , (P (sing x1))) → ((∀ (x1 x2 : (ClBooleanRingTerm A)) , ((P x1) → ((P x2) → (P (timesCl x1 x2))))) → ((P oneCl) → ((∀ (x1 x2 : (ClBooleanRingTerm A)) , ((P x1) → ((P x2) → (P (plusCl x1 x2))))) → ((P zeroCl) → ((∀ (x1 : (ClBooleanRingTerm A)) , ((P x1) → (P (negCl x1)))) → (∀ (x : (ClBooleanRingTerm A)) , (P x)))))))) 
+  def inductionCl   {A : Type} {P : ((ClBooleanRingTerm A) → Type)}  : ((∀ (x1 : A) , (P (sing x1))) → ((∀ (x1 x2 : (ClBooleanRingTerm A)) , ((P x1) → ((P x2) → (P (timesCl x1 x2))))) → ((P oneCl) → ((∀ (x1 x2 : (ClBooleanRingTerm A)) , ((P x1) → ((P x2) → (P (plusCl x1 x2))))) → ((P zeroCl) → ((∀ (x1 : (ClBooleanRingTerm A)) , ((P x1) → (P (negCl x1)))) → (∀ (x : (ClBooleanRingTerm A)) , (P x)))))))) 
   | psing ptimescl p1cl ppluscl p0cl pnegcl (sing x1) := (psing x1)  
   | psing ptimescl p1cl ppluscl p0cl pnegcl (timesCl x1 x2) := (ptimescl _ _ (inductionCl psing ptimescl p1cl ppluscl p0cl pnegcl x1) (inductionCl psing ptimescl p1cl ppluscl p0cl pnegcl x2))  
   | psing ptimescl p1cl ppluscl p0cl pnegcl oneCl := p1cl  
   | psing ptimescl p1cl ppluscl p0cl pnegcl (plusCl x1 x2) := (ppluscl _ _ (inductionCl psing ptimescl p1cl ppluscl p0cl pnegcl x1) (inductionCl psing ptimescl p1cl ppluscl p0cl pnegcl x2))  
   | psing ptimescl p1cl ppluscl p0cl pnegcl zeroCl := p0cl  
   | psing ptimescl p1cl ppluscl p0cl pnegcl (negCl x1) := (pnegcl _ (inductionCl psing ptimescl p1cl ppluscl p0cl pnegcl x1))  
-  def inductionOpB   (n : ℕ) (P : ((OpBooleanRingTerm n) → Type))  : ((∀ (fin : (fin n)) , (P (v fin))) → ((∀ (x1 x2 : (OpBooleanRingTerm n)) , ((P x1) → ((P x2) → (P (timesOL x1 x2))))) → ((P oneOL) → ((∀ (x1 x2 : (OpBooleanRingTerm n)) , ((P x1) → ((P x2) → (P (plusOL x1 x2))))) → ((P zeroOL) → ((∀ (x1 : (OpBooleanRingTerm n)) , ((P x1) → (P (negOL x1)))) → (∀ (x : (OpBooleanRingTerm n)) , (P x)))))))) 
+  def inductionOpB   {n : ℕ} {P : ((OpBooleanRingTerm n) → Type)}  : ((∀ (fin : (fin n)) , (P (v fin))) → ((∀ (x1 x2 : (OpBooleanRingTerm n)) , ((P x1) → ((P x2) → (P (timesOL x1 x2))))) → ((P oneOL) → ((∀ (x1 x2 : (OpBooleanRingTerm n)) , ((P x1) → ((P x2) → (P (plusOL x1 x2))))) → ((P zeroOL) → ((∀ (x1 : (OpBooleanRingTerm n)) , ((P x1) → (P (negOL x1)))) → (∀ (x : (OpBooleanRingTerm n)) , (P x)))))))) 
   | pv ptimesol p1ol pplusol p0ol pnegol (v x1) := (pv x1)  
   | pv ptimesol p1ol pplusol p0ol pnegol (timesOL x1 x2) := (ptimesol _ _ (inductionOpB pv ptimesol p1ol pplusol p0ol pnegol x1) (inductionOpB pv ptimesol p1ol pplusol p0ol pnegol x2))  
   | pv ptimesol p1ol pplusol p0ol pnegol oneOL := p1ol  
   | pv ptimesol p1ol pplusol p0ol pnegol (plusOL x1 x2) := (pplusol _ _ (inductionOpB pv ptimesol p1ol pplusol p0ol pnegol x1) (inductionOpB pv ptimesol p1ol pplusol p0ol pnegol x2))  
   | pv ptimesol p1ol pplusol p0ol pnegol zeroOL := p0ol  
   | pv ptimesol p1ol pplusol p0ol pnegol (negOL x1) := (pnegol _ (inductionOpB pv ptimesol p1ol pplusol p0ol pnegol x1))  
-  def inductionOp   (n : ℕ) (A : Type) (P : ((OpBooleanRingTerm2 n A) → Type))  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((∀ (x1 x2 : (OpBooleanRingTerm2 n A)) , ((P x1) → ((P x2) → (P (timesOL2 x1 x2))))) → ((P oneOL2) → ((∀ (x1 x2 : (OpBooleanRingTerm2 n A)) , ((P x1) → ((P x2) → (P (plusOL2 x1 x2))))) → ((P zeroOL2) → ((∀ (x1 : (OpBooleanRingTerm2 n A)) , ((P x1) → (P (negOL2 x1)))) → (∀ (x : (OpBooleanRingTerm2 n A)) , (P x))))))))) 
+  def inductionOp   {n : ℕ} {A : Type} {P : ((OpBooleanRingTerm2 n A) → Type)}  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((∀ (x1 x2 : (OpBooleanRingTerm2 n A)) , ((P x1) → ((P x2) → (P (timesOL2 x1 x2))))) → ((P oneOL2) → ((∀ (x1 x2 : (OpBooleanRingTerm2 n A)) , ((P x1) → ((P x2) → (P (plusOL2 x1 x2))))) → ((P zeroOL2) → ((∀ (x1 : (OpBooleanRingTerm2 n A)) , ((P x1) → (P (negOL2 x1)))) → (∀ (x : (OpBooleanRingTerm2 n A)) , (P x))))))))) 
   | pv2 psing2 ptimesol2 p1ol2 pplusol2 p0ol2 pnegol2 (v2 x1) := (pv2 x1)  
   | pv2 psing2 ptimesol2 p1ol2 pplusol2 p0ol2 pnegol2 (sing2 x1) := (psing2 x1)  
   | pv2 psing2 ptimesol2 p1ol2 pplusol2 p0ol2 pnegol2 (timesOL2 x1 x2) := (ptimesol2 _ _ (inductionOp pv2 psing2 ptimesol2 p1ol2 pplusol2 p0ol2 pnegol2 x1) (inductionOp pv2 psing2 ptimesol2 p1ol2 pplusol2 p0ol2 pnegol2 x2))  
@@ -207,21 +207,21 @@ section BooleanRing
   | (plusL x1 x2) := (stage2 plusL (codeLift2 plusL) (stageB x1) (stageB x2))  
   | zeroL := (Now zeroL)  
   | (negL x1) := (stage1 negL (codeLift1 negL) (stageB x1))  
-  def stageCl   (A : Type)  : ((ClBooleanRingTerm A) → (Staged (ClBooleanRingTerm A))) 
+  def stageCl   {A : Type}  : ((ClBooleanRingTerm A) → (Staged (ClBooleanRingTerm A))) 
   | (sing x1) := (Now (sing x1))  
   | (timesCl x1 x2) := (stage2 timesCl (codeLift2 timesCl) (stageCl x1) (stageCl x2))  
   | oneCl := (Now oneCl)  
   | (plusCl x1 x2) := (stage2 plusCl (codeLift2 plusCl) (stageCl x1) (stageCl x2))  
   | zeroCl := (Now zeroCl)  
   | (negCl x1) := (stage1 negCl (codeLift1 negCl) (stageCl x1))  
-  def stageOpB   (n : ℕ)  : ((OpBooleanRingTerm n) → (Staged (OpBooleanRingTerm n))) 
+  def stageOpB   {n : ℕ}  : ((OpBooleanRingTerm n) → (Staged (OpBooleanRingTerm n))) 
   | (v x1) := (const (code (v x1)))  
   | (timesOL x1 x2) := (stage2 timesOL (codeLift2 timesOL) (stageOpB x1) (stageOpB x2))  
   | oneOL := (Now oneOL)  
   | (plusOL x1 x2) := (stage2 plusOL (codeLift2 plusOL) (stageOpB x1) (stageOpB x2))  
   | zeroOL := (Now zeroOL)  
   | (negOL x1) := (stage1 negOL (codeLift1 negOL) (stageOpB x1))  
-  def stageOp   (n : ℕ) (A : Type)  : ((OpBooleanRingTerm2 n A) → (Staged (OpBooleanRingTerm2 n A))) 
+  def stageOp   {n : ℕ} {A : Type}  : ((OpBooleanRingTerm2 n A) → (Staged (OpBooleanRingTerm2 n A))) 
   | (sing2 x1) := (Now (sing2 x1))  
   | (v2 x1) := (const (code (v2 x1)))  
   | (timesOL2 x1 x2) := (stage2 timesOL2 (codeLift2 timesOL2) (stageOp x1) (stageOp x2))  

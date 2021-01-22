@@ -83,21 +83,21 @@ section BoundedMeetLattice
      | plusOL2 : (OpBoundedMeetLatticeTerm2 → (OpBoundedMeetLatticeTerm2 → OpBoundedMeetLatticeTerm2))  
       open OpBoundedMeetLatticeTerm2 
   
-  def simplifyCl   (A : Type)  : ((ClBoundedMeetLatticeTerm A) → (ClBoundedMeetLatticeTerm A)) 
+  def simplifyCl   {A : Type}  : ((ClBoundedMeetLatticeTerm A) → (ClBoundedMeetLatticeTerm A)) 
   | (timesCl oneCl x) := x  
   | (timesCl x oneCl) := x  
   | (timesCl x1 x2) := (timesCl (simplifyCl x1) (simplifyCl x2))  
   | oneCl := oneCl  
   | (plusCl x1 x2) := (plusCl (simplifyCl x1) (simplifyCl x2))  
   | (sing x1) := (sing x1)  
-  def simplifyOpB   (n : ℕ)  : ((OpBoundedMeetLatticeTerm n) → (OpBoundedMeetLatticeTerm n)) 
+  def simplifyOpB   {n : ℕ}  : ((OpBoundedMeetLatticeTerm n) → (OpBoundedMeetLatticeTerm n)) 
   | (timesOL oneOL x) := x  
   | (timesOL x oneOL) := x  
   | (timesOL x1 x2) := (timesOL (simplifyOpB x1) (simplifyOpB x2))  
   | oneOL := oneOL  
   | (plusOL x1 x2) := (plusOL (simplifyOpB x1) (simplifyOpB x2))  
   | (v x1) := (v x1)  
-  def simplifyOp   (n : ℕ) (A : Type)  : ((OpBoundedMeetLatticeTerm2 n A) → (OpBoundedMeetLatticeTerm2 n A)) 
+  def simplifyOp   {n : ℕ} {A : Type}  : ((OpBoundedMeetLatticeTerm2 n A) → (OpBoundedMeetLatticeTerm2 n A)) 
   | (timesOL2 oneOL2 x) := x  
   | (timesOL2 x oneOL2) := x  
   | (timesOL2 x1 x2) := (timesOL2 (simplifyOp x1) (simplifyOp x2))  
@@ -114,32 +114,32 @@ section BoundedMeetLattice
   | Bo (timesCl x1 x2) := ((times Bo) (evalCl Bo x1) (evalCl Bo x2))  
   | Bo oneCl := (one Bo)  
   | Bo (plusCl x1 x2) := ((plus Bo) (evalCl Bo x1) (evalCl Bo x2))  
-  def evalOpB   {A : Type} (n : ℕ)  : ((BoundedMeetLattice A) → ((vector A n) → ((OpBoundedMeetLatticeTerm n) → A))) 
+  def evalOpB   {A : Type} {n : ℕ}  : ((BoundedMeetLattice A) → ((vector A n) → ((OpBoundedMeetLatticeTerm n) → A))) 
   | Bo vars (v x1) := (nth vars x1)  
   | Bo vars (timesOL x1 x2) := ((times Bo) (evalOpB Bo vars x1) (evalOpB Bo vars x2))  
   | Bo vars oneOL := (one Bo)  
   | Bo vars (plusOL x1 x2) := ((plus Bo) (evalOpB Bo vars x1) (evalOpB Bo vars x2))  
-  def evalOp   {A : Type} (n : ℕ)  : ((BoundedMeetLattice A) → ((vector A n) → ((OpBoundedMeetLatticeTerm2 n A) → A))) 
+  def evalOp   {A : Type} {n : ℕ}  : ((BoundedMeetLattice A) → ((vector A n) → ((OpBoundedMeetLatticeTerm2 n A) → A))) 
   | Bo vars (v2 x1) := (nth vars x1)  
   | Bo vars (sing2 x1) := x1  
   | Bo vars (timesOL2 x1 x2) := ((times Bo) (evalOp Bo vars x1) (evalOp Bo vars x2))  
   | Bo vars oneOL2 := (one Bo)  
   | Bo vars (plusOL2 x1 x2) := ((plus Bo) (evalOp Bo vars x1) (evalOp Bo vars x2))  
-  def inductionB   (P : (BoundedMeetLatticeTerm → Type))  : ((∀ (x1 x2 : BoundedMeetLatticeTerm) , ((P x1) → ((P x2) → (P (timesL x1 x2))))) → ((P oneL) → ((∀ (x1 x2 : BoundedMeetLatticeTerm) , ((P x1) → ((P x2) → (P (plusL x1 x2))))) → (∀ (x : BoundedMeetLatticeTerm) , (P x))))) 
+  def inductionB   {P : (BoundedMeetLatticeTerm → Type)}  : ((∀ (x1 x2 : BoundedMeetLatticeTerm) , ((P x1) → ((P x2) → (P (timesL x1 x2))))) → ((P oneL) → ((∀ (x1 x2 : BoundedMeetLatticeTerm) , ((P x1) → ((P x2) → (P (plusL x1 x2))))) → (∀ (x : BoundedMeetLatticeTerm) , (P x))))) 
   | ptimesl p1l pplusl (timesL x1 x2) := (ptimesl _ _ (inductionB ptimesl p1l pplusl x1) (inductionB ptimesl p1l pplusl x2))  
   | ptimesl p1l pplusl oneL := p1l  
   | ptimesl p1l pplusl (plusL x1 x2) := (pplusl _ _ (inductionB ptimesl p1l pplusl x1) (inductionB ptimesl p1l pplusl x2))  
-  def inductionCl   (A : Type) (P : ((ClBoundedMeetLatticeTerm A) → Type))  : ((∀ (x1 : A) , (P (sing x1))) → ((∀ (x1 x2 : (ClBoundedMeetLatticeTerm A)) , ((P x1) → ((P x2) → (P (timesCl x1 x2))))) → ((P oneCl) → ((∀ (x1 x2 : (ClBoundedMeetLatticeTerm A)) , ((P x1) → ((P x2) → (P (plusCl x1 x2))))) → (∀ (x : (ClBoundedMeetLatticeTerm A)) , (P x)))))) 
+  def inductionCl   {A : Type} {P : ((ClBoundedMeetLatticeTerm A) → Type)}  : ((∀ (x1 : A) , (P (sing x1))) → ((∀ (x1 x2 : (ClBoundedMeetLatticeTerm A)) , ((P x1) → ((P x2) → (P (timesCl x1 x2))))) → ((P oneCl) → ((∀ (x1 x2 : (ClBoundedMeetLatticeTerm A)) , ((P x1) → ((P x2) → (P (plusCl x1 x2))))) → (∀ (x : (ClBoundedMeetLatticeTerm A)) , (P x)))))) 
   | psing ptimescl p1cl ppluscl (sing x1) := (psing x1)  
   | psing ptimescl p1cl ppluscl (timesCl x1 x2) := (ptimescl _ _ (inductionCl psing ptimescl p1cl ppluscl x1) (inductionCl psing ptimescl p1cl ppluscl x2))  
   | psing ptimescl p1cl ppluscl oneCl := p1cl  
   | psing ptimescl p1cl ppluscl (plusCl x1 x2) := (ppluscl _ _ (inductionCl psing ptimescl p1cl ppluscl x1) (inductionCl psing ptimescl p1cl ppluscl x2))  
-  def inductionOpB   (n : ℕ) (P : ((OpBoundedMeetLatticeTerm n) → Type))  : ((∀ (fin : (fin n)) , (P (v fin))) → ((∀ (x1 x2 : (OpBoundedMeetLatticeTerm n)) , ((P x1) → ((P x2) → (P (timesOL x1 x2))))) → ((P oneOL) → ((∀ (x1 x2 : (OpBoundedMeetLatticeTerm n)) , ((P x1) → ((P x2) → (P (plusOL x1 x2))))) → (∀ (x : (OpBoundedMeetLatticeTerm n)) , (P x)))))) 
+  def inductionOpB   {n : ℕ} {P : ((OpBoundedMeetLatticeTerm n) → Type)}  : ((∀ (fin : (fin n)) , (P (v fin))) → ((∀ (x1 x2 : (OpBoundedMeetLatticeTerm n)) , ((P x1) → ((P x2) → (P (timesOL x1 x2))))) → ((P oneOL) → ((∀ (x1 x2 : (OpBoundedMeetLatticeTerm n)) , ((P x1) → ((P x2) → (P (plusOL x1 x2))))) → (∀ (x : (OpBoundedMeetLatticeTerm n)) , (P x)))))) 
   | pv ptimesol p1ol pplusol (v x1) := (pv x1)  
   | pv ptimesol p1ol pplusol (timesOL x1 x2) := (ptimesol _ _ (inductionOpB pv ptimesol p1ol pplusol x1) (inductionOpB pv ptimesol p1ol pplusol x2))  
   | pv ptimesol p1ol pplusol oneOL := p1ol  
   | pv ptimesol p1ol pplusol (plusOL x1 x2) := (pplusol _ _ (inductionOpB pv ptimesol p1ol pplusol x1) (inductionOpB pv ptimesol p1ol pplusol x2))  
-  def inductionOp   (n : ℕ) (A : Type) (P : ((OpBoundedMeetLatticeTerm2 n A) → Type))  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((∀ (x1 x2 : (OpBoundedMeetLatticeTerm2 n A)) , ((P x1) → ((P x2) → (P (timesOL2 x1 x2))))) → ((P oneOL2) → ((∀ (x1 x2 : (OpBoundedMeetLatticeTerm2 n A)) , ((P x1) → ((P x2) → (P (plusOL2 x1 x2))))) → (∀ (x : (OpBoundedMeetLatticeTerm2 n A)) , (P x))))))) 
+  def inductionOp   {n : ℕ} {A : Type} {P : ((OpBoundedMeetLatticeTerm2 n A) → Type)}  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((∀ (x1 x2 : (OpBoundedMeetLatticeTerm2 n A)) , ((P x1) → ((P x2) → (P (timesOL2 x1 x2))))) → ((P oneOL2) → ((∀ (x1 x2 : (OpBoundedMeetLatticeTerm2 n A)) , ((P x1) → ((P x2) → (P (plusOL2 x1 x2))))) → (∀ (x : (OpBoundedMeetLatticeTerm2 n A)) , (P x))))))) 
   | pv2 psing2 ptimesol2 p1ol2 pplusol2 (v2 x1) := (pv2 x1)  
   | pv2 psing2 ptimesol2 p1ol2 pplusol2 (sing2 x1) := (psing2 x1)  
   | pv2 psing2 ptimesol2 p1ol2 pplusol2 (timesOL2 x1 x2) := (ptimesol2 _ _ (inductionOp pv2 psing2 ptimesol2 p1ol2 pplusol2 x1) (inductionOp pv2 psing2 ptimesol2 p1ol2 pplusol2 x2))  
@@ -149,17 +149,17 @@ section BoundedMeetLattice
   | (timesL x1 x2) := (stage2 timesL (codeLift2 timesL) (stageB x1) (stageB x2))  
   | oneL := (Now oneL)  
   | (plusL x1 x2) := (stage2 plusL (codeLift2 plusL) (stageB x1) (stageB x2))  
-  def stageCl   (A : Type)  : ((ClBoundedMeetLatticeTerm A) → (Staged (ClBoundedMeetLatticeTerm A))) 
+  def stageCl   {A : Type}  : ((ClBoundedMeetLatticeTerm A) → (Staged (ClBoundedMeetLatticeTerm A))) 
   | (sing x1) := (Now (sing x1))  
   | (timesCl x1 x2) := (stage2 timesCl (codeLift2 timesCl) (stageCl x1) (stageCl x2))  
   | oneCl := (Now oneCl)  
   | (plusCl x1 x2) := (stage2 plusCl (codeLift2 plusCl) (stageCl x1) (stageCl x2))  
-  def stageOpB   (n : ℕ)  : ((OpBoundedMeetLatticeTerm n) → (Staged (OpBoundedMeetLatticeTerm n))) 
+  def stageOpB   {n : ℕ}  : ((OpBoundedMeetLatticeTerm n) → (Staged (OpBoundedMeetLatticeTerm n))) 
   | (v x1) := (const (code (v x1)))  
   | (timesOL x1 x2) := (stage2 timesOL (codeLift2 timesOL) (stageOpB x1) (stageOpB x2))  
   | oneOL := (Now oneOL)  
   | (plusOL x1 x2) := (stage2 plusOL (codeLift2 plusOL) (stageOpB x1) (stageOpB x2))  
-  def stageOp   (n : ℕ) (A : Type)  : ((OpBoundedMeetLatticeTerm2 n A) → (Staged (OpBoundedMeetLatticeTerm2 n A))) 
+  def stageOp   {n : ℕ} {A : Type}  : ((OpBoundedMeetLatticeTerm2 n A) → (Staged (OpBoundedMeetLatticeTerm2 n A))) 
   | (sing2 x1) := (Now (sing2 x1))  
   | (v2 x1) := (const (code (v2 x1)))  
   | (timesOL2 x1 x2) := (stage2 timesOL2 (codeLift2 timesOL2) (stageOp x1) (stageOp x2))  

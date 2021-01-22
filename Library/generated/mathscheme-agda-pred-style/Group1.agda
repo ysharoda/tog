@@ -76,28 +76,28 @@ module Group1   where
       1OL2 : (OpGroup1OL2Term2 n A) 
       invOL2 : ((OpGroup1OL2Term2 n A) → (OpGroup1OL2Term2 n A))  
       
-  simplifyCl :  (A : Set) →  ((ClGroup1ClTerm A) → (ClGroup1ClTerm A)) 
-  simplifyCl _ (opCl 1Cl x) = x  
-  simplifyCl _ (opCl x 1Cl) = x  
-  simplifyCl _ (opCl x1 x2) = (opCl (simplifyCl _ x1) (simplifyCl _ x2))  
-  simplifyCl _ 1Cl = 1Cl  
-  simplifyCl _ (invCl x1) = (invCl (simplifyCl _ x1))  
-  simplifyCl _ (sing x1) = (sing x1)  
-  simplifyOpB :  (n : Nat) →  ((OpGroup1OLTerm n) → (OpGroup1OLTerm n)) 
-  simplifyOpB _ (opOL 1OL x) = x  
-  simplifyOpB _ (opOL x 1OL) = x  
-  simplifyOpB _ (opOL x1 x2) = (opOL (simplifyOpB _ x1) (simplifyOpB _ x2))  
-  simplifyOpB _ 1OL = 1OL  
-  simplifyOpB _ (invOL x1) = (invOL (simplifyOpB _ x1))  
-  simplifyOpB _ (v x1) = (v x1)  
-  simplifyOp :  (n : Nat) (A : Set) →  ((OpGroup1OL2Term2 n A) → (OpGroup1OL2Term2 n A)) 
-  simplifyOp _ _ (opOL2 1OL2 x) = x  
-  simplifyOp _ _ (opOL2 x 1OL2) = x  
-  simplifyOp _ _ (opOL2 x1 x2) = (opOL2 (simplifyOp _ _ x1) (simplifyOp _ _ x2))  
-  simplifyOp _ _ 1OL2 = 1OL2  
-  simplifyOp _ _ (invOL2 x1) = (invOL2 (simplifyOp _ _ x1))  
-  simplifyOp _ _ (v2 x1) = (v2 x1)  
-  simplifyOp _ _ (sing2 x1) = (sing2 x1)  
+  simplifyCl :  {A : Set} →  ((ClGroup1ClTerm A) → (ClGroup1ClTerm A)) 
+  simplifyCl (opCl 1Cl x) = x  
+  simplifyCl (opCl x 1Cl) = x  
+  simplifyCl (opCl x1 x2) = (opCl (simplifyCl x1) (simplifyCl x2))  
+  simplifyCl 1Cl = 1Cl  
+  simplifyCl (invCl x1) = (invCl (simplifyCl x1))  
+  simplifyCl (sing x1) = (sing x1)  
+  simplifyOpB :  {n : Nat} →  ((OpGroup1OLTerm n) → (OpGroup1OLTerm n)) 
+  simplifyOpB (opOL 1OL x) = x  
+  simplifyOpB (opOL x 1OL) = x  
+  simplifyOpB (opOL x1 x2) = (opOL (simplifyOpB x1) (simplifyOpB x2))  
+  simplifyOpB 1OL = 1OL  
+  simplifyOpB (invOL x1) = (invOL (simplifyOpB x1))  
+  simplifyOpB (v x1) = (v x1)  
+  simplifyOp :  {n : Nat} {A : Set} →  ((OpGroup1OL2Term2 n A) → (OpGroup1OL2Term2 n A)) 
+  simplifyOp (opOL2 1OL2 x) = x  
+  simplifyOp (opOL2 x 1OL2) = x  
+  simplifyOp (opOL2 x1 x2) = (opOL2 (simplifyOp x1) (simplifyOp x2))  
+  simplifyOp 1OL2 = 1OL2  
+  simplifyOp (invOL2 x1) = (invOL2 (simplifyOp x1))  
+  simplifyOp (v2 x1) = (v2 x1)  
+  simplifyOp (sing2 x1) = (sing2 x1)  
   evalB :  {A : Set} →  ((Group1 A) → (Group1LTerm → A)) 
   evalB Gr (opL x1 x2) = ((op Gr) (evalB Gr x1) (evalB Gr x2))  
   evalB Gr 1L = (1ᵢ Gr)  
@@ -107,57 +107,57 @@ module Group1   where
   evalCl Gr (opCl x1 x2) = ((op Gr) (evalCl Gr x1) (evalCl Gr x2))  
   evalCl Gr 1Cl = (1ᵢ Gr)  
   evalCl Gr (invCl x1) = ((inv Gr) (evalCl Gr x1))  
-  evalOpB :  {A : Set} (n : Nat) →  ((Group1 A) → ((Vec A n) → ((OpGroup1OLTerm n) → A))) 
-  evalOpB n Gr vars (v x1) = (lookup vars x1)  
-  evalOpB n Gr vars (opOL x1 x2) = ((op Gr) (evalOpB n Gr vars x1) (evalOpB n Gr vars x2))  
-  evalOpB n Gr vars 1OL = (1ᵢ Gr)  
-  evalOpB n Gr vars (invOL x1) = ((inv Gr) (evalOpB n Gr vars x1))  
-  evalOp :  {A : Set} (n : Nat) →  ((Group1 A) → ((Vec A n) → ((OpGroup1OL2Term2 n A) → A))) 
-  evalOp n Gr vars (v2 x1) = (lookup vars x1)  
-  evalOp n Gr vars (sing2 x1) = x1  
-  evalOp n Gr vars (opOL2 x1 x2) = ((op Gr) (evalOp n Gr vars x1) (evalOp n Gr vars x2))  
-  evalOp n Gr vars 1OL2 = (1ᵢ Gr)  
-  evalOp n Gr vars (invOL2 x1) = ((inv Gr) (evalOp n Gr vars x1))  
-  inductionB :  (P : (Group1LTerm → Set)) →  (( (x1 x2 : Group1LTerm) → ((P x1) → ((P x2) → (P (opL x1 x2))))) → ((P 1L) → (( (x1 : Group1LTerm) → ((P x1) → (P (invL x1)))) → ( (x : Group1LTerm) → (P x))))) 
-  inductionB p popl p1l pinvl (opL x1 x2) = (popl _ _ (inductionB p popl p1l pinvl x1) (inductionB p popl p1l pinvl x2))  
-  inductionB p popl p1l pinvl 1L = p1l  
-  inductionB p popl p1l pinvl (invL x1) = (pinvl _ (inductionB p popl p1l pinvl x1))  
-  inductionCl :  (A : Set) (P : ((ClGroup1ClTerm A) → Set)) →  (( (x1 : A) → (P (sing x1))) → (( (x1 x2 : (ClGroup1ClTerm A)) → ((P x1) → ((P x2) → (P (opCl x1 x2))))) → ((P 1Cl) → (( (x1 : (ClGroup1ClTerm A)) → ((P x1) → (P (invCl x1)))) → ( (x : (ClGroup1ClTerm A)) → (P x)))))) 
-  inductionCl _ p psing popcl p1cl pinvcl (sing x1) = (psing x1)  
-  inductionCl _ p psing popcl p1cl pinvcl (opCl x1 x2) = (popcl _ _ (inductionCl _ p psing popcl p1cl pinvcl x1) (inductionCl _ p psing popcl p1cl pinvcl x2))  
-  inductionCl _ p psing popcl p1cl pinvcl 1Cl = p1cl  
-  inductionCl _ p psing popcl p1cl pinvcl (invCl x1) = (pinvcl _ (inductionCl _ p psing popcl p1cl pinvcl x1))  
-  inductionOpB :  (n : Nat) (P : ((OpGroup1OLTerm n) → Set)) →  (( (fin : (Fin n)) → (P (v fin))) → (( (x1 x2 : (OpGroup1OLTerm n)) → ((P x1) → ((P x2) → (P (opOL x1 x2))))) → ((P 1OL) → (( (x1 : (OpGroup1OLTerm n)) → ((P x1) → (P (invOL x1)))) → ( (x : (OpGroup1OLTerm n)) → (P x)))))) 
-  inductionOpB _ p pv popol p1ol pinvol (v x1) = (pv x1)  
-  inductionOpB _ p pv popol p1ol pinvol (opOL x1 x2) = (popol _ _ (inductionOpB _ p pv popol p1ol pinvol x1) (inductionOpB _ p pv popol p1ol pinvol x2))  
-  inductionOpB _ p pv popol p1ol pinvol 1OL = p1ol  
-  inductionOpB _ p pv popol p1ol pinvol (invOL x1) = (pinvol _ (inductionOpB _ p pv popol p1ol pinvol x1))  
-  inductionOp :  (n : Nat) (A : Set) (P : ((OpGroup1OL2Term2 n A) → Set)) →  (( (fin : (Fin n)) → (P (v2 fin))) → (( (x1 : A) → (P (sing2 x1))) → (( (x1 x2 : (OpGroup1OL2Term2 n A)) → ((P x1) → ((P x2) → (P (opOL2 x1 x2))))) → ((P 1OL2) → (( (x1 : (OpGroup1OL2Term2 n A)) → ((P x1) → (P (invOL2 x1)))) → ( (x : (OpGroup1OL2Term2 n A)) → (P x))))))) 
-  inductionOp _ _ p pv2 psing2 popol2 p1ol2 pinvol2 (v2 x1) = (pv2 x1)  
-  inductionOp _ _ p pv2 psing2 popol2 p1ol2 pinvol2 (sing2 x1) = (psing2 x1)  
-  inductionOp _ _ p pv2 psing2 popol2 p1ol2 pinvol2 (opOL2 x1 x2) = (popol2 _ _ (inductionOp _ _ p pv2 psing2 popol2 p1ol2 pinvol2 x1) (inductionOp _ _ p pv2 psing2 popol2 p1ol2 pinvol2 x2))  
-  inductionOp _ _ p pv2 psing2 popol2 p1ol2 pinvol2 1OL2 = p1ol2  
-  inductionOp _ _ p pv2 psing2 popol2 p1ol2 pinvol2 (invOL2 x1) = (pinvol2 _ (inductionOp _ _ p pv2 psing2 popol2 p1ol2 pinvol2 x1))  
+  evalOpB :  {A : Set} {n : Nat} →  ((Group1 A) → ((Vec A n) → ((OpGroup1OLTerm n) → A))) 
+  evalOpB Gr vars (v x1) = (lookup vars x1)  
+  evalOpB Gr vars (opOL x1 x2) = ((op Gr) (evalOpB Gr vars x1) (evalOpB Gr vars x2))  
+  evalOpB Gr vars 1OL = (1ᵢ Gr)  
+  evalOpB Gr vars (invOL x1) = ((inv Gr) (evalOpB Gr vars x1))  
+  evalOp :  {A : Set} {n : Nat} →  ((Group1 A) → ((Vec A n) → ((OpGroup1OL2Term2 n A) → A))) 
+  evalOp Gr vars (v2 x1) = (lookup vars x1)  
+  evalOp Gr vars (sing2 x1) = x1  
+  evalOp Gr vars (opOL2 x1 x2) = ((op Gr) (evalOp Gr vars x1) (evalOp Gr vars x2))  
+  evalOp Gr vars 1OL2 = (1ᵢ Gr)  
+  evalOp Gr vars (invOL2 x1) = ((inv Gr) (evalOp Gr vars x1))  
+  inductionB :  {P : (Group1LTerm → Set)} →  (( (x1 x2 : Group1LTerm) → ((P x1) → ((P x2) → (P (opL x1 x2))))) → ((P 1L) → (( (x1 : Group1LTerm) → ((P x1) → (P (invL x1)))) → ( (x : Group1LTerm) → (P x))))) 
+  inductionB popl p1l pinvl (opL x1 x2) = (popl _ _ (inductionB popl p1l pinvl x1) (inductionB popl p1l pinvl x2))  
+  inductionB popl p1l pinvl 1L = p1l  
+  inductionB popl p1l pinvl (invL x1) = (pinvl _ (inductionB popl p1l pinvl x1))  
+  inductionCl :  {A : Set} {P : ((ClGroup1ClTerm A) → Set)} →  (( (x1 : A) → (P (sing x1))) → (( (x1 x2 : (ClGroup1ClTerm A)) → ((P x1) → ((P x2) → (P (opCl x1 x2))))) → ((P 1Cl) → (( (x1 : (ClGroup1ClTerm A)) → ((P x1) → (P (invCl x1)))) → ( (x : (ClGroup1ClTerm A)) → (P x)))))) 
+  inductionCl psing popcl p1cl pinvcl (sing x1) = (psing x1)  
+  inductionCl psing popcl p1cl pinvcl (opCl x1 x2) = (popcl _ _ (inductionCl psing popcl p1cl pinvcl x1) (inductionCl psing popcl p1cl pinvcl x2))  
+  inductionCl psing popcl p1cl pinvcl 1Cl = p1cl  
+  inductionCl psing popcl p1cl pinvcl (invCl x1) = (pinvcl _ (inductionCl psing popcl p1cl pinvcl x1))  
+  inductionOpB :  {n : Nat} {P : ((OpGroup1OLTerm n) → Set)} →  (( (fin : (Fin n)) → (P (v fin))) → (( (x1 x2 : (OpGroup1OLTerm n)) → ((P x1) → ((P x2) → (P (opOL x1 x2))))) → ((P 1OL) → (( (x1 : (OpGroup1OLTerm n)) → ((P x1) → (P (invOL x1)))) → ( (x : (OpGroup1OLTerm n)) → (P x)))))) 
+  inductionOpB pv popol p1ol pinvol (v x1) = (pv x1)  
+  inductionOpB pv popol p1ol pinvol (opOL x1 x2) = (popol _ _ (inductionOpB pv popol p1ol pinvol x1) (inductionOpB pv popol p1ol pinvol x2))  
+  inductionOpB pv popol p1ol pinvol 1OL = p1ol  
+  inductionOpB pv popol p1ol pinvol (invOL x1) = (pinvol _ (inductionOpB pv popol p1ol pinvol x1))  
+  inductionOp :  {n : Nat} {A : Set} {P : ((OpGroup1OL2Term2 n A) → Set)} →  (( (fin : (Fin n)) → (P (v2 fin))) → (( (x1 : A) → (P (sing2 x1))) → (( (x1 x2 : (OpGroup1OL2Term2 n A)) → ((P x1) → ((P x2) → (P (opOL2 x1 x2))))) → ((P 1OL2) → (( (x1 : (OpGroup1OL2Term2 n A)) → ((P x1) → (P (invOL2 x1)))) → ( (x : (OpGroup1OL2Term2 n A)) → (P x))))))) 
+  inductionOp pv2 psing2 popol2 p1ol2 pinvol2 (v2 x1) = (pv2 x1)  
+  inductionOp pv2 psing2 popol2 p1ol2 pinvol2 (sing2 x1) = (psing2 x1)  
+  inductionOp pv2 psing2 popol2 p1ol2 pinvol2 (opOL2 x1 x2) = (popol2 _ _ (inductionOp pv2 psing2 popol2 p1ol2 pinvol2 x1) (inductionOp pv2 psing2 popol2 p1ol2 pinvol2 x2))  
+  inductionOp pv2 psing2 popol2 p1ol2 pinvol2 1OL2 = p1ol2  
+  inductionOp pv2 psing2 popol2 p1ol2 pinvol2 (invOL2 x1) = (pinvol2 _ (inductionOp pv2 psing2 popol2 p1ol2 pinvol2 x1))  
   stageB :  (Group1LTerm → (Staged Group1LTerm))
   stageB (opL x1 x2) = (stage2 opL (codeLift2 opL) (stageB x1) (stageB x2))  
   stageB 1L = (Now 1L)  
   stageB (invL x1) = (stage1 invL (codeLift1 invL) (stageB x1))  
-  stageCl :  (A : Set) →  ((ClGroup1ClTerm A) → (Staged (ClGroup1ClTerm A))) 
-  stageCl _ (sing x1) = (Now (sing x1))  
-  stageCl _ (opCl x1 x2) = (stage2 opCl (codeLift2 opCl) (stageCl _ x1) (stageCl _ x2))  
-  stageCl _ 1Cl = (Now 1Cl)  
-  stageCl _ (invCl x1) = (stage1 invCl (codeLift1 invCl) (stageCl _ x1))  
-  stageOpB :  (n : Nat) →  ((OpGroup1OLTerm n) → (Staged (OpGroup1OLTerm n))) 
-  stageOpB _ (v x1) = (const (code (v x1)))  
-  stageOpB _ (opOL x1 x2) = (stage2 opOL (codeLift2 opOL) (stageOpB _ x1) (stageOpB _ x2))  
-  stageOpB _ 1OL = (Now 1OL)  
-  stageOpB _ (invOL x1) = (stage1 invOL (codeLift1 invOL) (stageOpB _ x1))  
-  stageOp :  (n : Nat) (A : Set) →  ((OpGroup1OL2Term2 n A) → (Staged (OpGroup1OL2Term2 n A))) 
-  stageOp _ _ (sing2 x1) = (Now (sing2 x1))  
-  stageOp _ _ (v2 x1) = (const (code (v2 x1)))  
-  stageOp _ _ (opOL2 x1 x2) = (stage2 opOL2 (codeLift2 opOL2) (stageOp _ _ x1) (stageOp _ _ x2))  
-  stageOp _ _ 1OL2 = (Now 1OL2)  
-  stageOp _ _ (invOL2 x1) = (stage1 invOL2 (codeLift1 invOL2) (stageOp _ _ x1))  
+  stageCl :  {A : Set} →  ((ClGroup1ClTerm A) → (Staged (ClGroup1ClTerm A))) 
+  stageCl (sing x1) = (Now (sing x1))  
+  stageCl (opCl x1 x2) = (stage2 opCl (codeLift2 opCl) (stageCl x1) (stageCl x2))  
+  stageCl 1Cl = (Now 1Cl)  
+  stageCl (invCl x1) = (stage1 invCl (codeLift1 invCl) (stageCl x1))  
+  stageOpB :  {n : Nat} →  ((OpGroup1OLTerm n) → (Staged (OpGroup1OLTerm n))) 
+  stageOpB (v x1) = (const (code (v x1)))  
+  stageOpB (opOL x1 x2) = (stage2 opOL (codeLift2 opOL) (stageOpB x1) (stageOpB x2))  
+  stageOpB 1OL = (Now 1OL)  
+  stageOpB (invOL x1) = (stage1 invOL (codeLift1 invOL) (stageOpB x1))  
+  stageOp :  {n : Nat} {A : Set} →  ((OpGroup1OL2Term2 n A) → (Staged (OpGroup1OL2Term2 n A))) 
+  stageOp (sing2 x1) = (Now (sing2 x1))  
+  stageOp (v2 x1) = (const (code (v2 x1)))  
+  stageOp (opOL2 x1 x2) = (stage2 opOL2 (codeLift2 opOL2) (stageOp x1) (stageOp x2))  
+  stageOp 1OL2 = (Now 1OL2)  
+  stageOp (invOL2 x1) = (stage1 invOL2 (codeLift1 invOL2) (stageOp x1))  
   record StagedRepr  (A : Set) (Repr : (Set → Set)) : Set where 
      field  
       opT : ((Repr A) → ((Repr A) → (Repr A))) 

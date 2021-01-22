@@ -58,19 +58,19 @@ section MultUnital
      | timesOL2 : (OpMultUnitalTerm2 → (OpMultUnitalTerm2 → OpMultUnitalTerm2))  
       open OpMultUnitalTerm2 
   
-  def simplifyCl   (A : Type)  : ((ClMultUnitalTerm A) → (ClMultUnitalTerm A)) 
+  def simplifyCl   {A : Type}  : ((ClMultUnitalTerm A) → (ClMultUnitalTerm A)) 
   | (timesCl oneCl x) := x  
   | (timesCl x oneCl) := x  
   | oneCl := oneCl  
   | (timesCl x1 x2) := (timesCl (simplifyCl x1) (simplifyCl x2))  
   | (sing x1) := (sing x1)  
-  def simplifyOpB   (n : ℕ)  : ((OpMultUnitalTerm n) → (OpMultUnitalTerm n)) 
+  def simplifyOpB   {n : ℕ}  : ((OpMultUnitalTerm n) → (OpMultUnitalTerm n)) 
   | (timesOL oneOL x) := x  
   | (timesOL x oneOL) := x  
   | oneOL := oneOL  
   | (timesOL x1 x2) := (timesOL (simplifyOpB x1) (simplifyOpB x2))  
   | (v x1) := (v x1)  
-  def simplifyOp   (n : ℕ) (A : Type)  : ((OpMultUnitalTerm2 n A) → (OpMultUnitalTerm2 n A)) 
+  def simplifyOp   {n : ℕ} {A : Type}  : ((OpMultUnitalTerm2 n A) → (OpMultUnitalTerm2 n A)) 
   | (timesOL2 oneOL2 x) := x  
   | (timesOL2 x oneOL2) := x  
   | oneOL2 := oneOL2  
@@ -84,27 +84,27 @@ section MultUnital
   | Mu (sing x1) := x1  
   | Mu oneCl := (one Mu)  
   | Mu (timesCl x1 x2) := ((times Mu) (evalCl Mu x1) (evalCl Mu x2))  
-  def evalOpB   {A : Type} (n : ℕ)  : ((MultUnital A) → ((vector A n) → ((OpMultUnitalTerm n) → A))) 
+  def evalOpB   {A : Type} {n : ℕ}  : ((MultUnital A) → ((vector A n) → ((OpMultUnitalTerm n) → A))) 
   | Mu vars (v x1) := (nth vars x1)  
   | Mu vars oneOL := (one Mu)  
   | Mu vars (timesOL x1 x2) := ((times Mu) (evalOpB Mu vars x1) (evalOpB Mu vars x2))  
-  def evalOp   {A : Type} (n : ℕ)  : ((MultUnital A) → ((vector A n) → ((OpMultUnitalTerm2 n A) → A))) 
+  def evalOp   {A : Type} {n : ℕ}  : ((MultUnital A) → ((vector A n) → ((OpMultUnitalTerm2 n A) → A))) 
   | Mu vars (v2 x1) := (nth vars x1)  
   | Mu vars (sing2 x1) := x1  
   | Mu vars oneOL2 := (one Mu)  
   | Mu vars (timesOL2 x1 x2) := ((times Mu) (evalOp Mu vars x1) (evalOp Mu vars x2))  
-  def inductionB   (P : (MultUnitalTerm → Type))  : ((P oneL) → ((∀ (x1 x2 : MultUnitalTerm) , ((P x1) → ((P x2) → (P (timesL x1 x2))))) → (∀ (x : MultUnitalTerm) , (P x)))) 
+  def inductionB   {P : (MultUnitalTerm → Type)}  : ((P oneL) → ((∀ (x1 x2 : MultUnitalTerm) , ((P x1) → ((P x2) → (P (timesL x1 x2))))) → (∀ (x : MultUnitalTerm) , (P x)))) 
   | p1l ptimesl oneL := p1l  
   | p1l ptimesl (timesL x1 x2) := (ptimesl _ _ (inductionB p1l ptimesl x1) (inductionB p1l ptimesl x2))  
-  def inductionCl   (A : Type) (P : ((ClMultUnitalTerm A) → Type))  : ((∀ (x1 : A) , (P (sing x1))) → ((P oneCl) → ((∀ (x1 x2 : (ClMultUnitalTerm A)) , ((P x1) → ((P x2) → (P (timesCl x1 x2))))) → (∀ (x : (ClMultUnitalTerm A)) , (P x))))) 
+  def inductionCl   {A : Type} {P : ((ClMultUnitalTerm A) → Type)}  : ((∀ (x1 : A) , (P (sing x1))) → ((P oneCl) → ((∀ (x1 x2 : (ClMultUnitalTerm A)) , ((P x1) → ((P x2) → (P (timesCl x1 x2))))) → (∀ (x : (ClMultUnitalTerm A)) , (P x))))) 
   | psing p1cl ptimescl (sing x1) := (psing x1)  
   | psing p1cl ptimescl oneCl := p1cl  
   | psing p1cl ptimescl (timesCl x1 x2) := (ptimescl _ _ (inductionCl psing p1cl ptimescl x1) (inductionCl psing p1cl ptimescl x2))  
-  def inductionOpB   (n : ℕ) (P : ((OpMultUnitalTerm n) → Type))  : ((∀ (fin : (fin n)) , (P (v fin))) → ((P oneOL) → ((∀ (x1 x2 : (OpMultUnitalTerm n)) , ((P x1) → ((P x2) → (P (timesOL x1 x2))))) → (∀ (x : (OpMultUnitalTerm n)) , (P x))))) 
+  def inductionOpB   {n : ℕ} {P : ((OpMultUnitalTerm n) → Type)}  : ((∀ (fin : (fin n)) , (P (v fin))) → ((P oneOL) → ((∀ (x1 x2 : (OpMultUnitalTerm n)) , ((P x1) → ((P x2) → (P (timesOL x1 x2))))) → (∀ (x : (OpMultUnitalTerm n)) , (P x))))) 
   | pv p1ol ptimesol (v x1) := (pv x1)  
   | pv p1ol ptimesol oneOL := p1ol  
   | pv p1ol ptimesol (timesOL x1 x2) := (ptimesol _ _ (inductionOpB pv p1ol ptimesol x1) (inductionOpB pv p1ol ptimesol x2))  
-  def inductionOp   (n : ℕ) (A : Type) (P : ((OpMultUnitalTerm2 n A) → Type))  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((P oneOL2) → ((∀ (x1 x2 : (OpMultUnitalTerm2 n A)) , ((P x1) → ((P x2) → (P (timesOL2 x1 x2))))) → (∀ (x : (OpMultUnitalTerm2 n A)) , (P x)))))) 
+  def inductionOp   {n : ℕ} {A : Type} {P : ((OpMultUnitalTerm2 n A) → Type)}  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((P oneOL2) → ((∀ (x1 x2 : (OpMultUnitalTerm2 n A)) , ((P x1) → ((P x2) → (P (timesOL2 x1 x2))))) → (∀ (x : (OpMultUnitalTerm2 n A)) , (P x)))))) 
   | pv2 psing2 p1ol2 ptimesol2 (v2 x1) := (pv2 x1)  
   | pv2 psing2 p1ol2 ptimesol2 (sing2 x1) := (psing2 x1)  
   | pv2 psing2 p1ol2 ptimesol2 oneOL2 := p1ol2  
@@ -112,15 +112,15 @@ section MultUnital
   def stageB  : (MultUnitalTerm → (Staged MultUnitalTerm))
   | oneL := (Now oneL)  
   | (timesL x1 x2) := (stage2 timesL (codeLift2 timesL) (stageB x1) (stageB x2))  
-  def stageCl   (A : Type)  : ((ClMultUnitalTerm A) → (Staged (ClMultUnitalTerm A))) 
+  def stageCl   {A : Type}  : ((ClMultUnitalTerm A) → (Staged (ClMultUnitalTerm A))) 
   | (sing x1) := (Now (sing x1))  
   | oneCl := (Now oneCl)  
   | (timesCl x1 x2) := (stage2 timesCl (codeLift2 timesCl) (stageCl x1) (stageCl x2))  
-  def stageOpB   (n : ℕ)  : ((OpMultUnitalTerm n) → (Staged (OpMultUnitalTerm n))) 
+  def stageOpB   {n : ℕ}  : ((OpMultUnitalTerm n) → (Staged (OpMultUnitalTerm n))) 
   | (v x1) := (const (code (v x1)))  
   | oneOL := (Now oneOL)  
   | (timesOL x1 x2) := (stage2 timesOL (codeLift2 timesOL) (stageOpB x1) (stageOpB x2))  
-  def stageOp   (n : ℕ) (A : Type)  : ((OpMultUnitalTerm2 n A) → (Staged (OpMultUnitalTerm2 n A))) 
+  def stageOp   {n : ℕ} {A : Type}  : ((OpMultUnitalTerm2 n A) → (Staged (OpMultUnitalTerm2 n A))) 
   | (sing2 x1) := (Now (sing2 x1))  
   | (v2 x1) := (const (code (v2 x1)))  
   | oneOL2 := (Now oneOL2)  

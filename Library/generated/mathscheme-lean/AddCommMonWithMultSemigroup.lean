@@ -73,21 +73,21 @@ section AddCommMonWithMultSemigroup
      | plusOL2 : (OpAddCommMonWithMultSemigroupTerm2 → (OpAddCommMonWithMultSemigroupTerm2 → OpAddCommMonWithMultSemigroupTerm2))  
       open OpAddCommMonWithMultSemigroupTerm2 
   
-  def simplifyCl   (A : Type)  : ((ClAddCommMonWithMultSemigroupTerm A) → (ClAddCommMonWithMultSemigroupTerm A)) 
+  def simplifyCl   {A : Type}  : ((ClAddCommMonWithMultSemigroupTerm A) → (ClAddCommMonWithMultSemigroupTerm A)) 
   | (plusCl zeroCl x) := x  
   | (plusCl x zeroCl) := x  
   | (timesCl x1 x2) := (timesCl (simplifyCl x1) (simplifyCl x2))  
   | zeroCl := zeroCl  
   | (plusCl x1 x2) := (plusCl (simplifyCl x1) (simplifyCl x2))  
   | (sing x1) := (sing x1)  
-  def simplifyOpB   (n : ℕ)  : ((OpAddCommMonWithMultSemigroupTerm n) → (OpAddCommMonWithMultSemigroupTerm n)) 
+  def simplifyOpB   {n : ℕ}  : ((OpAddCommMonWithMultSemigroupTerm n) → (OpAddCommMonWithMultSemigroupTerm n)) 
   | (plusOL zeroOL x) := x  
   | (plusOL x zeroOL) := x  
   | (timesOL x1 x2) := (timesOL (simplifyOpB x1) (simplifyOpB x2))  
   | zeroOL := zeroOL  
   | (plusOL x1 x2) := (plusOL (simplifyOpB x1) (simplifyOpB x2))  
   | (v x1) := (v x1)  
-  def simplifyOp   (n : ℕ) (A : Type)  : ((OpAddCommMonWithMultSemigroupTerm2 n A) → (OpAddCommMonWithMultSemigroupTerm2 n A)) 
+  def simplifyOp   {n : ℕ} {A : Type}  : ((OpAddCommMonWithMultSemigroupTerm2 n A) → (OpAddCommMonWithMultSemigroupTerm2 n A)) 
   | (plusOL2 zeroOL2 x) := x  
   | (plusOL2 x zeroOL2) := x  
   | (timesOL2 x1 x2) := (timesOL2 (simplifyOp x1) (simplifyOp x2))  
@@ -104,32 +104,32 @@ section AddCommMonWithMultSemigroup
   | Ad (timesCl x1 x2) := ((times Ad) (evalCl Ad x1) (evalCl Ad x2))  
   | Ad zeroCl := (zero Ad)  
   | Ad (plusCl x1 x2) := ((plus Ad) (evalCl Ad x1) (evalCl Ad x2))  
-  def evalOpB   {A : Type} (n : ℕ)  : ((AddCommMonWithMultSemigroup A) → ((vector A n) → ((OpAddCommMonWithMultSemigroupTerm n) → A))) 
+  def evalOpB   {A : Type} {n : ℕ}  : ((AddCommMonWithMultSemigroup A) → ((vector A n) → ((OpAddCommMonWithMultSemigroupTerm n) → A))) 
   | Ad vars (v x1) := (nth vars x1)  
   | Ad vars (timesOL x1 x2) := ((times Ad) (evalOpB Ad vars x1) (evalOpB Ad vars x2))  
   | Ad vars zeroOL := (zero Ad)  
   | Ad vars (plusOL x1 x2) := ((plus Ad) (evalOpB Ad vars x1) (evalOpB Ad vars x2))  
-  def evalOp   {A : Type} (n : ℕ)  : ((AddCommMonWithMultSemigroup A) → ((vector A n) → ((OpAddCommMonWithMultSemigroupTerm2 n A) → A))) 
+  def evalOp   {A : Type} {n : ℕ}  : ((AddCommMonWithMultSemigroup A) → ((vector A n) → ((OpAddCommMonWithMultSemigroupTerm2 n A) → A))) 
   | Ad vars (v2 x1) := (nth vars x1)  
   | Ad vars (sing2 x1) := x1  
   | Ad vars (timesOL2 x1 x2) := ((times Ad) (evalOp Ad vars x1) (evalOp Ad vars x2))  
   | Ad vars zeroOL2 := (zero Ad)  
   | Ad vars (plusOL2 x1 x2) := ((plus Ad) (evalOp Ad vars x1) (evalOp Ad vars x2))  
-  def inductionB   (P : (AddCommMonWithMultSemigroupTerm → Type))  : ((∀ (x1 x2 : AddCommMonWithMultSemigroupTerm) , ((P x1) → ((P x2) → (P (timesL x1 x2))))) → ((P zeroL) → ((∀ (x1 x2 : AddCommMonWithMultSemigroupTerm) , ((P x1) → ((P x2) → (P (plusL x1 x2))))) → (∀ (x : AddCommMonWithMultSemigroupTerm) , (P x))))) 
+  def inductionB   {P : (AddCommMonWithMultSemigroupTerm → Type)}  : ((∀ (x1 x2 : AddCommMonWithMultSemigroupTerm) , ((P x1) → ((P x2) → (P (timesL x1 x2))))) → ((P zeroL) → ((∀ (x1 x2 : AddCommMonWithMultSemigroupTerm) , ((P x1) → ((P x2) → (P (plusL x1 x2))))) → (∀ (x : AddCommMonWithMultSemigroupTerm) , (P x))))) 
   | ptimesl p0l pplusl (timesL x1 x2) := (ptimesl _ _ (inductionB ptimesl p0l pplusl x1) (inductionB ptimesl p0l pplusl x2))  
   | ptimesl p0l pplusl zeroL := p0l  
   | ptimesl p0l pplusl (plusL x1 x2) := (pplusl _ _ (inductionB ptimesl p0l pplusl x1) (inductionB ptimesl p0l pplusl x2))  
-  def inductionCl   (A : Type) (P : ((ClAddCommMonWithMultSemigroupTerm A) → Type))  : ((∀ (x1 : A) , (P (sing x1))) → ((∀ (x1 x2 : (ClAddCommMonWithMultSemigroupTerm A)) , ((P x1) → ((P x2) → (P (timesCl x1 x2))))) → ((P zeroCl) → ((∀ (x1 x2 : (ClAddCommMonWithMultSemigroupTerm A)) , ((P x1) → ((P x2) → (P (plusCl x1 x2))))) → (∀ (x : (ClAddCommMonWithMultSemigroupTerm A)) , (P x)))))) 
+  def inductionCl   {A : Type} {P : ((ClAddCommMonWithMultSemigroupTerm A) → Type)}  : ((∀ (x1 : A) , (P (sing x1))) → ((∀ (x1 x2 : (ClAddCommMonWithMultSemigroupTerm A)) , ((P x1) → ((P x2) → (P (timesCl x1 x2))))) → ((P zeroCl) → ((∀ (x1 x2 : (ClAddCommMonWithMultSemigroupTerm A)) , ((P x1) → ((P x2) → (P (plusCl x1 x2))))) → (∀ (x : (ClAddCommMonWithMultSemigroupTerm A)) , (P x)))))) 
   | psing ptimescl p0cl ppluscl (sing x1) := (psing x1)  
   | psing ptimescl p0cl ppluscl (timesCl x1 x2) := (ptimescl _ _ (inductionCl psing ptimescl p0cl ppluscl x1) (inductionCl psing ptimescl p0cl ppluscl x2))  
   | psing ptimescl p0cl ppluscl zeroCl := p0cl  
   | psing ptimescl p0cl ppluscl (plusCl x1 x2) := (ppluscl _ _ (inductionCl psing ptimescl p0cl ppluscl x1) (inductionCl psing ptimescl p0cl ppluscl x2))  
-  def inductionOpB   (n : ℕ) (P : ((OpAddCommMonWithMultSemigroupTerm n) → Type))  : ((∀ (fin : (fin n)) , (P (v fin))) → ((∀ (x1 x2 : (OpAddCommMonWithMultSemigroupTerm n)) , ((P x1) → ((P x2) → (P (timesOL x1 x2))))) → ((P zeroOL) → ((∀ (x1 x2 : (OpAddCommMonWithMultSemigroupTerm n)) , ((P x1) → ((P x2) → (P (plusOL x1 x2))))) → (∀ (x : (OpAddCommMonWithMultSemigroupTerm n)) , (P x)))))) 
+  def inductionOpB   {n : ℕ} {P : ((OpAddCommMonWithMultSemigroupTerm n) → Type)}  : ((∀ (fin : (fin n)) , (P (v fin))) → ((∀ (x1 x2 : (OpAddCommMonWithMultSemigroupTerm n)) , ((P x1) → ((P x2) → (P (timesOL x1 x2))))) → ((P zeroOL) → ((∀ (x1 x2 : (OpAddCommMonWithMultSemigroupTerm n)) , ((P x1) → ((P x2) → (P (plusOL x1 x2))))) → (∀ (x : (OpAddCommMonWithMultSemigroupTerm n)) , (P x)))))) 
   | pv ptimesol p0ol pplusol (v x1) := (pv x1)  
   | pv ptimesol p0ol pplusol (timesOL x1 x2) := (ptimesol _ _ (inductionOpB pv ptimesol p0ol pplusol x1) (inductionOpB pv ptimesol p0ol pplusol x2))  
   | pv ptimesol p0ol pplusol zeroOL := p0ol  
   | pv ptimesol p0ol pplusol (plusOL x1 x2) := (pplusol _ _ (inductionOpB pv ptimesol p0ol pplusol x1) (inductionOpB pv ptimesol p0ol pplusol x2))  
-  def inductionOp   (n : ℕ) (A : Type) (P : ((OpAddCommMonWithMultSemigroupTerm2 n A) → Type))  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((∀ (x1 x2 : (OpAddCommMonWithMultSemigroupTerm2 n A)) , ((P x1) → ((P x2) → (P (timesOL2 x1 x2))))) → ((P zeroOL2) → ((∀ (x1 x2 : (OpAddCommMonWithMultSemigroupTerm2 n A)) , ((P x1) → ((P x2) → (P (plusOL2 x1 x2))))) → (∀ (x : (OpAddCommMonWithMultSemigroupTerm2 n A)) , (P x))))))) 
+  def inductionOp   {n : ℕ} {A : Type} {P : ((OpAddCommMonWithMultSemigroupTerm2 n A) → Type)}  : ((∀ (fin : (fin n)) , (P (v2 fin))) → ((∀ (x1 : A) , (P (sing2 x1))) → ((∀ (x1 x2 : (OpAddCommMonWithMultSemigroupTerm2 n A)) , ((P x1) → ((P x2) → (P (timesOL2 x1 x2))))) → ((P zeroOL2) → ((∀ (x1 x2 : (OpAddCommMonWithMultSemigroupTerm2 n A)) , ((P x1) → ((P x2) → (P (plusOL2 x1 x2))))) → (∀ (x : (OpAddCommMonWithMultSemigroupTerm2 n A)) , (P x))))))) 
   | pv2 psing2 ptimesol2 p0ol2 pplusol2 (v2 x1) := (pv2 x1)  
   | pv2 psing2 ptimesol2 p0ol2 pplusol2 (sing2 x1) := (psing2 x1)  
   | pv2 psing2 ptimesol2 p0ol2 pplusol2 (timesOL2 x1 x2) := (ptimesol2 _ _ (inductionOp pv2 psing2 ptimesol2 p0ol2 pplusol2 x1) (inductionOp pv2 psing2 ptimesol2 p0ol2 pplusol2 x2))  
@@ -139,17 +139,17 @@ section AddCommMonWithMultSemigroup
   | (timesL x1 x2) := (stage2 timesL (codeLift2 timesL) (stageB x1) (stageB x2))  
   | zeroL := (Now zeroL)  
   | (plusL x1 x2) := (stage2 plusL (codeLift2 plusL) (stageB x1) (stageB x2))  
-  def stageCl   (A : Type)  : ((ClAddCommMonWithMultSemigroupTerm A) → (Staged (ClAddCommMonWithMultSemigroupTerm A))) 
+  def stageCl   {A : Type}  : ((ClAddCommMonWithMultSemigroupTerm A) → (Staged (ClAddCommMonWithMultSemigroupTerm A))) 
   | (sing x1) := (Now (sing x1))  
   | (timesCl x1 x2) := (stage2 timesCl (codeLift2 timesCl) (stageCl x1) (stageCl x2))  
   | zeroCl := (Now zeroCl)  
   | (plusCl x1 x2) := (stage2 plusCl (codeLift2 plusCl) (stageCl x1) (stageCl x2))  
-  def stageOpB   (n : ℕ)  : ((OpAddCommMonWithMultSemigroupTerm n) → (Staged (OpAddCommMonWithMultSemigroupTerm n))) 
+  def stageOpB   {n : ℕ}  : ((OpAddCommMonWithMultSemigroupTerm n) → (Staged (OpAddCommMonWithMultSemigroupTerm n))) 
   | (v x1) := (const (code (v x1)))  
   | (timesOL x1 x2) := (stage2 timesOL (codeLift2 timesOL) (stageOpB x1) (stageOpB x2))  
   | zeroOL := (Now zeroOL)  
   | (plusOL x1 x2) := (stage2 plusOL (codeLift2 plusOL) (stageOpB x1) (stageOpB x2))  
-  def stageOp   (n : ℕ) (A : Type)  : ((OpAddCommMonWithMultSemigroupTerm2 n A) → (Staged (OpAddCommMonWithMultSemigroupTerm2 n A))) 
+  def stageOp   {n : ℕ} {A : Type}  : ((OpAddCommMonWithMultSemigroupTerm2 n A) → (Staged (OpAddCommMonWithMultSemigroupTerm2 n A))) 
   | (sing2 x1) := (Now (sing2 x1))  
   | (v2 x1) := (const (code (v2 x1)))  
   | (timesOL2 x1 x2) := (stage2 timesOL2 (codeLift2 timesOL2) (stageOp x1) (stageOp x2))  

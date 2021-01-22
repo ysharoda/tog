@@ -127,55 +127,55 @@ module InvolutiveRing   where
       0OL2 : (OpInvolutiveRingTerm2 n A) 
       negOL2 : ((OpInvolutiveRingTerm2 n A) → (OpInvolutiveRingTerm2 n A))  
       
-  simplifyCl :  (A : Set) →  ((ClInvolutiveRingTerm A) → (ClInvolutiveRingTerm A)) 
-  simplifyCl _ (primCl 1Cl) = 1Cl  
-  simplifyCl _ (primCl (primCl x)) = x  
-  simplifyCl _ (+Cl (primCl y) (primCl x)) = (primCl (+Cl x y))  
-  simplifyCl _ (*Cl (primCl y) (primCl x)) = (primCl (*Cl x y))  
-  simplifyCl _ (+Cl 0Cl x) = x  
-  simplifyCl _ (+Cl x 0Cl) = x  
-  simplifyCl _ (*Cl 1Cl x) = x  
-  simplifyCl _ (*Cl x 1Cl) = x  
-  simplifyCl _ (*Cl x1 x2) = (*Cl (simplifyCl _ x1) (simplifyCl _ x2))  
-  simplifyCl _ (+Cl x1 x2) = (+Cl (simplifyCl _ x1) (simplifyCl _ x2))  
-  simplifyCl _ 1Cl = 1Cl  
-  simplifyCl _ (primCl x1) = (primCl (simplifyCl _ x1))  
-  simplifyCl _ 0Cl = 0Cl  
-  simplifyCl _ (negCl x1) = (negCl (simplifyCl _ x1))  
-  simplifyCl _ (sing x1) = (sing x1)  
-  simplifyOpB :  (n : Nat) →  ((OpInvolutiveRingTerm n) → (OpInvolutiveRingTerm n)) 
-  simplifyOpB _ (primOL 1OL) = 1OL  
-  simplifyOpB _ (primOL (primOL x)) = x  
-  simplifyOpB _ (+OL (primOL y) (primOL x)) = (primOL (+OL x y))  
-  simplifyOpB _ (*OL (primOL y) (primOL x)) = (primOL (*OL x y))  
-  simplifyOpB _ (+OL 0OL x) = x  
-  simplifyOpB _ (+OL x 0OL) = x  
-  simplifyOpB _ (*OL 1OL x) = x  
-  simplifyOpB _ (*OL x 1OL) = x  
-  simplifyOpB _ (*OL x1 x2) = (*OL (simplifyOpB _ x1) (simplifyOpB _ x2))  
-  simplifyOpB _ (+OL x1 x2) = (+OL (simplifyOpB _ x1) (simplifyOpB _ x2))  
-  simplifyOpB _ 1OL = 1OL  
-  simplifyOpB _ (primOL x1) = (primOL (simplifyOpB _ x1))  
-  simplifyOpB _ 0OL = 0OL  
-  simplifyOpB _ (negOL x1) = (negOL (simplifyOpB _ x1))  
-  simplifyOpB _ (v x1) = (v x1)  
-  simplifyOp :  (n : Nat) (A : Set) →  ((OpInvolutiveRingTerm2 n A) → (OpInvolutiveRingTerm2 n A)) 
-  simplifyOp _ _ (primOL2 1OL2) = 1OL2  
-  simplifyOp _ _ (primOL2 (primOL2 x)) = x  
-  simplifyOp _ _ (+OL2 (primOL2 y) (primOL2 x)) = (primOL2 (+OL2 x y))  
-  simplifyOp _ _ (*OL2 (primOL2 y) (primOL2 x)) = (primOL2 (*OL2 x y))  
-  simplifyOp _ _ (+OL2 0OL2 x) = x  
-  simplifyOp _ _ (+OL2 x 0OL2) = x  
-  simplifyOp _ _ (*OL2 1OL2 x) = x  
-  simplifyOp _ _ (*OL2 x 1OL2) = x  
-  simplifyOp _ _ (*OL2 x1 x2) = (*OL2 (simplifyOp _ _ x1) (simplifyOp _ _ x2))  
-  simplifyOp _ _ (+OL2 x1 x2) = (+OL2 (simplifyOp _ _ x1) (simplifyOp _ _ x2))  
-  simplifyOp _ _ 1OL2 = 1OL2  
-  simplifyOp _ _ (primOL2 x1) = (primOL2 (simplifyOp _ _ x1))  
-  simplifyOp _ _ 0OL2 = 0OL2  
-  simplifyOp _ _ (negOL2 x1) = (negOL2 (simplifyOp _ _ x1))  
-  simplifyOp _ _ (v2 x1) = (v2 x1)  
-  simplifyOp _ _ (sing2 x1) = (sing2 x1)  
+  simplifyCl :  {A : Set} →  ((ClInvolutiveRingTerm A) → (ClInvolutiveRingTerm A)) 
+  simplifyCl (primCl 1Cl) = 1Cl  
+  simplifyCl (primCl (primCl x)) = x  
+  simplifyCl (+Cl (primCl y) (primCl x)) = (primCl (+Cl x y))  
+  simplifyCl (*Cl (primCl y) (primCl x)) = (primCl (*Cl x y))  
+  simplifyCl (+Cl 0Cl x) = x  
+  simplifyCl (+Cl x 0Cl) = x  
+  simplifyCl (*Cl 1Cl x) = x  
+  simplifyCl (*Cl x 1Cl) = x  
+  simplifyCl (*Cl x1 x2) = (*Cl (simplifyCl x1) (simplifyCl x2))  
+  simplifyCl (+Cl x1 x2) = (+Cl (simplifyCl x1) (simplifyCl x2))  
+  simplifyCl 1Cl = 1Cl  
+  simplifyCl (primCl x1) = (primCl (simplifyCl x1))  
+  simplifyCl 0Cl = 0Cl  
+  simplifyCl (negCl x1) = (negCl (simplifyCl x1))  
+  simplifyCl (sing x1) = (sing x1)  
+  simplifyOpB :  {n : Nat} →  ((OpInvolutiveRingTerm n) → (OpInvolutiveRingTerm n)) 
+  simplifyOpB (primOL 1OL) = 1OL  
+  simplifyOpB (primOL (primOL x)) = x  
+  simplifyOpB (+OL (primOL y) (primOL x)) = (primOL (+OL x y))  
+  simplifyOpB (*OL (primOL y) (primOL x)) = (primOL (*OL x y))  
+  simplifyOpB (+OL 0OL x) = x  
+  simplifyOpB (+OL x 0OL) = x  
+  simplifyOpB (*OL 1OL x) = x  
+  simplifyOpB (*OL x 1OL) = x  
+  simplifyOpB (*OL x1 x2) = (*OL (simplifyOpB x1) (simplifyOpB x2))  
+  simplifyOpB (+OL x1 x2) = (+OL (simplifyOpB x1) (simplifyOpB x2))  
+  simplifyOpB 1OL = 1OL  
+  simplifyOpB (primOL x1) = (primOL (simplifyOpB x1))  
+  simplifyOpB 0OL = 0OL  
+  simplifyOpB (negOL x1) = (negOL (simplifyOpB x1))  
+  simplifyOpB (v x1) = (v x1)  
+  simplifyOp :  {n : Nat} {A : Set} →  ((OpInvolutiveRingTerm2 n A) → (OpInvolutiveRingTerm2 n A)) 
+  simplifyOp (primOL2 1OL2) = 1OL2  
+  simplifyOp (primOL2 (primOL2 x)) = x  
+  simplifyOp (+OL2 (primOL2 y) (primOL2 x)) = (primOL2 (+OL2 x y))  
+  simplifyOp (*OL2 (primOL2 y) (primOL2 x)) = (primOL2 (*OL2 x y))  
+  simplifyOp (+OL2 0OL2 x) = x  
+  simplifyOp (+OL2 x 0OL2) = x  
+  simplifyOp (*OL2 1OL2 x) = x  
+  simplifyOp (*OL2 x 1OL2) = x  
+  simplifyOp (*OL2 x1 x2) = (*OL2 (simplifyOp x1) (simplifyOp x2))  
+  simplifyOp (+OL2 x1 x2) = (+OL2 (simplifyOp x1) (simplifyOp x2))  
+  simplifyOp 1OL2 = 1OL2  
+  simplifyOp (primOL2 x1) = (primOL2 (simplifyOp x1))  
+  simplifyOp 0OL2 = 0OL2  
+  simplifyOp (negOL2 x1) = (negOL2 (simplifyOp x1))  
+  simplifyOp (v2 x1) = (v2 x1)  
+  simplifyOp (sing2 x1) = (sing2 x1)  
   evalB :  {A : Set} →  ((InvolutiveRing A) → (InvolutiveRingTerm → A)) 
   evalB In (*L x1 x2) = ((* In) (evalB In x1) (evalB In x2))  
   evalB In (+L x1 x2) = ((+ In) (evalB In x1) (evalB In x2))  
@@ -191,55 +191,55 @@ module InvolutiveRing   where
   evalCl In (primCl x1) = ((prim In) (evalCl In x1))  
   evalCl In 0Cl = (0ᵢ In)  
   evalCl In (negCl x1) = ((neg In) (evalCl In x1))  
-  evalOpB :  {A : Set} (n : Nat) →  ((InvolutiveRing A) → ((Vec A n) → ((OpInvolutiveRingTerm n) → A))) 
-  evalOpB n In vars (v x1) = (lookup vars x1)  
-  evalOpB n In vars (*OL x1 x2) = ((* In) (evalOpB n In vars x1) (evalOpB n In vars x2))  
-  evalOpB n In vars (+OL x1 x2) = ((+ In) (evalOpB n In vars x1) (evalOpB n In vars x2))  
-  evalOpB n In vars 1OL = (1ᵢ In)  
-  evalOpB n In vars (primOL x1) = ((prim In) (evalOpB n In vars x1))  
-  evalOpB n In vars 0OL = (0ᵢ In)  
-  evalOpB n In vars (negOL x1) = ((neg In) (evalOpB n In vars x1))  
-  evalOp :  {A : Set} (n : Nat) →  ((InvolutiveRing A) → ((Vec A n) → ((OpInvolutiveRingTerm2 n A) → A))) 
-  evalOp n In vars (v2 x1) = (lookup vars x1)  
-  evalOp n In vars (sing2 x1) = x1  
-  evalOp n In vars (*OL2 x1 x2) = ((* In) (evalOp n In vars x1) (evalOp n In vars x2))  
-  evalOp n In vars (+OL2 x1 x2) = ((+ In) (evalOp n In vars x1) (evalOp n In vars x2))  
-  evalOp n In vars 1OL2 = (1ᵢ In)  
-  evalOp n In vars (primOL2 x1) = ((prim In) (evalOp n In vars x1))  
-  evalOp n In vars 0OL2 = (0ᵢ In)  
-  evalOp n In vars (negOL2 x1) = ((neg In) (evalOp n In vars x1))  
-  inductionB :  (P : (InvolutiveRingTerm → Set)) →  (( (x1 x2 : InvolutiveRingTerm) → ((P x1) → ((P x2) → (P (*L x1 x2))))) → (( (x1 x2 : InvolutiveRingTerm) → ((P x1) → ((P x2) → (P (+L x1 x2))))) → ((P 1L) → (( (x1 : InvolutiveRingTerm) → ((P x1) → (P (primL x1)))) → ((P 0L) → (( (x1 : InvolutiveRingTerm) → ((P x1) → (P (negL x1)))) → ( (x : InvolutiveRingTerm) → (P x)))))))) 
-  inductionB p p*l p+l p1l ppriml p0l pnegl (*L x1 x2) = (p*l _ _ (inductionB p p*l p+l p1l ppriml p0l pnegl x1) (inductionB p p*l p+l p1l ppriml p0l pnegl x2))  
-  inductionB p p*l p+l p1l ppriml p0l pnegl (+L x1 x2) = (p+l _ _ (inductionB p p*l p+l p1l ppriml p0l pnegl x1) (inductionB p p*l p+l p1l ppriml p0l pnegl x2))  
-  inductionB p p*l p+l p1l ppriml p0l pnegl 1L = p1l  
-  inductionB p p*l p+l p1l ppriml p0l pnegl (primL x1) = (ppriml _ (inductionB p p*l p+l p1l ppriml p0l pnegl x1))  
-  inductionB p p*l p+l p1l ppriml p0l pnegl 0L = p0l  
-  inductionB p p*l p+l p1l ppriml p0l pnegl (negL x1) = (pnegl _ (inductionB p p*l p+l p1l ppriml p0l pnegl x1))  
-  inductionCl :  (A : Set) (P : ((ClInvolutiveRingTerm A) → Set)) →  (( (x1 : A) → (P (sing x1))) → (( (x1 x2 : (ClInvolutiveRingTerm A)) → ((P x1) → ((P x2) → (P (*Cl x1 x2))))) → (( (x1 x2 : (ClInvolutiveRingTerm A)) → ((P x1) → ((P x2) → (P (+Cl x1 x2))))) → ((P 1Cl) → (( (x1 : (ClInvolutiveRingTerm A)) → ((P x1) → (P (primCl x1)))) → ((P 0Cl) → (( (x1 : (ClInvolutiveRingTerm A)) → ((P x1) → (P (negCl x1)))) → ( (x : (ClInvolutiveRingTerm A)) → (P x))))))))) 
-  inductionCl _ p psing p*cl p+cl p1cl pprimcl p0cl pnegcl (sing x1) = (psing x1)  
-  inductionCl _ p psing p*cl p+cl p1cl pprimcl p0cl pnegcl (*Cl x1 x2) = (p*cl _ _ (inductionCl _ p psing p*cl p+cl p1cl pprimcl p0cl pnegcl x1) (inductionCl _ p psing p*cl p+cl p1cl pprimcl p0cl pnegcl x2))  
-  inductionCl _ p psing p*cl p+cl p1cl pprimcl p0cl pnegcl (+Cl x1 x2) = (p+cl _ _ (inductionCl _ p psing p*cl p+cl p1cl pprimcl p0cl pnegcl x1) (inductionCl _ p psing p*cl p+cl p1cl pprimcl p0cl pnegcl x2))  
-  inductionCl _ p psing p*cl p+cl p1cl pprimcl p0cl pnegcl 1Cl = p1cl  
-  inductionCl _ p psing p*cl p+cl p1cl pprimcl p0cl pnegcl (primCl x1) = (pprimcl _ (inductionCl _ p psing p*cl p+cl p1cl pprimcl p0cl pnegcl x1))  
-  inductionCl _ p psing p*cl p+cl p1cl pprimcl p0cl pnegcl 0Cl = p0cl  
-  inductionCl _ p psing p*cl p+cl p1cl pprimcl p0cl pnegcl (negCl x1) = (pnegcl _ (inductionCl _ p psing p*cl p+cl p1cl pprimcl p0cl pnegcl x1))  
-  inductionOpB :  (n : Nat) (P : ((OpInvolutiveRingTerm n) → Set)) →  (( (fin : (Fin n)) → (P (v fin))) → (( (x1 x2 : (OpInvolutiveRingTerm n)) → ((P x1) → ((P x2) → (P (*OL x1 x2))))) → (( (x1 x2 : (OpInvolutiveRingTerm n)) → ((P x1) → ((P x2) → (P (+OL x1 x2))))) → ((P 1OL) → (( (x1 : (OpInvolutiveRingTerm n)) → ((P x1) → (P (primOL x1)))) → ((P 0OL) → (( (x1 : (OpInvolutiveRingTerm n)) → ((P x1) → (P (negOL x1)))) → ( (x : (OpInvolutiveRingTerm n)) → (P x))))))))) 
-  inductionOpB _ p pv p*ol p+ol p1ol pprimol p0ol pnegol (v x1) = (pv x1)  
-  inductionOpB _ p pv p*ol p+ol p1ol pprimol p0ol pnegol (*OL x1 x2) = (p*ol _ _ (inductionOpB _ p pv p*ol p+ol p1ol pprimol p0ol pnegol x1) (inductionOpB _ p pv p*ol p+ol p1ol pprimol p0ol pnegol x2))  
-  inductionOpB _ p pv p*ol p+ol p1ol pprimol p0ol pnegol (+OL x1 x2) = (p+ol _ _ (inductionOpB _ p pv p*ol p+ol p1ol pprimol p0ol pnegol x1) (inductionOpB _ p pv p*ol p+ol p1ol pprimol p0ol pnegol x2))  
-  inductionOpB _ p pv p*ol p+ol p1ol pprimol p0ol pnegol 1OL = p1ol  
-  inductionOpB _ p pv p*ol p+ol p1ol pprimol p0ol pnegol (primOL x1) = (pprimol _ (inductionOpB _ p pv p*ol p+ol p1ol pprimol p0ol pnegol x1))  
-  inductionOpB _ p pv p*ol p+ol p1ol pprimol p0ol pnegol 0OL = p0ol  
-  inductionOpB _ p pv p*ol p+ol p1ol pprimol p0ol pnegol (negOL x1) = (pnegol _ (inductionOpB _ p pv p*ol p+ol p1ol pprimol p0ol pnegol x1))  
-  inductionOp :  (n : Nat) (A : Set) (P : ((OpInvolutiveRingTerm2 n A) → Set)) →  (( (fin : (Fin n)) → (P (v2 fin))) → (( (x1 : A) → (P (sing2 x1))) → (( (x1 x2 : (OpInvolutiveRingTerm2 n A)) → ((P x1) → ((P x2) → (P (*OL2 x1 x2))))) → (( (x1 x2 : (OpInvolutiveRingTerm2 n A)) → ((P x1) → ((P x2) → (P (+OL2 x1 x2))))) → ((P 1OL2) → (( (x1 : (OpInvolutiveRingTerm2 n A)) → ((P x1) → (P (primOL2 x1)))) → ((P 0OL2) → (( (x1 : (OpInvolutiveRingTerm2 n A)) → ((P x1) → (P (negOL2 x1)))) → ( (x : (OpInvolutiveRingTerm2 n A)) → (P x)))))))))) 
-  inductionOp _ _ p pv2 psing2 p*ol2 p+ol2 p1ol2 pprimol2 p0ol2 pnegol2 (v2 x1) = (pv2 x1)  
-  inductionOp _ _ p pv2 psing2 p*ol2 p+ol2 p1ol2 pprimol2 p0ol2 pnegol2 (sing2 x1) = (psing2 x1)  
-  inductionOp _ _ p pv2 psing2 p*ol2 p+ol2 p1ol2 pprimol2 p0ol2 pnegol2 (*OL2 x1 x2) = (p*ol2 _ _ (inductionOp _ _ p pv2 psing2 p*ol2 p+ol2 p1ol2 pprimol2 p0ol2 pnegol2 x1) (inductionOp _ _ p pv2 psing2 p*ol2 p+ol2 p1ol2 pprimol2 p0ol2 pnegol2 x2))  
-  inductionOp _ _ p pv2 psing2 p*ol2 p+ol2 p1ol2 pprimol2 p0ol2 pnegol2 (+OL2 x1 x2) = (p+ol2 _ _ (inductionOp _ _ p pv2 psing2 p*ol2 p+ol2 p1ol2 pprimol2 p0ol2 pnegol2 x1) (inductionOp _ _ p pv2 psing2 p*ol2 p+ol2 p1ol2 pprimol2 p0ol2 pnegol2 x2))  
-  inductionOp _ _ p pv2 psing2 p*ol2 p+ol2 p1ol2 pprimol2 p0ol2 pnegol2 1OL2 = p1ol2  
-  inductionOp _ _ p pv2 psing2 p*ol2 p+ol2 p1ol2 pprimol2 p0ol2 pnegol2 (primOL2 x1) = (pprimol2 _ (inductionOp _ _ p pv2 psing2 p*ol2 p+ol2 p1ol2 pprimol2 p0ol2 pnegol2 x1))  
-  inductionOp _ _ p pv2 psing2 p*ol2 p+ol2 p1ol2 pprimol2 p0ol2 pnegol2 0OL2 = p0ol2  
-  inductionOp _ _ p pv2 psing2 p*ol2 p+ol2 p1ol2 pprimol2 p0ol2 pnegol2 (negOL2 x1) = (pnegol2 _ (inductionOp _ _ p pv2 psing2 p*ol2 p+ol2 p1ol2 pprimol2 p0ol2 pnegol2 x1))  
+  evalOpB :  {A : Set} {n : Nat} →  ((InvolutiveRing A) → ((Vec A n) → ((OpInvolutiveRingTerm n) → A))) 
+  evalOpB In vars (v x1) = (lookup vars x1)  
+  evalOpB In vars (*OL x1 x2) = ((* In) (evalOpB In vars x1) (evalOpB In vars x2))  
+  evalOpB In vars (+OL x1 x2) = ((+ In) (evalOpB In vars x1) (evalOpB In vars x2))  
+  evalOpB In vars 1OL = (1ᵢ In)  
+  evalOpB In vars (primOL x1) = ((prim In) (evalOpB In vars x1))  
+  evalOpB In vars 0OL = (0ᵢ In)  
+  evalOpB In vars (negOL x1) = ((neg In) (evalOpB In vars x1))  
+  evalOp :  {A : Set} {n : Nat} →  ((InvolutiveRing A) → ((Vec A n) → ((OpInvolutiveRingTerm2 n A) → A))) 
+  evalOp In vars (v2 x1) = (lookup vars x1)  
+  evalOp In vars (sing2 x1) = x1  
+  evalOp In vars (*OL2 x1 x2) = ((* In) (evalOp In vars x1) (evalOp In vars x2))  
+  evalOp In vars (+OL2 x1 x2) = ((+ In) (evalOp In vars x1) (evalOp In vars x2))  
+  evalOp In vars 1OL2 = (1ᵢ In)  
+  evalOp In vars (primOL2 x1) = ((prim In) (evalOp In vars x1))  
+  evalOp In vars 0OL2 = (0ᵢ In)  
+  evalOp In vars (negOL2 x1) = ((neg In) (evalOp In vars x1))  
+  inductionB :  {P : (InvolutiveRingTerm → Set)} →  (( (x1 x2 : InvolutiveRingTerm) → ((P x1) → ((P x2) → (P (*L x1 x2))))) → (( (x1 x2 : InvolutiveRingTerm) → ((P x1) → ((P x2) → (P (+L x1 x2))))) → ((P 1L) → (( (x1 : InvolutiveRingTerm) → ((P x1) → (P (primL x1)))) → ((P 0L) → (( (x1 : InvolutiveRingTerm) → ((P x1) → (P (negL x1)))) → ( (x : InvolutiveRingTerm) → (P x)))))))) 
+  inductionB p*l p+l p1l ppriml p0l pnegl (*L x1 x2) = (p*l _ _ (inductionB p*l p+l p1l ppriml p0l pnegl x1) (inductionB p*l p+l p1l ppriml p0l pnegl x2))  
+  inductionB p*l p+l p1l ppriml p0l pnegl (+L x1 x2) = (p+l _ _ (inductionB p*l p+l p1l ppriml p0l pnegl x1) (inductionB p*l p+l p1l ppriml p0l pnegl x2))  
+  inductionB p*l p+l p1l ppriml p0l pnegl 1L = p1l  
+  inductionB p*l p+l p1l ppriml p0l pnegl (primL x1) = (ppriml _ (inductionB p*l p+l p1l ppriml p0l pnegl x1))  
+  inductionB p*l p+l p1l ppriml p0l pnegl 0L = p0l  
+  inductionB p*l p+l p1l ppriml p0l pnegl (negL x1) = (pnegl _ (inductionB p*l p+l p1l ppriml p0l pnegl x1))  
+  inductionCl :  {A : Set} {P : ((ClInvolutiveRingTerm A) → Set)} →  (( (x1 : A) → (P (sing x1))) → (( (x1 x2 : (ClInvolutiveRingTerm A)) → ((P x1) → ((P x2) → (P (*Cl x1 x2))))) → (( (x1 x2 : (ClInvolutiveRingTerm A)) → ((P x1) → ((P x2) → (P (+Cl x1 x2))))) → ((P 1Cl) → (( (x1 : (ClInvolutiveRingTerm A)) → ((P x1) → (P (primCl x1)))) → ((P 0Cl) → (( (x1 : (ClInvolutiveRingTerm A)) → ((P x1) → (P (negCl x1)))) → ( (x : (ClInvolutiveRingTerm A)) → (P x))))))))) 
+  inductionCl psing p*cl p+cl p1cl pprimcl p0cl pnegcl (sing x1) = (psing x1)  
+  inductionCl psing p*cl p+cl p1cl pprimcl p0cl pnegcl (*Cl x1 x2) = (p*cl _ _ (inductionCl psing p*cl p+cl p1cl pprimcl p0cl pnegcl x1) (inductionCl psing p*cl p+cl p1cl pprimcl p0cl pnegcl x2))  
+  inductionCl psing p*cl p+cl p1cl pprimcl p0cl pnegcl (+Cl x1 x2) = (p+cl _ _ (inductionCl psing p*cl p+cl p1cl pprimcl p0cl pnegcl x1) (inductionCl psing p*cl p+cl p1cl pprimcl p0cl pnegcl x2))  
+  inductionCl psing p*cl p+cl p1cl pprimcl p0cl pnegcl 1Cl = p1cl  
+  inductionCl psing p*cl p+cl p1cl pprimcl p0cl pnegcl (primCl x1) = (pprimcl _ (inductionCl psing p*cl p+cl p1cl pprimcl p0cl pnegcl x1))  
+  inductionCl psing p*cl p+cl p1cl pprimcl p0cl pnegcl 0Cl = p0cl  
+  inductionCl psing p*cl p+cl p1cl pprimcl p0cl pnegcl (negCl x1) = (pnegcl _ (inductionCl psing p*cl p+cl p1cl pprimcl p0cl pnegcl x1))  
+  inductionOpB :  {n : Nat} {P : ((OpInvolutiveRingTerm n) → Set)} →  (( (fin : (Fin n)) → (P (v fin))) → (( (x1 x2 : (OpInvolutiveRingTerm n)) → ((P x1) → ((P x2) → (P (*OL x1 x2))))) → (( (x1 x2 : (OpInvolutiveRingTerm n)) → ((P x1) → ((P x2) → (P (+OL x1 x2))))) → ((P 1OL) → (( (x1 : (OpInvolutiveRingTerm n)) → ((P x1) → (P (primOL x1)))) → ((P 0OL) → (( (x1 : (OpInvolutiveRingTerm n)) → ((P x1) → (P (negOL x1)))) → ( (x : (OpInvolutiveRingTerm n)) → (P x))))))))) 
+  inductionOpB pv p*ol p+ol p1ol pprimol p0ol pnegol (v x1) = (pv x1)  
+  inductionOpB pv p*ol p+ol p1ol pprimol p0ol pnegol (*OL x1 x2) = (p*ol _ _ (inductionOpB pv p*ol p+ol p1ol pprimol p0ol pnegol x1) (inductionOpB pv p*ol p+ol p1ol pprimol p0ol pnegol x2))  
+  inductionOpB pv p*ol p+ol p1ol pprimol p0ol pnegol (+OL x1 x2) = (p+ol _ _ (inductionOpB pv p*ol p+ol p1ol pprimol p0ol pnegol x1) (inductionOpB pv p*ol p+ol p1ol pprimol p0ol pnegol x2))  
+  inductionOpB pv p*ol p+ol p1ol pprimol p0ol pnegol 1OL = p1ol  
+  inductionOpB pv p*ol p+ol p1ol pprimol p0ol pnegol (primOL x1) = (pprimol _ (inductionOpB pv p*ol p+ol p1ol pprimol p0ol pnegol x1))  
+  inductionOpB pv p*ol p+ol p1ol pprimol p0ol pnegol 0OL = p0ol  
+  inductionOpB pv p*ol p+ol p1ol pprimol p0ol pnegol (negOL x1) = (pnegol _ (inductionOpB pv p*ol p+ol p1ol pprimol p0ol pnegol x1))  
+  inductionOp :  {n : Nat} {A : Set} {P : ((OpInvolutiveRingTerm2 n A) → Set)} →  (( (fin : (Fin n)) → (P (v2 fin))) → (( (x1 : A) → (P (sing2 x1))) → (( (x1 x2 : (OpInvolutiveRingTerm2 n A)) → ((P x1) → ((P x2) → (P (*OL2 x1 x2))))) → (( (x1 x2 : (OpInvolutiveRingTerm2 n A)) → ((P x1) → ((P x2) → (P (+OL2 x1 x2))))) → ((P 1OL2) → (( (x1 : (OpInvolutiveRingTerm2 n A)) → ((P x1) → (P (primOL2 x1)))) → ((P 0OL2) → (( (x1 : (OpInvolutiveRingTerm2 n A)) → ((P x1) → (P (negOL2 x1)))) → ( (x : (OpInvolutiveRingTerm2 n A)) → (P x)))))))))) 
+  inductionOp pv2 psing2 p*ol2 p+ol2 p1ol2 pprimol2 p0ol2 pnegol2 (v2 x1) = (pv2 x1)  
+  inductionOp pv2 psing2 p*ol2 p+ol2 p1ol2 pprimol2 p0ol2 pnegol2 (sing2 x1) = (psing2 x1)  
+  inductionOp pv2 psing2 p*ol2 p+ol2 p1ol2 pprimol2 p0ol2 pnegol2 (*OL2 x1 x2) = (p*ol2 _ _ (inductionOp pv2 psing2 p*ol2 p+ol2 p1ol2 pprimol2 p0ol2 pnegol2 x1) (inductionOp pv2 psing2 p*ol2 p+ol2 p1ol2 pprimol2 p0ol2 pnegol2 x2))  
+  inductionOp pv2 psing2 p*ol2 p+ol2 p1ol2 pprimol2 p0ol2 pnegol2 (+OL2 x1 x2) = (p+ol2 _ _ (inductionOp pv2 psing2 p*ol2 p+ol2 p1ol2 pprimol2 p0ol2 pnegol2 x1) (inductionOp pv2 psing2 p*ol2 p+ol2 p1ol2 pprimol2 p0ol2 pnegol2 x2))  
+  inductionOp pv2 psing2 p*ol2 p+ol2 p1ol2 pprimol2 p0ol2 pnegol2 1OL2 = p1ol2  
+  inductionOp pv2 psing2 p*ol2 p+ol2 p1ol2 pprimol2 p0ol2 pnegol2 (primOL2 x1) = (pprimol2 _ (inductionOp pv2 psing2 p*ol2 p+ol2 p1ol2 pprimol2 p0ol2 pnegol2 x1))  
+  inductionOp pv2 psing2 p*ol2 p+ol2 p1ol2 pprimol2 p0ol2 pnegol2 0OL2 = p0ol2  
+  inductionOp pv2 psing2 p*ol2 p+ol2 p1ol2 pprimol2 p0ol2 pnegol2 (negOL2 x1) = (pnegol2 _ (inductionOp pv2 psing2 p*ol2 p+ol2 p1ol2 pprimol2 p0ol2 pnegol2 x1))  
   stageB :  (InvolutiveRingTerm → (Staged InvolutiveRingTerm))
   stageB (*L x1 x2) = (stage2 *L (codeLift2 *L) (stageB x1) (stageB x2))  
   stageB (+L x1 x2) = (stage2 +L (codeLift2 +L) (stageB x1) (stageB x2))  
@@ -247,31 +247,31 @@ module InvolutiveRing   where
   stageB (primL x1) = (stage1 primL (codeLift1 primL) (stageB x1))  
   stageB 0L = (Now 0L)  
   stageB (negL x1) = (stage1 negL (codeLift1 negL) (stageB x1))  
-  stageCl :  (A : Set) →  ((ClInvolutiveRingTerm A) → (Staged (ClInvolutiveRingTerm A))) 
-  stageCl _ (sing x1) = (Now (sing x1))  
-  stageCl _ (*Cl x1 x2) = (stage2 *Cl (codeLift2 *Cl) (stageCl _ x1) (stageCl _ x2))  
-  stageCl _ (+Cl x1 x2) = (stage2 +Cl (codeLift2 +Cl) (stageCl _ x1) (stageCl _ x2))  
-  stageCl _ 1Cl = (Now 1Cl)  
-  stageCl _ (primCl x1) = (stage1 primCl (codeLift1 primCl) (stageCl _ x1))  
-  stageCl _ 0Cl = (Now 0Cl)  
-  stageCl _ (negCl x1) = (stage1 negCl (codeLift1 negCl) (stageCl _ x1))  
-  stageOpB :  (n : Nat) →  ((OpInvolutiveRingTerm n) → (Staged (OpInvolutiveRingTerm n))) 
-  stageOpB _ (v x1) = (const (code (v x1)))  
-  stageOpB _ (*OL x1 x2) = (stage2 *OL (codeLift2 *OL) (stageOpB _ x1) (stageOpB _ x2))  
-  stageOpB _ (+OL x1 x2) = (stage2 +OL (codeLift2 +OL) (stageOpB _ x1) (stageOpB _ x2))  
-  stageOpB _ 1OL = (Now 1OL)  
-  stageOpB _ (primOL x1) = (stage1 primOL (codeLift1 primOL) (stageOpB _ x1))  
-  stageOpB _ 0OL = (Now 0OL)  
-  stageOpB _ (negOL x1) = (stage1 negOL (codeLift1 negOL) (stageOpB _ x1))  
-  stageOp :  (n : Nat) (A : Set) →  ((OpInvolutiveRingTerm2 n A) → (Staged (OpInvolutiveRingTerm2 n A))) 
-  stageOp _ _ (sing2 x1) = (Now (sing2 x1))  
-  stageOp _ _ (v2 x1) = (const (code (v2 x1)))  
-  stageOp _ _ (*OL2 x1 x2) = (stage2 *OL2 (codeLift2 *OL2) (stageOp _ _ x1) (stageOp _ _ x2))  
-  stageOp _ _ (+OL2 x1 x2) = (stage2 +OL2 (codeLift2 +OL2) (stageOp _ _ x1) (stageOp _ _ x2))  
-  stageOp _ _ 1OL2 = (Now 1OL2)  
-  stageOp _ _ (primOL2 x1) = (stage1 primOL2 (codeLift1 primOL2) (stageOp _ _ x1))  
-  stageOp _ _ 0OL2 = (Now 0OL2)  
-  stageOp _ _ (negOL2 x1) = (stage1 negOL2 (codeLift1 negOL2) (stageOp _ _ x1))  
+  stageCl :  {A : Set} →  ((ClInvolutiveRingTerm A) → (Staged (ClInvolutiveRingTerm A))) 
+  stageCl (sing x1) = (Now (sing x1))  
+  stageCl (*Cl x1 x2) = (stage2 *Cl (codeLift2 *Cl) (stageCl x1) (stageCl x2))  
+  stageCl (+Cl x1 x2) = (stage2 +Cl (codeLift2 +Cl) (stageCl x1) (stageCl x2))  
+  stageCl 1Cl = (Now 1Cl)  
+  stageCl (primCl x1) = (stage1 primCl (codeLift1 primCl) (stageCl x1))  
+  stageCl 0Cl = (Now 0Cl)  
+  stageCl (negCl x1) = (stage1 negCl (codeLift1 negCl) (stageCl x1))  
+  stageOpB :  {n : Nat} →  ((OpInvolutiveRingTerm n) → (Staged (OpInvolutiveRingTerm n))) 
+  stageOpB (v x1) = (const (code (v x1)))  
+  stageOpB (*OL x1 x2) = (stage2 *OL (codeLift2 *OL) (stageOpB x1) (stageOpB x2))  
+  stageOpB (+OL x1 x2) = (stage2 +OL (codeLift2 +OL) (stageOpB x1) (stageOpB x2))  
+  stageOpB 1OL = (Now 1OL)  
+  stageOpB (primOL x1) = (stage1 primOL (codeLift1 primOL) (stageOpB x1))  
+  stageOpB 0OL = (Now 0OL)  
+  stageOpB (negOL x1) = (stage1 negOL (codeLift1 negOL) (stageOpB x1))  
+  stageOp :  {n : Nat} {A : Set} →  ((OpInvolutiveRingTerm2 n A) → (Staged (OpInvolutiveRingTerm2 n A))) 
+  stageOp (sing2 x1) = (Now (sing2 x1))  
+  stageOp (v2 x1) = (const (code (v2 x1)))  
+  stageOp (*OL2 x1 x2) = (stage2 *OL2 (codeLift2 *OL2) (stageOp x1) (stageOp x2))  
+  stageOp (+OL2 x1 x2) = (stage2 +OL2 (codeLift2 +OL2) (stageOp x1) (stageOp x2))  
+  stageOp 1OL2 = (Now 1OL2)  
+  stageOp (primOL2 x1) = (stage1 primOL2 (codeLift1 primOL2) (stageOp x1))  
+  stageOp 0OL2 = (Now 0OL2)  
+  stageOp (negOL2 x1) = (stage1 negOL2 (codeLift1 negOL2) (stageOp x1))  
   record StagedRepr  (A : Set) (Repr : (Set → Set)) : Set where 
      field  
       *T : ((Repr A) → ((Repr A) → (Repr A))) 

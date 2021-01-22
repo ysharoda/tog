@@ -93,37 +93,37 @@ module SemiRngWithUnit   where
       +OL2 : ((OpSemiRngWithUnitTerm2 n A) → ((OpSemiRngWithUnitTerm2 n A) → (OpSemiRngWithUnitTerm2 n A))) 
       0OL2 : (OpSemiRngWithUnitTerm2 n A)  
       
-  simplifyCl :  (A : Set) →  ((ClSemiRngWithUnitTerm A) → (ClSemiRngWithUnitTerm A)) 
-  simplifyCl _ (*Cl 1Cl x) = x  
-  simplifyCl _ (*Cl x 1Cl) = x  
-  simplifyCl _ (+Cl 0Cl x) = x  
-  simplifyCl _ (+Cl x 0Cl) = x  
-  simplifyCl _ (*Cl x1 x2) = (*Cl (simplifyCl _ x1) (simplifyCl _ x2))  
-  simplifyCl _ 1Cl = 1Cl  
-  simplifyCl _ (+Cl x1 x2) = (+Cl (simplifyCl _ x1) (simplifyCl _ x2))  
-  simplifyCl _ 0Cl = 0Cl  
-  simplifyCl _ (sing x1) = (sing x1)  
-  simplifyOpB :  (n : Nat) →  ((OpSemiRngWithUnitTerm n) → (OpSemiRngWithUnitTerm n)) 
-  simplifyOpB _ (*OL 1OL x) = x  
-  simplifyOpB _ (*OL x 1OL) = x  
-  simplifyOpB _ (+OL 0OL x) = x  
-  simplifyOpB _ (+OL x 0OL) = x  
-  simplifyOpB _ (*OL x1 x2) = (*OL (simplifyOpB _ x1) (simplifyOpB _ x2))  
-  simplifyOpB _ 1OL = 1OL  
-  simplifyOpB _ (+OL x1 x2) = (+OL (simplifyOpB _ x1) (simplifyOpB _ x2))  
-  simplifyOpB _ 0OL = 0OL  
-  simplifyOpB _ (v x1) = (v x1)  
-  simplifyOp :  (n : Nat) (A : Set) →  ((OpSemiRngWithUnitTerm2 n A) → (OpSemiRngWithUnitTerm2 n A)) 
-  simplifyOp _ _ (*OL2 1OL2 x) = x  
-  simplifyOp _ _ (*OL2 x 1OL2) = x  
-  simplifyOp _ _ (+OL2 0OL2 x) = x  
-  simplifyOp _ _ (+OL2 x 0OL2) = x  
-  simplifyOp _ _ (*OL2 x1 x2) = (*OL2 (simplifyOp _ _ x1) (simplifyOp _ _ x2))  
-  simplifyOp _ _ 1OL2 = 1OL2  
-  simplifyOp _ _ (+OL2 x1 x2) = (+OL2 (simplifyOp _ _ x1) (simplifyOp _ _ x2))  
-  simplifyOp _ _ 0OL2 = 0OL2  
-  simplifyOp _ _ (v2 x1) = (v2 x1)  
-  simplifyOp _ _ (sing2 x1) = (sing2 x1)  
+  simplifyCl :  {A : Set} →  ((ClSemiRngWithUnitTerm A) → (ClSemiRngWithUnitTerm A)) 
+  simplifyCl (*Cl 1Cl x) = x  
+  simplifyCl (*Cl x 1Cl) = x  
+  simplifyCl (+Cl 0Cl x) = x  
+  simplifyCl (+Cl x 0Cl) = x  
+  simplifyCl (*Cl x1 x2) = (*Cl (simplifyCl x1) (simplifyCl x2))  
+  simplifyCl 1Cl = 1Cl  
+  simplifyCl (+Cl x1 x2) = (+Cl (simplifyCl x1) (simplifyCl x2))  
+  simplifyCl 0Cl = 0Cl  
+  simplifyCl (sing x1) = (sing x1)  
+  simplifyOpB :  {n : Nat} →  ((OpSemiRngWithUnitTerm n) → (OpSemiRngWithUnitTerm n)) 
+  simplifyOpB (*OL 1OL x) = x  
+  simplifyOpB (*OL x 1OL) = x  
+  simplifyOpB (+OL 0OL x) = x  
+  simplifyOpB (+OL x 0OL) = x  
+  simplifyOpB (*OL x1 x2) = (*OL (simplifyOpB x1) (simplifyOpB x2))  
+  simplifyOpB 1OL = 1OL  
+  simplifyOpB (+OL x1 x2) = (+OL (simplifyOpB x1) (simplifyOpB x2))  
+  simplifyOpB 0OL = 0OL  
+  simplifyOpB (v x1) = (v x1)  
+  simplifyOp :  {n : Nat} {A : Set} →  ((OpSemiRngWithUnitTerm2 n A) → (OpSemiRngWithUnitTerm2 n A)) 
+  simplifyOp (*OL2 1OL2 x) = x  
+  simplifyOp (*OL2 x 1OL2) = x  
+  simplifyOp (+OL2 0OL2 x) = x  
+  simplifyOp (+OL2 x 0OL2) = x  
+  simplifyOp (*OL2 x1 x2) = (*OL2 (simplifyOp x1) (simplifyOp x2))  
+  simplifyOp 1OL2 = 1OL2  
+  simplifyOp (+OL2 x1 x2) = (+OL2 (simplifyOp x1) (simplifyOp x2))  
+  simplifyOp 0OL2 = 0OL2  
+  simplifyOp (v2 x1) = (v2 x1)  
+  simplifyOp (sing2 x1) = (sing2 x1)  
   evalB :  {A : Set} →  ((SemiRngWithUnit A) → (SemiRngWithUnitTerm → A)) 
   evalB Se (*L x1 x2) = ((* Se) (evalB Se x1) (evalB Se x2))  
   evalB Se 1L = (1ᵢ Se)  
@@ -135,67 +135,67 @@ module SemiRngWithUnit   where
   evalCl Se 1Cl = (1ᵢ Se)  
   evalCl Se (+Cl x1 x2) = ((+ Se) (evalCl Se x1) (evalCl Se x2))  
   evalCl Se 0Cl = (0ᵢ Se)  
-  evalOpB :  {A : Set} (n : Nat) →  ((SemiRngWithUnit A) → ((Vec A n) → ((OpSemiRngWithUnitTerm n) → A))) 
-  evalOpB n Se vars (v x1) = (lookup vars x1)  
-  evalOpB n Se vars (*OL x1 x2) = ((* Se) (evalOpB n Se vars x1) (evalOpB n Se vars x2))  
-  evalOpB n Se vars 1OL = (1ᵢ Se)  
-  evalOpB n Se vars (+OL x1 x2) = ((+ Se) (evalOpB n Se vars x1) (evalOpB n Se vars x2))  
-  evalOpB n Se vars 0OL = (0ᵢ Se)  
-  evalOp :  {A : Set} (n : Nat) →  ((SemiRngWithUnit A) → ((Vec A n) → ((OpSemiRngWithUnitTerm2 n A) → A))) 
-  evalOp n Se vars (v2 x1) = (lookup vars x1)  
-  evalOp n Se vars (sing2 x1) = x1  
-  evalOp n Se vars (*OL2 x1 x2) = ((* Se) (evalOp n Se vars x1) (evalOp n Se vars x2))  
-  evalOp n Se vars 1OL2 = (1ᵢ Se)  
-  evalOp n Se vars (+OL2 x1 x2) = ((+ Se) (evalOp n Se vars x1) (evalOp n Se vars x2))  
-  evalOp n Se vars 0OL2 = (0ᵢ Se)  
-  inductionB :  (P : (SemiRngWithUnitTerm → Set)) →  (( (x1 x2 : SemiRngWithUnitTerm) → ((P x1) → ((P x2) → (P (*L x1 x2))))) → ((P 1L) → (( (x1 x2 : SemiRngWithUnitTerm) → ((P x1) → ((P x2) → (P (+L x1 x2))))) → ((P 0L) → ( (x : SemiRngWithUnitTerm) → (P x)))))) 
-  inductionB p p*l p1l p+l p0l (*L x1 x2) = (p*l _ _ (inductionB p p*l p1l p+l p0l x1) (inductionB p p*l p1l p+l p0l x2))  
-  inductionB p p*l p1l p+l p0l 1L = p1l  
-  inductionB p p*l p1l p+l p0l (+L x1 x2) = (p+l _ _ (inductionB p p*l p1l p+l p0l x1) (inductionB p p*l p1l p+l p0l x2))  
-  inductionB p p*l p1l p+l p0l 0L = p0l  
-  inductionCl :  (A : Set) (P : ((ClSemiRngWithUnitTerm A) → Set)) →  (( (x1 : A) → (P (sing x1))) → (( (x1 x2 : (ClSemiRngWithUnitTerm A)) → ((P x1) → ((P x2) → (P (*Cl x1 x2))))) → ((P 1Cl) → (( (x1 x2 : (ClSemiRngWithUnitTerm A)) → ((P x1) → ((P x2) → (P (+Cl x1 x2))))) → ((P 0Cl) → ( (x : (ClSemiRngWithUnitTerm A)) → (P x))))))) 
-  inductionCl _ p psing p*cl p1cl p+cl p0cl (sing x1) = (psing x1)  
-  inductionCl _ p psing p*cl p1cl p+cl p0cl (*Cl x1 x2) = (p*cl _ _ (inductionCl _ p psing p*cl p1cl p+cl p0cl x1) (inductionCl _ p psing p*cl p1cl p+cl p0cl x2))  
-  inductionCl _ p psing p*cl p1cl p+cl p0cl 1Cl = p1cl  
-  inductionCl _ p psing p*cl p1cl p+cl p0cl (+Cl x1 x2) = (p+cl _ _ (inductionCl _ p psing p*cl p1cl p+cl p0cl x1) (inductionCl _ p psing p*cl p1cl p+cl p0cl x2))  
-  inductionCl _ p psing p*cl p1cl p+cl p0cl 0Cl = p0cl  
-  inductionOpB :  (n : Nat) (P : ((OpSemiRngWithUnitTerm n) → Set)) →  (( (fin : (Fin n)) → (P (v fin))) → (( (x1 x2 : (OpSemiRngWithUnitTerm n)) → ((P x1) → ((P x2) → (P (*OL x1 x2))))) → ((P 1OL) → (( (x1 x2 : (OpSemiRngWithUnitTerm n)) → ((P x1) → ((P x2) → (P (+OL x1 x2))))) → ((P 0OL) → ( (x : (OpSemiRngWithUnitTerm n)) → (P x))))))) 
-  inductionOpB _ p pv p*ol p1ol p+ol p0ol (v x1) = (pv x1)  
-  inductionOpB _ p pv p*ol p1ol p+ol p0ol (*OL x1 x2) = (p*ol _ _ (inductionOpB _ p pv p*ol p1ol p+ol p0ol x1) (inductionOpB _ p pv p*ol p1ol p+ol p0ol x2))  
-  inductionOpB _ p pv p*ol p1ol p+ol p0ol 1OL = p1ol  
-  inductionOpB _ p pv p*ol p1ol p+ol p0ol (+OL x1 x2) = (p+ol _ _ (inductionOpB _ p pv p*ol p1ol p+ol p0ol x1) (inductionOpB _ p pv p*ol p1ol p+ol p0ol x2))  
-  inductionOpB _ p pv p*ol p1ol p+ol p0ol 0OL = p0ol  
-  inductionOp :  (n : Nat) (A : Set) (P : ((OpSemiRngWithUnitTerm2 n A) → Set)) →  (( (fin : (Fin n)) → (P (v2 fin))) → (( (x1 : A) → (P (sing2 x1))) → (( (x1 x2 : (OpSemiRngWithUnitTerm2 n A)) → ((P x1) → ((P x2) → (P (*OL2 x1 x2))))) → ((P 1OL2) → (( (x1 x2 : (OpSemiRngWithUnitTerm2 n A)) → ((P x1) → ((P x2) → (P (+OL2 x1 x2))))) → ((P 0OL2) → ( (x : (OpSemiRngWithUnitTerm2 n A)) → (P x)))))))) 
-  inductionOp _ _ p pv2 psing2 p*ol2 p1ol2 p+ol2 p0ol2 (v2 x1) = (pv2 x1)  
-  inductionOp _ _ p pv2 psing2 p*ol2 p1ol2 p+ol2 p0ol2 (sing2 x1) = (psing2 x1)  
-  inductionOp _ _ p pv2 psing2 p*ol2 p1ol2 p+ol2 p0ol2 (*OL2 x1 x2) = (p*ol2 _ _ (inductionOp _ _ p pv2 psing2 p*ol2 p1ol2 p+ol2 p0ol2 x1) (inductionOp _ _ p pv2 psing2 p*ol2 p1ol2 p+ol2 p0ol2 x2))  
-  inductionOp _ _ p pv2 psing2 p*ol2 p1ol2 p+ol2 p0ol2 1OL2 = p1ol2  
-  inductionOp _ _ p pv2 psing2 p*ol2 p1ol2 p+ol2 p0ol2 (+OL2 x1 x2) = (p+ol2 _ _ (inductionOp _ _ p pv2 psing2 p*ol2 p1ol2 p+ol2 p0ol2 x1) (inductionOp _ _ p pv2 psing2 p*ol2 p1ol2 p+ol2 p0ol2 x2))  
-  inductionOp _ _ p pv2 psing2 p*ol2 p1ol2 p+ol2 p0ol2 0OL2 = p0ol2  
+  evalOpB :  {A : Set} {n : Nat} →  ((SemiRngWithUnit A) → ((Vec A n) → ((OpSemiRngWithUnitTerm n) → A))) 
+  evalOpB Se vars (v x1) = (lookup vars x1)  
+  evalOpB Se vars (*OL x1 x2) = ((* Se) (evalOpB Se vars x1) (evalOpB Se vars x2))  
+  evalOpB Se vars 1OL = (1ᵢ Se)  
+  evalOpB Se vars (+OL x1 x2) = ((+ Se) (evalOpB Se vars x1) (evalOpB Se vars x2))  
+  evalOpB Se vars 0OL = (0ᵢ Se)  
+  evalOp :  {A : Set} {n : Nat} →  ((SemiRngWithUnit A) → ((Vec A n) → ((OpSemiRngWithUnitTerm2 n A) → A))) 
+  evalOp Se vars (v2 x1) = (lookup vars x1)  
+  evalOp Se vars (sing2 x1) = x1  
+  evalOp Se vars (*OL2 x1 x2) = ((* Se) (evalOp Se vars x1) (evalOp Se vars x2))  
+  evalOp Se vars 1OL2 = (1ᵢ Se)  
+  evalOp Se vars (+OL2 x1 x2) = ((+ Se) (evalOp Se vars x1) (evalOp Se vars x2))  
+  evalOp Se vars 0OL2 = (0ᵢ Se)  
+  inductionB :  {P : (SemiRngWithUnitTerm → Set)} →  (( (x1 x2 : SemiRngWithUnitTerm) → ((P x1) → ((P x2) → (P (*L x1 x2))))) → ((P 1L) → (( (x1 x2 : SemiRngWithUnitTerm) → ((P x1) → ((P x2) → (P (+L x1 x2))))) → ((P 0L) → ( (x : SemiRngWithUnitTerm) → (P x)))))) 
+  inductionB p*l p1l p+l p0l (*L x1 x2) = (p*l _ _ (inductionB p*l p1l p+l p0l x1) (inductionB p*l p1l p+l p0l x2))  
+  inductionB p*l p1l p+l p0l 1L = p1l  
+  inductionB p*l p1l p+l p0l (+L x1 x2) = (p+l _ _ (inductionB p*l p1l p+l p0l x1) (inductionB p*l p1l p+l p0l x2))  
+  inductionB p*l p1l p+l p0l 0L = p0l  
+  inductionCl :  {A : Set} {P : ((ClSemiRngWithUnitTerm A) → Set)} →  (( (x1 : A) → (P (sing x1))) → (( (x1 x2 : (ClSemiRngWithUnitTerm A)) → ((P x1) → ((P x2) → (P (*Cl x1 x2))))) → ((P 1Cl) → (( (x1 x2 : (ClSemiRngWithUnitTerm A)) → ((P x1) → ((P x2) → (P (+Cl x1 x2))))) → ((P 0Cl) → ( (x : (ClSemiRngWithUnitTerm A)) → (P x))))))) 
+  inductionCl psing p*cl p1cl p+cl p0cl (sing x1) = (psing x1)  
+  inductionCl psing p*cl p1cl p+cl p0cl (*Cl x1 x2) = (p*cl _ _ (inductionCl psing p*cl p1cl p+cl p0cl x1) (inductionCl psing p*cl p1cl p+cl p0cl x2))  
+  inductionCl psing p*cl p1cl p+cl p0cl 1Cl = p1cl  
+  inductionCl psing p*cl p1cl p+cl p0cl (+Cl x1 x2) = (p+cl _ _ (inductionCl psing p*cl p1cl p+cl p0cl x1) (inductionCl psing p*cl p1cl p+cl p0cl x2))  
+  inductionCl psing p*cl p1cl p+cl p0cl 0Cl = p0cl  
+  inductionOpB :  {n : Nat} {P : ((OpSemiRngWithUnitTerm n) → Set)} →  (( (fin : (Fin n)) → (P (v fin))) → (( (x1 x2 : (OpSemiRngWithUnitTerm n)) → ((P x1) → ((P x2) → (P (*OL x1 x2))))) → ((P 1OL) → (( (x1 x2 : (OpSemiRngWithUnitTerm n)) → ((P x1) → ((P x2) → (P (+OL x1 x2))))) → ((P 0OL) → ( (x : (OpSemiRngWithUnitTerm n)) → (P x))))))) 
+  inductionOpB pv p*ol p1ol p+ol p0ol (v x1) = (pv x1)  
+  inductionOpB pv p*ol p1ol p+ol p0ol (*OL x1 x2) = (p*ol _ _ (inductionOpB pv p*ol p1ol p+ol p0ol x1) (inductionOpB pv p*ol p1ol p+ol p0ol x2))  
+  inductionOpB pv p*ol p1ol p+ol p0ol 1OL = p1ol  
+  inductionOpB pv p*ol p1ol p+ol p0ol (+OL x1 x2) = (p+ol _ _ (inductionOpB pv p*ol p1ol p+ol p0ol x1) (inductionOpB pv p*ol p1ol p+ol p0ol x2))  
+  inductionOpB pv p*ol p1ol p+ol p0ol 0OL = p0ol  
+  inductionOp :  {n : Nat} {A : Set} {P : ((OpSemiRngWithUnitTerm2 n A) → Set)} →  (( (fin : (Fin n)) → (P (v2 fin))) → (( (x1 : A) → (P (sing2 x1))) → (( (x1 x2 : (OpSemiRngWithUnitTerm2 n A)) → ((P x1) → ((P x2) → (P (*OL2 x1 x2))))) → ((P 1OL2) → (( (x1 x2 : (OpSemiRngWithUnitTerm2 n A)) → ((P x1) → ((P x2) → (P (+OL2 x1 x2))))) → ((P 0OL2) → ( (x : (OpSemiRngWithUnitTerm2 n A)) → (P x)))))))) 
+  inductionOp pv2 psing2 p*ol2 p1ol2 p+ol2 p0ol2 (v2 x1) = (pv2 x1)  
+  inductionOp pv2 psing2 p*ol2 p1ol2 p+ol2 p0ol2 (sing2 x1) = (psing2 x1)  
+  inductionOp pv2 psing2 p*ol2 p1ol2 p+ol2 p0ol2 (*OL2 x1 x2) = (p*ol2 _ _ (inductionOp pv2 psing2 p*ol2 p1ol2 p+ol2 p0ol2 x1) (inductionOp pv2 psing2 p*ol2 p1ol2 p+ol2 p0ol2 x2))  
+  inductionOp pv2 psing2 p*ol2 p1ol2 p+ol2 p0ol2 1OL2 = p1ol2  
+  inductionOp pv2 psing2 p*ol2 p1ol2 p+ol2 p0ol2 (+OL2 x1 x2) = (p+ol2 _ _ (inductionOp pv2 psing2 p*ol2 p1ol2 p+ol2 p0ol2 x1) (inductionOp pv2 psing2 p*ol2 p1ol2 p+ol2 p0ol2 x2))  
+  inductionOp pv2 psing2 p*ol2 p1ol2 p+ol2 p0ol2 0OL2 = p0ol2  
   stageB :  (SemiRngWithUnitTerm → (Staged SemiRngWithUnitTerm))
   stageB (*L x1 x2) = (stage2 *L (codeLift2 *L) (stageB x1) (stageB x2))  
   stageB 1L = (Now 1L)  
   stageB (+L x1 x2) = (stage2 +L (codeLift2 +L) (stageB x1) (stageB x2))  
   stageB 0L = (Now 0L)  
-  stageCl :  (A : Set) →  ((ClSemiRngWithUnitTerm A) → (Staged (ClSemiRngWithUnitTerm A))) 
-  stageCl _ (sing x1) = (Now (sing x1))  
-  stageCl _ (*Cl x1 x2) = (stage2 *Cl (codeLift2 *Cl) (stageCl _ x1) (stageCl _ x2))  
-  stageCl _ 1Cl = (Now 1Cl)  
-  stageCl _ (+Cl x1 x2) = (stage2 +Cl (codeLift2 +Cl) (stageCl _ x1) (stageCl _ x2))  
-  stageCl _ 0Cl = (Now 0Cl)  
-  stageOpB :  (n : Nat) →  ((OpSemiRngWithUnitTerm n) → (Staged (OpSemiRngWithUnitTerm n))) 
-  stageOpB _ (v x1) = (const (code (v x1)))  
-  stageOpB _ (*OL x1 x2) = (stage2 *OL (codeLift2 *OL) (stageOpB _ x1) (stageOpB _ x2))  
-  stageOpB _ 1OL = (Now 1OL)  
-  stageOpB _ (+OL x1 x2) = (stage2 +OL (codeLift2 +OL) (stageOpB _ x1) (stageOpB _ x2))  
-  stageOpB _ 0OL = (Now 0OL)  
-  stageOp :  (n : Nat) (A : Set) →  ((OpSemiRngWithUnitTerm2 n A) → (Staged (OpSemiRngWithUnitTerm2 n A))) 
-  stageOp _ _ (sing2 x1) = (Now (sing2 x1))  
-  stageOp _ _ (v2 x1) = (const (code (v2 x1)))  
-  stageOp _ _ (*OL2 x1 x2) = (stage2 *OL2 (codeLift2 *OL2) (stageOp _ _ x1) (stageOp _ _ x2))  
-  stageOp _ _ 1OL2 = (Now 1OL2)  
-  stageOp _ _ (+OL2 x1 x2) = (stage2 +OL2 (codeLift2 +OL2) (stageOp _ _ x1) (stageOp _ _ x2))  
-  stageOp _ _ 0OL2 = (Now 0OL2)  
+  stageCl :  {A : Set} →  ((ClSemiRngWithUnitTerm A) → (Staged (ClSemiRngWithUnitTerm A))) 
+  stageCl (sing x1) = (Now (sing x1))  
+  stageCl (*Cl x1 x2) = (stage2 *Cl (codeLift2 *Cl) (stageCl x1) (stageCl x2))  
+  stageCl 1Cl = (Now 1Cl)  
+  stageCl (+Cl x1 x2) = (stage2 +Cl (codeLift2 +Cl) (stageCl x1) (stageCl x2))  
+  stageCl 0Cl = (Now 0Cl)  
+  stageOpB :  {n : Nat} →  ((OpSemiRngWithUnitTerm n) → (Staged (OpSemiRngWithUnitTerm n))) 
+  stageOpB (v x1) = (const (code (v x1)))  
+  stageOpB (*OL x1 x2) = (stage2 *OL (codeLift2 *OL) (stageOpB x1) (stageOpB x2))  
+  stageOpB 1OL = (Now 1OL)  
+  stageOpB (+OL x1 x2) = (stage2 +OL (codeLift2 +OL) (stageOpB x1) (stageOpB x2))  
+  stageOpB 0OL = (Now 0OL)  
+  stageOp :  {n : Nat} {A : Set} →  ((OpSemiRngWithUnitTerm2 n A) → (Staged (OpSemiRngWithUnitTerm2 n A))) 
+  stageOp (sing2 x1) = (Now (sing2 x1))  
+  stageOp (v2 x1) = (const (code (v2 x1)))  
+  stageOp (*OL2 x1 x2) = (stage2 *OL2 (codeLift2 *OL2) (stageOp x1) (stageOp x2))  
+  stageOp 1OL2 = (Now 1OL2)  
+  stageOp (+OL2 x1 x2) = (stage2 +OL2 (codeLift2 +OL2) (stageOp x1) (stageOp x2))  
+  stageOp 0OL2 = (Now 0OL2)  
   record StagedRepr  (A : Set) (Repr : (Set → Set)) : Set where 
      field  
       *T : ((Repr A) → ((Repr A) → (Repr A))) 
