@@ -2,7 +2,7 @@ module Interpret.Utils.Types where
 
 import Tog.Raw.Abs
 import Interpret.Utils.TUtils 
-import Interpret.Utils.Bindings (indexBindings, getBindingsNames)
+import Interpret.Utils.Bindings (indexBindings, getBindingsNames, hiddenBind)
 import Interpret.Utils.Lenses (name)
 
 import Control.Lens ((^.))
@@ -27,7 +27,7 @@ tinstance (Data nm (ParamDecl binds) _) Nothing =
   let names = getBindingsNames binds 
   in (shortName (nm^.name) 0, binds,App $ (mkArg (nm ^. name)) : map mkArg names)  
 tinstance (Data nm (ParamDecl binds) _) (Just i) =
-  let newBinds = indexBindings True i binds
+  let newBinds = map hiddenBind $ indexBindings i binds
       names = getBindingsNames newBinds 
   in (shortName (nm^.name) i,binds,App $ (mkArg (nm ^. name)) : map mkArg names) 
 tinstance _ _ = error "unable to generate data type application" 

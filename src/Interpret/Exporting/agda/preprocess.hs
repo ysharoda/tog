@@ -3,7 +3,7 @@ module Interpret.Exporting.Agda.Preprocess where
 import Tog.Raw.Abs
 import Interpret.Utils.TUtils (getArgName)
 import Interpret.Flattener.Types (gmap)
-import Interpret.Exporting.Utils (preprocessSig, implPattern, implArg) 
+import Interpret.Exporting.Utils (implPattern, implArg) 
 
 import Data.List.Split (splitOn)
 
@@ -12,7 +12,6 @@ preprocessDecls :: [Decl] -> [Decl]
 preprocessDecls [] = [] 
 preprocessDecls ((FunDef nm ps body):ds) =
   (FunDef nm (preprocessPatterns ps) (preprocessFunBody body)) : preprocessDecls ds
-preprocessDecls ((TypeSig sig):ds) = (TypeSig $ preprocessSig sig) : preprocessDecls ds
 preprocessDecls (d:ds) = d : preprocessDecls ds
 
 preprocessPatterns :: [Pattern] -> [Pattern]

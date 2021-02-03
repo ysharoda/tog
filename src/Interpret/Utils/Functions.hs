@@ -50,15 +50,18 @@ instance MkPattern Expr where
     _ -> error "unknown pattern"
   mkPattern _ = error "unknown pattern"   
 
+etyp :: Expr -> Expr 
+etyp (Fun e _) = e -- this works because we are in unisorted setup
+etyp (App args) = App args
+etyp (Pi _ e) = etyp e 
+etyp _ = error "not a function"
+
 -- Given a func type, like (op : A -> A -> A), it returns an expr (op x1 x2) 
 fapp :: FType -> FApp
 fapp (Constr n typ) =
  let nm = n ^. name
      arity = farity typ
      vars = genVars arity
-     etyp (Fun e _) = e -- this works because we are in unisorted setup
-     etyp (App args) = App args
-     etyp _ = error "not a function"
  in if (arity == 0) then ([],App [mkArg nm])
     else ([HBind (map mkArg vars) (etyp typ)],
           App $ mkArg nm : map mkArg vars)         

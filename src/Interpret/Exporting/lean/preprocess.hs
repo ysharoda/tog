@@ -7,7 +7,7 @@ import Interpret.Utils.TUtils (getArgName, mkArg)
 import Interpret.Flattener.Types (gmap)
 
 import Interpret.Exporting.Config
-import Interpret.Exporting.Utils (preprocessSig, implPattern, implArg) 
+import Interpret.Exporting.Utils (implPattern, implArg) 
 
 import Control.Lens ((^.))
 import Data.List (intersperse)
@@ -34,7 +34,7 @@ preprocessFunBody funcNm binds body = gmap process body
      
 preprocessDecls :: [Decl] -> [Decl]
 preprocessDecls ((TypeSig sig):decls) =
-  (TypeSig $ preprocessSig sig) : (preprocessDecls $ map (replaceDef sig) decls)
+  (TypeSig sig) : (preprocessDecls $ map (replaceDef sig) decls)
   where
     replaceDef (Sig tnm (Pi (Tel binds) _)) f@(FunDef fnm ps body) =
      if (tnm^.name == fnm^.name)

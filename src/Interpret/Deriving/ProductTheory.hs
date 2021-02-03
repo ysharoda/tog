@@ -1,38 +1,40 @@
 module Interpret.Deriving.ProductTheory
-  ( prodTheoryToDecl
-  , productThry
+  ( prodTheoryToDecl, productThry
   ) where
 
-import           Control.Lens ((^.), over, set)
+import           Control.Lens ((^.), set)
 
 import           Tog.Raw.Abs
 import           Interpret.Utils.TUtils
+import           Interpret.Utils.Lenses (name)
 import           Interpret.Flattener.Types (gmap)
 import qualified Interpret.Deriving.EqTheory as Eq
-import           Interpret.Utils.Renames (simpleRen)
 
--- There is no need for a new data-structure!
+
+ren :: Name_ -> Name -> Name
+ren sortName n =
+  mkName $
+    if nam == "Set" then nam
+    else if nam == sortName then nam
+    else nam ++ "P"
+  where nam = n^.name
+
+prodType :: Name_ -> Expr -> Expr
+prodType sortName (App [a]) =
+  if (getArgName a) == sortName then App [mkArg "Prod", a, a] else App [a] 
+prodType _ x = x 
+
 productThry :: Eq.EqTheory -> Eq.EqTheory
 productThry t =
-  let -- apply renames to avoid the shadowing problem of Tog
-      sortName = getConstrName (t' ^. Eq.sort) 
-      t' = gmap (simpleRen "P" (Eq.args t)) t
-      mkProd = productField sortName
-  in 
-   set  Eq.thyName ("Product") $
-   over Eq.funcTypes (map mkProd) $
-   over Eq.axioms (map mkProd)
-   t'
-
-prodTyp :: Name_ -> Expr
-prodTyp nm = let n = mkArg nm in App [mkArg "Prod", n, n]
-
-productField :: Name_ -> Constr -> Constr
-productField origSort constr =
-  let adjustSort expr@(App [a]) = 
-        if srt == origSort then prodTyp srt else expr where srt = getArgName a
-      adjustSort x = x  
-  in gmap adjustSort constr
+ let sortName = getConstrName (t ^. Eq.sort)  
+ in set Eq.thyName ("Product") $     
+    gmap (prodType sortName) $
+    gmap (ren sortName) t
 
 prodTheoryToDecl :: Eq.EqTheory -> Decl
 prodTheoryToDecl = Eq.toDecl (++ "C")
+
+
+
+ 
+ 

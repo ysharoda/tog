@@ -70,14 +70,17 @@ build = EqTheory
 -- varName : The name of the variable representing the theory
 -- Maybe Int : In case the application is indexed (mon A) or (Mon A1) 
 eqInstance :: EqTheory -> Maybe Int -> EqInstance 
-eqInstance thry Nothing =
-  let binds  = map fldsToHiddenBinds (args thry)
-      bnames = getBindingsNames binds
-  in (twoCharName (thry ^. thyName) 0, binds, App $ mkArg (thry ^. thyName) : map mkArg bnames)
-eqInstance thry (Just i) =
-  let binds  = indexBindings True i $ map fldsToHiddenBinds (args thry)
-      bnames = getBindingsNames binds
-  in (twoCharName (thry ^. thyName) i, binds, App $ mkArg (thry ^. thyName) : map mkArg bnames)   
+eqInstance thry indx =
+  let iname i = twoCharName (thry ^. thyName) i 
+      binds i =
+        let bs = map fldsToHiddenBinds (args thry)
+        in if i == 0 then bs else indexBindings i bs
+      expr i =
+        let bnames = getBindingsNames (binds i)
+        in App $ mkArg (thry ^. thyName) : map mkArg bnames
+   in case indx of
+    Nothing -> (iname 0, binds 0, expr 0)
+    Just i  -> (iname i, binds i, expr i)
 
 -- called after checking that the constr is an argument   
 findInBindings :: [Binding] -> Constr -> Name_

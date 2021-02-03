@@ -23,8 +23,7 @@ main dirName mode file = do
     Right (Module _ _ (Lang_ defs)) -> do 
       case mode of
         Tog -> writeTogFile dirName (processDefs defs)         
-        _   -> do
-            putStrLn "agda" 
+        _   -> do 
             curr_dir <- getCurrentDirectory
             createDirectoryIfMissing True $ curr_dir ++ "/" ++ dirName 
             exportHelper dirName mode (processDefs defs) (theories defs)

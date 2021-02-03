@@ -11,7 +11,6 @@ import Interpret.Utils.Lenses (name)
 import Interpret.Utils.TUtils (mkQName, getName, getConstrName)
 import Interpret.Deriving.StagedTerms (opDeclToFuncName)
 import Interpret.Utils.Renames (foldrenConstrs)
-import Interpret.Utils.Bindings (hiddenBind)
 import Interpret.Exporting.Config
 
 universeLevel :: Config -> Fields -> Doc
@@ -92,9 +91,3 @@ implPattern _ = False
 implArg :: Arg -> Bool 
 implArg (Arg (Id qn)) = implName $ getName qn
 implArg _ = False 
-
-preprocessSig :: TypeSig -> TypeSig 
-preprocessSig (Sig n e) = Sig n $ 
-  case e of
-    Pi (Tel binds) expr -> Pi (Tel $ map hiddenBind binds) expr 
-    expr -> expr 

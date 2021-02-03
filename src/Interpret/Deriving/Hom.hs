@@ -13,10 +13,11 @@ homFuncName = "hom"
 
 {- ---------------- The  Hom Function ------------------ -}
 
-homFunc :: Eq.EqTheory -> Eq.EqInstance -> Eq.EqInstance -> Constr -> Constr 
-homFunc thry i1 i2 carrier =
-  Constr (mkName homFuncName) $
-    Fun (Eq.projectConstr thry i1 carrier) (Eq.projectConstr thry i2 carrier)  
+homFunc :: Eq.EqTheory -> Eq.EqInstance -> Eq.EqInstance -> Constr 
+homFunc thry i1 i2 =
+  let carrier = thry ^. Eq.sort
+  in Constr (mkName homFuncName) $
+       Fun (Eq.projectConstr thry i1 carrier) (Eq.projectConstr thry i2 carrier)  
 
 {- ------------ Preservation Axioms -------------------- -}
 
@@ -49,7 +50,7 @@ homomorphism thry =
   let nm = "Hom" 
       i1@(n1,b1,e1) = Eq.eqInstance thry (Just 1) 
       i2@(n2,b2,e2) = Eq.eqInstance thry (Just 2)
-      fnc = homFunc thry i1 i2 (thry ^. Eq.sort)
+      fnc = homFunc thry i1 i2
       axioms = map (presAxiom thry i1 i2 fnc) (thry ^. Eq.funcTypes)  
   in Record (mkName nm)
    (mkParams $ b1 ++ b2 ++ map (\(n,e) -> Bind [mkArg n] e) [(n1,e1),(n2,e2)])

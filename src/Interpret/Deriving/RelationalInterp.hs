@@ -18,11 +18,12 @@ interpTypeName = "interp"
 {- --------- The interpretation definitions ------------------- -} 
 
 -- create the interpretation type
-mkInterpType :: Eq.EqTheory -> Eq.EqInstance -> Eq.EqInstance -> Constr -> Constr
-mkInterpType thry i1 i2 carrier =
-  Constr (mkName interpTypeName) $ 
-   Fun (Eq.projectConstr thry i1 carrier) $ 
-     Fun (Eq.projectConstr thry i2 carrier) setTypeAsId
+mkInterpType :: Eq.EqTheory -> Eq.EqInstance -> Eq.EqInstance -> Constr
+mkInterpType thry i1 i2 =
+ let carrier = thry ^. Eq.sort
+ in Constr (mkName interpTypeName) $ 
+     Fun (Eq.projectConstr thry i1 carrier) $ 
+       Fun (Eq.projectConstr thry i2 carrier) setTypeAsId
 
 {- ------------- generate the interpretation declaration ---------- -}
 -- the new one
@@ -44,7 +45,7 @@ relationalInterp thry =
   let nm = "RelInterp"
       i1@(n1,b1,e1) = Eq.eqInstance thry (Just 1) 
       i2@(n2,b2,e2) = Eq.eqInstance thry (Just 2)
-      interpType = mkInterpType thry i1 i2 (thry ^. Eq.sort)
+      interpType = mkInterpType thry i1 i2
       newDecls = map (interpretation thry i1 i2 interpType) (thry ^. Eq.funcTypes) 
   in Record (mkName nm)
       (mkParams $ b1 ++ b2 ++ map (\(n,e) -> Bind [mkArg n] e) [(n1,e1),(n2,e2)])

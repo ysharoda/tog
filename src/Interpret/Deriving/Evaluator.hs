@@ -56,28 +56,28 @@ vecApp carrierName natName = App [mkArg "Vec", mkArg carrierName, mkArg natName]
 adjustPattern :: Name_ -> Term -> Pattern -> [Pattern]
 adjustPattern tinstName term pat =
  let base = [IdP $ mkQName tinstName, pat]
-     extBase i = [IdP $ mkQName i, IdP $ mkQName tinstName, IdP $ mkQName envName, pat]
+     extBase = [IdP $ mkQName tinstName, IdP $ mkQName envName, pat]
  in case term of
     Basic -> base 
     (Closed _) -> base
-    (BasicOpen n) -> extBase n
-    (Open n _ ) -> extBase n
+    (BasicOpen _) -> extBase
+    (Open _ _ ) -> extBase
                 
 funcDef :: EqTheory -> Name_ -> Term -> Constr -> Expr  
 funcDef thry instName term constr = 
  let (_,cexpr) = applyProjConstr thry (instName,[],Id (mkQName "x")) constr Nothing 
      basicArgs = App [mkArg $ evalFuncName term, mkArg instName]
-     extArgs i = App [mkArg $ evalFuncName term, mkArg i, mkArg instName, mkArg envName]
+     extArgs = App [mkArg $ evalFuncName term, mkArg instName, mkArg envName]
   in case term of
        Basic -> functor' basicArgs cexpr 
        Closed _ -> functor' basicArgs cexpr 
-       BasicOpen n -> functor' (extArgs n) cexpr 
-       Open n _ -> functor' (extArgs n) cexpr 
+       BasicOpen _ -> functor' (extArgs) cexpr 
+       Open _ _ -> functor' (extArgs) cexpr 
  
 patternsExprs :: EqTheory -> TermLang -> Name_ -> [(Pattern,Expr)]
 patternsExprs thry (TermLang term _ _ constrs) thryInstName =
   zipWith ((,)) (map mkPattern (vs ++ cs ++ typDecls)) $ 
-                [lookup' "n" envName | not (null vs)] 
+                [lookup' envName | not (null vs)] 
                 ++ [constFunc | not (null cs)] 
                 ++ map (funcDef thry thryInstName term) thryDecls 
   where vs = filter isVarDecl  constrs
@@ -85,9 +85,9 @@ patternsExprs thry (TermLang term _ _ constrs) thryInstName =
         thryDecls = (thry ^. funcTypes)
         typDecls  = filter (not . isConstOrVar) constrs
 
-lookup' :: Name_ -> Name_ -> Expr
-lookup' natVarName vName  =
-  App [mkArg "lookup", mkArg natVarName, mkArg "x1", mkArg vName]
+lookup' ::  Name_ -> Expr
+lookup' vName  =
+  App [mkArg "lookup", mkArg "_", mkArg "x1", mkArg vName]
 
 constFunc :: Expr
 constFunc = App [mkArg "x1"]
