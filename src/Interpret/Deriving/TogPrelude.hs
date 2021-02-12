@@ -145,7 +145,7 @@ choice :: [String]
 choice =
   ("data Choice : Set where { " ++
      "Expr : Choice ; " ++
-     "Const : Choice }") : []
+     "Atom : Choice }") : []
 
 comp :: [String]
 comp =
@@ -166,7 +166,7 @@ expr =
 const' :: [String]
 const' = 
  "const : {A : Set} -> CodeRep A s1 -> Staged A" : 
- "const x = Later (Computation Const x)" : [] 
+ "const x = Later (Computation Atom x)" : [] 
 
 stage0 :: [String]
 stage0 = 

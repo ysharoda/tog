@@ -10,7 +10,8 @@ import Interpret.Utils.Bindings (getBindingArgs, hiddenBind)
 
 import Control.Lens ((^.))
 import Data.Generics (everything, mkQ)
-import Data.Map as Map (toList) 
+import Data.Map as Map (toList)
+import Data.Maybe (mapMaybe)
 
 type Rule = Constr
 
@@ -97,10 +98,9 @@ adjustPattern x = [x]
 simpRules :: EqTheory -> Term -> [(Pattern,Expr)]
 simpRules thry term =
  let
-  mpng = (Map.toList $ mapping thry term)
+  mpng = Map.toList $ mapping thry term
   axms = map (foldrenConstrs mpng) (thry ^. axioms) 
-  rules = filter (/= Nothing) $ map simplify axms
- in map (\(Just (x,y)) -> (x,y)) rules 
+ in mapMaybe simplify axms
 
 -- the recursive cases 
 simpDecls :: Term -> [Constr] -> [(Pattern,Expr)]
