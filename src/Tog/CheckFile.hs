@@ -485,7 +485,8 @@ checkFile' _ decls0 ret = do
     (mbErr, sig, _) <- runTC sigEmpty () s $ do
       magnifyTC (const (initEnv C0)) $ checkModule decls0 $ return ()
       checkSignature
-    -- putStrLn $ show $ SA.morePretty decls0
+    -- putDoc $ prettyprint decls0
+    putStrLn $ show $ SA.morePretty decls0
     ret sig $ either Just (\() -> Nothing) mbErr
     -- recordNames (Module _ _ _ decs) = length decs
 

@@ -206,7 +206,7 @@
 -- >   import M.N
 -- >   open M.N
 -- >   postulate M.bar : M.N.X -> M.N.X
-module Tog.ScopeCheck (scopeCheckModule) where
+module Tog.ScopeCheck (scopeCheckModule, process) where
 
 import           Prelude hiding (length, replicate)
 
@@ -225,6 +225,7 @@ import qualified Tog.Raw                  as C
 import           Tog.Abstract
 import qualified Tog.PrettyPrint          as PP
 import           Tog.PrettyPrint          (render, Pretty(..), (<+>), ($$), (//>))
+import           Interpret.Deriving.Main  (defsToModule) 
 
 #include "impossible.h"
 
@@ -510,12 +511,14 @@ scopeCheckModule (C.Module (C.Name ((l, c), s)) pars (C.Decl_ ds)) =
     Right (x, _) -> Right x
   where
     q = QName (Name (SrcLoc l c) s) []
-scopeCheckModule _ = Left $ PP.text "Theory declarations need to be flattened before type checking. Please run tog with the option `-m interpret` " 
-{-
+scopeCheckModule _ = Left $ PP.text "Theory declarations need to be flattened before type checking. Please run tog with the option `-m interpret` or `-m flatten` "
+
+
 process :: C.Module -> C.Module
-process (C.Module _ _ (C.Lang_ defs)) = processDefs defs
-process m  =  m 
--}
+process (C.Module _ _ (C.Lang_ defs)) = defsToModule defs
+process m  =  m
+
+
 -- Useful for debugging.
 {- -- -------- for testing ------- 
 scopeCheckFile :: FilePath -> IO ()

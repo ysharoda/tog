@@ -50,7 +50,7 @@ data DebugLabels
 
 -- TC is type checking mode
 -- all other are target export languages 
-data Mode = Interpret | TypeCheck deriving Eq 
+data Mode = Interpret | TypeCheck | Flatten deriving Eq 
 
 data TargetLanguage = Tog | Agda | AgdaPredStyle | Lean deriving Eq 
 

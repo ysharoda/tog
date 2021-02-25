@@ -115,7 +115,9 @@ outputModeOption = option $ do
     "i" -> return Interpret
     "interpret" -> return Interpret
     "tc" -> return TypeCheck
-    "typecheck" -> return TypeCheck 
+    "typecheck" -> return TypeCheck
+    "f" -> return Flatten
+    "flatten" -> return Flatten 
     _ -> error "Please provide the operation mode using `-m` option. Enter tc or typecheck to type check tog files or enter i or interpret to interpret theory expressions"
   
 targetLanguageOption :: Mod OptionFields TargetLanguage
@@ -140,17 +142,17 @@ parseMain =
       instrument conf $ do
         omode <- outputMode <$> readConf
         case omode of
-          TypeCheck ->
-            processFile file $ \_ mbErr -> do
+         Interpret -> do
+            target <- targetLang <$> readConf 
+            dir <- destFolder <$> readConf 
+            Export.main dir target file
+         _ ->
+            processFile omode file $ \_ mbErr -> do
                 forM_ mbErr $ \err -> do
                   silent <- confQuiet <$> readConf
                   unless silent $ putStrLn (PP.render err)
                   exitFailure
-          Interpret -> do
-            target <- targetLang <$> readConf 
-            dir <- destFolder <$> readConf 
-            Export.main dir target file  
-
+  
 {- The processing of the file goes as follows: 
      s <- readFile file
      raw <- parseModule 
@@ -158,17 +160,18 @@ parseMain =
      case mod of
        Left err -> putStrLn $ show $ err 
        Right int -> putStrLn $ show $ SA.morePretty int 
--} 
+-}
+  
 processFile
-  :: FilePath
+  :: Mode -> FilePath
   -> (forall t. (IsTerm t) => Signature t -> Maybe PP.Doc -> IO a)
   -> IO a
-processFile file ret =
+processFile mode file ret =
   do
     mbErr <- runExceptT $ do
       s   <- lift $ readFile file
       raw <- exceptShowErr "Parse" $ parseModule s
-      exceptShowErr "Scope" $ scopeCheckModule raw
+      exceptShowErr "Scope" $ scopeCheckModule $ (if mode == TypeCheck then raw else process raw)
     case mbErr of
       Left err  -> ret (sigEmpty :: Signature Simple) (Just err)
       Right int -> -- timeIt $
