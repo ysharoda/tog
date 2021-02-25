@@ -16,7 +16,8 @@ This projects aim to eliminate the boilerplate associated with building librarie
 `tog --help` gives the full options. Of specific interest are the following options:
   - `-m` to choose the operatinf mode.
     - `i` or `interpret`: calls the interpreter on theory expressions. When calling the interpreter, a target language need to be choosen, see `-t` option
-    - `tc` ot `typecheck`: calls the type checker on an input tog file. 
+    - `tc` ot `typecheck`: calls the type checker on an input tog file.
+    - `f` or `flatten`: to flatten theory expressions without doing through generating or exporting phases. 
   - `-t` to choose the target language of the interpreter, which can be one of
     - `tog`: The output is printed in tog's syntax. This is the default output mode. 
     - `agda`: The output is printed in Agda's syntax. 
