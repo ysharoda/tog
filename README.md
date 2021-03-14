@@ -18,7 +18,7 @@ This project aims to eliminate the boilerplate associated with building librarie
     - `i` or `interpret`: calls the interpreter on theory expressions. When calling the interpreter, a target language needs to be chosen, see `-t` option
     - `tc` or `typecheck`: calls the type checker on an input tog file.
     - `f` or `flatten`: to flatten theory expressions without going through generation and exporting phases. 
-  - `-t` to choose the target language of the interpreter, which can be one of
+  - `-l` to choose the target language of the interpreter, which can be one of
     - `tog`: The output is printed in tog's syntax. This is the default output mode. 
     - `agda`: The output is printed in Agda's syntax. 
     - `agd-pred-style`: The output is printed in Agda's syntax. The theory presentations are in predicate style, as in Agda's standard library.
